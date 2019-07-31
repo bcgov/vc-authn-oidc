@@ -171,7 +171,7 @@ A verifiable credential presentation request configuration, takes the following 
 }
 ```
 
-This data model is inspired by that is defined and used in the [Hyperledger Indy](https://www.hyperledger.org/projects/hyperledger-indy) project for [proof requests](TBA).
+This data model is inspired by that is defined and used in the [Hyperledger Indy](https://www.hyperledger.org/projects/hyperledger-indy) project for [proof requests](https://hyperledger-indy.readthedocs.io/projects/sdk/en/latest/docs/design/002-anoncreds/README.html).
 
 - `id` : The identifier for the presentation configuration.
 - `subject_identifier` : See [here](#subject-identifer-mapping) for further details on the purpose of this field.
@@ -348,9 +348,9 @@ The OpenID Connect family of specifications defines how this is leveraged in the
 
 Note: The mechanism of discovery for the OP via [WebFinger RFC7033](https://tools.ietf.org/html/rfc7033) is not effected via the VC-AuthN extension of OIDC, instead the only effect this integration has is adding additional metadata about the OP, details of this metadata can be found [here](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata).
 
-The following metadata must be present at the OP's `/.well-known/openid-configuration` endpoint
+The following additional metadata must be present at the OP's `/.well-known/openid-configuration` endpoint
 
-- TODO complete this section
+- The `scopes_supported` JSON array, should be extended to include the `vc_authn` scope
 
 ## Un-Answered questions
 
