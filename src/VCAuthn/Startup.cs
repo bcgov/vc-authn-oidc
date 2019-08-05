@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using VCAuthn.IdentityServer;
 
 namespace VCAuthn
 {
@@ -25,6 +26,8 @@ namespace VCAuthn
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            
+            services.AddAuthServer(Configuration.GetSection("IdentityServer"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,6 +41,9 @@ namespace VCAuthn
             app.UseStaticFiles();
 
             app.UseMvc();
+            
+            // Use the auth server
+            app.UseAuthServer(Configuration.GetSection("IdentityServer"));
         }
     }
 }
