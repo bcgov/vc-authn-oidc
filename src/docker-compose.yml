@@ -1,13 +1,12 @@
 version: '3'
 
-
 services:
   database:
     image: postgres:10.6
     volumes:
       - ${DATA_PATH:-./data}/postgres:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=postgres
+      - POSTGRES_USER=identity
       - POSTGRES_PASSWORD=
     ports:
       - 5432:5432

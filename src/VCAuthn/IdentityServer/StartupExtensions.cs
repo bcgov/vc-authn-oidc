@@ -46,9 +46,6 @@ namespace VCAuthn.IdentityServer
                 
                 // If cert supplied will parse and call AddSigningCredential(), if not found will create a temp one
                 .AddDeveloperSigningCredential(true, config.GetSection("CertificateFilename").Value)
-                
-//                .AddInMemoryIdentityResources(Config.GetIdentityResources())
-//                .AddInMemoryClients(Config.GetClients());
                 ;
         }
         
@@ -76,6 +73,12 @@ namespace VCAuthn.IdentityServer
                     {
                         configContext.IdentityResources.Add(resource.ToEntity());
                     }
+                }
+                configContext.SaveChanges();
+                
+                foreach (var client in Config.GetClients())
+                {
+                    configContext.Clients.Add(client.ToEntity());
                 }
                 configContext.SaveChanges();
             }
