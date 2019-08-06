@@ -1,5 +1,9 @@
+using System.Linq;
 using System.Reflection;
+using IdentityServer4.EntityFramework.DbContexts;
+using IdentityServer4.EntityFramework.Mappers;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,33 +30,55 @@ namespace VCAuthn.IdentityServer
                     // When forwarded headers aren't sufficient we leverage PublicOrigin option
                     options.PublicOrigin = config.GetSection("PublicOrigin").Value;
                 })
-//                .AddConfigurationStore(options =>
-//                {
-//                    options.ConfigureDbContext = b =>
-//                        b.UseNpgsql(connectionString,
-//                            sql => sql.MigrationsAssembly(migrationsAssembly));
-//                })
-//                .AddOperationalStore(options =>
-//                {
-//                    options.ConfigureDbContext = b =>
-//                        b.UseNpgsql(connectionString,
-//                            sql => sql.MigrationsAssembly(migrationsAssembly));
-//                    // this enables automatic token cleanup. this is optional.
-//                    options.EnableTokenCleanup = true;
-//                })
+                .AddConfigurationStore(options =>
+                {
+                    options.ConfigureDbContext = b =>
+                        b.UseNpgsql(connectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+                })
+                .AddOperationalStore(options =>
+                {
+                    options.ConfigureDbContext = b =>
+                        b.UseNpgsql(connectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+                    // this enables automatic token cleanup. this is optional.
+                    options.EnableTokenCleanup = true;
+                })
 
                 
                 // If cert supplied will parse and call AddSigningCredential(), if not found will create a temp one
                 .AddDeveloperSigningCredential(true, config.GetSection("CertificateFilename").Value)
                 
-                .AddInMemoryIdentityResources(Config.GetIdentityResources())
-                .AddInMemoryClients(Config.GetClients());
+//                .AddInMemoryIdentityResources(Config.GetIdentityResources())
+//                .AddInMemoryClients(Config.GetClients());
                 ;
         }
         
         public static void UseAuthServer(this IApplicationBuilder app, IConfiguration config)
         {
+            InitializeDatabase(app, config.GetSection("RootClientSecret").Value);
             app.UseIdentityServer();
+        }
+        
+         public static void InitializeDatabase(IApplicationBuilder app, string rootClientSecret)
+        {
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                //Resolve the required services
+                var configContext = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
+                serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>().Database.Migrate();
+
+                //Migrate any required db contexts
+                configContext.Database.Migrate();
+                
+                var currentIdentityResources = configContext.IdentityResources.ToList();
+                foreach (var resource in Config.GetIdentityResources())
+                {
+                    if (!currentIdentityResources.Any(_ => resource.Name == _.Name))
+                    {
+                        configContext.IdentityResources.Add(resource.ToEntity());
+                    }
+                }
+                configContext.SaveChanges();
+            }
         }
     }
 }
