@@ -107,7 +107,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             PresentationRecord presentationRecord;
             try
             {
-                presentationRecord = await _presentationConfigurationService.Find(presentationRecordId);
+                presentationRecord = await _presentationConfigurationService.GetAsync(presentationRecordId);
             }
             catch (Exception e)
             {

@@ -12,10 +12,10 @@ namespace VCAuthn.IdentityServer.SessionStorage
 
     public class SessionStorageService : ISessionStorageService
     {
-        private readonly SessionStorageDbContext _context;
+        private readonly StorageDbContext _context;
         private readonly SessionStorageServiceOptions _options;
 
-        public SessionStorageService(SessionStorageDbContext context, IOptions<SessionStorageServiceOptions> options)
+        public SessionStorageService(StorageDbContext context, IOptions<SessionStorageServiceOptions> options)
         {
             _context = context;
             _options = options.Value;

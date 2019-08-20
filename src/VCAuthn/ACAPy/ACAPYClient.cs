@@ -52,7 +52,7 @@ namespace VCAuthn.ACAPY
                 switch (response.StatusCode)
                 {
                     case HttpStatusCode.OK:
-                        return JsonConvert.DeserializeObject<WalletDidPublicResponse>(responseContent).Result ;
+                        return JsonConvert.DeserializeObject<WalletDidPublicResponse>(responseContent).Result;
                     default:
                         throw new Exception($"Wallet Did public request error. Code: {response.StatusCode}");
                 }

@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace VCAuthn.PresentationConfiguration
@@ -10,9 +12,17 @@ namespace VCAuthn.PresentationConfiguration
         
         [JsonProperty("subject_identifier")] 
         public string SubjectIdentifier { get; set; }
+
+        // exists to convince EntityFramework to store config as a string
+        private string _configuration;
         
-        [JsonProperty("configuration")] 
-        public PresentationConfiguration Configuration { get; set; }
+        [JsonProperty("configuration")]
+        [NotMapped]
+        public PresentationConfiguration Configuration
+        {
+            get => _configuration == null ? null : JsonConvert.DeserializeObject<PresentationConfiguration>(_configuration);
+            set => _configuration = JsonConvert.SerializeObject(value);
+        }
     }
     
     public class PresentationConfiguration

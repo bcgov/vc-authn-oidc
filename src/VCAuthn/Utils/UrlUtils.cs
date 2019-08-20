@@ -4,12 +4,12 @@ namespace VCAuthn.Utils
     {
         public static string EnsureLeadingSlash(this string url)
         {
-            if (!url.StartsWith("/"))
+            if (url.StartsWith("/"))
             {
-                return "/" + url;
+                return url;
             }
 
-            return url;
+            return $"/{url}";
         }
     }
 }

@@ -47,9 +47,6 @@ namespace VCAuthn
             
             // Use the auth server
             app.UseAuthServer(Configuration.GetSection("IdentityServer"));
-
-            app.UseUrlShortenerService();
-            app.UseSessionStorage();
         }
     }
 }

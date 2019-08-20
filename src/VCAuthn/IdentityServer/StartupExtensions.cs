@@ -53,10 +53,9 @@ namespace VCAuthn.IdentityServer
                 .AddDeveloperSigningCredential(true, config.GetSection("CertificateFilename").Value)
                 
                 // Custom Endpoints
-                .AddEndpoint<AuthorizeEndpoint>(AuthorizeEndpoint.Name, IdentityConstants.VerifiedCredentialAuthorizeUri.EnsureLeadingSlash())
-                ;
+                .AddEndpoint<AuthorizeEndpoint>(AuthorizeEndpoint.Name, IdentityConstants.VerifiedCredentialAuthorizeUri.EnsureLeadingSlash());
             
-            services.AddSingleton<IPresentationConfigurationService, PresentationConfigurationService>();
+            services.AddScoped<IPresentationConfigurationService, PresentationConfigurationService>();
             
         }
         
@@ -70,6 +69,7 @@ namespace VCAuthn.IdentityServer
         {
             var _logger = app.ApplicationServices.GetService<ILogger<Startup>>();
             
+            // Init Identity server db
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
                 // Resolve the required services
@@ -107,6 +107,13 @@ namespace VCAuthn.IdentityServer
                 }
                 configContext.SaveChanges();
             }
+            
+            // Storage Db init
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<StorageDbContext>();
+                context.Database.Migrate();
+            }
         }
         
         public static void AddUrlShortenerService(this IServiceCollection services, IConfiguration config)
@@ -115,45 +122,26 @@ namespace VCAuthn.IdentityServer
             var migrationsAssembly = typeof(StartupExtensions).GetTypeInfo().Assembly.GetName().Name;
 
             // Register the DB context
-            services.AddDbContext<UrlShortenerServiceDbContext>(options =>
+            services.AddDbContext<StorageDbContext>(options =>
                 options.UseNpgsql(config.GetConnectionString("Database"), x => x.MigrationsAssembly(migrationsAssembly)));
 
-            // Adds the url shortner service
-            services.AddTransient<IUrlShortenerService, UrlShortenerService>(s => new UrlShortenerService(s.GetService<UrlShortenerServiceDbContext>(), config.GetValue<string>("BaseUrl")));
+            // Adds the url shortener service
+            services.AddTransient<IUrlShortenerService, UrlShortenerService>(s => new UrlShortenerService(s.GetService<StorageDbContext>(), config.GetValue<string>("BaseUrl")));
         }
-        
-        public static void UseUrlShortenerService(this IApplicationBuilder app)
-        {
-            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetService<UrlShortenerServiceDbContext>();
-                context.Database.Migrate();
-            }
-        }
-        
-        
+
         public static void AddSessionStorage(this IServiceCollection services, IConfiguration config)
         {
             // Fetch the migration assembly
             var migrationsAssembly = typeof(StartupExtensions).GetTypeInfo().Assembly.GetName().Name;
 
             // Register the DB context
-            services.AddDbContext<SessionStorageDbContext>(options =>
+            services.AddDbContext<StorageDbContext>(options =>
                 options.UseNpgsql(config.GetConnectionString("Database"), x => x.MigrationsAssembly(migrationsAssembly)));
 
             services.Configure<SessionStorageServiceOptions>(config);
             
             // Adds the session storage service
             services.AddTransient<ISessionStorageService, SessionStorageService>();
-        }
-        
-        public static void UseSessionStorage(this IApplicationBuilder app)
-        {
-            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetService<SessionStorageDbContext>();
-                context.Database.Migrate();
-            }
         }
     }
 }

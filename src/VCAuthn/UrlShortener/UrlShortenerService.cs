@@ -5,10 +5,10 @@ namespace VCAuthn.UrlShortener
 {
     public class UrlShortenerService : IUrlShortenerService
     {
-        private readonly UrlShortenerServiceDbContext _context;
+        private readonly StorageDbContext _context;
         private readonly string _baseUrl;
 
-        public UrlShortenerService(UrlShortenerServiceDbContext context, string baseUrl)
+        public UrlShortenerService(StorageDbContext context, string baseUrl)
         {
             _context = context;
             _baseUrl = baseUrl;

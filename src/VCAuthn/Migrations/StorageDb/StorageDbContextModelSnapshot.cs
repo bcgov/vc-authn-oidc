@@ -2,18 +2,16 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using VCAuthn.IdentityServer.SessionStorage;
+using VCAuthn;
 
-namespace VCAuthn.Migrations.SessionStorageDb
+namespace VCAuthn.Migrations
 {
-    [DbContext(typeof(SessionStorageDbContext))]
-    [Migration("20190816042833_Init")]
-    partial class Init
+    [DbContext(typeof(StorageDbContext))]
+    partial class StorageDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,6 +31,32 @@ namespace VCAuthn.Migrations.SessionStorageDb
                     b.HasKey("Id");
 
                     b.ToTable("Sessions");
+                });
+
+            modelBuilder.Entity("VCAuthn.PresentationConfiguration.PresentationRecord", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Config");
+
+                    b.Property<string>("SubjectIdentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PresentationConfigurations");
+                });
+
+            modelBuilder.Entity("VCAuthn.UrlShortener.MappedUrl", b =>
+                {
+                    b.Property<string>("Key")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Url");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("MappedUrls");
                 });
 #pragma warning restore 612, 618
         }
