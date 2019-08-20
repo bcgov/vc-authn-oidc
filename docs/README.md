@@ -20,31 +20,31 @@ The integration this document defines is how holders of verifiable credentials c
 
 Like any new technology there is adoption required of new concepts, this particular integration aims to provide an easy integration path that allows parties to start leveraging the power of verifiable credentials for user authentication in a non-disruptive fashion. This is achieved by extending the vastly popular [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html) family of specifications.
 
-In reference to the above diagram. A supporting OP will act as the verifier on behalf of a RP for a verifiable credentials presentation. This mode of integration means RP's that already support OIDC only have to extend their support to making VC-AuthN based OIDC requests to a supported OP, rather than adding full support for verifiable credential interactions directly. The holder will use an IdentityWallet (IW) mobile app to store their verifiable credentials and manage presentation requests from verifiers. 
+In reference to the above diagram. A supporting OP will act as the verifier on behalf of a RP for a verifiable credentials presentation. This mode of integration means RP's that already support OIDC only have to extend their support to making VC-AuthN based OIDC requests to a supported OP, rather than adding full support for verifiable credential interactions directly. The holder will use an IdentityWallet (IW) mobile app to store their verifiable credentials and manage presentation requests from verifiers.
 
 ## Abbreviations
 
 Below are some abbreviations that are used throughout this document.
 
-Term                    | Definition
------------------------ |--------------------------
-VC                      | Verifiable Credential
-VC-AuthN                | Verifiable Credential Authentication
-OIDC                    | OpenID Connect
-OP                      | OpenID Provider
-UserAgent               | Software acting on behalf of the user, in this example usually the web browser
-IdentityWallet          | The wallet application that contains the users verifiable credentials (Maps to the Holder/Subject role in reference to the [W3C standard](https://www.w3.org/TR/verifiable-claims-data-model/))
-RP                      | The relying party requesting authentication from an OP
-VC-AuthN Request        | A request made by a RP to a OP requesting verifiable credential authentication
-VC-AuthN Response       | A request made by a RP to a OP requesting verifiable credential authentication
-VC Presentation Request | A request made by an OP to an IdentityWallet requesting a verifiable credential presentation
-VC Presentation Response| A response made by an IdentityWallet presenting the credentials requested back to a OP
-ID Token                | An OIDC identity token emitted by an OP on successful authentication
-IAM                     | Identity and Access Management
-DIDComm                 | An emerging messaging protocol based on DID infrastructure, see [here](https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0005-didcomm) for more details
-IW                      | IdentityWallet
-VC-PR                   | Verifiable Credential Presentation Request
-VC-P                    | Verifiable Credential Presentation
+| Term                     | Definition                                                                                                                                                                                      |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| VC                       | Verifiable Credential                                                                                                                                                                           |
+| VC-AuthN                 | Verifiable Credential Authentication                                                                                                                                                            |
+| OIDC                     | OpenID Connect                                                                                                                                                                                  |
+| OP                       | OpenID Provider                                                                                                                                                                                 |
+| UserAgent                | Software acting on behalf of the user, in this example usually the web browser                                                                                                                  |
+| IdentityWallet           | The wallet application that contains the users verifiable credentials (Maps to the Holder/Subject role in reference to the [W3C standard](https://www.w3.org/TR/verifiable-claims-data-model/)) |
+| RP                       | The relying party requesting authentication from an OP                                                                                                                                          |
+| VC-AuthN Request         | A request made by a RP to a OP requesting verifiable credential authentication                                                                                                                  |
+| VC-AuthN Response        | A request made by a RP to a OP requesting verifiable credential authentication                                                                                                                  |
+| VC Presentation Request  | A request made by an OP to an IdentityWallet requesting a verifiable credential presentation                                                                                                    |
+| VC Presentation Response | A response made by an IdentityWallet presenting the credentials requested back to a OP                                                                                                          |
+| ID Token                 | An OIDC identity token emitted by an OP on successful authentication                                                                                                                            |
+| IAM                      | Identity and Access Management                                                                                                                                                                  |
+| DIDComm                  | An emerging messaging protocol based on DID infrastructure, see [here](https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0005-didcomm) for more details                            |
+| IW                       | IdentityWallet                                                                                                                                                                                  |
+| VC-PR                    | Verifiable Credential Presentation Request                                                                                                                                                      |
+| VC-P                     | Verifiable Credential Presentation                                                                                                                                                              |
 
 ## Component Diagram
 
@@ -93,8 +93,8 @@ The below section defines the extensions required to a standard OP, that is requ
 A VC-AuthN enabled OP's requirements can be described by the following.
 
 1. Receive and validate VC-AuthN requests (an extended OpenID Connect [authentication request](https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest)).
-2. Generate verifiable credential presentation request from the VC-AuthN OIDC request. 
-3. Present verifiable credential presentation requests to the user agent in a form consumable by the IdentityWallet (e.g via a QR code or deep-link). 
+2. Generate verifiable credential presentation request from the VC-AuthN OIDC request.
+3. Present verifiable credential presentation requests to the user agent in a form consumable by the IdentityWallet (e.g via a QR code or deep-link).
 4. Handle verifiable credential presentations sent from the IdentityWallet back to the OP.
 5. Validate verifiable credential presentations
 6. Map verifiable credential presentation to OpenID Connect [ID tokens](https://openid.net/specs/openid-connect-core-1_0.html#CodeIDToken).
@@ -224,7 +224,7 @@ The OP when presented with a valid OIDC VC-AuthN request will generate a verifia
 
 ```
 {
-    "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;specification/present-proof/1.0/request-presentation",
+    "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/present-proof/1.0/request-presentation",
     "@id": "<uuid-request>",
     "comment": "some comment",
     "~service": {
@@ -244,13 +244,13 @@ The OP when presented with a valid OIDC VC-AuthN request will generate a verifia
 }
 ```
 
-Note - The above request should use the [signed envelope](https://github.com/hyperledger/aries-rfcs/tree/master/features/0066-non-repudiable-cryptographic-envelope) format, where by the signer should be the public DID of the OP. This signed envelope should then be formatted to the defined URL format (TBA). 
+Note - The above request should use the [signed envelope](https://github.com/hyperledger/aries-rfcs/tree/master/features/0066-non-repudiable-cryptographic-envelope) format, where by the signer should be the public DID of the OP. This signed envelope should then be formatted to the defined URL format (TBA).
 
 **Example Presentation From IW**
 
 ```
 {
-    "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;specification/present-proof/1.0/presentation",
+    "@type": "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/present-proof/1.0/presentation",
     "@id": "<uuid-presentation>",
     "comment": "some comment",
     "presentations~attach": [
@@ -279,18 +279,18 @@ A VC-AuthN OP uses the information disclosed by the IW in a VC Presentation to c
 
 Below is a list of the fields present in a standard ID token and the considerations that are made in the context of VC-AuthN.
 
-Field                   | Definition                                                                                             | Value
------------------------ |------------------------------------------------------------------------------------------------------- | ------------
-iss                     | Issuer Identifier for the OP, must be a valid URL using the HTTPS scheme                               | Same as OIDC specification.
-sub                     | Subject Identifier A locally unique and never reassigned identifier within the Issuer for the End-User | See [here](#subject-identifer-mapping)
-aud                     | Audience(s) that this ID Token is intended for                                                         | Same as OIDC specification.
-exp                     | Expiration time on or after which the ID Token MUST NOT be accepted for processing                     | Same as OIDC specification.
-iat                     | Time at which the JWT was issued                                                                       | Same as OIDC specification.
-auth_time               | Time when the End-User authentication occurred                                                         | Same as OIDC specification.
-nonce                   | String value used to associate a Client session with an ID Token, and to mitigate replay attacks       | Same as OIDC specification.
-acr                     | Authentication Context Class Reference                                                                 | Not used
-amr                     | Authentication Methods References                                                                      | Value set to vc_authn
-azp                     | Authorized party - the party to which the ID Token was issued                                          | Not used
+| Field     | Definition                                                                                             | Value                                  |
+| --------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------- |
+| iss       | Issuer Identifier for the OP, must be a valid URL using the HTTPS scheme                               | Same as OIDC specification.            |
+| sub       | Subject Identifier A locally unique and never reassigned identifier within the Issuer for the End-User | See [here](#subject-identifer-mapping) |
+| aud       | Audience(s) that this ID Token is intended for                                                         | Same as OIDC specification.            |
+| exp       | Expiration time on or after which the ID Token MUST NOT be accepted for processing                     | Same as OIDC specification.            |
+| iat       | Time at which the JWT was issued                                                                       | Same as OIDC specification.            |
+| auth_time | Time when the End-User authentication occurred                                                         | Same as OIDC specification.            |
+| nonce     | String value used to associate a Client session with an ID Token, and to mitigate replay attacks       | Same as OIDC specification.            |
+| acr       | Authentication Context Class Reference                                                                 | Not used                               |
+| amr       | Authentication Methods References                                                                      | Value set to vc_authn                  |
+| azp       | Authorized party - the party to which the ID Token was issued                                          | Not used                               |
 
 Below details the additional information that will be added in the context of VC-AuthN.
 
@@ -338,7 +338,7 @@ As defined in the [OpenID Connect Spec](https://openid.net/specs/openid-connect-
 
 Because this specification defines extending a valid OP to include VC-AuthN support, integration with many existing IAM solutions can be added without any major additional work.
 
-In reference to the diagram presented in [section](#component-diagram), an IAM system simply assumes the role of a RP to the VC-AuthN compatible OP. Which is identical to how many IAM solutions already federate to other supported OP's. 
+In reference to the diagram presented in [section](#component-diagram), an IAM system simply assumes the role of a RP to the VC-AuthN compatible OP. Which is identical to how many IAM solutions already federate to other supported OP's.
 
 ## OP Discoverability
 

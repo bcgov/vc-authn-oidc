@@ -5,7 +5,6 @@
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
   </PropertyGroup>
 
-
   <ItemGroup>
     <PackageReference Include="IdentityServer4" Version="2.5.1" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="2.5.1" />
@@ -14,8 +13,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="2.2.11" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4" />
   </ItemGroup>
-
-
+  
   <ItemGroup>
     <Folder Include="wwwroot\css" />
     <Folder Include="wwwroot\js" />
@@ -27,6 +25,5 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
 
 </Project>

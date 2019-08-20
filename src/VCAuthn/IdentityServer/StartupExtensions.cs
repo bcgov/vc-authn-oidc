@@ -6,6 +6,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using VCAuthn.IdentityServer.Endpoints;
+using VCAuthn.IdentityServer.SessionStorage;
+using VCAuthn.PresentationConfiguration;
+using VCAuthn.UrlShortener;
+using VCAuthn.Utils;
 
 namespace VCAuthn.IdentityServer
 {
@@ -44,7 +50,14 @@ namespace VCAuthn.IdentityServer
                 })
                 
                 // If cert supplied will parse and call AddSigningCredential(), if not found will create a temp one
-                .AddDeveloperSigningCredential(true, config.GetSection("CertificateFilename").Value);
+                .AddDeveloperSigningCredential(true, config.GetSection("CertificateFilename").Value)
+                
+                // Custom Endpoints
+                .AddEndpoint<AuthorizeEndpoint>(AuthorizeEndpoint.Name, IdentityConstants.VerifiedCredentialAuthorizeUri.EnsureLeadingSlash())
+                ;
+            
+            services.AddSingleton<IPresentationConfigurationService, PresentationConfigurationService>();
+            
         }
         
         public static void UseAuthServer(this IApplicationBuilder app, IConfiguration config)
@@ -53,15 +66,17 @@ namespace VCAuthn.IdentityServer
             app.UseIdentityServer();
         }
         
-         public static void InitializeDatabase(IApplicationBuilder app, string rootClientSecret)
+        public static void InitializeDatabase(IApplicationBuilder app, string rootClientSecret)
         {
+            var _logger = app.ApplicationServices.GetService<ILogger<Startup>>();
+            
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
-                //Resolve the required services
+                // Resolve the required services
                 var configContext = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
                 serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>().Database.Migrate();
 
-                //Migrate any required db contexts
+                // Migrate any required db contexts
                 configContext.Database.Migrate();
                 
                 var currentIdentityResources = configContext.IdentityResources.ToList();
@@ -74,20 +89,70 @@ namespace VCAuthn.IdentityServer
                 }
                 configContext.SaveChanges();
                 
-                //Seed pre-configured clients
+                // Seed pre-configured clients
                 var currentClients = configContext.Clients.ToList();
+
+                foreach (var client in currentClients)
+                {
+                    _logger.LogDebug($"Existing client: [{client.ClientId} ; {client.Id}]");
+                }
+                
                 foreach (var client in Config.GetClients())
                 {
-                    if (currentClients.Any(_ => _.ClientId == client.ClientId))
+                    if (currentClients.All(_ => _.ClientId != client.ClientId))
                     {
-                        configContext.Clients.Update(client.ToEntity());
-                    }
-                    else
-                    {
-                        configContext.Clients.Add(client.ToEntity());
+                        _logger.LogDebug($"Inserting client [{client.ClientId}]");
+                        configContext.Clients.Add(client.ToEntity());    configContext.SaveChanges();
                     }
                 }
                 configContext.SaveChanges();
+            }
+        }
+        
+        public static void AddUrlShortenerService(this IServiceCollection services, IConfiguration config)
+        {
+            // Fetch the migration assembly
+            var migrationsAssembly = typeof(StartupExtensions).GetTypeInfo().Assembly.GetName().Name;
+
+            // Register the DB context
+            services.AddDbContext<UrlShortenerServiceDbContext>(options =>
+                options.UseNpgsql(config.GetConnectionString("Database"), x => x.MigrationsAssembly(migrationsAssembly)));
+
+            // Adds the url shortner service
+            services.AddTransient<IUrlShortenerService, UrlShortenerService>(s => new UrlShortenerService(s.GetService<UrlShortenerServiceDbContext>(), config.GetValue<string>("BaseUrl")));
+        }
+        
+        public static void UseUrlShortenerService(this IApplicationBuilder app)
+        {
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<UrlShortenerServiceDbContext>();
+                context.Database.Migrate();
+            }
+        }
+        
+        
+        public static void AddSessionStorage(this IServiceCollection services, IConfiguration config)
+        {
+            // Fetch the migration assembly
+            var migrationsAssembly = typeof(StartupExtensions).GetTypeInfo().Assembly.GetName().Name;
+
+            // Register the DB context
+            services.AddDbContext<SessionStorageDbContext>(options =>
+                options.UseNpgsql(config.GetConnectionString("Database"), x => x.MigrationsAssembly(migrationsAssembly)));
+
+            services.Configure<SessionStorageServiceOptions>(config);
+            
+            // Adds the session storage service
+            services.AddTransient<ISessionStorageService, SessionStorageService>();
+        }
+        
+        public static void UseSessionStorage(this IApplicationBuilder app)
+        {
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<SessionStorageDbContext>();
+                context.Database.Migrate();
             }
         }
     }

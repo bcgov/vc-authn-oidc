@@ -31,7 +31,6 @@ namespace VCAuthn
                     logging.ClearProviders(); // to clear CreateDefaultBuilder's setup of standard debug and console loggers, rely on log4net exclusively
                     logging.AddLog4Net();
                     logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    log4net.GlobalContext.Properties["CorrelationId"] = ""; // default to empty string, set via LoggingMiddleware per request
                 })
                 .UseStartup<Startup>();
         }
