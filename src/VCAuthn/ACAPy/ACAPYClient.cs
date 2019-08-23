@@ -20,8 +20,6 @@ namespace VCAuthn.ACAPY
         private readonly string _baseUrl;
         private HttpClient _httpClient;
         
-        public const string WalletDidPublicUri = "/wallet/did/public";
-
         public ACAPYClient(IConfiguration config, ILogger<ACAPYClient> logger)
         {
             _httpClient = new HttpClient();
@@ -39,7 +37,7 @@ namespace VCAuthn.ACAPY
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri($"{_baseUrl}{WalletDidPublicUri}")
+                RequestUri = new Uri($"{_baseUrl}{ACAPYConstants.WalletDidPublicUri}")
             };
 
             try

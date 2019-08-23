@@ -7,5 +7,6 @@ namespace VCAuthn.IdentityServer.SessionStorage
         public string Id { get; set; }
         public string PresentationRequestId { get; set; }
         public DateTime ExpiredTimestamp { get; set; }
+        public bool PresentationRequestSatisfied { get; set; }
     }
 }

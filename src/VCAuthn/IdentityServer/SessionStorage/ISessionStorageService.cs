@@ -6,5 +6,6 @@ namespace VCAuthn.IdentityServer.SessionStorage
     {
         Task<string> CreateSessionAsync(string presentationRequestId);
         Task<bool> AddSession(AuthSession session);
+        Task<bool> SatisfyPresentationRequestIdAsync(string presentationRequestId);
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using VCAuthn.ACAPY;
 using VCAuthn.IdentityServer.SessionStorage;
 using VCAuthn.PresentationConfiguration;
@@ -121,6 +123,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             }
             catch (Exception e)
             {
+                _logger.LogError(e, "Cannot fetch ACAPy wallet public did");
                 return Error(IdentityConstants.AcapyCallFailed, "Cannot fetch ACAPy wallet public did");
             }
 
@@ -135,6 +138,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             }
             catch (Exception e)
             {
+                _logger.LogError(e, "Presentation url build failed");
                 return Error(IdentityConstants.PresentationUrlBuildFailed, "Presentation url build failed");
             }
 
@@ -169,7 +173,7 @@ namespace VCAuthn.IdentityServer.Endpoints
                 ThreadId = Guid.NewGuid().ToString(),
                 Service = new ServiceDecorator
                 {
-                    RecipientKeys = {acapyPublicDid.Verkey},
+                    RecipientKeys = new List<string>{acapyPublicDid.Verkey},
                     ServiceEndpoint = _acapyClient.GetServicePublicUrl()
                 }
             };
