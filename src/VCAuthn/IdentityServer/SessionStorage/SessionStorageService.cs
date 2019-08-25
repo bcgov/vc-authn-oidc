@@ -30,7 +30,7 @@ namespace VCAuthn.IdentityServer.SessionStorage
             {
                 Id = Guid.NewGuid().ToString(),
                 PresentationRequestId = presentationRequestId,
-                ExpiredTimestamp = DateTime.Now.AddSeconds(_options.SessionLifetimeInSeconds)
+                ExpiredTimestamp = DateTime.UtcNow.AddSeconds(_options.SessionLifetimeInSeconds)
             };
             
             if (await AddSession(session))
@@ -59,6 +59,11 @@ namespace VCAuthn.IdentityServer.SessionStorage
 
             _context.Sessions.Update(session);
             return await _context.SaveChangesAsync() == 1;
+        }
+        
+        public async Task<AuthSession> FindByPresentationIdAsync(string presentationRequestId)
+        {
+            return await _context.Sessions.FirstOrDefaultAsync(x => x.PresentationRequestId == presentationRequestId);
         }
     }
 }
