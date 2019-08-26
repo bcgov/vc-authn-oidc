@@ -1,20 +1,24 @@
 using System;
 using System.Threading.Tasks;
+using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using VCAuthn.IdentityServer;
 using VCAuthn.IdentityServer.SessionStorage;
+using VCAuthn.UrlShortener;
 
 namespace VCAuthn.Controllers
 {
     public class PresentationRequestController : ControllerBase
     {
         private readonly ISessionStorageService _sessionStorageService;
+        private readonly IUrlShortenerService _urlShortenerService;
         private readonly ILogger<WebHooksController> _logger;
 
-        public PresentationRequestController(ISessionStorageService sessionStorageService, ILogger<WebHooksController> logger)
+        public PresentationRequestController(ISessionStorageService sessionStorageService, IUrlShortenerService urlShortenerService, ILogger<WebHooksController> logger)
         {
             _sessionStorageService = sessionStorageService;
+            _urlShortenerService = urlShortenerService;
             _logger = logger;
         }
 
@@ -44,6 +48,25 @@ namespace VCAuthn.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpGet("/url/{key}")]
+        public async Task<ActionResult> ResolveUrl(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                _logger.LogDebug("Url key is null or empty");
+                return BadRequest();
+            }
+
+            var url = await _urlShortenerService.GetUrlAsync(key);
+            if (string.IsNullOrEmpty(url))
+            {
+                _logger.LogDebug($"Url is empty. Url key: [{key}]");
+                return BadRequest();
+            }
+            
+            return Redirect(url);
         }
     }
 }
