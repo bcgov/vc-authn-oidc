@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using VCAuthn.IdentityServer;
@@ -39,8 +38,10 @@ namespace VCAuthn.Controllers
             }
 
             if (authSession.PresentationRequestSatisfied == false)
+            {
                 return BadRequest();
-            
+            }
+
             if (authSession.ExpiredTimestamp >= DateTime.UtcNow)
             {
                 _logger.LogDebug($"Session expired. Session id: [{authSession.Id}]");

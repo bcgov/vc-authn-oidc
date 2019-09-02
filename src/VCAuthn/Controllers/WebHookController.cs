@@ -48,8 +48,14 @@ namespace VCAuthn.Controllers
                 {
                     return Ok();
                 }
-
-                await _sessionStorageService.SatisfyPresentationRequestIdAsync(update.ThreadId);
+                
+                var proof = update.Presentation["requested_proof"].ToObject<RequestedProof>();
+                var partialPresentation = new PartialPresentation
+                {
+                    RequestedProof = proof
+                };
+                
+                await _sessionStorageService.SatisfyPresentationRequestIdAsync(update.ThreadId, partialPresentation);
             }
             catch (Exception e)
             {

@@ -18,6 +18,10 @@ namespace VCAuthn
             modelBuilder.Entity<PresentationRecord>()
                 .Property<string>("Config")
                 .HasField("_configuration");
+            
+            modelBuilder.Entity<AuthSession>()
+                .Property<string>("Proof")
+                .HasField("_presentation");
         }
 
     }

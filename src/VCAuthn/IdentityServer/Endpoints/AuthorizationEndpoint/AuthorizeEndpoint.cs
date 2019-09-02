@@ -68,30 +68,30 @@ namespace VCAuthn.IdentityServer.Endpoints
             var clientResult = await _clientValidator.ValidateAsync(context);
             if (clientResult.Client == null)
             {
-                return Error(OidcConstants.TokenErrors.InvalidClient);
+                return VCResponseHelpers.Error(OidcConstants.TokenErrors.InvalidClient);
             }
 
             var scopes = values.Get(IdentityConstants.ScopeParamName).Split(' ');
             if (!scopes.Contains(IdentityConstants.VCAuthnScopeName))
             {
-                return Error(IdentityConstants.MissingVCAuthnScopeError, IdentityConstants.MissingVCAuthnScopeDesc);
+                return VCResponseHelpers.Error(IdentityConstants.MissingVCAuthnScopeError, IdentityConstants.MissingVCAuthnScopeDesc);
             }
             
             var presentationRecordId = values.Get(IdentityConstants.PresentationRequestConfigIDParamName);
             if (string.IsNullOrEmpty(presentationRecordId))
             {
-                return Error(IdentityConstants.InvalidPresentationRequestConfigIDError, IdentityConstants.InvalidPresentationRequestConfigIDDesc);
+                return VCResponseHelpers.Error(IdentityConstants.InvalidPresentationRequestConfigIDError, IdentityConstants.InvalidPresentationRequestConfigIDDesc);
             }
             
             var redirectUrl = values.Get(IdentityConstants.RedirectUriParameterName);
             if (string.IsNullOrEmpty(redirectUrl))
             {
-                return Error(IdentityConstants.InvalidRedirectUriError);
+                return VCResponseHelpers.Error(IdentityConstants.InvalidRedirectUriError);
             }
             
             if (clientResult.Client.RedirectUris.Any() && !clientResult.Client.RedirectUris.Contains(redirectUrl))
             {
-                return Error(IdentityConstants.InvalidRedirectUriError);
+                return VCResponseHelpers.Error(IdentityConstants.InvalidRedirectUriError);
             }
             
             var responseType = values.Get(IdentityConstants.ResponseTypeUriParameterName);
@@ -113,7 +113,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             }
             catch (Exception e)
             {
-                return Error(IdentityConstants.UnknownPresentationRecordId, "Cannot find respective record id");
+                return VCResponseHelpers.Error(IdentityConstants.UnknownPresentationRecordId, "Cannot find respective record id");
             }
 
             WalletPublicDid acapyPublicDid;
@@ -124,7 +124,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             catch (Exception e)
             {
                 _logger.LogError(e, "Cannot fetch ACAPy wallet public did");
-                return Error(IdentityConstants.AcapyCallFailed, "Cannot fetch ACAPy wallet public did");
+                return VCResponseHelpers.Error(IdentityConstants.AcapyCallFailed, "Cannot fetch ACAPy wallet public did");
             }
 
             var presentationRequest = BuildPresentationRequest(presentationRecord, acapyPublicDid);
@@ -139,27 +139,32 @@ namespace VCAuthn.IdentityServer.Endpoints
             catch (Exception e)
             {
                 _logger.LogError(e, "Presentation url build failed");
-                return Error(IdentityConstants.PresentationUrlBuildFailed, "Presentation url build failed");
+                return VCResponseHelpers.Error(IdentityConstants.PresentationUrlBuildFailed, "Presentation url build failed");
             }
 
-            // persist presentation-request-id in a session
+            // persist presentation request details in session
             try
             {
-                var sessionId = await _sessionStorage.CreateSessionAsync(presentationRequest.Id);
+                var session = await _sessionStorage.CreateSessionAsync(new AuthSession(){
+                    PresentationRequestId = presentationRequest.Id, 
+                    PresentationRecordId = presentationRecordId,
+                    ResponseType = responseType,
+                    RedirectUrl = redirectUrl
+                });
 
                 // set up a session cookie
-                context.Response.Cookies.Append(IdentityConstants.SessionIdCookieName, sessionId);
+                context.Response.Cookies.Append(IdentityConstants.SessionIdCookieName, session.Id);
             }
             catch (Exception e)
             {
-                return Error(IdentityConstants.SessionStartFailed, "Failed to start a new session");
+                return VCResponseHelpers.Error(IdentityConstants.SessionStartFailed, "Failed to start a new session");
             }
 
             return new AuthorizationEndpointResult(
                 new AuthorizationViewModel(
                     shortUrl, 
                     $"{_options.PublicOrigin}/{IdentityConstants.VerificationChallengePollUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequest.Id}", 
-                    $"{_options.PublicOrigin}/{IdentityConstants.VerificationChallengeResolveUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequest.Id}"));
+                    $"{_options.PublicOrigin}/{IdentityConstants.AuthorizeCallbackUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequest.Id}"));
         }
 
         private PresentationRequest BuildPresentationRequest(PresentationRecord record, WalletPublicDid acapyPublicDid)
@@ -178,57 +183,6 @@ namespace VCAuthn.IdentityServer.Endpoints
                 }
             };
             return request;
-        }
-        
-        private AuthorizationFlowErrorResult Error(string error, string errorDescription = null)
-        {
-            var response = new AuthorizationErrorResponse
-            {
-                Error = error,
-                ErrorDescription = errorDescription
-            };
-
-            return new AuthorizationFlowErrorResult(response);
-        }
-
-        /// <summary>
-        /// Models a authorization flow error response
-        /// </summary>
-        public class AuthorizationErrorResponse
-        {
-            public string Error { get; set; } = OidcConstants.TokenErrors.InvalidRequest;
-            
-            public string ErrorDescription { get; set; }
-        }
-
-        internal class AuthorizationFlowErrorResult : IEndpointResult
-        {
-            public AuthorizationErrorResponse Response { get; }
-
-            public AuthorizationFlowErrorResult(AuthorizationErrorResponse error)
-            {
-                Response = error;
-            }
-
-            public async Task ExecuteAsync(HttpContext context)
-            {
-                context.Response.StatusCode = 400;
-                context.Response.SetNoCache();
-
-                var dto = new ResultDto
-                {
-                    error = Response.Error,
-                    error_description = Response.ErrorDescription
-                };
-
-                await context.Response.WriteJsonAsync(dto);
-            }
-
-            internal class ResultDto
-            {
-                public string error { get; set; }
-                public string error_description { get; set; }
-            }
         }
     }
 }

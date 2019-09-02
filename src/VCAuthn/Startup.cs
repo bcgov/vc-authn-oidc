@@ -24,8 +24,8 @@ namespace VCAuthn
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             // register ACAPY Client
-            services.AddSingleton<IACAPYClient, ACAPYClient>(s => new ACAPYClient(Configuration.GetSection("ACAPY"), s.GetService<ILogger<ACAPYClient>>()));;
-            
+            services.AddSingleton<IACAPYClient, ACAPYClient>(s => new ACAPYClient(Configuration.GetSection("ACAPY"), s.GetService<ILogger<ACAPYClient>>()));
+
             services.AddAuthServer(Configuration.GetSection("IdentityServer"));
             
             services.AddUrlShortenerService(Configuration.GetSection("UrlShortenerService"));

@@ -53,19 +53,21 @@ namespace VCAuthn.IdentityServer
                 .AddDeveloperSigningCredential(true, config.GetSection("CertificateFilename").Value)
                 
                 // Custom Endpoints
-                .AddEndpoint<AuthorizeEndpoint>(AuthorizeEndpoint.Name, IdentityConstants.VerifiedCredentialAuthorizeUri.EnsureLeadingSlash());
+                .AddEndpoint<AuthorizeEndpoint>(AuthorizeEndpoint.Name, IdentityConstants.VerifiedCredentialAuthorizeUri.EnsureLeadingSlash())
+                .AddEndpoint<TokenEndpoint>(TokenEndpoint.Name, IdentityConstants.VerifiedCredentialTokenUri.EnsureLeadingSlash())
+                .AddEndpoint<TokenEndpoint>(AuthorizeCallback.Name, IdentityConstants.AuthorizeCallbackUri.EnsureLeadingSlash());
             
             services.AddScoped<IPresentationConfigurationService, PresentationConfigurationService>();
-            
+            services.AddScoped<ITokenIssuerService, TokenIssuerService>();
         }
         
         public static void UseAuthServer(this IApplicationBuilder app, IConfiguration config)
         {
-            InitializeDatabase(app, config.GetSection("RootClientSecret").Value);
+            InitializeDatabase(app);
             app.UseIdentityServer();
         }
         
-        public static void InitializeDatabase(IApplicationBuilder app, string rootClientSecret)
+        public static void InitializeDatabase(IApplicationBuilder app)
         {
             var _logger = app.ApplicationServices.GetService<ILogger<Startup>>();
             

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using VCAuthn.Controllers;
 
 namespace VCAuthn.IdentityServer.SessionStorage
 {
@@ -24,17 +25,13 @@ namespace VCAuthn.IdentityServer.SessionStorage
             _options = options.Value;
         }
 
-        public async Task<string> CreateSessionAsync(string presentationRequestId)
+        public async Task<AuthSession> CreateSessionAsync(AuthSession session)
         {
-            var session = new AuthSession
-            {
-                Id = Guid.NewGuid().ToString(),
-                PresentationRequestId = presentationRequestId,
-                ExpiredTimestamp = DateTime.UtcNow.AddSeconds(_options.SessionLifetimeInSeconds)
-            };
-            
+            session.Id = Guid.NewGuid().ToString();
+            session.ExpiredTimestamp = DateTime.UtcNow.AddSeconds(_options.SessionLifetimeInSeconds);
+
             if (await AddSession(session))
-                return session.Id;
+                return session;
 
             return null;
         }
@@ -45,7 +42,7 @@ namespace VCAuthn.IdentityServer.SessionStorage
             return await _context.SaveChangesAsync() == 1;
         }
         
-        public async Task<bool> SatisfyPresentationRequestIdAsync(string presentationRequestId)
+        public async Task<bool> SatisfyPresentationRequestIdAsync(string presentationRequestId, PartialPresentation partialPresentation)
         {
             var session = await _context.Sessions.FirstOrDefaultAsync(x => x.PresentationRequestId == presentationRequestId);
 
@@ -56,6 +53,7 @@ namespace VCAuthn.IdentityServer.SessionStorage
             }
 
             session.PresentationRequestSatisfied = true;
+            session.Presentation = partialPresentation;
 
             _context.Sessions.Update(session);
             return await _context.SaveChangesAsync() == 1;
@@ -64,6 +62,20 @@ namespace VCAuthn.IdentityServer.SessionStorage
         public async Task<AuthSession> FindByPresentationIdAsync(string presentationRequestId)
         {
             return await _context.Sessions.FirstOrDefaultAsync(x => x.PresentationRequestId == presentationRequestId);
+        }
+
+        public async Task<AuthSession> FindBySessionIdAsync(string sessionId)
+        {
+            return await _context.Sessions.FirstOrDefaultAsync(x => x.Id == sessionId);
+        }
+
+        public bool DeleteSession(AuthSession session)
+        {
+            if (session == null)
+                return false;
+
+            _context.Sessions.Remove(session);
+            return _context.SaveChanges() == 1;
         }
     }
 }
