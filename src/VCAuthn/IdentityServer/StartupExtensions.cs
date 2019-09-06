@@ -2,6 +2,7 @@ using System.Linq;
 using System.Reflection;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
+using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -48,10 +49,10 @@ namespace VCAuthn.IdentityServer
                     // this enables automatic token cleanup. this is optional.
                     options.EnableTokenCleanup = true;
                 })
-                
+
                 // If cert supplied will parse and call AddSigningCredential(), if not found will create a temp one
                 .AddDeveloperSigningCredential(true, config.GetSection("CertificateFilename").Value)
-                
+
                 // Custom Endpoints
                 .AddEndpoint<AuthorizeEndpoint>(AuthorizeEndpoint.Name, IdentityConstants.VerifiedCredentialAuthorizeUri.EnsureLeadingSlash())
                 .AddEndpoint<TokenEndpoint>(TokenEndpoint.Name, IdentityConstants.VerifiedCredentialTokenUri.EnsureLeadingSlash())
@@ -59,15 +60,17 @@ namespace VCAuthn.IdentityServer
             
             services.AddScoped<IPresentationConfigurationService, PresentationConfigurationService>();
             services.AddScoped<ITokenIssuerService, TokenIssuerService>();
+            
+            services.AddTransient<ISecretParser, QueryStringSecretParser>();
         }
         
         public static void UseAuthServer(this IApplicationBuilder app, IConfiguration config)
         {
-            InitializeDatabase(app);
+            InitializeDatabase(app, config);
             app.UseIdentityServer();
         }
         
-        public static void InitializeDatabase(IApplicationBuilder app)
+        public static void InitializeDatabase(IApplicationBuilder app, IConfiguration config)
         {
             var _logger = app.ApplicationServices.GetService<ILogger<Startup>>();
             
@@ -98,14 +101,24 @@ namespace VCAuthn.IdentityServer
                 {
                     _logger.LogDebug($"Existing client: [{client.ClientId} ; {client.Id}]");
                 }
-                
-                foreach (var client in Config.GetClients())
+
+                var clients = Config.GetClients(config.GetSection("Clients"));
+                foreach (var client in clients)
                 {
-                    if (currentClients.All(_ => _.ClientId != client.ClientId))
+                    var existingClient = currentClients.FirstOrDefault(_ => _.ClientId == client.ClientId);
+                    if (existingClient != null)
+                    {
+                        _logger.LogDebug($"Updating client [{client.ClientId}]");
+                        var c = client.ToEntity();
+                        c.Id = existingClient.Id;
+                        configContext.Entry(existingClient).CurrentValues.SetValues(c);
+                    }
+                    else
                     {
                         _logger.LogDebug($"Inserting client [{client.ClientId}]");
-                        configContext.Clients.Add(client.ToEntity());    configContext.SaveChanges();
+                        configContext.Clients.Add(client.ToEntity());    
                     }
+                    configContext.SaveChanges();
                 }
                 configContext.SaveChanges();
             }

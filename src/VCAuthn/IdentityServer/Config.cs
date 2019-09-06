@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using IdentityServer4.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace VCAuthn.IdentityServer
 {
@@ -14,24 +15,12 @@ namespace VCAuthn.IdentityServer
             };
         }
 
-        public static IEnumerable<Client> GetClients()
+        public static IEnumerable<Client> GetClients(IConfigurationSection section)
         {
-            return new List<Client>
-            {
-                new Client
-                {
-                    ClientId = "client",
+            var clients = new List<Client>();
+            section.Bind(clients);
 
-                    // no interactive user, use the clientid/secret for authentication
-                    AllowedGrantTypes = GrantTypes.ClientCredentials,
-
-                    // secret for authentication
-                    ClientSecrets =
-                    {
-                        new Secret("secret".Sha256())
-                    }
-                }
-            };
+            return clients;
         }
     }
 }

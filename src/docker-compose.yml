@@ -10,3 +10,13 @@ services:
       - POSTGRES_PASSWORD=
     ports:
       - 5432:5432
+  keycloak:
+    image: jboss/keycloak:7.0.0
+    ports:
+      - 8180:8080
+    volumes:
+      - ./demo/keycloak:/tmp
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - KEYCLOAK_IMPORT=/tmp/master.json

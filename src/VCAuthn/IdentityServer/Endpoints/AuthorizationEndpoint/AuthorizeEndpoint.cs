@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -53,18 +54,25 @@ namespace VCAuthn.IdentityServer.Endpoints
         
         public async Task<IEndpointResult> ProcessAsync(HttpContext context)
         {
-            if (!HttpMethods.IsPost(context.Request.Method))
+            _logger.LogDebug("Processing Authorize request");
+
+            NameValueCollection values;
+            switch (context.Request.Method)
             {
-                return new StatusCodeResult(HttpStatusCode.MethodNotAllowed);
+                case "GET":
+                    values = context.Request.Query.AsNameValueCollection();
+                    break;
+                case "POST":
+                    if (!context.Request.HasFormContentType)
+                    {
+                        return new StatusCodeResult(HttpStatusCode.UnsupportedMediaType);
+                    }
+                    values = context.Request.Form.AsNameValueCollection();
+                    break;
+                default:
+                    return new StatusCodeResult(HttpStatusCode.MethodNotAllowed);
             }
-            
-            if (!context.Request.HasFormContentType)
-            {
-                return new StatusCodeResult(HttpStatusCode.UnsupportedMediaType);
-            }
-                
-            var values = context.Request.Form.AsNameValueCollection();
-            
+
             var clientResult = await _clientValidator.ValidateAsync(context);
             if (clientResult.Client == null)
             {
