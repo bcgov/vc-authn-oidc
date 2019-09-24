@@ -17,9 +17,6 @@ namespace VCAuthn.IdentityServer.Endpoints
         [JsonProperty("comment")]
         public string Comment { get; set; }
         
-        [JsonProperty("thread_id")]
-        public string ThreadId { get; set; }
-        
         [JsonProperty("~service")]
         public ServiceDecorator Service { get; set; }
     }

@@ -1,12 +1,13 @@
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Rewrite.Internal;
 using VCAuthn.PresentationConfiguration;
 
 namespace VCAuthn.Controllers
 {
     [Route("api/vc-configs")]
     [ApiController]
+    [Authorize]
     public class PresentationConfigurationController : ControllerBase
     {
         private readonly IPresentationConfigurationService _service;
@@ -15,7 +16,6 @@ namespace VCAuthn.Controllers
         {
             _service = service;
         }
-        
 
         // GET: api/vc-configs/5
         [HttpGet("{id}")]
@@ -35,8 +35,11 @@ namespace VCAuthn.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateConfig([FromBody] PresentationRecord record)
         {
+            if (_service.Exists(record.Id))
+                return BadRequest($"Record with id : `{record.Id}` already exists");
+
             await _service.CreateAsync(record);
-            return Created(this.Url.Action("GetConfig", record.Id), record);
+            return CreatedAtAction(nameof(GetConfig), new { id = record.Id }, record);
         }
         
         // PUT: api/vc-configs

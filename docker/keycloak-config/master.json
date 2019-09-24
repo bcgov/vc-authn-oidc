@@ -1173,9 +1173,9 @@
   "adminEventsEnabled" : false,
   "adminEventsDetailsEnabled" : false,
   "identityProviders" : [ {
-    "alias" : "oidc",
+    "alias" : "vc-authn",
     "internalId" : "fe914089-ea75-42f1-b782-c922f2b8f4b3",
-    "providerId" : "oidc",
+    "providerId" : "vc-authn",
     "enabled" : true,
     "updateProfileFirstLoginMode" : "on",
     "trustEmail" : false,

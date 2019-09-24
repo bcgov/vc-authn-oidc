@@ -10,8 +10,8 @@ using VCAuthn;
 namespace VCAuthn.Migrations
 {
     [DbContext(typeof(StorageDbContext))]
-    [Migration("20190828234804_AuthSession_PresentationFields")]
-    partial class AuthSession_PresentationFields
+    [Migration("20190912223441_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -35,6 +35,10 @@ namespace VCAuthn.Migrations
                     b.Property<bool>("PresentationRequestSatisfied");
 
                     b.Property<string>("Proof");
+
+                    b.Property<string>("RedirectUrl");
+
+                    b.Property<string>("ResponseType");
 
                     b.HasKey("Id");
 

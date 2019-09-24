@@ -11,6 +11,7 @@ using VCAuthn.IdentityServer.SessionStorage;
 
 namespace VCAuthn.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Route("/topic")]
     public class WebHooksController : ControllerBase
     {

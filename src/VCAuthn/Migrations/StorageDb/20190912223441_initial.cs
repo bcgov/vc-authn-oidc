@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace VCAuthn.Migrations
 {
-    public partial class PresentationConfigs : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -37,8 +37,13 @@ namespace VCAuthn.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
+                    ExpiredTimestamp = table.Column<DateTime>(nullable: false),
+                    PresentationRecordId = table.Column<string>(nullable: true),
                     PresentationRequestId = table.Column<string>(nullable: true),
-                    ExpiredTimestamp = table.Column<DateTime>(nullable: false)
+                    PresentationRequestSatisfied = table.Column<bool>(nullable: false),
+                    ResponseType = table.Column<string>(nullable: true),
+                    RedirectUrl = table.Column<string>(nullable: true),
+                    Proof = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

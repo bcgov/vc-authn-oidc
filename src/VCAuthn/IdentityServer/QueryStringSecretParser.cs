@@ -75,7 +75,6 @@ namespace VCAuthn.IdentityServer
                 Credential = secret,
                 Type = IdentityServerConstants.ParsedSecretTypes.SharedSecret
             };
-            
         }
     }
 }

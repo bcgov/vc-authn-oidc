@@ -119,7 +119,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             {
                 presentationRecord = await _presentationConfigurationService.GetAsync(presentationRecordId);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return VCResponseHelpers.Error(IdentityConstants.UnknownPresentationRecordId, "Cannot find respective record id");
             }
@@ -163,7 +163,7 @@ namespace VCAuthn.IdentityServer.Endpoints
                 // set up a session cookie
                 context.Response.Cookies.Append(IdentityConstants.SessionIdCookieName, session.Id);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return VCResponseHelpers.Error(IdentityConstants.SessionStartFailed, "Failed to start a new session");
             }
@@ -183,7 +183,6 @@ namespace VCAuthn.IdentityServer.Endpoints
             {
                 Id = Guid.NewGuid().ToString(),
                 Request = record.Configuration,
-                ThreadId = Guid.NewGuid().ToString(),
                 Service = new ServiceDecorator
                 {
                     RecipientKeys = new List<string>{acapyPublicDid.Verkey},

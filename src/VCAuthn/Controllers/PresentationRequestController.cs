@@ -8,6 +8,7 @@ using VCAuthn.UrlShortener;
 
 namespace VCAuthn.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class PresentationRequestController : ControllerBase
     {
         private readonly ISessionStorageService _sessionStorageService;
@@ -64,7 +65,7 @@ namespace VCAuthn.Controllers
             if (string.IsNullOrEmpty(url))
             {
                 _logger.LogDebug($"Url is empty. Url key: [{key}]");
-                return BadRequest();
+                return NotFound();
             }
             
             return Redirect(url);

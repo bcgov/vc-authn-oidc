@@ -1,7 +1,4 @@
-using System;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
-using VCAuthn.UrlShortener;
 
 namespace VCAuthn.PresentationConfiguration
 {
@@ -9,6 +6,8 @@ namespace VCAuthn.PresentationConfiguration
     {
         void Create(PresentationRecord record);
         Task CreateAsync(PresentationRecord record);
+        bool Exists(string id);
+        Task<bool> ExistsAsync(string id);
         PresentationRecord Get(string id);
         Task<PresentationRecord> GetAsync(string id);
         void Update(PresentationRecord record);
@@ -47,7 +46,17 @@ namespace VCAuthn.PresentationConfiguration
         {
             return await _context.PresentationConfigurations.FindAsync(id);
         }
-        
+
+        public bool Exists(string id)
+        {
+            return (_context.PresentationConfigurations.Find(id) != null);
+        }
+
+        public async Task<bool> ExistsAsync(string id)
+        {
+            return (await _context.PresentationConfigurations.FindAsync(id) != null);
+        }
+
         public void Update(PresentationRecord record)
         {
             var original = _context.PresentationConfigurations.Find(record.Id);

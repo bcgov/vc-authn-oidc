@@ -34,6 +34,10 @@ namespace VCAuthn.Migrations
 
                     b.Property<string>("Proof");
 
+                    b.Property<string>("RedirectUrl");
+
+                    b.Property<string>("ResponseType");
+
                     b.HasKey("Id");
 
                     b.ToTable("Sessions");
