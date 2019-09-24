@@ -1,0 +1,105 @@
+version: "3"
+
+services:
+  controller-db:
+    image: registry.access.redhat.com/rhscl/postgresql-10-rhel7:latest
+    environment:
+      POSTGRESQL_USER: ${POSTGRESQL_USER}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_ADMIN_PASSWORD: ${POSTGRESQL_ADMIN_PASSWORD}
+    ports:
+      - ${DATABASE_PORT}:5432
+    networks:
+      - vc_authn_oidc
+    volumes:
+      - controller-db-data:/var/lib/pgsql/data
+
+  keycloak:
+    image: jboss/keycloak:7.0.0
+    ports:
+      - 8180:8080
+    volumes:
+      - ./keycloak/config:/tmp
+    environment:
+      DB_VENDOR: ${KEYCLOAK_DB_VENDOR}
+      DB_ADDR: ${KEYCLOAK_DB_ADDR}
+      DB_DATABASE: ${KEYCLOAK_DB_NAME}
+      DB_USER: ${KEYCLOAK_DB_USER}
+      DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KEYCLOAK_USER: ${KEYCLOAK_USER}
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
+      KEYCLOAK_LOGLEVEL: ${KEYCLOAK_LOGLEVEL}
+      ROOT_LOGLEVEL: ${KEYCLOAK_ROOT_LOGLEVEL}
+      KEYCLOAK_IMPORT: ${KEYCLOAK_IMPORT}
+    depends_on:
+      - keycloak-db
+    networks:
+      - vc_authn_oidc
+
+  keycloak-db:
+    image: registry.access.redhat.com/rhscl/postgresql-10-rhel7:latest
+    environment:
+      POSTGRESQL_USER: ${KEYCLOAK_DB_USER}
+      POSTGRESQL_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      POSTGRESQL_DATABASE: ${KEYCLOAK_DB_NAME}
+    volumes:
+      - keycloak-db-data:/var/lib/pgsql/data
+    networks:
+      - vc_authn_oidc
+
+  aca-py:
+    image: bcgovimages/aries-cloudagent:py36-1.11-1_0.3.2
+    ports:
+      - ${AGENT_ADMIN_PORT}:${AGENT_ADMIN_PORT}
+      - ${AGENT_HTTP_PORT}:${AGENT_HTTP_PORT}
+    networks:
+      - vc_authn_oidc
+    command:
+      [
+        "start",
+        "-it",
+        "http",
+        "0.0.0.0",
+        "${AGENT_HTTP_PORT}",
+        "-ot",
+        "http",
+        "--log-level",
+        "DEBUG",
+        "--webhook-url",
+        "http://oidc-controller:5000",
+        "--admin",
+        "0.0.0.0",
+        "${AGENT_ADMIN_PORT}",
+        "--admin-insecure-mode",
+        "--seed",
+        "000000000000000000000000Steward1",
+      ]
+
+  controller:
+    image: vc-authn-oidc-controller
+    ports:
+      - "${IP:-0.0.0.0}:5000:80"
+    environment:
+      - IdentityServer__ConnectionStrings__Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};
+      - IdentityServer__PublicOrigin=${IDENTITY_SERVER_URL}
+      - ACAPY__BaseUrl=${ACAPY_BASE_URL}
+      - UrlShortenerService__ConnectionStrings__Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};
+      - UrlShortenerService__BaseUrl=${IDENTITY_SERVER_URL}/url
+      - SessionStorageService__ConnectionStrings_Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};
+    networks:
+      - vc_authn_oidc
+    depends_on:
+      - controller-db
+    command: >
+      /bin/bash -c "
+      echo waiting for controller-db ...;
+      sleep 5;
+      dotnet VCAuthn.dll"
+
+networks:
+  vc_authn_oidc:
+
+volumes:
+  controller-db-data:
+  keycloak-db-data:
