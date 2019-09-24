@@ -20,4 +20,5 @@ EXPOSE 5000
 
 WORKDIR /app
 COPY --from=build-env /app/out .
-ENTRYPOINT ["dotnet", "VCAuthn.dll"]
+
+CMD ["dotnet", "VCAuthn.dll"]

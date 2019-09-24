@@ -14,23 +14,24 @@ The VCAuthn-Service has two main dependencies
 To run the OIDC-Controller in debug, first you must run these dependencies with the following command
 
 ```
-    docker-compose -f ./docker/docker-compose.local-instance.yml
+    docker-compose -f ./docker/docker-compose.local-debug.yml
 ```
 
 Following this you can either launch the VCAuthn-Service in debug via an IDE like VS Code or Visual Studio or run the following command
 
 ```
     dotnet run ./src/VCAuthn
-``` 
+```
 
 ## A Quick Demo
 
 The following demo starts up the VCAuthn-Service and its associated dependencies, along with an instance of keycloak.
 
-To start the demo run
+To start the demo run the following commands from within the `docker` folder:
 
 ```
-    docker-compose -f ./docker/docker-compose.local-debug.yml
+    ./manage build
+    ./manage start
 ```
 
 Once you have the service running, a presentation request configuration must be configured on the service. You can configure this through either browsing to the swagger interface [here](http://localhost:5000) or running the following curl command with a valid request body
@@ -89,4 +90,3 @@ From here you can click the `vc-authn` option to try out the flow. Clicking this
 ## Project Affiliation
 
 This project was formed from the code with us [opportunity](https://www.bcdevexchange.org/opportunities/cwu/opp-create-a-red-hat-keycloak-identity-provider--idp--capable-of-processing-verifiable-credentials-using-decentralized-identity-technology-created-by-bc-gov-to-authorize-access-to-a-bc-government-digital-service-) executed by [Mattr](https://mattr.global) funded by [BCGov](https://www2.gov.bc.ca/).
-
