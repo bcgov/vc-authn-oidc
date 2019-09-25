@@ -34,10 +34,7 @@ usage() {
             You can pass in a list of containers to start.  
             By default all containers will be started.
 
-            Examples:
-            $0 start
-            $0 start dcbr-db
-            $0 start dcbr-api
+              $0 start
 
       start - Same as up
 
@@ -55,7 +52,7 @@ EOF
 # -----------------------------------------------------------------------------------------------------------------
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
-DEFAULT_CONTAINERS="keycloak controller-db aca-py controller"
+DEFAULT_CONTAINERS="keycloak controller-db aca-py controller wallet-db"
 
 # -----------------------------------------------------------------------------------------------------------------
 # Functions:
@@ -108,9 +105,24 @@ configureEnvironment() {
   export IDENTITY_SERVER_URL="http://localhost:5000"
 
   # aca-py
+  export AGENT_NAME="vc-oidc-controller-agent"
   export AGENT_HTTP_PORT="5679"
   export AGENT_ADMIN_PORT="5678"
   export ACAPY_BASE_URL="http://aca-py:${AGENT_ADMIN_PORT}"
+  export LEDGER_URL=${LEDGER_URL-http://$DOCKERHOST:9000}
+  export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$DOCKERHOST:$AGENT_HTTP_PORT}
+  export AGENT_SEED="000000000000000000000000Steward1"
+
+  # wallet-db
+  export WALLET_TYPE="postgres_storage"
+  export WALLET_ENCRYPTION_KEY="key"
+  export POSTGRESQL_WALLET_HOST="wallet-db"
+  export POSTGRESQL_WALLET_PORT="5432"
+  export POSTGRESQL_WALLET_DATABASE="wallet_db"
+  export POSTGRESQL_WALLET_USER="walletuser"
+  export POSTGRESQL_WALLET_PASSWORD="walletpassword"
+  export POSTGRESQL_WALLET_ADMIN_USER="postgres"
+  export POSTGRESQL_WALLET_ADMIN_PASSWORD="mysecretpassword"
 
   # keycloak-db
   export KEYCLOAK_DB_NAME="keycloak"
