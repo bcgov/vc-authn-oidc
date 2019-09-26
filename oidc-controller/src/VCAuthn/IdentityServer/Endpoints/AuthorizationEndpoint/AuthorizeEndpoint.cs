@@ -114,12 +114,9 @@ namespace VCAuthn.IdentityServer.Endpoints
                 responseMode = IdentityConstants.DefaultResponseMode;
             }
 
-            PresentationRecord presentationRecord;
-            try
-            {
-                presentationRecord = await _presentationConfigurationService.GetAsync(presentationRecordId);
-            }
-            catch (Exception)
+            PresentationRecord presentationRecord = await _presentationConfigurationService.GetAsync(presentationRecordId);
+
+            if (presentationRecord == null)
             {
                 return VCResponseHelpers.Error(IdentityConstants.UnknownPresentationRecordId, "Cannot find respective record id");
             }
@@ -135,8 +132,21 @@ namespace VCAuthn.IdentityServer.Endpoints
                 return VCResponseHelpers.Error(IdentityConstants.AcapyCallFailed, "Cannot fetch ACAPy wallet public did");
             }
 
-            var presentationRequest = BuildPresentationRequest(presentationRecord, acapyPublicDid);
-            
+            PresentationRequestMessage presentationRequest;
+            string presentationRequestId;
+            try
+            {
+                var response = await _acapyClient.CreatePresentationRequestAsync(presentationRecord.Configuration);
+                presentationRequest = BuildPresentationRequest(response, acapyPublicDid);
+                presentationRequestId = response.PresentationExchangeId;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to create presentation request");
+                return VCResponseHelpers.Error(IdentityConstants.AcapyCallFailed, "Failed to create presentation request");
+            }
+
+
             // create a full and short url versions of a presentation requests
             string shortUrl;
             try
@@ -154,35 +164,34 @@ namespace VCAuthn.IdentityServer.Endpoints
             try
             {
                 var session = await _sessionStorage.CreateSessionAsync(new AuthSession(){
-                    PresentationRequestId = presentationRequest.Id, 
+                    PresentationRequestId = presentationRequestId, 
                     PresentationRecordId = presentationRecordId,
-                    ResponseType = responseType,
-                    RedirectUrl = redirectUrl
+                    PresentationRequest = presentationRequest.Request,
+                    RequestParameters = values.AllKeys.ToDictionary(t => t, t => values[t])
                 });
 
                 // set up a session cookie
                 context.Response.Cookies.Append(IdentityConstants.SessionIdCookieName, session.Id);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Failed to start a new session");
                 return VCResponseHelpers.Error(IdentityConstants.SessionStartFailed, "Failed to start a new session");
             }
 
             return new AuthorizationEndpointResult(
                 new AuthorizationViewModel(
                     shortUrl, 
-                    $"{_options.PublicOrigin}/{IdentityConstants.VerificationChallengePollUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequest.Id}", 
-                    $"{_options.PublicOrigin}/{IdentityConstants.AuthorizeCallbackUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequest.Id}"));
+                    $"{_options.PublicOrigin}/{IdentityConstants.ChallengePollUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}", 
+                    $"{_options.PublicOrigin}/{IdentityConstants.AuthorizeCallbackUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}"));
         }
 
-        private PresentationRequest BuildPresentationRequest(PresentationRecord record, WalletPublicDid acapyPublicDid)
+        private PresentationRequestMessage BuildPresentationRequest(CreatePresentationResponse response, WalletPublicDid acapyPublicDid)
         {
-            record.Configuration.Nonce = $"0{Guid.NewGuid().ToString("N")}";
-
-            var request = new PresentationRequest
+            var request = new PresentationRequestMessage
             {
-                Id = Guid.NewGuid().ToString(),
-                Request = record.Configuration,
+                Id = response.ThreadId,
+                Request = response.PresentationRequest,
                 Service = new ServiceDecorator
                 {
                     RecipientKeys = new List<string>{acapyPublicDid.Verkey},

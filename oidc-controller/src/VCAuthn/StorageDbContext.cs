@@ -22,6 +22,14 @@ namespace VCAuthn
             modelBuilder.Entity<AuthSession>()
                 .Property<string>("Proof")
                 .HasField("_presentation");
+
+            modelBuilder.Entity<AuthSession>()
+                .Property<string>("RequestParams")
+                .HasField("_requestParameters");
+
+            modelBuilder.Entity<AuthSession>()
+                .Property<string>("ProofRequest")
+                .HasField("_presentationRequest");
         }
 
     }

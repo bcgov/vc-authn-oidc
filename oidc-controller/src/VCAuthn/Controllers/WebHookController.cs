@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using VCAuthn.ACAPY;
 using VCAuthn.IdentityServer.SessionStorage;
+using VCAuthn.Models;
 
 namespace VCAuthn.Controllers
 {
@@ -26,7 +27,7 @@ namespace VCAuthn.Controllers
         
         
         [HttpPost("{topic}")]
-        public async Task<ActionResult> GetTopicUpdate(string topic)
+        public async Task<ActionResult> GetTopicUpdate([FromRoute]string topic, [FromBody]PresentationUpdate update)
         {
             if (String.Equals(ACAPYConstants.PresentationsTopic, topic, StringComparison.InvariantCultureIgnoreCase) == false)
             {
@@ -34,29 +35,20 @@ namespace VCAuthn.Controllers
                 return Ok();
             }
             
-            string payload;
-            using (var reader = new StreamReader(Request.Body, Encoding.UTF8))
-            {  
-                payload = await reader.ReadToEndAsync();
-            }
-            _logger.LogInformation($"Topic [{topic}], Payload [{payload}]");
-
             try
             {
-                var update = JsonConvert.DeserializeObject<PresentationUpdate>(payload);
-
                 if (update.State != ACAPYConstants.SuccessfulPresentationUpdate)
                 {
                     return Ok();
                 }
                 
                 var proof = update.Presentation["requested_proof"].ToObject<RequestedProof>();
-                var partialPresentation = new PartialPresentation
+                var partialPresentation = new Presentation
                 {
                     RequestedProof = proof
                 };
                 
-                await _sessionStorageService.SatisfyPresentationRequestIdAsync(update.ThreadId, partialPresentation);
+                await _sessionStorageService.SatisfyPresentationRequestIdAsync(update.PresentationExchangeId, partialPresentation);
             }
             catch (Exception e)
             {
