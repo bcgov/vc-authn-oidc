@@ -32,7 +32,9 @@ namespace VCAuthn.Controllers
                 _logger.LogDebug($"Skipping webhook for topic [{topic}]");
                 return Ok();
             }
-            
+
+            _logger.LogDebug($"Received web hook update object : {update}");
+
             try
             {
                 if (update.State != ACAPYConstants.SuccessfulPresentationUpdate)
@@ -45,7 +47,9 @@ namespace VCAuthn.Controllers
                 {
                     RequestedProof = proof
                 };
-                
+
+                _logger.LogDebug($"Marking Presentation Request with id : {update.PresentationExchangeId} as satisfied");
+
                 await _sessionStorageService.SatisfyPresentationRequestIdAsync(update.PresentationExchangeId, partialPresentation);
             }
             catch (Exception e)

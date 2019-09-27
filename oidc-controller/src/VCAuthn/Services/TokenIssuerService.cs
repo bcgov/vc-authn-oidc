@@ -5,6 +5,7 @@ using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Logging;
 using VCAuthn.Services.Contracts;
 
 namespace VCAuthn.Services
@@ -13,15 +14,19 @@ namespace VCAuthn.Services
     {
         private readonly ITokenCreationService _tokenCreation;
         private readonly ISystemClock _clock;
+        private readonly ILogger<TokenIssuerService> _logger;
 
-        public TokenIssuerService(ITokenCreationService tokenCreation, ISystemClock clock)
+        public TokenIssuerService(ITokenCreationService tokenCreation, ISystemClock clock, ILogger<TokenIssuerService> logger)
         {
             _tokenCreation = tokenCreation;
             _clock = clock;
+            _logger = logger;
         }
 
         public async Task<string> IssueJwtAsync(int lifetime, string issuer, ICollection<string> audiences, List<Claim> claims)
         {
+            _logger.LogDebug($"Issuing token for audience : {audiences}, with claims {claims}, from issuer {issuer}, for lifetime {lifetime}");
+
             var token = new Token
             {
                 CreationTime = _clock.UtcNow.UtcDateTime,

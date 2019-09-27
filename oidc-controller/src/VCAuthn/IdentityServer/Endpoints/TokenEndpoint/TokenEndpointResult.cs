@@ -33,16 +33,24 @@ namespace VCAuthn.IdentityServer.Endpoints
 
             public async Task ExecuteAsync(HttpContext context)
             {
+                _logger.LogDebug("Constructing token result");
+
                 var issuer = context.GetIdentityServerIssuerUri();
 
                 var audience = _session.RequestParameters.ContainsKey(IdentityConstants.ClientId) ? _session.RequestParameters[IdentityConstants.ClientId] : "";
 
+                _logger.LogDebug($"Generating token for audience : {audience}");
+
                 var token = await _tokenIssuerService.IssueJwtAsync(10000, issuer, new string[] { audience }, await GetClaims());
+
+                _logger.LogDebug($"Token created, invalidating session");
 
                 if (_sessionStorage.DeleteSession(_session) == false)
                 {
                     _logger.LogError("Failed to delete a session");
                 }
+
+                _logger.LogDebug($"Returning token result");
 
                 await context.Response.WriteJsonAsync(new
                 {
@@ -54,6 +62,8 @@ namespace VCAuthn.IdentityServer.Endpoints
 
             private async Task<List<Claim>> GetClaims()
             {
+                _logger.LogDebug($"Creating Claims list for presentation record id : {_session.PresentationRecordId}");
+
                 var claims = new List<Claim>
                 {
                     new Claim(IdentityConstants.PresentationRequestConfigIDParamName, _session.PresentationRecordId),
@@ -83,6 +93,8 @@ namespace VCAuthn.IdentityServer.Endpoints
                 {
                     claims.Add(new Claim(IdentityConstants.SubjectIdentityTokenKey, Guid.NewGuid().ToString()));
                 }
+
+                _logger.LogDebug($"Claims list created for presentation record id : {_session.PresentationRecordId}, values : {claims}");
 
                 return claims;
             }
