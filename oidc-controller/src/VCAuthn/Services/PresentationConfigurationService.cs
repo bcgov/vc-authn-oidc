@@ -38,7 +38,7 @@ namespace VCAuthn.Services
             return await _context.PresentationConfigurations.FindAsync(id);
         }
 
-        public List<PresentationConfiguration> Get¿ll()
+        public List<PresentationConfiguration> GetAll()
         {
             return _context.PresentationConfigurations.ToList();
         }

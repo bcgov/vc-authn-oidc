@@ -11,7 +11,7 @@ namespace VCAuthn.Services.Contracts
         Task<bool> ExistsAsync(string id);
         Models.PresentationConfiguration Get(string id);
         Task<Models.PresentationConfiguration> GetAsync(string id);
-        List<Models.PresentationConfiguration> GetÀll();
+        List<Models.PresentationConfiguration> GetAll();
         Task<List<Models.PresentationConfiguration>> GetAllAsync();
         void Update(Models.PresentationConfiguration record);
         Task UpdateAsync(Models.PresentationConfiguration record);
