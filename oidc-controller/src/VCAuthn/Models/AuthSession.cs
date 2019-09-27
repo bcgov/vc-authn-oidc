@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
 using VCAuthn.Models;
 
-namespace VCAuthn.IdentityServer.SessionStorage
+namespace VCAuthn.Models
 {
     public class AuthSession
     {

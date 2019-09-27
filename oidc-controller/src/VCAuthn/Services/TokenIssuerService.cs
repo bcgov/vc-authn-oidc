@@ -5,20 +5,10 @@ using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Authentication;
+using VCAuthn.Services.Contracts;
 
-namespace VCAuthn.IdentityServer.Endpoints
+namespace VCAuthn.Services
 {
-    /// <summary>
-    /// A token issuer service.
-    /// </summary>
-    public interface ITokenIssuerService
-    {
-        /// <summary>
-        /// Issues a JWT.
-        /// </summary>
-        Task<string> IssueJwtAsync(int lifetime, string issuer, ICollection<string> audiences, List<Claim> claims);
-    }
-
     public class TokenIssuerService : ITokenIssuerService
     {
         private readonly ITokenCreationService _tokenCreation;

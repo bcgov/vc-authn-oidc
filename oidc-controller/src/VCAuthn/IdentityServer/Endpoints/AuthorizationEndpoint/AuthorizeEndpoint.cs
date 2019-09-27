@@ -11,11 +11,9 @@ using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using VCAuthn.ACAPY;
-using VCAuthn.IdentityServer.SessionStorage;
-using VCAuthn.PresentationConfiguration;
-using VCAuthn.UrlShortener;
+using VCAuthn.Models;
+using VCAuthn.Services.Contracts;
 using VCAuthn.Utils;
 using StatusCodeResult = IdentityServer4.Endpoints.Results.StatusCodeResult;
 
@@ -114,7 +112,7 @@ namespace VCAuthn.IdentityServer.Endpoints
                 responseMode = IdentityConstants.DefaultResponseMode;
             }
 
-            PresentationRecord presentationRecord = await _presentationConfigurationService.GetAsync(presentationRecordId);
+            PresentationConfiguration presentationRecord = await _presentationConfigurationService.GetAsync(presentationRecordId);
 
             if (presentationRecord == null)
             {

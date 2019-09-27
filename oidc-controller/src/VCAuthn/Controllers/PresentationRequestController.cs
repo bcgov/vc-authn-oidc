@@ -3,8 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using VCAuthn.IdentityServer;
-using VCAuthn.IdentityServer.SessionStorage;
-using VCAuthn.UrlShortener;
+using VCAuthn.Services.Contracts;
 
 namespace VCAuthn.Controllers
 {

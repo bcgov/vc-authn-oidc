@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
 using VCAuthn.Models;
 
-namespace VCAuthn.PresentationConfiguration
+namespace VCAuthn.Models
 {
-    public class PresentationRecord
+    public class PresentationConfiguration
     {
         [JsonProperty("id")] 
         public string Id { get; set; }

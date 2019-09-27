@@ -1,5 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using VCAuthn.Migrations;
+using VCAuthn.Models;
+using VCAuthn.Services.Contracts;
 
 namespace VCAuthn.UrlShortener
 {

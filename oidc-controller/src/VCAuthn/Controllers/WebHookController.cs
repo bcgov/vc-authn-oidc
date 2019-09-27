@@ -7,8 +7,8 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using VCAuthn.ACAPY;
-using VCAuthn.IdentityServer.SessionStorage;
 using VCAuthn.Models;
+using VCAuthn.Services.Contracts;
 
 namespace VCAuthn.Controllers
 {

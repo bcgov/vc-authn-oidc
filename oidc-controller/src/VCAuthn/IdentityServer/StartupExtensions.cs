@@ -9,10 +9,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using VCAuthn.IdentityServer.Endpoints;
-using VCAuthn.IdentityServer.SessionStorage;
-using VCAuthn.PresentationConfiguration;
+using VCAuthn.Services.Contracts;
+using VCAuthn.Services;
 using VCAuthn.UrlShortener;
 using VCAuthn.Utils;
+using VCAuthn.IdentityServer.Endpoints.AuthorizeCallbackEndpoint;
+using VCAuthn.Migrations;
 
 namespace VCAuthn.IdentityServer
 {
@@ -56,7 +58,7 @@ namespace VCAuthn.IdentityServer
                 // Custom Endpoints
                 .AddEndpoint<AuthorizeEndpoint>(AuthorizeEndpoint.Name, IdentityConstants.VerifiedCredentialAuthorizeUri.EnsureLeadingSlash())
                 .AddEndpoint<TokenEndpoint>(TokenEndpoint.Name, IdentityConstants.VerifiedCredentialTokenUri.EnsureLeadingSlash())
-                .AddEndpoint<AuthorizeCallback>(AuthorizeCallback.Name, IdentityConstants.AuthorizeCallbackUri.EnsureLeadingSlash());
+                .AddEndpoint<AuthorizeCallbackEndpoint>(AuthorizeCallbackEndpoint.Name, IdentityConstants.AuthorizeCallbackUri.EnsureLeadingSlash());
             
             services.AddScoped<IPresentationConfigurationService, PresentationConfigurationService>();
             services.AddScoped<ITokenIssuerService, TokenIssuerService>();

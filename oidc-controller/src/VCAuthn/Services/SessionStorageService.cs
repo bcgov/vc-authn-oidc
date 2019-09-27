@@ -3,9 +3,11 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using VCAuthn.Migrations;
 using VCAuthn.Models;
+using VCAuthn.Services.Contracts;
 
-namespace VCAuthn.IdentityServer.SessionStorage
+namespace VCAuthn.Services
 {
     public class SessionStorageServiceOptions
     {
@@ -41,7 +43,7 @@ namespace VCAuthn.IdentityServer.SessionStorage
             _context.Add(session);
             return await _context.SaveChangesAsync() == 1;
         }
-        
+
         public async Task<bool> SatisfyPresentationRequestIdAsync(string presentationRequestId, Presentation partialPresentation)
         {
             var session = await _context.Sessions.FirstOrDefaultAsync(x => x.PresentationRequestId == presentationRequestId);
@@ -58,7 +60,7 @@ namespace VCAuthn.IdentityServer.SessionStorage
             _context.Sessions.Update(session);
             return await _context.SaveChangesAsync() == 1;
         }
-        
+
         public async Task<AuthSession> FindByPresentationIdAsync(string presentationRequestId)
         {
             return await _context.Sessions.FirstOrDefaultAsync(x => x.PresentationRequestId == presentationRequestId);
