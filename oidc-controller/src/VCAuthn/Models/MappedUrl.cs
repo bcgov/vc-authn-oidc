@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace VCAuthn.UrlShortener
+namespace VCAuthn.Models
 {
     public class MappedUrl
     {

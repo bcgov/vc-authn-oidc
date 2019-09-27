@@ -7,7 +7,6 @@ namespace VCAuthn.IdentityServer.Endpoints
 {
     public static class VCResponseHelpers
     {
-
         public static VCErrorResult Error(string error, string errorDescription = null)
         {
             var response = new VCErrorResponse

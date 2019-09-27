@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using VCAuthn.Models;
 
-namespace VCAuthn.IdentityServer.Endpoints
+namespace VCAuthn.Models
 {
     public class PresentationRequestMessage
     {
@@ -14,10 +13,10 @@ namespace VCAuthn.IdentityServer.Endpoints
 
         [JsonProperty("request")]
         public PresentationRequest Request { get; set; }
-        
+
         [JsonProperty("comment")]
         public string Comment { get; set; }
-        
+
         [JsonProperty("~service")]
         public ServiceDecorator Service { get; set; }
     }
@@ -26,10 +25,10 @@ namespace VCAuthn.IdentityServer.Endpoints
     {
         [JsonProperty("recipientKeys")]
         public List<string> RecipientKeys { get; set; }
-        
+
         [JsonProperty("routingKeys")]
         public List<string> RoutingKeys { get; set; }
-        
+
         [JsonProperty("serviceEndpoint")]
         public string ServiceEndpoint { get; set; }
     }

@@ -1,21 +1,12 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using VCAuthn.Migrations;
+using VCAuthn.Models;
+using VCAuthn.Services.Contracts;
 
-namespace VCAuthn.PresentationConfiguration
+namespace VCAuthn.Services
 {
-    public interface IPresentationConfigurationService
-    {
-        void Create(PresentationRecord record);
-        Task CreateAsync(PresentationRecord record);
-        bool Exists(string id);
-        Task<bool> ExistsAsync(string id);
-        PresentationRecord Get(string id);
-        Task<PresentationRecord> GetAsync(string id);
-        void Update(PresentationRecord record);
-        Task UpdateAsync(PresentationRecord record);
-        bool Delete(string id);
-        Task<bool> DeleteAsync(string id);
-    }
-
     public class PresentationConfigurationService : IPresentationConfigurationService
     {
         private readonly StorageDbContext _context;
@@ -25,26 +16,36 @@ namespace VCAuthn.PresentationConfiguration
             _context = context;
         }
         
-        public void Create(PresentationRecord record)
+        public void Create(PresentationConfiguration record)
         {
             _context.Add(record);
             _context.SaveChanges();
         }
 
-        public async Task CreateAsync(PresentationRecord record)
+        public async Task CreateAsync(PresentationConfiguration record)
         {
             await _context.AddAsync(record);
             await _context.SaveChangesAsync();
         }
         
-        public PresentationRecord Get(string id)
+        public PresentationConfiguration Get(string id)
         {
             return _context.PresentationConfigurations.Find(id);
         }
         
-        public async Task<PresentationRecord> GetAsync(string id)
+        public async Task<PresentationConfiguration> GetAsync(string id)
         {
             return await _context.PresentationConfigurations.FindAsync(id);
+        }
+
+        public List<PresentationConfiguration> Get¿ll()
+        {
+            return _context.PresentationConfigurations.ToList();
+        }
+
+        public Task<List<PresentationConfiguration>> GetAllAsync()
+        {
+            return Task.FromResult(_context.PresentationConfigurations.ToList());
         }
 
         public bool Exists(string id)
@@ -57,7 +58,7 @@ namespace VCAuthn.PresentationConfiguration
             return (await _context.PresentationConfigurations.FindAsync(id) != null);
         }
 
-        public void Update(PresentationRecord record)
+        public void Update(PresentationConfiguration record)
         {
             var original = _context.PresentationConfigurations.Find(record.Id);
 
@@ -73,7 +74,7 @@ namespace VCAuthn.PresentationConfiguration
             _context.SaveChanges();
         }
 
-        public async Task UpdateAsync(PresentationRecord record)
+        public async Task UpdateAsync(PresentationConfiguration record)
         {
             var original = await _context.PresentationConfigurations.FindAsync(record.Id);
 
@@ -114,5 +115,6 @@ namespace VCAuthn.PresentationConfiguration
             _context.PresentationConfigurations.Remove(record);
             return _context.SaveChanges() == 1;
         }
+
     }
 }

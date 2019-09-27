@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -7,22 +6,20 @@ using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using VCAuthn.IdentityServer.SessionStorage;
+using VCAuthn.Services.Contracts;
 
-namespace VCAuthn.IdentityServer.Endpoints
+namespace VCAuthn.IdentityServer.Endpoints.AuthorizeCallbackEndpoint
 {
-    public class AuthorizeCallback : IEndpointHandler
+    public class AuthorizeCallbackEndpoint : IEndpointHandler
     {
         public const string Name = "VCAuthorizeCallback";
         
         private readonly ISessionStorageService _sessionStorageService;
-        private readonly ITokenIssuerService _tokenIssuerService;
-        private readonly ILogger<AuthorizeCallback> _logger;
+        private readonly ILogger<AuthorizeCallbackEndpoint> _logger;
 
-        public AuthorizeCallback(ISessionStorageService sessionStorageService, ITokenIssuerService tokenIssuerService, ILogger<AuthorizeCallback> logger)
+        public AuthorizeCallbackEndpoint(ISessionStorageService sessionStorageService, ILogger<AuthorizeCallbackEndpoint> logger)
         {
             _sessionStorageService = sessionStorageService;
-            _tokenIssuerService = tokenIssuerService;
             _logger = logger;
         }
         
@@ -58,33 +55,13 @@ namespace VCAuthn.IdentityServer.Endpoints
 
                 _logger.LogDebug($"Code flow. Redirecting to {url}");
                 
-                return new RedirectResult(url);
+                return new AuthorizeCallbackResult(url);
             }
 
             //TODO add token flow handling
 
             _logger.LogError("Unknown response type");
             return VCResponseHelpers.Error("invalid_response_type", $"Unknown response type: [{session.RequestParameters[IdentityConstants.ResponseModeUriParameterName]}]");
-        }
-
-
-        public class RedirectResult : IEndpointResult
-        {
-            private readonly string _url;
-            
-            public RedirectResult(string url)
-            {
-                if (string.IsNullOrWhiteSpace(url)) throw new ArgumentNullException(nameof(url));
-
-                _url = url;
-            }
-
-            public async Task ExecuteAsync(HttpContext context)
-            {
-                context.Response.RedirectToAbsoluteUrl(_url);
-
-                await Task.CompletedTask;
-            }
         }
     }
 }

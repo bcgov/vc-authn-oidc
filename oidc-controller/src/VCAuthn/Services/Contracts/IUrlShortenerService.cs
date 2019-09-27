@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace VCAuthn.UrlShortener
+namespace VCAuthn.Services.Contracts
 {
     /// <summary>
     /// Url Shortener Service.

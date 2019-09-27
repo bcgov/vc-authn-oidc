@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using VCAuthn.Models;
 
-namespace VCAuthn.IdentityServer.SessionStorage
+namespace VCAuthn.Services.Contracts
 {
     public interface ISessionStorageService
     {
