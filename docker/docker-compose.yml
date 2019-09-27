@@ -86,7 +86,8 @@ services:
     environment:
       - IdentityServer__ConnectionStrings__Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};
       - IdentityServer__PublicOrigin=${IDENTITY_SERVER_URL}
-      - ACAPY__BaseUrl=${ACAPY_BASE_URL}
+      - ACAPY__AdminUrl=${ACAPY_ADMIN_URL}
+      - ACAPY__AgentUrl=${ACAPY_AGENT_URL}
       - UrlShortenerService__ConnectionStrings__Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};
       - UrlShortenerService__BaseUrl=${IDENTITY_SERVER_URL}/url
       - SessionStorageService__ConnectionStrings_Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};

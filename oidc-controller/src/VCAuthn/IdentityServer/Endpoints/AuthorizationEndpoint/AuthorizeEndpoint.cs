@@ -193,7 +193,7 @@ namespace VCAuthn.IdentityServer.Endpoints
                 Service = new ServiceDecorator
                 {
                     RecipientKeys = new List<string>{acapyPublicDid.Verkey},
-                    ServiceEndpoint = _acapyClient.GetServicePublicUrl()
+                    ServiceEndpoint = _acapyClient.GetAgentUrl()
                 }
             };
             return request;
