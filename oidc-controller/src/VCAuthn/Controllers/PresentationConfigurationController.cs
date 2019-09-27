@@ -18,6 +18,13 @@ namespace VCAuthn.Controllers
             _service = service;
         }
 
+        // GET: api/vc-configs
+        [HttpGet]
+        public async Task<ActionResult<PresentationConfiguration>> GetConfigs()
+        {
+            return Ok(await _service.GetAllAsync());
+        }
+
         // GET: api/vc-configs/5
         [HttpGet("{id}")]
         public async Task<ActionResult<PresentationConfiguration>> GetConfig(string id)
