@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using VCAuthn.ACAPY;
 using VCAuthn.Models;
 using VCAuthn.Services.Contracts;
+using VCAuthn.Utils;
 
 namespace VCAuthn.Controllers
 {
@@ -33,7 +34,7 @@ namespace VCAuthn.Controllers
                 return Ok();
             }
 
-            _logger.LogDebug($"Received web hook update object : {update}");
+            _logger.LogDebug($"Received web hook update object : {update.ToJson()}");
 
             try
             {
