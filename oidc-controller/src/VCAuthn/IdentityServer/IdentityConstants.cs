@@ -2,6 +2,10 @@ namespace VCAuthn.IdentityServer
 {
     public class IdentityConstants
     {
+        public const string AuthenticationContextReferenceIdentityTokenKey = "acr";
+        public const string SubjectIdentityTokenKey = "sub";
+
+        public const string ClientId = "client_id";
         public const string ScopeParamName = "scope";
         public const string VCAuthnScopeName = "vc_authn";
         public const string MissingVCAuthnScopeError = "missing_vc_authn_scope";
@@ -16,7 +20,6 @@ namespace VCAuthn.IdentityServer
         
         public const string GrantTypeParameterName = "grant_type";
         public const string InvalidGrantTypeError = "invalid_grant_type";
-        public const string VerificationCodeGrantType = "verification_code";
         
         public const string UnknownPresentationRecordId = "unknown_presentation_record_id";
         public const string PresentationUrlBuildFailed = "presentation_url_build_failed";
@@ -27,10 +30,12 @@ namespace VCAuthn.IdentityServer
         public const string DefaultResponseType = "form_post";
         
         public const string ResponseModeUriParameterName = "response_mode";
-        public const string DefaultResponseMode = "verification_code";
-        
-        public const string VerificationCodeParameterName = "code";
-        public const string InvalidVerificationCodeError = "invalid_verification_code";
+        public const string DefaultResponseMode = "authorization_code";
+
+        public const string StateParameterName = "state";
+        public const string NonceParameterName = "nonce";
+        public const string AuthorizationCodeParameterName = "code";
+        public const string InvalidAuthorizationCodeError = "invalid_authorization_code";
 
         public const string SessionIdCookieName = "sessionid";
         public const string InvalidSessionError = "invalid_session";
@@ -40,7 +45,7 @@ namespace VCAuthn.IdentityServer
         public const string AuthorizationViewName = "/Views/Authorize/Authorize.cshtml";
         
         public const string ChallengeIdQueryParameterName = "pid";
-        public const string VerificationChallengePollUri = "vc/connect/poll";
+        public const string ChallengePollUri = "vc/connect/poll";
         public const string AuthorizeCallbackUri = "vc/connect/callback";
         public const string VerifiedCredentialAuthorizeUri = "vc/connect/authorize";
         public const string VerifiedCredentialTokenUri = "vc/connect/token";

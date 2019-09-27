@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using VCAuthn.Models;
 
 namespace VCAuthn.IdentityServer.Endpoints
 {
-    public class PresentationRequest
+    public class PresentationRequestMessage
     {
         [JsonProperty("@id")]
         public string Id { get; set; }
@@ -12,7 +13,7 @@ namespace VCAuthn.IdentityServer.Endpoints
         public string Type => "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/credential-presentation/0.1/presentation-request";
 
         [JsonProperty("request")]
-        public PresentationConfiguration.PresentationConfiguration Request { get; set; }
+        public PresentationRequest Request { get; set; }
         
         [JsonProperty("comment")]
         public string Comment { get; set; }

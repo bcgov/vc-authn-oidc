@@ -13,7 +13,7 @@ services:
     ports:
       - 8180:8080
     volumes:
-      - ./keycloak-config:/tmp
+      - ./keycloak/config:/tmp
     environment:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin

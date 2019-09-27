@@ -14,7 +14,8 @@ The VCAuthn-Service has two main dependencies
 To run the OIDC-Controller in debug, first you must run these dependencies with the following command
 
 ```
-    docker-compose -f ./docker/docker-compose.local-debug.yml
+    docker-compose -f ./docker/docker-compose.local-debug.yml build
+    docker-compose -f ./docker/docker-compose.local-debug.yml up
 ```
 
 Following this you can either launch the VCAuthn-Service in debug via an IDE like VS Code or Visual Studio or run the following command
@@ -37,7 +38,7 @@ To start the demo run the following commands from within the `docker` folder:
 Once you have the service running, a presentation request configuration must be configured on the service. You can configure this through either browsing to the swagger interface [here](http://localhost:5000) or running the following curl command with a valid request body
 
 ```
-    curl -X POST "http://localhost:5000/api/vc-configs" -H "accept: application/json" -H "Authorization: Test" -H "Content-Type: application/json" -d "{ \"id\" : \"test-request-config\", \"subject_identifier\" : \"attribute1\", \"configuration\" : { \"name\" : \"test\", \"version\" : 1.0, \"requested_attributes\" : { \"attribute1\": { \"name\" : \"attribute1\", \"restrictions\" : [ { \"schema_id\": \"123\", \"schema_issuer_did\": \"\", \"schema_name\": \"name\", \"schema_version\": \"\", \"issuer_did\": \"\", \"cred_def_id\": \"\" }\t\t\t\t] }, \"attribute2\": { \"name\" : \"attribute2\", \"restrictions\" : [ { \"schema_id\": \"345\", \"schema_issuer_did\": \"\", \"schema_name\": \"name\", \"schema_version\": \"\", \"issuer_did\": \"\", \"cred_def_id\": \"\" }\t\t\t\t] }\t\t} }}"
+    curl -X POST "http://localhost:5000/api/vc-configs" -H "accept: application/json" -H "X-Api-Key: test" -H "Content-Type: application/json-patch+json" -d "{ \"id\": \"test\", \"subject_identifier\": \"email\", \"configuration\": { \"name\": \"Basic Proof\", \"version\": \"1.0\", \"requested_attributes\": [ { \"name\": \"email\", \"restrictions\": [] }, { \"name\": \"first_name\", \"restrictions\": [] }, { \"name\": \"last_name\", \"restrictions\": [] } ], \"requested_predicates\": [] }}"
 ```
 
 > The API is protected with an APIKey which defaults to `Test` in the demo
@@ -46,40 +47,27 @@ An example of a valid presentation request configuration is the following.
 
 ```
 {
-    "id" : "test-request-config",
-    "subject_identifier" : "attribute1",
-    "configuration" : {
-        "name" : "test",
-        "version" : 1.0,
-        "requested_attributes" : {
-            "attribute1": {
-                "name" : "attribute1",
-                "restrictions" : [
-                    {
-                        "schema_id": "123",
-                        "schema_issuer_did": "",
-                        "schema_name": "name",
-                        "schema_version": "",
-                        "issuer_did": "",
-                        "cred_def_id": ""
-                    }
-				]
-            },
-            "attribute2": {
-                "name" : "attribute2",
-                "restrictions" : [
-                    {
-                        "schema_id": "345",
-                        "schema_issuer_did": "",
-                        "schema_name": "name",
-                        "schema_version": "",
-                        "issuer_did": "",
-                        "cred_def_id": ""
-                    }
-				]
-            }
-		}
-    }
+  "id": "test",
+  "subject_identifier": "email",
+  "configuration": {
+    "name": "Basic Proof",
+    "version": "1.0",
+    "requested_attributes": [
+      {
+        "name": "email",
+        "restrictions": []
+      },
+      {
+        "name": "first_name",
+        "restrictions": []
+      },
+      {
+        "name": "last_name",
+        "restrictions": []
+      }
+    ],
+    "requested_predicates": []
+  }
 }
 ```
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -8,11 +9,7 @@ using IdentityModel;
 using IdentityServer4.Endpoints.Results;
 using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
 using IdentityServer4.Validation;
-using log4net;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using VCAuthn.IdentityServer.SessionStorage;
@@ -25,15 +22,17 @@ namespace VCAuthn.IdentityServer.Endpoints
         private readonly IClientSecretValidator _clientValidator;
         private readonly ISessionStorageService _sessionStore;
         private readonly ITokenIssuerService _tokenIssuerService;
-        private readonly ILogger _logger;
+        private readonly IPresentationConfigurationService _presentationConfigurationService;
+        private readonly ILogger<TokenEndpoint> _logger;
 
         public const string Name = "VCToken";
 
-        public TokenEndpoint(IClientSecretValidator clientValidator, ISessionStorageService sessionStore, ITokenIssuerService tokenIssuerService, IPresentationConfigurationService presentationConfigurationService, ILogger logger)
+        public TokenEndpoint(IClientSecretValidator clientValidator, ISessionStorageService sessionStore, ITokenIssuerService tokenIssuerService, IPresentationConfigurationService presentationConfigurationService, ILogger<TokenEndpoint> logger)
         {
             _clientValidator = clientValidator;
             _sessionStore = sessionStore;
             _tokenIssuerService = tokenIssuerService;
+            _presentationConfigurationService = presentationConfigurationService;
             _logger = logger;
         }
 
@@ -68,15 +67,10 @@ namespace VCAuthn.IdentityServer.Endpoints
                 return VCResponseHelpers.Error(IdentityConstants.InvalidGrantTypeError);
             }
 
-            if (grantType != IdentityConstants.VerificationCodeGrantType)
-            {
-                return VCResponseHelpers.Error(IdentityConstants.InvalidGrantTypeError);
-            }
-
-            var sessionId = values.Get(IdentityConstants.VerificationCodeParameterName);
+            var sessionId = values.Get(IdentityConstants.AuthorizationCodeParameterName);
 
             if (string.IsNullOrEmpty(sessionId))
-                return VCResponseHelpers.Error(IdentityConstants.InvalidVerificationCodeError);
+                return VCResponseHelpers.Error(IdentityConstants.InvalidAuthorizationCodeError);
 
             var session = await _sessionStore.FindBySessionIdAsync(sessionId);
             if (session == null)
@@ -91,7 +85,7 @@ namespace VCAuthn.IdentityServer.Endpoints
 
             try
             {
-                return new TokenResult(session, _tokenIssuerService, _sessionStore, _logger);
+                return new TokenResult(session, _tokenIssuerService, _presentationConfigurationService, _sessionStore, _logger);
             }
             catch (Exception e)
             {
@@ -104,22 +98,26 @@ namespace VCAuthn.IdentityServer.Endpoints
         {
             private readonly AuthSession _session;
             private readonly ITokenIssuerService _tokenIssuerService;
+            private readonly IPresentationConfigurationService _presentationConfigurationService;
             private readonly ISessionStorageService _sessionStorage;
             private readonly ILogger _logger;
 
-            public TokenResult(AuthSession session, ITokenIssuerService tokenIssuerService, ISessionStorageService sessionStorage, ILogger logger)
+            public TokenResult(AuthSession session, ITokenIssuerService tokenIssuerService, IPresentationConfigurationService presentationConfigurationService, ISessionStorageService sessionStorage, ILogger logger)
             {
                 _session = session;
                 _tokenIssuerService = tokenIssuerService;
+                _presentationConfigurationService = presentationConfigurationService;
                 _sessionStorage = sessionStorage;
                 _logger = logger;
             }
 
             public async Task ExecuteAsync(HttpContext context)
             {
-                var presentation = _session.Presentation;
                 var issuer = context.GetIdentityServerIssuerUri();
-                var token = await _tokenIssuerService.IssueJwtAsync(10000, issuer, _session.PresentationRecordId, presentation);
+
+                var audience = _session.RequestParameters.ContainsKey(IdentityConstants.ClientId) ? _session.RequestParameters[IdentityConstants.ClientId] : "";
+
+                var token = await _tokenIssuerService.IssueJwtAsync(10000, issuer, new string[] { audience }, await GetClaims());
 
                 if (_sessionStorage.DeleteSession(_session) == false)
                 {
@@ -128,9 +126,45 @@ namespace VCAuthn.IdentityServer.Endpoints
 
                 await context.Response.WriteJsonAsync(new
                 {
-                    access_token = token,
+                    access_token = "invalid",
+                    id_token = token,
                     token_type = "Bearer"
                 });
+            }
+
+            private async Task<List<Claim>> GetClaims()
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(IdentityConstants.PresentationRequestConfigIDParamName, _session.PresentationRecordId),
+                    new Claim(IdentityConstants.AuthenticationContextReferenceIdentityTokenKey, IdentityConstants.VCAuthnScopeName)
+                };
+
+                var presentationConfig = await _presentationConfigurationService.GetAsync(_session.PresentationRecordId);
+
+                if (_session.RequestParameters.ContainsKey(IdentityConstants.NonceParameterName))
+                {
+                    claims.Add(new Claim(IdentityConstants.NonceParameterName, _session.RequestParameters[IdentityConstants.NonceParameterName]));
+                }
+
+                foreach (var requestedAttr in _session.PresentationRequest.RequestedAttributes)
+                {
+                    if (_session.Presentation.RequestedProof.RevealedAttributes.ContainsKey(requestedAttr.Key))
+                    {
+                        claims.Add(new Claim(requestedAttr.Value.Name, _session.Presentation.RequestedProof.RevealedAttributes[requestedAttr.Key].Raw));
+                        if (!string.IsNullOrEmpty(presentationConfig.SubjectIdentifier) && string.Equals(requestedAttr.Value.Name, presentationConfig.SubjectIdentifier, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            claims.Add(new Claim(IdentityConstants.SubjectIdentityTokenKey, _session.Presentation.RequestedProof.RevealedAttributes[requestedAttr.Key].Raw));
+                        }
+                    }
+                }
+
+                if (!claims.Any(_ => _.Type == IdentityConstants.SubjectIdentityTokenKey))
+                {
+                    claims.Add(new Claim(IdentityConstants.SubjectIdentityTokenKey, Guid.NewGuid().ToString()));
+                }
+
+                return claims;
             }
         }
     }

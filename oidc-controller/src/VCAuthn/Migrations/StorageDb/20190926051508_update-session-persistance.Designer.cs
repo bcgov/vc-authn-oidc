@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using VCAuthn;
@@ -9,9 +10,10 @@ using VCAuthn;
 namespace VCAuthn.Migrations
 {
     [DbContext(typeof(StorageDbContext))]
-    partial class StorageDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190926051508_update-session-persistance")]
+    partial class updatesessionpersistance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,8 +35,6 @@ namespace VCAuthn.Migrations
                     b.Property<bool>("PresentationRequestSatisfied");
 
                     b.Property<string>("Proof");
-
-                    b.Property<string>("ProofRequest");
 
                     b.Property<string>("RequestParams");
 

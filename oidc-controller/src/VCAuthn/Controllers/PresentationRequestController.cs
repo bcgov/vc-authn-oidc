@@ -22,7 +22,7 @@ namespace VCAuthn.Controllers
             _logger = logger;
         }
 
-        [HttpPost(IdentityConstants.VerificationChallengePollUri)]
+        [HttpGet(IdentityConstants.ChallengePollUri)]
         public async Task<ActionResult> Poll([FromQuery(Name = IdentityConstants.ChallengeIdQueryParameterName)] string presentationRequestId)
         {
             if (string.IsNullOrEmpty(presentationRequestId))
@@ -43,11 +43,6 @@ namespace VCAuthn.Controllers
                 return BadRequest();
             }
 
-            if (authSession.ExpiredTimestamp >= DateTime.UtcNow)
-            {
-                _logger.LogDebug($"Session expired. Session id: [{authSession.Id}]");
-                return BadRequest();
-            }
 
             return Ok();
         }

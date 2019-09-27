@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using VCAuthn.Controllers;
+using VCAuthn.Models;
 
 namespace VCAuthn.IdentityServer.SessionStorage
 {
@@ -13,54 +12,41 @@ namespace VCAuthn.IdentityServer.SessionStorage
 
         public DateTime ExpiredTimestamp { get; set; }
 
-        // Requested presentation record id
         public string PresentationRecordId { get; set; }
+
         public string PresentationRequestId { get; set; }
+
         public bool PresentationRequestSatisfied { get; set; }
-        
-        // Requested OIDC response type
-        public string ResponseType { get; set; }
-        // Requested OIDC redirect url
-        public string RedirectUrl { get; set; }
+
+        // exists to convince EntityFramework to store request parameters as a string
+        private string _requestParameters;
+
+        [NotMapped]
+        public Dictionary<string,string> RequestParameters
+        {
+            get => _requestParameters == null ? null : JsonConvert.DeserializeObject<Dictionary<string,string>>(_requestParameters);
+            set => _requestParameters = JsonConvert.SerializeObject(value);
+        }
+
+        private string _presentationRequest;
+
+        [NotMapped]
+        public PresentationRequest PresentationRequest
+        {
+            get => _presentationRequest == null ? null : JsonConvert.DeserializeObject<PresentationRequest>(_presentationRequest);
+            set => _presentationRequest = JsonConvert.SerializeObject(value);
+        }
 
         // exists to convince EntityFramework to store presentation as a string
         private string _presentation;
 
         [NotMapped]
-        public PartialPresentation Presentation
+        public Presentation Presentation
         {
-            get => _presentation == null ? null : JsonConvert.DeserializeObject<PartialPresentation>(_presentation);
+            get => _presentation == null ? null : JsonConvert.DeserializeObject<Presentation>(_presentation);
             set => _presentation = JsonConvert.SerializeObject(value);
         }
     }
     
-    public class PartialPresentation
-    {
-        [JsonProperty("requested_proof")]
-        public RequestedProof RequestedProof { get; set; }
-    }
-
-    public class RequestedProof
-    {
-        [JsonProperty("revealed_attrs")]
-        public Dictionary<string, ProofAttribute> RevealedAttributes { get; set; }
-            
-        /// <summary>
-        /// ignore structural mapping of other properties
-        /// </summary>
-        [JsonExtensionData]
-        public IDictionary<string, JToken> Rest { get; set; }
-    }
-
-    public class ProofAttribute
-    {
-        [JsonProperty("raw")]
-        public string Raw { get; set; }
-            
-        /// <summary>
-        /// ignore structural mapping of other properties
-        /// </summary>
-        [JsonExtensionData]
-        public IDictionary<string, JToken> Rest { get; set; }
-    }
+    
 }

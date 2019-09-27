@@ -136,38 +136,26 @@ A verifiable credential presentation request configuration, takes the following 
 
 ```
 {
-    "id" : "<configuration-identifier>"
-    "subject_identifier" : "<attribute-referent>"
-    "name" : "",
-    "requested_atrributes" : {
-        "attribute_referent" : {
-            "name" : "attribute",
-            "restrictions" : {
-                {
-                    "schema_id": ""
-                    "schema_issuer_did": ""
-                    "schema_name": ""
-                    "schema_version": ""
-                    "issuer_did": ""
-                    "cred_def_id": ""
-                }
-            }
-        }
-        "attribute_referent" : {
-            "name" : "attribute2",
-            "restrictions" : {
-                {
-                    "schema_id": ""
-                    "schema_issuer_did": ""
-                    "schema_name": ""
-                    "schema_version": ""
-                    "issuer_did": ""
-                    "cred_def_id": ""
-                }
-            }
-        }
-        //Any number of attribute referents
-    }
+  "id": "<configuration-identifier>",
+  "subject_identifier": "<attribute-name>",
+  "configuration": {
+    "name": "Basic Proof",
+    "version": "1.0",
+    "requested_attributes": [
+      {
+        "name": "email",
+        "restrictions": []
+      },
+      {
+        "name": "first_name",
+        "restrictions": []
+      },
+      {
+        "name": "last_name",
+        "restrictions": []
+      }
+    ]
+  }
 }
 ```
 
@@ -175,36 +163,37 @@ This data model is inspired by that is defined and used in the [Hyperledger Indy
 
 - `id` : The identifier for the presentation configuration.
 - `subject_identifier` : See [here](#subject-identifer-mapping) for further details on the purpose of this field.
-- `name` : The name of the presentation configuration, this is used when the OP generates a presentation request.
-- `requested_attributes` : Is a map of requested attributes and the associated constraints for each attributes disclosure.
-    - Each attribute has a referent that is an alias for the disclosed attribute.
-    - `name` : Is the name of the attribute to be disclosed.
-    - `restrictions` : An object declaring the constraints of the attributes disclosure.
-        - `schema_id` : Identifier of the schema the disclosed attribute must be sourced from.
-        - `schema_issuer_did` : DID of the schema used for the disclosed credential must be issued by.
-        - `schema_name` : Name of the schema used for the credential the attribute is being disclosed from.
-        - `schema_version` : Version of the schema used for the credential the attribute is being disclosed from.
-        - `issuer_did` : DID of the issuer of the credential the attribute is being disclosed from.
-        - `cred_def_id` : Identifier of the credential definition the credential the attribute is being disclosed from.
+- `configuration` : Contains the details on the presentation request, e.g which attributes are to be disclosed
+    - `name` : The name that will accompany the presentation request
+    - `version` : The version of the presentation request
+    - `requested_attributes` : Is a list of requested attributes.
+        - `name` : Is the name of the attribute to be disclosed.
+        - `restrictions` : An object declaring the constraints of the attributes disclosure.
+            - `schema_id` : Identifier of the schema the disclosed attribute must be sourced from.
+            - `schema_issuer_did` : DID of the schema used for the disclosed credential must be issued by.
+            - `schema_name` : Name of the schema used for the credential the attribute is being disclosed from.
+            - `schema_version` : Version of the schema used for the credential the attribute is being disclosed from.
+            - `issuer_did` : DID of the issuer of the credential the attribute is being disclosed from.
+            - `cred_def_id` : Identifier of the credential definition the credential the attribute is being disclosed from.
 
 ### API
 
 In order to manage the different verifiable credential presentation requests an OP can generate, the OP must expose the following endpoints.
 
-`/vcpresentation/configuration` HTTP POST
+`/vc-configs` HTTP POST
 
 Request Body : [Data Model](#data-model)
 Returns : id
 
-`/vcpresentation/configuration` HTTP GET
+`/vc-configs` HTTP GET
 
 Returns : List of [Data Model](#data-model)
 
-`/vcpresentation/configuration/{id}` HTTP GET
+`/vc-configs/{id}` HTTP GET
 
 Returns : [Data Model](#data-model)
 
-`/vcpresentation/configuration/{id}` HTTP DELETE
+`/vc-configs/{id}` HTTP DELETE
 
 Return : 200 Ok
 Return : 404 Not Found
