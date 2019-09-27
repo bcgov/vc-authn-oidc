@@ -108,7 +108,8 @@ configureEnvironment() {
   export AGENT_NAME="vc-oidc-controller-agent"
   export AGENT_HTTP_PORT="5679"
   export AGENT_ADMIN_PORT="5678"
-  export ACAPY_BASE_URL="http://aca-py:${AGENT_ADMIN_PORT}"
+  export ACAPY_ADMIN_URL="http://aca-py:${AGENT_ADMIN_PORT}"
+  export ACAPY_AGENT_URL="http://aca-py:${AGENT_HTTP_PORT}"
   export LEDGER_URL=${LEDGER_URL-http://$DOCKERHOST:9000}
   export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$DOCKERHOST:$AGENT_HTTP_PORT}
   export AGENT_SEED="000000000000000000000000Steward1"
