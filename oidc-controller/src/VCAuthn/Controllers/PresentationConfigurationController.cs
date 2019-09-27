@@ -1,7 +1,8 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VCAuthn.PresentationConfiguration;
+using VCAuthn.Models;
+using VCAuthn.Services.Contracts;
 
 namespace VCAuthn.Controllers
 {
@@ -19,7 +20,7 @@ namespace VCAuthn.Controllers
 
         // GET: api/vc-configs/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<PresentationRecord>> GetConfig(string id)
+        public async Task<ActionResult<PresentationConfiguration>> GetConfig(string id)
         {
             var record = await _service.GetAsync(id);
 
@@ -33,7 +34,7 @@ namespace VCAuthn.Controllers
         
         // POST: api/vc-configs
         [HttpPost]
-        public async Task<ActionResult> CreateConfig([FromBody] PresentationRecord record)
+        public async Task<ActionResult> CreateConfig([FromBody] PresentationConfiguration record)
         {
             if (_service.Exists(record.Id))
                 return BadRequest($"Record with id : `{record.Id}` already exists");
@@ -44,7 +45,7 @@ namespace VCAuthn.Controllers
         
         // PUT: api/vc-configs
         [HttpPut]
-        public async Task<ActionResult> UpdateConfig([FromBody] PresentationRecord record)
+        public async Task<ActionResult> UpdateConfig([FromBody] PresentationConfiguration record)
         {
             await _service.UpdateAsync(record);
             return Ok();
