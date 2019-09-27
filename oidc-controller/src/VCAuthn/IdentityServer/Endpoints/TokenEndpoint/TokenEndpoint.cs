@@ -33,12 +33,15 @@ namespace VCAuthn.IdentityServer.Endpoints
 
         public async Task<IEndpointResult> ProcessAsync(HttpContext context)
         {
+            _logger.LogDebug($"Starting token request");
+
             NameValueCollection values;
 
             if (HttpMethods.IsPost(context.Request.Method))
             {
                 if (!context.Request.HasFormContentType)
                 {
+                    _logger.LogDebug($"Unsupported media type");
                     return new StatusCodeResult(HttpStatusCode.UnsupportedMediaType);
                 }
 
@@ -46,12 +49,14 @@ namespace VCAuthn.IdentityServer.Endpoints
             }
             else
             {
+                _logger.LogDebug($"Method not allowed");
                 return new StatusCodeResult(HttpStatusCode.MethodNotAllowed);
             }
 
             var clientResult = await _clientValidator.ValidateAsync(context);
             if (clientResult.Client == null)
             {
+                _logger.LogDebug($"Invalid client");
                 return VCResponseHelpers.Error(OidcConstants.TokenErrors.InvalidClient);
             }
 
@@ -59,27 +64,34 @@ namespace VCAuthn.IdentityServer.Endpoints
 
             if (string.IsNullOrEmpty(grantType))
             {
+                _logger.LogDebug($"Invalid grant type of : {grantType}");
                 return VCResponseHelpers.Error(IdentityConstants.InvalidGrantTypeError);
             }
 
             var sessionId = values.Get(IdentityConstants.AuthorizationCodeParameterName);
 
             if (string.IsNullOrEmpty(sessionId))
+            {
+                _logger.LogDebug($"Invalid authorization code : {sessionId}");
                 return VCResponseHelpers.Error(IdentityConstants.InvalidAuthorizationCodeError);
+            }
 
             var session = await _sessionStore.FindBySessionIdAsync(sessionId);
             if (session == null)
             {
+                _logger.LogDebug($"Invalid session : {sessionId}");
                 return VCResponseHelpers.Error(IdentityConstants.InvalidSessionError, $"Cannot find stored session");
             }
 
             if (session.PresentationRequestSatisfied == false)
             {
+                _logger.LogDebug($"Presentation not satisfied, session id : {sessionId}");
                 return VCResponseHelpers.Error(IdentityConstants.InvalidSessionError, "Presentation request wasn't satisfied");
             }
 
             try
             {
+                _logger.LogDebug($"Constructing token result for session : {sessionId}");
                 return new TokenEndpointResult(session, _tokenIssuerService, _presentationConfigurationService, _sessionStore, _logger);
             }
             catch (Exception e)
