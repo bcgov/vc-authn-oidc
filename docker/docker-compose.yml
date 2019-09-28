@@ -102,7 +102,7 @@ services:
       dotnet VCAuthn.dll"
 
   wallet-db:
-    image: postgresql
+    image: registry.access.redhat.com/rhscl/postgresql-10-rhel7:latest
     environment:
       - POSTGRESQL_USER=${POSTGRESQL_WALLET_USER}
       - POSTGRESQL_PASSWORD=${POSTGRESQL_WALLET_PASSWORD}
