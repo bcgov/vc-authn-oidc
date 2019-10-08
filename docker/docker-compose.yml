@@ -74,8 +74,9 @@ services:
         --wallet-storage-creds '{\"account\":\"${POSTGRESQL_WALLET_USER}\",\"password\":\"${POSTGRESQL_WALLET_PASSWORD}\",\"admin_account\":\"${POSTGRESQL_WALLET_ADMIN_USER}\",\"admin_password\":\"${POSTGRESQL_WALLET_ADMIN_PASSWORD}\"}' \
         --seed '${AGENT_SEED}' \
         --admin '0.0.0.0' ${AGENT_ADMIN_PORT} \
-        --admin-insecure-mode \
+        --admin-api-key ${ACAPY_ADMIN_URL_API_KEY} \
         --label ${AGENT_NAME} \
+        --webhook-url ${IDENTITY_SERVER_URL}/${IDENTITY_SERVER_API_KEY}
         --log-level debug",
       ]
 
@@ -84,9 +85,12 @@ services:
     ports:
       - "${IP:-0.0.0.0}:5000:80"
     environment:
+      - ApiKey=${IDENTITY_SERVER_API_KEY}
+      - SwaggerEnabled=${IDENTITY_SERVER_SWAGGER_ENABLED}
       - IdentityServer__ConnectionStrings__Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};
       - IdentityServer__PublicOrigin=${IDENTITY_SERVER_URL}
       - ACAPY__AdminUrl=${ACAPY_ADMIN_URL}
+      - ACAPY__AdminURLApiKey=${ACAPY_ADMIN_URL_API_KEY}
       - ACAPY__AgentUrl=${ACAPY_AGENT_URL}
       - UrlShortenerService__ConnectionStrings__Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};
       - UrlShortenerService__BaseUrl=${IDENTITY_SERVER_URL}/url
@@ -102,7 +106,7 @@ services:
       dotnet VCAuthn.dll"
 
   wallet-db:
-    image: postgresql
+    image: registry.access.redhat.com/rhscl/postgresql-10-rhel7:latest
     environment:
       - POSTGRESQL_USER=${POSTGRESQL_WALLET_USER}
       - POSTGRESQL_PASSWORD=${POSTGRESQL_WALLET_PASSWORD}
