@@ -74,7 +74,7 @@ services:
         --wallet-storage-creds '{\"account\":\"${POSTGRESQL_WALLET_USER}\",\"password\":\"${POSTGRESQL_WALLET_PASSWORD}\",\"admin_account\":\"${POSTGRESQL_WALLET_ADMIN_USER}\",\"admin_password\":\"${POSTGRESQL_WALLET_ADMIN_PASSWORD}\"}' \
         --seed '${AGENT_SEED}' \
         --admin '0.0.0.0' ${AGENT_ADMIN_PORT} \
-        --admin-api-key ${ACAPY_ADMIN_URL_API_KEY} \
+        --${ACAPY_ADMIN_MODE} \
         --label ${AGENT_NAME} \
         --webhook-url ${IDENTITY_SERVER_URL}/${IDENTITY_SERVER_API_KEY}
         --log-level debug",
