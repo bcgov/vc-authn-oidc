@@ -22,6 +22,8 @@ namespace VCAuthn.ACAPY
     {
         private readonly ILogger<ACAPYClient> _logger;
         private readonly string _adminUrl;
+        private readonly string _adminUrlApiKey;
+
         private readonly string _agentUrl;
         private HttpClient _httpClient;
         
@@ -30,6 +32,7 @@ namespace VCAuthn.ACAPY
             _httpClient = new HttpClient();
             _logger = logger;
             _adminUrl = config.GetValue<string>("AdminUrl");
+            _adminUrlApiKey = config.GetValue<string>("AdminUrlApiKey");
             _agentUrl = config.GetValue<string>("AgentUrl");
         }
 
@@ -50,6 +53,11 @@ namespace VCAuthn.ACAPY
                 Method = HttpMethod.Get,
                 RequestUri = new Uri($"{_adminUrl}{ACAPYConstants.WalletDidPublicUri}")
             };
+
+            if (!string.IsNullOrEmpty(_adminUrlApiKey))
+            {
+                request.Headers.Add(ACAPYConstants.ApiKeyHeader, _adminUrlApiKey);
+            }
 
             try
             {
@@ -78,6 +86,11 @@ namespace VCAuthn.ACAPY
             {
                 string json = JsonConvert.SerializeObject(configuration);
                 var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+                if (!string.IsNullOrEmpty(_adminUrlApiKey))
+                {
+                    httpContent.Headers.Add(ACAPYConstants.ApiKeyHeader, _adminUrlApiKey);
+                }
 
                 var response = await _httpClient.PostAsync($"{_adminUrl}{ACAPYConstants.PresentationExchangeCreateRequest}", httpContent);
                 var responseContent = await response.Content.ReadAsStringAsync();

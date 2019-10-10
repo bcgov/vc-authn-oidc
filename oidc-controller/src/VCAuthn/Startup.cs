@@ -35,7 +35,9 @@ namespace VCAuthn
                 options.DefaultAuthenticateScheme = ApiKeyAuthenticationOptions.DefaultScheme;
                 options.DefaultChallengeScheme = ApiKeyAuthenticationOptions.DefaultScheme;
             })
-            .AddApiKeySupport(options => { });
+            .AddApiKeySupport(options => {
+                options.Key = Configuration.GetValue<string>("ApiKey");
+            });
 
             services.AddMvc()
                     .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
@@ -48,27 +50,27 @@ namespace VCAuthn
             services.AddUrlShortenerService(Configuration.GetSection("UrlShortenerService"));
             services.AddSessionStorage(Configuration.GetSection("SessionStorageService"));
 
-            //TODO enable running with ngrok
-
-            //TODO add enable/disable swagger
-            services.AddSwaggerGen(c =>
+            if (Configuration.GetValue<bool>("SwaggerEnabled"))
             {
-                c.SwaggerDoc(ApiVersion, new Info { Title = "VC-Authn API", Version = ApiVersion });
-                c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
-                c.AddSecurityDefinition("ApiKey",
-                    new ApiKeyScheme
-                    {
-                        In = "header",
-                        Description = "Please enter an API key",
-                        Name = "X-Api-Key",
-                        Type = "apiKey"
-                    });
-                c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
-                    {
+                services.AddSwaggerGen(c =>
+                {
+                    c.SwaggerDoc(ApiVersion, new Info { Title = "VC-Authn API", Version = ApiVersion });
+                    c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+                    c.AddSecurityDefinition("ApiKey",
+                        new ApiKeyScheme
+                        {
+                            In = "header",
+                            Description = "Please enter an API key",
+                            Name = "X-Api-Key",
+                            Type = "apiKey"
+                        });
+                    c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                        {
                         {"ApiKey", Enumerable.Empty<string>()}
-                    });
-                c.DescribeAllEnumsAsStrings();
-            });
+                        });
+                    c.DescribeAllEnumsAsStrings();
+                });
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

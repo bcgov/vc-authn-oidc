@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using VCAuthn.Models;
 using VCAuthn.Services.Contracts;
+using VCAuthn.Utils;
 
 namespace VCAuthn.IdentityServer.Endpoints
 {
@@ -94,7 +95,7 @@ namespace VCAuthn.IdentityServer.Endpoints
                     claims.Add(new Claim(IdentityConstants.SubjectIdentityTokenKey, Guid.NewGuid().ToString()));
                 }
 
-                _logger.LogDebug($"Claims list created for presentation record id : {_session.PresentationRecordId}, values : {claims}");
+                _logger.LogDebug($"Claims list created for presentation record id : {_session.PresentationRecordId}, values : {claims.ToJson()}");
 
                 return claims;
             }

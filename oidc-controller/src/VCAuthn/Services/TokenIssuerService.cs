@@ -7,6 +7,7 @@ using IdentityServer4.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using VCAuthn.Services.Contracts;
+using VCAuthn.Utils;
 
 namespace VCAuthn.Services
 {
@@ -25,7 +26,7 @@ namespace VCAuthn.Services
 
         public async Task<string> IssueJwtAsync(int lifetime, string issuer, ICollection<string> audiences, List<Claim> claims)
         {
-            _logger.LogDebug($"Issuing token for audience : {audiences}, with claims {claims}, from issuer {issuer}, for lifetime {lifetime}");
+            _logger.LogDebug($"Issuing token for audience : {audiences.ToJson()}, with claims {claims.ToJson()}, from issuer {issuer}, for lifetime {lifetime}");
 
             var token = new Token
             {
