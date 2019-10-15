@@ -28,7 +28,7 @@ namespace VCAuthn.Controllers
         }
         
         
-        [HttpPost("{apiKey}/{topic}")]
+        [HttpPost("{apiKey}/topic/{topic}")]
         public async Task<ActionResult> GetTopicUpdate([FromRoute]string apiKey, [FromRoute]string topic, [FromBody]PresentationUpdate update)
         {
             if (!String.Equals(_config.GetValue<string>("ApiKey"), apiKey))
