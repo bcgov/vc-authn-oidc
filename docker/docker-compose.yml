@@ -76,7 +76,7 @@ services:
         --admin '0.0.0.0' ${AGENT_ADMIN_PORT} \
         --${ACAPY_ADMIN_MODE} \
         --label ${AGENT_NAME} \
-        --webhook-url ${IDENTITY_SERVER_URL}/${IDENTITY_SERVER_API_KEY}
+        --webhook-url ${IDENTITY_SERVER_WEB_HOOK_URL}
         --log-level debug",
       ]
 
