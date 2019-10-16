@@ -1,12 +1,14 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using VCAuthn.ACAPY;
 using VCAuthn.Models;
 using VCAuthn.Services.Contracts;
+using VCAuthn.Utils;
 
 namespace VCAuthn.Controllers
 {
@@ -15,25 +17,33 @@ namespace VCAuthn.Controllers
     public class WebHooksController : ControllerBase
     {
         private readonly ISessionStorageService _sessionStorageService;
+        private readonly IConfiguration _config;
         private readonly ILogger<WebHooksController> _logger;
 
-        public WebHooksController(ISessionStorageService sessionStorageService, ILogger<WebHooksController> logger)
+        public WebHooksController(ISessionStorageService sessionStorageService, IConfiguration config, ILogger<WebHooksController> logger)
         {
             _sessionStorageService = sessionStorageService;
+            _config = config;
             _logger = logger;
         }
         
         
-        [HttpPost("{topic}")]
-        public async Task<ActionResult> GetTopicUpdate([FromRoute]string topic, [FromBody]PresentationUpdate update)
+        [HttpPost("{apiKey}/topic/{topic}")]
+        public async Task<ActionResult> GetTopicUpdate([FromRoute]string apiKey, [FromRoute]string topic, [FromBody]PresentationUpdate update)
         {
+            if (!String.Equals(_config.GetValue<string>("ApiKey"), apiKey))
+            {
+                _logger.LogDebug($"Web hook operation un-authorized");
+                return Unauthorized();
+            }
+
             if (String.Equals(ACAPYConstants.PresentationsTopic, topic, StringComparison.InvariantCultureIgnoreCase) == false)
             {
                 _logger.LogDebug($"Skipping webhook for topic [{topic}]");
                 return Ok();
             }
 
-            _logger.LogDebug($"Received web hook update object : {update}");
+            _logger.LogDebug($"Received web hook update object : {update.ToJson()}");
 
             try
             {

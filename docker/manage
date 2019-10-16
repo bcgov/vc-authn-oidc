@@ -103,6 +103,8 @@ configureEnvironment() {
 
   # controller
   export IDENTITY_SERVER_URL="http://localhost:5000"
+  export IDENTITY_SERVER_API_KEY="test-key"
+  export IDENTITY_SERVER_SWAGGER_ENABLED=false
 
   # aca-py
   export AGENT_NAME="vc-oidc-controller-agent"
@@ -113,6 +115,11 @@ configureEnvironment() {
   export LEDGER_URL=${LEDGER_URL-http://$DOCKERHOST:9000}
   export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$DOCKERHOST:$AGENT_HTTP_PORT}
   export AGENT_SEED="000000000000000000000000Steward1"
+  export ACAPY_ADMIN_URL_API_KEY=${ACAPY_ADMIN_URL_API_KEY}
+  export ACAPY_ADMIN_MODE="admin-insecure-mode"
+  if [ ! -z "${ACAPY_ADMIN_URL_API_KEY}" ]; then
+    ACAPY_ADMIN_MODE="admin-api-key ${ACAPY_ADMIN_URL_API_KEY}"
+  fi
 
   # wallet-db
   export WALLET_TYPE="postgres_storage"

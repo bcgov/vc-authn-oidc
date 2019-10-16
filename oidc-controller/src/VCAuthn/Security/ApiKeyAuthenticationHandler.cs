@@ -20,11 +20,21 @@ namespace VCAuthn.Security
             UrlEncoder encoder,
             ISystemClock clock) : base(options, logger, encoder, clock)
         {
-            _apiKey = "Test";
+            _apiKey = options.CurrentValue.Key;
         }
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
+            if (string.IsNullOrEmpty(_apiKey))
+            {
+                var identity = new ClaimsIdentity(new List<Claim>(), Options.AuthenticationType);
+                var identities = new List<ClaimsIdentity> { identity };
+                var principal = new ClaimsPrincipal(identities);
+                var ticket = new AuthenticationTicket(principal, Options.Scheme);
+
+                return Task.FromResult(AuthenticateResult.Success(ticket));
+            }
+
             if (!Request.Headers.TryGetValue(ApiKeyHeaderName, out var apiKeyHeaderValues))
             {
                 return Task.FromResult(AuthenticateResult.NoResult());
