@@ -23,4 +23,4 @@ services:
     ports:
       - 5678:5678 
       - 5679:5679
-    command: [ "start", "-it", "http", "0.0.0.0", "5679", "-ot", "http",  "--log-level", "DEBUG", "--webhook-url", "https://localhost:5001", "--admin", "0.0.0.0", "5678", "--admin-api-key", "test", "--seed", "000000000000000000000000Steward1" ]
+    command: [ "start", "-it", "http", "0.0.0.0", "5679", "-ot", "http",  "--log-level", "DEBUG", "--webhook-url", "https://localhost:5001", "--admin", "0.0.0.0", "5678", "--admin-insecure-mode", "test", "--seed", "000000000000000000000000Steward1" ]
