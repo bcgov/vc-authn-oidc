@@ -13,7 +13,6 @@ using VCAuthn.Utils;
 namespace VCAuthn.Controllers
 {
     [ApiExplorerSettings(IgnoreApi = true)]
-    [Route("/topic")]
     public class WebHooksController : ControllerBase
     {
         private readonly ISessionStorageService _sessionStorageService;
@@ -28,16 +27,27 @@ namespace VCAuthn.Controllers
         }
         
         
-        [HttpPost("{apiKey}/topic/{topic}")]
-        public async Task<ActionResult> GetTopicUpdate([FromRoute]string apiKey, [FromRoute]string topic, [FromBody]PresentationUpdate update)
+        [HttpPost("/{apiKey}/topic/{topic}")]
+        public Task<ActionResult> GetTopicUpdateWithApiKey([FromRoute]string apiKey, [FromRoute]string topic, [FromBody]PresentationUpdate update)
         {
-            if (!String.Equals(_config.GetValue<string>("ApiKey"), apiKey))
+            return ProcessWebhook(apiKey, topic, update);
+        }
+
+        [HttpPost("/topic/{topic}")]
+        public Task<ActionResult> GetTopicUpdate([FromRoute]string topic, [FromBody]PresentationUpdate update)
+        {
+            return ProcessWebhook(null, topic, update);
+        }
+
+        private async Task<ActionResult> ProcessWebhook(string apiKey, string topic, PresentationUpdate update)
+        {
+            if (!string.IsNullOrEmpty(_config.GetValue<string>("ApiKey")) && !string.Equals(_config.GetValue<string>("ApiKey"), apiKey))
             {
                 _logger.LogDebug($"Web hook operation un-authorized");
                 return Unauthorized();
             }
 
-            if (String.Equals(ACAPYConstants.PresentationsTopic, topic, StringComparison.InvariantCultureIgnoreCase) == false)
+            if (string.Equals(ACAPYConstants.PresentationsTopic, topic, StringComparison.InvariantCultureIgnoreCase) == false)
             {
                 _logger.LogDebug($"Skipping webhook for topic [{topic}]");
                 return Ok();
@@ -51,7 +61,7 @@ namespace VCAuthn.Controllers
                 {
                     return Ok();
                 }
-                
+
                 var proof = update.Presentation["requested_proof"].ToObject<RequestedProof>();
                 var partialPresentation = new Presentation
                 {
