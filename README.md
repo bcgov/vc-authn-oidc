@@ -26,6 +26,11 @@ Following this you can either launch the VCAuthn-Service in debug via an IDE lik
 
 ## A Quick Demo
 
+### Pre-requisites
+You will need an instance of [von-network](https://github.com/bcgov/von-network) running in Docker
+
+### Running the demo
+
 The following demo starts up the VCAuthn-Service and its associated dependencies, along with an instance of keycloak.
 
 To start the demo run the following commands from within the `docker` folder:
@@ -38,7 +43,7 @@ To start the demo run the following commands from within the `docker` folder:
 Once you have the service running, a presentation request configuration must be configured on the service. You can configure this through either browsing to the swagger interface [here](http://localhost:5000) or running the following curl command with a valid request body
 
 ```
-    curl -X POST "http://localhost:5000/api/vc-configs" -H "accept: application/json" -H "X-Api-Key: test" -H "Content-Type: application/json-patch+json" -d "{ \"id\": \"test\", \"subject_identifier\": \"email\", \"configuration\": { \"name\": \"Basic Proof\", \"version\": \"1.0\", \"requested_attributes\": [ { \"name\": \"email\", \"restrictions\": [] }, { \"name\": \"first_name\", \"restrictions\": [] }, { \"name\": \"last_name\", \"restrictions\": [] } ], \"requested_predicates\": [] }}"
+    curl -X POST "http://localhost:5000/api/vc-configs" -H "accept: application/json" -H "X-Api-Key: test" -H "Content-Type: application/json-patch+json" -d "{ \"id\": \"test-request-config\", \"subject_identifier\": \"email\", \"configuration\": { \"name\": \"Basic Proof\", \"version\": \"1.0\", \"requested_attributes\": [ { \"name\": \"email\", \"restrictions\": [] }, { \"name\": \"first_name\", \"restrictions\": [] }, { \"name\": \"last_name\", \"restrictions\": [] } ], \"requested_predicates\": [] }}"
 ```
 
 > The API is protected with an APIKey which defaults to `Test` in the demo
@@ -47,7 +52,7 @@ An example of a valid presentation request configuration is the following.
 
 ```
 {
-  "id": "test",
+  "id": "test-request-config",
   "subject_identifier": "email",
   "configuration": {
     "name": "Basic Proof",
