@@ -17,6 +17,8 @@ namespace VCAuthn.Models
 
         public bool PresentationRequestSatisfied { get; set; }
 
+        public string PresentationRequest { get; set; }
+
         // exists to convince EntityFramework to store request parameters as a string
         private string _requestParameters;
 
@@ -25,15 +27,6 @@ namespace VCAuthn.Models
         {
             get => _requestParameters == null ? null : JsonConvert.DeserializeObject<Dictionary<string, string>>(_requestParameters);
             set => _requestParameters = JsonConvert.SerializeObject(value);
-        }
-
-        private string _presentationRequest;
-
-        [NotMapped]
-        public string PresentationRequest
-        {
-            get => _presentationRequest;
-            set => _presentationRequest = value;
         }
 
         // exists to convince EntityFramework to store presentation as a string
