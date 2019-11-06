@@ -12,7 +12,7 @@ namespace VCAuthn.Models
         public string Type => "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/credential-presentation/0.1/presentation-request";
 
         [JsonProperty("request")]
-        public PresentationRequest Request { get; set; }
+        public string Request { get; set; }
 
         [JsonProperty("comment")]
         public string Comment { get; set; }

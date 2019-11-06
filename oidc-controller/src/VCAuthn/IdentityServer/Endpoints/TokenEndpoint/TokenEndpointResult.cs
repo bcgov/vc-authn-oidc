@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using VCAuthn.Models;
 using VCAuthn.Services.Contracts;
 using VCAuthn.Utils;
+using Newtonsoft.Json;
 
 namespace VCAuthn.IdentityServer.Endpoints
 {
@@ -78,7 +79,8 @@ namespace VCAuthn.IdentityServer.Endpoints
                     claims.Add(new Claim(IdentityConstants.NonceParameterName, _session.RequestParameters[IdentityConstants.NonceParameterName]));
                 }
 
-                foreach (var requestedAttr in _session.PresentationRequest.RequestedAttributes)
+                PresentationRequest presentationRequest = JsonConvert.DeserializeObject<PresentationRequest>(_session.PresentationRequest);
+                foreach (var requestedAttr in presentationRequest.RequestedAttributes)
                 {
                     if (_session.Presentation.RequestedProof.RevealedAttributes.ContainsKey(requestedAttr.Key))
                     {

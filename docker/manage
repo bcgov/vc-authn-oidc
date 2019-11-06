@@ -103,9 +103,9 @@ configureEnvironment() {
 
   # controller
   export IDENTITY_SERVER_URL="http://localhost:5000"
-  export IDENTITY_SERVER_API_KEY="test-key"
+  # export IDENTITY_SERVER_API_KEY="test-key"
   export IDENTITY_SERVER_WEB_HOOK_URL=${IDENTITY_SERVER_URL}
-  export IDENTITY_SERVER_SWAGGER_ENABLED=false
+  export IDENTITY_SERVER_SWAGGER_ENABLED=true
   if [ ! -z "${IDENTITY_SERVER_API_KEY}" ]; then
     IDENTITY_SERVER_WEB_HOOK_URL="${IDENTITY_SERVER_URL}/${IDENTITY_SERVER_API_KEY}"
   fi

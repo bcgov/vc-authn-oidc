@@ -1,6 +1,7 @@
 @model  VCAuthn.IdentityServer.Endpoints.AuthorizationViewModel
 @{
     Layout = "_Layout";
+    var txtUri = $"{Model.Challenge}"; 
     var qrUri = $"https://chart.googleapis.com/chart?cht=qr&chs=300x300&chld=L|0&chl={Uri.EscapeDataString(Model.Challenge)}";
 }
 <span>
@@ -21,7 +22,8 @@
           </g>
         </g>
         <image id="frame" width="288" height="288" transform="translate(209.5 76)" xlink:href="@qrUri"/>
-      </svg>
+      </svg>    
+      <a href="@txtUri">@txtUri</a>
   </div>
 </span>
 

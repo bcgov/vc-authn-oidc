@@ -22,7 +22,7 @@ namespace VCAuthn.IdentityServer.Endpoints
     public class AuthorizeEndpoint : IEndpointHandler
     {
         public const string Name = "VCAuthorize";
-        
+
         private readonly IClientSecretValidator _clientValidator;
         private readonly IPresentationConfigurationService _presentationConfigurationService;
         private readonly IUrlShortenerService _urlShortenerService;
@@ -49,7 +49,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             _options = options.Value;
             _logger = logger;
         }
-        
+
         public async Task<IEndpointResult> ProcessAsync(HttpContext context)
         {
             _logger.LogDebug("Processing Authorize request");
@@ -82,24 +82,24 @@ namespace VCAuthn.IdentityServer.Endpoints
             {
                 return VCResponseHelpers.Error(IdentityConstants.MissingVCAuthnScopeError, IdentityConstants.MissingVCAuthnScopeDesc);
             }
-            
+
             var presentationRecordId = values.Get(IdentityConstants.PresentationRequestConfigIDParamName);
             if (string.IsNullOrEmpty(presentationRecordId))
             {
                 return VCResponseHelpers.Error(IdentityConstants.InvalidPresentationRequestConfigIDError, IdentityConstants.InvalidPresentationRequestConfigIDDesc);
             }
-            
+
             var redirectUrl = values.Get(IdentityConstants.RedirectUriParameterName);
             if (string.IsNullOrEmpty(redirectUrl))
             {
                 return VCResponseHelpers.Error(IdentityConstants.InvalidRedirectUriError);
             }
-            
+
             if (clientResult.Client.RedirectUris.Any() && !clientResult.Client.RedirectUris.Contains(redirectUrl))
             {
                 return VCResponseHelpers.Error(IdentityConstants.InvalidRedirectUriError);
             }
-            
+
             var responseType = values.Get(IdentityConstants.ResponseTypeUriParameterName);
             if (string.IsNullOrEmpty(responseType))
             {
@@ -161,8 +161,9 @@ namespace VCAuthn.IdentityServer.Endpoints
             // persist presentation request details in session
             try
             {
-                var session = await _sessionStorage.CreateSessionAsync(new AuthSession(){
-                    PresentationRequestId = presentationRequestId, 
+                var session = await _sessionStorage.CreateSessionAsync(new AuthSession()
+                {
+                    PresentationRequestId = presentationRequestId,
                     PresentationRecordId = presentationRecordId,
                     PresentationRequest = presentationRequest.Request,
                     RequestParameters = values.AllKeys.ToDictionary(t => t, t => values[t])
@@ -179,8 +180,8 @@ namespace VCAuthn.IdentityServer.Endpoints
 
             return new AuthorizationEndpointResult(
                 new AuthorizationViewModel(
-                    shortUrl, 
-                    $"{_options.PublicOrigin}/{IdentityConstants.ChallengePollUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}", 
+                    shortUrl,
+                    $"{_options.PublicOrigin}/{IdentityConstants.ChallengePollUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
                     $"{_options.PublicOrigin}/{IdentityConstants.AuthorizeCallbackUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}"));
         }
 
@@ -189,10 +190,10 @@ namespace VCAuthn.IdentityServer.Endpoints
             var request = new PresentationRequestMessage
             {
                 Id = response.ThreadId,
-                Request = response.PresentationRequest,
+                Request = response.PresentationRequest.ToJson(),
                 Service = new ServiceDecorator
                 {
-                    RecipientKeys = new List<string>{acapyPublicDid.Verkey},
+                    RecipientKeys = new List<string> { acapyPublicDid.Verkey },
                     ServiceEndpoint = _acapyClient.GetAgentUrl()
                 }
             };

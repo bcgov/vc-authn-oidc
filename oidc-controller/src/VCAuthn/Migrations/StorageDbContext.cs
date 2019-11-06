@@ -23,10 +23,6 @@ namespace VCAuthn.Migrations
             modelBuilder.Entity<AuthSession>()
                 .Property<string>("RequestParams")
                 .HasField("_requestParameters");
-
-            modelBuilder.Entity<AuthSession>()
-                .Property<string>("ProofRequest")
-                .HasField("_presentationRequest");
         }
 
     }
