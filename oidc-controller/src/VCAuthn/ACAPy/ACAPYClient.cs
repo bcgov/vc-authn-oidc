@@ -96,7 +96,7 @@ namespace VCAuthn.ACAPY
                 }
                 else
                 {
-                    presentationEndpoint = ACAPYConstants.PresentProofSendRequest;
+                    presentationEndpoint = ACAPYConstants.PresentProofCreateRequest;
                 }
 
                 var httpContent = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");
