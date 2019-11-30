@@ -8,7 +8,11 @@ namespace VCAuthn.ACAPY
 
         public const string PresentationExchangeCreateRequest = "/presentation_exchange/create_request";
 
+        public const string PresentationRequestProtocolURI = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/credential-presentation/0.1/presentation-request";
+
         public const string PresentProofCreateRequest = "/present-proof/create-request";
+
+        public const string ProofRequestProtocolURI = "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/present-proof/1.0/request-presentation";
 
         public const string GetPresentationRecord = "/presentation_exchange";
 
