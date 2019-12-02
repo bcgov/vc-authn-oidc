@@ -5,6 +5,9 @@ namespace VCAuthn.Models
 {
     class ProofRequest_v_1_0
     {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        
         [JsonProperty("version")]
         public string Version { get; set; }
 
