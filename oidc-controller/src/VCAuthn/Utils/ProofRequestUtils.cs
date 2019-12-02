@@ -11,6 +11,7 @@ namespace VCAuthn.Utils
         {
             ProofRequest_v_1_0 proofRequest_1_0 = new ProofRequest_v_1_0();
             proofRequest_1_0.Version = configuration.Version;
+            proofRequest_1_0.Name = configuration.Name;
 
             foreach (RequestedAttribute reqAttribute in configuration.RequestedAttributes) {
                 proofRequest_1_0.RequestedAttributes.Add(Guid.NewGuid().ToString(), reqAttribute);
