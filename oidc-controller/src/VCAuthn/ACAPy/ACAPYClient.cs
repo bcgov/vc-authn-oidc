@@ -87,25 +87,14 @@ namespace VCAuthn.ACAPY
             {
                 // Build appropriate json request body
                 string jsonRequestBody = ProofRequestUtils.GenerateProofRequest(configuration);
-
-                // Set aca-py endpoint to be used based on requested version
-                string presentationEndpoint = "";                
-                if (configuration.ProtocolVersion == null || configuration.ProtocolVersion.Equals("0.1"))
-                {
-                    presentationEndpoint = ACAPYConstants.PresentationExchangeCreateRequest;
-                }
-                else
-                {
-                    presentationEndpoint = ACAPYConstants.PresentProofCreateRequest;
-                }
-
+                
                 var httpContent = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");
                 if (!string.IsNullOrEmpty(_adminUrlApiKey))
                 {
                     httpContent.Headers.Add(ACAPYConstants.ApiKeyHeader, _adminUrlApiKey);
                 }
 
-                var response = await _httpClient.PostAsync($"{_adminUrl}{presentationEndpoint}", httpContent);
+                var response = await _httpClient.PostAsync($"{_adminUrl}{ACAPYConstants.PresentProofCreateRequest}", httpContent);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 _logger.LogDebug($"Status: [{response.StatusCode}], Content: [{responseContent}, Headers: [{response.Headers}]");
