@@ -11,7 +11,7 @@ namespace VCAuthn.Models
         [JsonProperty("@type")]
         public string Type => "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/present-proof/1.0/request-presentation";
 
-        [JsonProperty("request")]
+        [JsonProperty("request_presentations~attach")]
         public string Request { get; set; }
 
         [JsonProperty("comment")]

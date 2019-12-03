@@ -190,7 +190,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             var request = new PresentationRequestMessage
             {
                 Id = response.ThreadId,
-                Request = response.PresentationRequest.ToJson(),
+                Request = ProofRequestUtils.GeneratePresentationAttachments(response.PresentationRequest),
                 Service = new ServiceDecorator
                 {
                     RecipientKeys = new List<string> { acapyPublicDid.Verkey },
