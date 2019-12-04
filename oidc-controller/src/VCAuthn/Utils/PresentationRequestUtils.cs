@@ -25,20 +25,20 @@ namespace VCAuthn.Utils
             return JsonConvert.SerializeObject(requestBody);
         }
 
-        public static string GeneratePresentationAttachments(PresentationRequest presentationRequest) {
+        public static List<PresentationAttachment> GeneratePresentationAttachments(PresentationRequest presentationRequest) {
             List<PresentationAttachment> attachments = new List<PresentationAttachment>();
 
             string base64Payload = presentationRequest.ToJson().ToBase64();
 
             PresentationAttachment attachment = new PresentationAttachment();
-            attachment.Id = Guid.NewGuid().ToString();
+            attachment.Id = "libindy-request-presentation-0"; 
             attachment.MimeType = "application/json";
             attachment.Data = new Dictionary<string, string>();
             attachment.Data.Add("base64", base64Payload);
 
             attachments.Add(attachment);
             
-            return JsonConvert.SerializeObject(attachments);
+            return attachments;
         }
     }
 

@@ -165,7 +165,7 @@ namespace VCAuthn.IdentityServer.Endpoints
                 {
                     PresentationRequestId = presentationRequestId,
                     PresentationRecordId = presentationRecordId,
-                    PresentationRequest = presentationRequest.Request,
+                    PresentationRequest = presentationRequest.Request.ToJson(),
                     RequestParameters = values.AllKeys.ToDictionary(t => t, t => values[t])
                 });
 
