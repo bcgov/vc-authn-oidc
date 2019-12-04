@@ -12,6 +12,6 @@ namespace VCAuthn.ACAPY
 
         public const string SuccessfulPresentationUpdate = "presentation_received";
 
-        public const string PresentationsTopic = "presentations";
+        public const string PresentationsTopic = "present_proof";
     }
 }
