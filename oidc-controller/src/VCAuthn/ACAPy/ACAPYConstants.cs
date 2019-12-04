@@ -8,7 +8,7 @@ namespace VCAuthn.ACAPY
 
         public const string PresentProofCreateRequest = "/present-proof/create-request";
 
-        public const string GetPresentationRecord = "/presentation_exchange";
+        public const string GetPresentationRecord = "/present-proof/records";
 
         public const string SuccessfulPresentationUpdate = "presentation_received";
 
