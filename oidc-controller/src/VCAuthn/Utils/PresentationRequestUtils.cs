@@ -5,7 +5,7 @@ using VCAuthn.Models;
 
 namespace VCAuthn.Utils
 {
-    public static class ProofRequestUtils
+    public static class PresentationRequestUtils
     {
         public static string GeneratePresentationRequest(PresentationRequestConfiguration configuration)
         {
@@ -39,6 +39,25 @@ namespace VCAuthn.Utils
             attachments.Add(attachment);
             
             return attachments;
+        }
+
+        /// <summary> Utility function that extracts the first Indy <c>Presentationrequest</c> object found
+        /// in the provided list of <c>PresentationAttachment</c> objects. The Indy <c>Presentationrequest</c>
+        /// is identified by <c>"@id": "libindy-request-presentation-0"</c>, as specified in the Aries RFC 0037.
+        /// <see cref="https://github.com/hyperledger/aries-rfcs/tree/master/features/0037-present-proof#request-presentation"/> 
+        /// </summary>
+        public static PresentationRequest ExtractIndyPresentationPequest(List<PresentationAttachment> presentationAttachments) {
+            PresentationRequest presentationRequest = null;
+            
+            foreach (PresentationAttachment attachment in presentationAttachments) {
+                if (attachment.Id.Equals("libindy-request-presentation-0")) {
+                    // found first indy presentation attachment, deserialize it so thatit can be returned
+                    string attachmentData = attachment.Data["base64"].FromBase64();
+                    presentationRequest = JsonConvert.DeserializeObject<PresentationRequest>(attachmentData);
+                }
+            }
+            
+            return presentationRequest;
         }
     }
 

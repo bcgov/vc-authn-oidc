@@ -165,7 +165,7 @@ namespace VCAuthn.IdentityServer.Endpoints
                 {
                     PresentationRequestId = presentationRequestId,
                     PresentationRecordId = presentationRecordId,
-                    PresentationRequest = presentationRequest.Request.ToJson(),
+                    PresentationRequest = PresentationRequestUtils.ExtractIndyPresentationPequest(presentationRequest.Request).ToJson(),
                     RequestParameters = values.AllKeys.ToDictionary(t => t, t => values[t])
                 });
 
@@ -190,7 +190,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             var request = new PresentationRequestMessage
             {
                 Id = response.ThreadId,
-                Request = ProofRequestUtils.GeneratePresentationAttachments(response.PresentationRequest),
+                Request = PresentationRequestUtils.GeneratePresentationAttachments(response.PresentationRequest),
                 Service = new ServiceDecorator
                 {
                     RecipientKeys = new List<string> { acapyPublicDid.Verkey },

@@ -86,7 +86,7 @@ namespace VCAuthn.ACAPY
             try
             {
                 // Build appropriate json request body
-                string jsonRequestBody = ProofRequestUtils.GeneratePresentationRequest(configuration);
+                string jsonRequestBody = PresentationRequestUtils.GeneratePresentationRequest(configuration);
                 
                 var httpContent = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");
                 if (!string.IsNullOrEmpty(_adminUrlApiKey))
