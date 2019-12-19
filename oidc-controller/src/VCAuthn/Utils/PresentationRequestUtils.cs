@@ -15,15 +15,15 @@ namespace VCAuthn.Utils
                 Name = configuration.Name
             };
 
-            foreach (RequestedAttribute reqAttribute in configuration.RequestedAttributes)
+            configuration.RequestedAttributes.ForEach(delegate(RequestedAttribute reqAttribute)
             {
                 presentationRequest_1_0.RequestedAttributes.Add(Guid.NewGuid().ToString(), reqAttribute);
-            }
+            });
 
-            foreach (RequestedPredicate reqPredicate in configuration.RequestedPredicates)
+            configuration.RequestedPredicates.ForEach(delegate(RequestedPredicate reqPredicate)
             {
                 presentationRequest_1_0.RequestedPredicates.Add(Guid.NewGuid().ToString(), reqPredicate);
-            }
+            });
 
             Dictionary<string, PresentationRequest_v_1_0> requestBody = new Dictionary<string, PresentationRequest_v_1_0>()
             {
