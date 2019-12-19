@@ -7,7 +7,7 @@ namespace VCAuthn.Utils
 {
     public static class PresentationRequestUtils
     {
-        public static string GeneratePresentationRequest(PresentationRequestConfiguration configuration)
+        public static string GeneratePresentationRequest(this PresentationRequestConfiguration configuration)
         {
             PresentationRequest_v_1_0 presentationRequest_1_0 = new PresentationRequest_v_1_0()
             {
@@ -32,7 +32,7 @@ namespace VCAuthn.Utils
             return JsonConvert.SerializeObject(requestBody);
         }
 
-        public static List<PresentationAttachment> GeneratePresentationAttachments(PresentationRequest presentationRequest)
+        public static List<PresentationAttachment> GeneratePresentationAttachments(this PresentationRequest presentationRequest)
         {
             string base64Payload = presentationRequest.ToJson().ToBase64();
             PresentationAttachment attachment = new PresentationAttachment()
@@ -56,7 +56,7 @@ namespace VCAuthn.Utils
         /// is identified by <c>"@id": "libindy-request-presentation-0"</c>, as specified in the Aries RFC 0037.
         /// <see cref="https://github.com/hyperledger/aries-rfcs/tree/master/features/0037-present-proof#request-presentation"/> 
         /// </summary>
-        public static PresentationRequest ExtractIndyPresentationPequest(List<PresentationAttachment> presentationAttachments)
+        public static PresentationRequest ExtractIndyPresentationPequest(this List<PresentationAttachment> presentationAttachments)
         {
             PresentationRequest presentationRequest = null;
 
