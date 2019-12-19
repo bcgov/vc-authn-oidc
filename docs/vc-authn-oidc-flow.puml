@@ -55,14 +55,14 @@ group IdentityWallet Communication Method
 end
 
 group OAuth Flow
-    alt Implicit Flow
+    alt Authorization Code Flow
         OP -> UserAgent: Redirect request to RP redirect URI with authorization code
         UserAgent -> RP: Follow redirect with authorization code
         RP -> OP: Request token with authorization code
         OP --> RP: Token response
     end
 
-    alt Authorization Code Flow
+    alt Implicit Flow
         OP -> UserAgent: Redirect request to RP redirect URI with token
         UserAgent -> RP: Follow redirect with token
     end
