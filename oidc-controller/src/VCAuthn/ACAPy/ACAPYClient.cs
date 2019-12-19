@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using VCAuthn.Models;
+using VCAuthn.Utils;
 
 namespace VCAuthn.ACAPY
 {
@@ -26,7 +27,7 @@ namespace VCAuthn.ACAPY
 
         private readonly string _agentUrl;
         private HttpClient _httpClient;
-        
+
         public ACAPYClient(IConfiguration config, ILogger<ACAPYClient> logger)
         {
             _httpClient = new HttpClient();
@@ -84,15 +85,16 @@ namespace VCAuthn.ACAPY
         {
             try
             {
-                string json = JsonConvert.SerializeObject(configuration);
-                var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-
+                // Build appropriate json request body
+                string jsonRequestBody = configuration.GeneratePresentationRequest();
+                
+                var httpContent = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");
                 if (!string.IsNullOrEmpty(_adminUrlApiKey))
                 {
                     httpContent.Headers.Add(ACAPYConstants.ApiKeyHeader, _adminUrlApiKey);
                 }
 
-                var response = await _httpClient.PostAsync($"{_adminUrl}{ACAPYConstants.PresentationExchangeCreateRequest}", httpContent);
+                var response = await _httpClient.PostAsync($"{_adminUrl}{ACAPYConstants.PresentProofCreateRequest}", httpContent);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 _logger.LogDebug($"Status: [{response.StatusCode}], Content: [{responseContent}, Headers: [{response.Headers}]");

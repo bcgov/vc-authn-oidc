@@ -33,4 +33,23 @@ namespace VCAuthn.Models
             $"RequestedPredicates={string.Join(",", RequestedPredicates ?? new Dictionary<string, PresentationPredicateInfo>())}, " +
             $"NonRevoked={NonRevoked}";
     }
+
+    /**
+      * See https://github.com/hyperledger/aries-rfcs/tree/master/features/0037-present-proof#request-presentation
+      * for RFC spec.
+      */ 
+    class PresentationRequest_v_1_0
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        
+        [JsonProperty("version")]
+        public string Version { get; set; }
+
+        [JsonProperty("requested_attributes")]
+        public Dictionary<string, RequestedAttribute> RequestedAttributes { get; set; } = new Dictionary<string, RequestedAttribute>();
+
+        [JsonProperty("requested_predicates")]
+        public Dictionary<string, RequestedPredicate> RequestedPredicates { get; set; } = new Dictionary<string, RequestedPredicate>();
+    }
 }

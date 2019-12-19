@@ -9,10 +9,10 @@ namespace VCAuthn.Models
         public string Id { get; set; }
 
         [JsonProperty("@type")]
-        public string Type => "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/credential-presentation/0.1/presentation-request";
+        public string Type => "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/present-proof/1.0/request-presentation";
 
-        [JsonProperty("request")]
-        public string Request { get; set; }
+        [JsonProperty("request_presentations~attach")]
+        public List<PresentationAttachment> Request { get; set; }
 
         [JsonProperty("comment")]
         public string Comment { get; set; }

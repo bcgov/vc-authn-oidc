@@ -59,6 +59,7 @@ namespace VCAuthn.Controllers
             {
                 if (update.State != ACAPYConstants.SuccessfulPresentationUpdate)
                 {
+                    _logger.LogDebug($"Presentation Request not yet received, state is [{update.State}]");
                     return Ok();
                 }
 

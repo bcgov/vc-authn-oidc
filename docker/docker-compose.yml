@@ -49,7 +49,7 @@ services:
       - vc_authn_oidc
 
   aca-py:
-    image: bcgovimages/aries-cloudagent:py36-1.11-1_0.3.2
+    image: bcgovimages/aries-cloudagent:py36-1.11-1_0.4.0
     ports:
       - ${AGENT_ADMIN_PORT}:${AGENT_ADMIN_PORT}
       - ${AGENT_HTTP_PORT}:${AGENT_HTTP_PORT}

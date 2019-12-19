@@ -12,7 +12,7 @@ namespace VCAuthn.Models
         public string Version { get; set; }
 
         [JsonProperty("requested_attributes")]
-        public List<RequestedAttribute> RequestedAtrributes { get; set; } = new List<RequestedAttribute>();
+        public List<RequestedAttribute> RequestedAttributes { get; set; } = new List<RequestedAttribute>();
 
         [JsonProperty("requested_predicates")]
         public List<RequestedPredicate> RequestedPredicates { get; set; } = new List<RequestedPredicate>();
