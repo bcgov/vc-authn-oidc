@@ -20,9 +20,12 @@ namespace VCAuthn
         /// </summary>
         public static string ApiVersion = "v1";
 
-        public Startup(IConfiguration configuration)
+        private readonly ILogger<Startup> _logger;
+
+        public Startup(IConfiguration configuration, ILogger<Startup> logger)
         {
             Configuration = configuration;
+            _logger = logger;
         }
 
         public IConfiguration Configuration { get; }
@@ -35,9 +38,7 @@ namespace VCAuthn
                 options.DefaultAuthenticateScheme = ApiKeyAuthenticationOptions.DefaultScheme;
                 options.DefaultChallengeScheme = ApiKeyAuthenticationOptions.DefaultScheme;
             })
-            .AddApiKeySupport(options => {
-                options.Key = Configuration.GetValue<string>("ApiKey");
-            });
+            .AddApiKeySupport(options => {});
 
             services.AddMvc()
                     .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
@@ -52,6 +53,8 @@ namespace VCAuthn
 
             if (Configuration.GetValue<bool>("SwaggerEnabled"))
             {
+                _logger.LogDebug("Enabling SwaggerUI");
+
                 services.AddSwaggerGen(c =>
                 {
                     c.SwaggerDoc(ApiVersion, new Info { Title = "VC-Authn API", Version = ApiVersion });
@@ -60,13 +63,13 @@ namespace VCAuthn
                         new ApiKeyScheme
                         {
                             In = "header",
-                            Description = "Please enter an API key",
+                            Description = "Controller API Key",
                             Name = "X-Api-Key",
                             Type = "apiKey"
                         });
                     c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
                         {
-                        {"ApiKey", Enumerable.Empty<string>()}
+                            {"ApiKey", Enumerable.Empty<string>()}
                         });
                     c.DescribeAllEnumsAsStrings();
                 });
