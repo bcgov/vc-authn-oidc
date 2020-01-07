@@ -38,7 +38,7 @@ namespace VCAuthn
                 options.DefaultAuthenticateScheme = ApiKeyAuthenticationOptions.DefaultScheme;
                 options.DefaultChallengeScheme = ApiKeyAuthenticationOptions.DefaultScheme;
             })
-            .AddApiKeySupport(options => {});
+            .AddApiKeySupport();
 
             services.AddMvc()
                     .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
