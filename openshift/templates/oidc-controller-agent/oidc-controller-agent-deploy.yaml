@@ -1,0 +1,372 @@
+---
+kind: Template
+apiVersion: v1
+metadata:
+  name: ${NAME}
+objects:
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: ${NAME}
+      labels:
+        name: ${NAME}
+        app: ${APP_NAME}
+        app-group: ${APP_GROUP}
+    spec:
+      ports:
+        - name: ${NAME}-admin
+          port: ${{AGENT_ADMIN_PORT}}
+          protocol: TCP
+          targetPort: ${{AGENT_ADMIN_PORT}}
+        - name: ${NAME}-http
+          port: ${{AGENT_HTTP_PORT}}
+          protocol: TCP
+          targetPort: ${{AGENT_HTTP_PORT}}
+      selector:
+        name: ${NAME}
+
+  - kind: Route
+    apiVersion: v1
+    metadata:
+      name: ${NAME}
+      labels:
+        name: ${NAME}
+        app: ${APP_NAME}
+        app-group: ${APP_GROUP}
+    spec:
+      host: ${APPLICATION_DOMAIN}
+      port:
+        targetPort: ${NAME}-http
+      tls:
+        insecureEdgeTerminationPolicy: Redirect
+        termination: edge
+      to:
+        kind: Service
+        name: ${NAME}
+        weight: 100
+
+  - kind: Secret
+    apiVersion: v1
+    metadata:
+      name: ${WALLET_CREDENTIAL_STORE_NAME}
+      labels:
+        name: ${NAME}
+        app: ${APP_NAME}
+        app-group: ${APP_GROUP}
+    stringData:
+      key: ${WALLET_KEY}
+      seed: ${WALLET_SEED}
+      did: ${WALLET_DID}
+    type: Opaque
+
+  - kind: Secret
+    apiVersion: v1
+    metadata:
+      name: ${NAME}
+      labels:
+        name: ${NAME}
+        app: ${APP_NAME}
+        app-group: ${APP_GROUP}
+    stringData:
+      admin-api-key: ${ADMIN_API_KEY}
+    type: Opaque
+
+  - kind: DeploymentConfig
+    apiVersion: v1
+    metadata:
+      name: ${NAME}
+      labels:
+        name: ${NAME}
+        app: ${APP_NAME}
+        app-group: ${APP_GROUP}
+    spec:
+      replicas: 1
+      selector:
+        name: ${NAME}
+      strategy:
+        type: Rolling
+      template:
+        metadata:
+          name: ${NAME}
+          labels:
+            name: ${NAME}
+            app: ${APP_NAME}
+            app-group: ${APP_GROUP}
+        spec:
+          containers:
+            - name: ${NAME}
+              command:
+                # Note:
+                #  - The wallet-name cannot contain '-'s.
+                - bash
+                - -c
+                - $(echo aca-py start
+                  --inbound-transport http '0.0.0.0' ${HTTP_INTERFACE_PORT}
+                  --endpoint ${AGENT_ENDPOINT}
+                  --outbound-transport http
+                  --genesis-url "${GENESIS_URL}"
+                  --wallet-type 'indy'
+                  --wallet-name "$(echo ${AGENT_WALLET_NAME} | tr '[:upper:]' '[:lower:]' | sed "s~-~_~g")"
+                  --wallet-key "${WALLET_ENCRYPTION_KEY}"
+                  --wallet-storage-type "${WALLET_TYPE}"
+                  --wallet-storage-config "$(eval echo \"${WALLET_STORAGE_CONFIGURATION}\")"
+                  --wallet-storage-creds "$(eval echo \"${WALLET_STORAGE_CREDENTIALS}\")"
+                  --seed "${INDY_WALLET_SEED}"
+                  --admin '0.0.0.0' ${ADMIN_INTERFACE_PORT}
+                  --$([[ ! -z "${AGENT_ADMIN_API_KEY}" ]] && echo "admin-api-key ${AGENT_ADMIN_API_KEY}" || echo "admin-insecure-mode")
+                  --label "${AGENT_NAME}"
+                  --log-level ${AGENT_LOG_LEVEL});
+              env:
+                - name: GENESIS_URL
+                  value: ${GENESIS_FILE_URL}
+                - name: AGENT_WALLET_NAME
+                  value: vc_oidc_agent-wallet
+                - name: WALLET_TYPE
+                  value: ${WALLET_STORAGE_TYPE}
+                - name: POSTGRESQL_WALLET_HOST
+                  value: ${WALLET_HOST}
+                - name: POSTGRESQL_WALLET_PORT
+                  value: ${WALLET_HOST_PORT}
+                - name: WALLET_STORAGE_CONFIGURATION
+                  value: ${WALLET_STORAGE_CONFIG}
+                - name: WALLET_STORAGE_CREDENTIALS
+                  value: ${WALLET_STORAGE_CREDS}
+                - name: POSTGRESQL_WALLET_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${WALLET_HOST}
+                      key: database-user
+                - name: POSTGRESQL_WALLET_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${WALLET_HOST}
+                      key: database-password
+                - name: POSTGRESQL_WALLET_ADMIN_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${WALLET_HOST}
+                      key: admin-password
+                - name: WALLET_ENCRYPTION_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${WALLET_CREDENTIAL_STORE_NAME}
+                      key: key
+                - name: INDY_WALLET_SEED
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${WALLET_CREDENTIAL_STORE_NAME}
+                      key: seed
+                - name: WALLET_DID
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${WALLET_CREDENTIAL_STORE_NAME}
+                      key: did
+                - name: WEBHOOK_URL
+                  value: ${WEBHOOK_URL}
+                - name: HTTP_INTERFACE_PORT
+                  value: ${AGENT_HTTP_PORT}
+                - name: ADMIN_INTERFACE_PORT
+                  value: ${AGENT_ADMIN_PORT}
+                - name: AGENT_ADMIN_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}
+                      key: admin-api-key
+                - name: AGENT_NAME
+                  value: ${AGENT_LABEL_NAME}
+                - name: AGENT_ENDPOINT
+                  value: ${AGENT_BASE_URL}
+                - name: AGENT_LOG_LEVEL
+                  value: ${LOG_LEVEL}
+              image:
+              ports:
+                - containerPort: ${{AGENT_ADMIN_PORT}}
+                  protocol: TCP
+                - containerPort: ${{AGENT_HTTP_PORT}}
+                  protocol: TCP
+              readinessProbe:
+                timeoutSeconds: 30
+                initialDelaySeconds: 3
+                httpGet:
+                  path: /
+                  port: ${{AGENT_HTTP_PORT}}
+              livenessProbe:
+                timeoutSeconds: 30
+                initialDelaySeconds: 300
+                httpGet:
+                  path: /
+                  port: ${{AGENT_HTTP_PORT}}
+              imagePullPolicy: IfNotPresent
+              resources:
+                limits:
+                  cpu: ${CPU_LIMIT}
+                  memory: ${MEMORY_LIMIT}
+                requests:
+                  cpu: ${CPU_REQUEST}
+                  memory: ${MEMORY_REQUEST}
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - ${NAME}
+            from:
+              kind: ImageStreamTag
+              name: ${NAME}:${TAG_NAME}
+              namespace: ${IMAGE_NAMESPACE}
+
+parameters:
+  - name: NAME
+    displayName: Name
+    description: The name assigned to all the objects defined in this template.
+    required: true
+    value: vc-oidc-controller-agent
+  - name: APP_NAME
+    displayName: App Name
+    description: Used to group components together in the OpenShift console.
+    required: true
+    value: vc-authn-oidc
+  - name: APP_GROUP
+    displayName: App Group
+    description: Used to group components together.
+    required: true
+    value: vc-authn-oidc
+  - name: APPLICATION_DOMAIN
+    displayName: Application Hostname
+    description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
+    required: false
+    value: 
+  - name: IMAGE_NAMESPACE
+    displayName: Namespace containing application images.
+    required: true
+    value: 
+  - name: TAG_NAME
+    displayName: Environment TAG name
+    description: The TAG name for this environment, e.g., dev, test, prod.
+    required: true
+    value: latest
+  - name: AGENT_LABEL_NAME
+    displayName: Agent Label/Name
+    description: The label/name of the agent
+    required: true
+    value: vc-oidc-controller-agent
+  - name: AGENT_BASE_URL
+    displayName: Agent endpoint
+    description: The endpoint of the agent
+    required: true
+    value: 
+  - name: WEBHOOK_URL
+    displayName: Webhook URL
+    description: The webhook endpoint
+    required: true
+    value: http://oidc-controller:5000
+  - name: AGENT_ADMIN_PORT
+    displayName: Agent Admin Port
+    description: The admin port on which the service will listen.
+    required: true
+    value: "8024"
+  - name: ADMIN_API_KEY
+    displayName: Agent Admin API Key
+    description: The key used to authenticate client requests to the admin api.
+    required: true
+    generate: expression
+    from: "[a-zA-Z0-9]{16}"
+  - name: AGENT_HTTP_PORT
+    displayName: Agent Http Port
+    description: The http port on which the service will listen.
+    required: true
+    value: "8021"
+  - name: GENESIS_FILE_URL
+    displayName: Genesis File URL
+    description: The URL from which the genesis file can be downloaded.
+    required: true
+    value: http://dev.bcovrin.vonx.io/genesis
+  - name: LOG_LEVEL
+    displayName: Log Level
+    description: The logging level for the agent.
+    required: true
+    value: WARNING
+  # ===============================================================================
+  # Wallet Configuration
+  #--------------------------------------------------------------------------------
+  - name: WALLET_STORAGE_TYPE
+    displayName: Wallet Storage Type
+    description:
+      The wallet storage type.  Your choice of 'postgres' or 'sqlite' at
+      the moment.  If not defined, defaults to 'sqlite' for compatibility
+    required: false
+    value: postgres_storage
+  - name: WALLET_HOST
+    displayName: PostgreSql Wallet Hostname
+    required: true
+    description: Hostname of the deployed database hosting the wallet.  Only used when WALLET_STORAGE_TYPE = postgres_storage.
+    value: vc-oidc-controller-db
+  - name: WALLET_HOST_PORT
+    displayName: PostgreSql Wallet Port
+    required: true
+    description: The port number of the deployed database hosting the wallet.  Only used when WALLET_STORAGE_TYPE = postgres_storage.
+    value: "5432"
+  - name: WALLET_STORAGE_CONFIG
+    displayName: Wallet Storage Configuration
+    required: true
+    description: Wallet storage configuration
+    value: '{\"url\":\"${POSTGRESQL_WALLET_HOST}:${POSTGRESQL_WALLET_PORT}\",\"max_connections\":5}'
+  - name: WALLET_STORAGE_CREDS
+    displayName: Wallet Storage Credential Configuration
+    required: true
+    description: Wallet storage credential configuration
+    value: '{\"account\":\"${POSTGRESQL_WALLET_USER}\",\"password\":\"${POSTGRESQL_WALLET_PASSWORD}\",\"admin_account\":\"postgres\",\"admin_password\":\"${POSTGRESQL_WALLET_ADMIN_PASSWORD}\"}'
+  - name: WALLET_CREDENTIAL_STORE_NAME
+    displayName: Wallet Credential Store Name
+    description:
+      The name of the wallet credential store (aka The name of the secret
+      that contains the wallet credentials).
+    required: true
+    value: vc-oidc-controller-agent-wallet-credentials
+  - name: WALLET_KEY
+    displayName: Wallet Encryption Key
+    description: The encryption key to be used for the wallets.  Needs to be base64 encoded.
+    required: true
+    generate: expression
+    from: "[a-zA-Z0-9]{10}"
+  - name: WALLET_SEED
+    displayName: Indy Wallet Seed
+    description: The Seed used for the indy wallet.  Needs to be base64 encoded.
+    required: true
+    generate: expression
+    from: "[a-zA-Z0-9]{32}"
+  - name: WALLET_DID
+    displayName: Indy Wallet DID
+    description: The DID associated to the indy wallet.  Needs to be base64 encoded.
+    required: false
+    generate: expression
+    from: "[a-zA-Z0-9]{16}"
+  # ===============================================================================
+  - name: CPU_REQUEST
+    displayName: Resources CPU Request
+    description: The resources CPU request (in cores) for this build.
+    required: true
+    value: 10m
+  - name: CPU_LIMIT
+    displayName: Resources CPU Limit
+    description: The resources CPU limit (in cores) for this build.
+    required: true
+    value: 1000m
+  - name: MEMORY_REQUEST
+    displayName: Resources Memory Request
+    description: The resources Memory request (in Mi, Gi, etc) for this build.
+    required: true
+    value: 10Mi
+  - name: MEMORY_LIMIT
+    displayName: Resources Memory Limit
+    description: The resources Memory limit (in Mi, Gi, etc) for this build.
+    required: true
+    value: 1Gi
