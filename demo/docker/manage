@@ -1,0 +1,330 @@
+#!/bin/bash
+export MSYS_NO_PATHCONV=1
+export DOCKERHOST=${APPLICATION_URL-$(docker run --rm --net=host eclipse/che-ip)}
+set -e
+
+function echoRed (){
+  _msg=${1}
+  _red='\e[31m'
+  _nc='\e[0m' # No Color
+  echo -e "${_red}${_msg}${_nc}"
+}
+
+function echoYellow (){
+  _msg=${1}
+  _yellow='\e[33m'
+  _nc='\e[0m' # No Color
+  echo -e "${_yellow}${_msg}${_nc}"
+}
+
+S2I_EXE=s2i
+if [ -z $(type -P "$S2I_EXE") ]; then
+  echoRed "The ${S2I_EXE} executable is needed and not on your path."
+  echoRed "It can be downloaded from here: https://github.com/openshift/source-to-image"
+  echoRed "Make sure you place it in a directory on your path."
+  exit 1
+fi
+
+SCRIPT_HOME="$(cd "$(dirname "$0")" && pwd)"
+
+# =================================================================================================================
+# Usage:
+# -----------------------------------------------------------------------------------------------------------------
+usage() {
+  cat <<-EOF
+    
+      Usage: $0 [command] [options]
+    
+      Commands:
+    
+      build - Build the docker images for the project.
+              You need to do this first, since the builds require
+              a combination of Docker and S2I builds.
+    
+              You can build individual components as shown below, components that have dependencies
+              will have these dependencies built too.
+    
+              Examples:
+               - Build the api only.
+    
+                $0 build oidc-django
+    
+              By default all containers that components comprise of, will be rebuilt.
+    
+                $0 build 
+    
+      up -  Creates the application containers from the built images
+            and starts the services based on the docker-compose.yml file.
+
+            You can pass in a list of containers to start.  
+            By default all containers will be started.
+
+            Examples:
+            $0 start
+            $0 start oidc-django
+
+      start - Same as up
+
+      start-dev - Starts the containers in development mode, using hot-reload.
+
+      makemigrations - Runs the makemigrations command for the django app (the database container needs to be running).
+
+                      Examples:
+                      - Create the initial migrations for a new module
+
+                        $0 makemigrations <module-name>
+                      
+                      - Update migrations for all the modules in the project
+
+                        $0 makemigrations
+
+      migrate - Applies pending migrations to the database (the database container needs to be running).
+
+      logs - Display the logs from the docker compose run (ctrl-c to exit).
+
+      stop - Stops the services.  This is a non-destructive process.  The volumes and containers
+             are not deleted so they will be reused the next time you run start.
+    
+      down - Brings down the services and removes the volumes (storage) and containers.
+      
+      rm - Same as down
+EOF
+  exit 1
+}
+# -----------------------------------------------------------------------------------------------------------------
+# Default Settings:
+# -----------------------------------------------------------------------------------------------------------------
+DEFAULT_CONTAINERS="oidc-django database"
+
+# -----------------------------------------------------------------------------------------------------------------
+# Functions:
+# -----------------------------------------------------------------------------------------------------------------
+
+build-oidc-django() {
+  #
+  # oidc-django
+  #
+  BASE_IMAGE="centos/python-36-centos7"
+  echo -e "\nBuilding oidc-django image from ${BASE_IMAGE}..."
+  ${S2I_EXE} build \
+    -e "UPGRADE_PIP_TO_LATEST=true" \
+    -e "PIP_NO_CACHE_DIR=" \
+    -v "${COMPOSE_PROJECT_NAME}_dcbr-pip-cache:/opt/app-root/.cache/pip" \
+    '../oidc-django' \
+    "$BASE_IMAGE" \
+    'oidc-django'
+
+  # this is only required in Windows
+  if [[ "$OSTYPE" == "msys" ]]; then
+    echo -e "\nFixing file permissions in final oidc-django image"
+    docker build -q \
+      --build-arg BASE_IMAGE='oidc-django:latest' \
+      -t 'oidc-django' \
+      -f 'utils/fix-permissions/Dockerfile' 'utils/'
+  fi
+}
+
+build-all() {
+  build-oidc-django
+}
+
+configureEnvironment() {
+
+  if [ -f .env ]; then
+    while read line; do
+      if [[ ! "$line" =~ ^\# ]] && [[ "$line" =~ .*= ]]; then
+        export ${line//[$'\r\n']}
+      fi
+    done <.env
+  fi
+
+  for arg in "$@"; do
+    # Remove recognized arguments from the list after processing.
+    shift
+
+    # echo "arg: ${arg}"
+    # echo "Remaining: ${@}"
+
+    case "$arg" in
+      *=*)
+        # echo "Exporting ..."
+        export "${arg}"
+        ;;
+      *)
+        # echo "Saving for later ..."
+        # If not recognized, save it for later processing ...
+        set -- "$@" "$arg"
+        ;;
+    esac
+  done
+
+  export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn-demo}"
+
+  export STI_SCRIPTS_PATH=${STI_SCRIPTS_PATH:-/usr/libexec/s2i}
+  
+  export DEBUG=True
+
+  # database
+  export POSTGRESQL_DATABASE="DCBR"
+  export POSTGRESQL_USER="DB_USER"
+  export POSTGRESQL_PASSWORD="DB_PASSWORD"
+  export EXPOSED_DATABASE_SERVICE_PORT=5434
+
+  # oidc-django
+  export APP_SCRIPT="run-prod.sh"
+  export DJANGO_DEBUG=${DEBUG}
+  export DATABASE_SERVICE_HOST="database"
+  export DATABASE_SERVICE_PORT=5432
+  export DATABASE_NAME=${POSTGRESQL_DATABASE}
+  export DATABASE_USER=${POSTGRESQL_USER}
+  export DATABASE_PASSWORD=${POSTGRESQL_PASSWORD}
+  export DJANGO_SECRET_KEY="(*=#bv_2cgwguymnxlsf2)m96uj+jn6hai^=(czao&6e=%*)+n"
+  export DJANGO_DEBUG=True
+  export DJANGO_ADMIN_USER="admin"
+  export DJANGO_ADMIN_PASSWORD="admin"
+  export DJANGO_ADMIN_EMAIL="noreply@example.com"
+  export OIDC_RP_PROVIDER_ENDPOINT="${OIDC_RP_PROVIDER_ENDPOINT:-http://DOCKERHOST:5000}"
+  export OIDC_RP_CLIENT_ID="keycloak"
+  export OIDC_RP_CLIENT_SECRET="keycloak"
+  export OIDC_RP_SCOPES="openid profile vc_authn"
+  export VC_AUTHN_PRES_REQ_CONF_ID="verified-email"
+}
+
+getInputParams() {
+  ARGS=""
+
+  for arg in $@; do
+    case "$arg" in
+    *=*)
+      # Skip it
+      ;;
+    *)
+      ARGS+=" $arg"
+      ;;
+    esac
+  done
+
+  echo ${ARGS}
+}
+
+getStartupParams() {
+  CONTAINERS=""
+  ARGS=""
+
+  for arg in $@; do
+    case "$arg" in
+    *=*)
+      # Skip it
+      ;;
+    -*)
+      ARGS+=" $arg"
+      ;;
+    *)
+      CONTAINERS+=" $arg"
+      ;;
+    esac
+  done
+
+  if [ -z "$CONTAINERS" ]; then
+    CONTAINERS="$DEFAULT_CONTAINERS"
+  fi
+
+  echo ${ARGS} ${CONTAINERS}
+}
+
+deleteVolumes() {
+  _projectName=${COMPOSE_PROJECT_NAME:-docker}
+
+  echo "Stopping and removing any running containers ..."
+  docker-compose down -v
+
+  _pattern="^${_projectName}_\|^docker_"
+  _volumes=$(docker volume ls -q | grep ${_pattern})
+
+  if [ ! -z "${_volumes}" ]; then
+    echo "Removing project volumes ..."
+    echo ${_volumes} | xargs docker volume rm
+  else
+    echo "No project volumes exist."
+  fi
+
+  echo "Removing build cache ..."
+  rm -Rf ../client/tob-web/.cache
+}
+
+toLower() {
+  echo $(echo ${@} | tr '[:upper:]' '[:lower:]')
+}
+
+echoError (){
+  _msg=${1}
+  _red='\033[0;31m'
+  _nc='\033[0m' # No Color
+  echo -e "${_red}${_msg}${_nc}" >&2
+}
+
+functionExists() {
+  (
+    if [ ! -z ${1} ] && type ${1} &>/dev/null; then
+      return 0
+    else
+      return 1
+    fi
+  )
+}
+# =================================================================================================================
+
+pushd ${SCRIPT_HOME} >/dev/null
+COMMAND=$(toLower ${1})
+shift || COMMAND=usage
+
+case "${COMMAND}" in
+  start|up)
+    _startupParams=$(getStartupParams --force-recreate $@)
+    configureEnvironment "$@"
+    docker-compose up -d ${_startupParams} 
+    docker-compose logs -f
+    ;;
+  restart)
+    _startupParams=$(getStartupParams $@)
+    configureEnvironment "$@"
+    docker-compose stop ${_startupParams}
+    docker-compose up -d ${_startupParams}
+    ;;
+  logs)
+    configureEnvironment "$@"
+    docker-compose logs -f
+    ;;
+  stop)
+    configureEnvironment
+    docker-compose stop 
+    ;;
+  rm|down)
+    configureEnvironment
+    deleteVolumes
+    ;;
+  build)
+    configureEnvironment "$@"
+
+    buildImage=$(toLower ${1})
+    shift || buildImage=all
+    # buildImage=$(echo ${buildImage} | sed s~^tob-~~)
+    case "$buildImage" in
+      *=*)
+        buildImage=all
+        ;;
+    esac
+
+    if functionExists "build-${buildImage}"; then
+      eval "build-${buildImage}"
+    else
+      echoError "\nThe build function, build-${buildImage}, does not exist.  Please check your build parameters and try again.\nUse '-h' to get full help details."
+      exit 1
+    fi
+    ;;
+  *)
+    usage
+    ;;
+esac
+
+popd >/dev/null

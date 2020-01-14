@@ -1,0 +1,14 @@
+<html>
+  <body>
+    {% if user.is_anonymous %}
+    <p>You are not authenticated, please 
+        {% url 'oidc_auth_request' as login_url %}
+        <a href="{{ login_url }}?pres_req_conf_id={{ settings.VC_AUTHN_PRES_REQ_CONF_ID }}">Login</a>
+    </p>
+    {% else %}
+    <p>Authentication successful! You can  
+        <a href="{% url 'oidc_end_session' %}">Logout</a>
+    </p>
+    {% endif %}
+  </body>
+</html>
