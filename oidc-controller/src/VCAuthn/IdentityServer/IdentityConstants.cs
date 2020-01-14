@@ -49,5 +49,8 @@ namespace VCAuthn.IdentityServer
         public const string AuthorizeCallbackUri = "vc/connect/callback";
         public const string VerifiedCredentialAuthorizeUri = "vc/connect/authorize";
         public const string VerifiedCredentialTokenUri = "vc/connect/token";
+
+        // Standard OIDC claim names
+        public const string OIDCTokenIssuedAt = "iat";
     }
 }
