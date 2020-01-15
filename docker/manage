@@ -94,6 +94,10 @@ configureEnvironment() {
 
   # export STI_SCRIPTS_PATH=${STI_SCRIPTS_PATH:-/usr/libexec/s2i}
 
+  # re-map ngrok endpoints to internal environment variables
+  AGENT_ENDPOINT=${AGENT_ENDPOINT:-$NGROK_AGENT_URL}
+  IDENTITY_SERVER_URL=${IDENTITY_SERVER_URL:-$NGROK_CONTROLLER_URL}
+
   # controller-db
   export POSTGRESQL_DATABASE="IDENTITY_DB"
   export POSTGRESQL_USER="DB_USER"
