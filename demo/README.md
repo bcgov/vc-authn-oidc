@@ -14,7 +14,7 @@ You will also need to have Docker and ngrok installed and running.
 
 ### Running the Apps
 
-To run the demo you will need three bash shell instances open at the following locations:
+In addition to the above pre-requirements, you will need three bash shell instances open at the following locations:
 
 1. [vc-authn-oidc/docker](../docker)
 2. [demo/docker](./docker)
@@ -28,7 +28,7 @@ Once ngrok is running go to http://localhost:4040/status : you will notice the t
 
 Now we can start the services:
 
-- In shell number `1` run this command, replacing {AGENT_ENDPOINT} and ${IDENTITY_SERVER_URL} with the values from the ngrok status page:
+- In shell number `1` run this command, replacing {NGROK_AGENT_URL} and ${NGROK_CONTROLLER_URL} with the values from the ngrok status page:
 ```NGROK_AGENT_URL=${NGROK_AGENT_URL} NGROK_CONTROLLER_URL=${NGROK_CONTROLLER_URL} ./manage start```
 
 Once the services are running, we will need to configure vc-authn-oidc so that it will request the `Verified Email` credential. To do this, execute the following command in another shell (you can use, as an example, shell number `2`):
@@ -37,9 +37,9 @@ Once the services are running, we will need to configure vc-authn-oidc so that i
 curl -X POST "http://localhost:5000/api/vc-configs" -H "accept: application/json" -H "X-Api-Key: controller-api-key" -H "Content-Type: application/json-patch+json" -d "{\"id\": \"verified-email\",\"subject_identifier\": \"email\", \"configuration\": { \"name\": \"verified-email\", \"version\": \"1.0\", \"requested_attributes\": [ { \"name\": \"email\", \"restrictions\": [ { \"schema_name\": \"verified-email\", \"issuer_did\": \"MTYqmTBoLT7KLP5RNfgK3b\" } ] } ], \"requested_predicates\": [] }}"
 ```
 
-Additionally, we need to add the valid redirect URI for the test client to the vc-authn-oidc-controller database: a new entry should be created in the `ClientRedirectUris` table. To acquire the credentials to connec to to the database you can refer to the [manage](../docker/manage#L97) script, however the default configurations for the demo clients have been pre-configured for convenience.
+Additionally, we need to add the valid redirect URI for the test client to the vc-authn-oidc-controller database: a new entry should be created in the `ClientRedirectUris` table. To acquire the credentials to connect to to the database you can refer to the environment variables set in the `controller-db` section of the main [manage](../docker/manage) script, however the default parameters for the demo clients have been pre-configured for convenience.
 
-- In shell number `2` run this command, replacing ${IDENTITY_SERVER_URL} with the value fro the ngrok status page:  ```NGROK_CONTROLLER_URL=${NGROK_CONTROLLER_URL} ./manage start```
+- In shell number `2` run this command, replacing ${NGROK_CONTROLLER_URL} with the value fro the ngrok status page:  ```NGROK_CONTROLLER_URL=${NGROK_CONTROLLER_URL} ./manage start```
 
 ### Try the Demo!
 
