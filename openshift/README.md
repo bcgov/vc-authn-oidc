@@ -1,9 +1,5 @@
 # Deploying To Openshift
 
-## Network Security Policies
-
-The files in the [policies](./policies) folder contain the templates for the security policies that need to be activated for the build and deployments to function correctly.
-
 ## Post-Deployment Tweaks
 
 Some of the deployments will require additional tweaks after the first deployment has been generated. In particular:
