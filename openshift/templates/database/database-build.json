@@ -2,16 +2,16 @@
     "kind": "Template",
     "apiVersion": "v1",
     "metadata": {
-        "name": "${NAME}-build-template"
+        "name": "${PREFIX}${NAME}-build-template"
     },
     "objects": [
         {
             "apiVersion": "v1",
             "kind": "ImageStream",
             "metadata": {
-                "name": "${NAME}",
+                "name": "${PREFIX}${NAME}",
                 "labels": {
-                    "name": "${NAME}",
+                    "name": "${PREFIX}${NAME}",
                     "app": "${APP_NAME}",
                     "app-group": "${APP_GROUP}"
                 }
@@ -21,9 +21,9 @@
             "kind": "BuildConfig",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${NAME}",
+                "name": "${PREFIX}${NAME}",
                 "labels": {
-                    "name": "${NAME}",
+                    "name": "${PREFIX}${NAME}",
                     "app": "${APP_NAME}",
                     "app-group": "${APP_GROUP}"
                 }
@@ -59,7 +59,7 @@
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "${NAME}:${OUTPUT_IMAGE_TAG}"
+                        "name": "${PREFIX}${NAME}:${OUTPUT_IMAGE_TAG}"
                     }
                 }
             }
@@ -71,7 +71,7 @@
             "displayName": "Name",
             "description": "The name assigned to all of the resources defined in this template.",
             "required": true,
-            "value": "vc-authn-database"
+            "value": "database"
         },
         {
             "name": "APP_NAME",
@@ -86,6 +86,13 @@
             "description": "The name assigned to all of the components in this project.",
             "required": true,
             "value": "vc-authn-oidc"
+        },
+        {
+          "name": "PREFIX",
+          "displayName": "Prefix",
+          "description": "A name prefix used for all objects",
+          "required": false,
+          "value": "vc-authn-"
         },
         {
             "name": "GIT_REPO_URL",

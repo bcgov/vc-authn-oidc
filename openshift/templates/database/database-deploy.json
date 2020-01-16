@@ -4,22 +4,22 @@
   "metadata": {
     "annotations": {
       "description": "Deployment template for a postgresql server with persistent storage.",
-      "tags": "${NAME}"
+      "tags": "${PREFIX}${NAME}"
     },
-    "name": "${NAME}-persistent-template"
+    "name": "${PREFIX}${NAME}-persistent-template"
   },
   "objects": [
     {
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}",
+        "name": "${PREFIX}${NAME}",
         "generation": 1,
         "labels": {
-          "name": "${NAME}",
+          "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}",
-          "template": "${NAME}-persistent-template"
+          "template": "${PREFIX}${NAME}-persistent-template"
         }
       },
       "spec": {
@@ -37,7 +37,7 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "${NAME}"
+                "${PREFIX}${NAME}"
               ],
               "from": {
                 "kind": "ImageStreamTag",
@@ -53,12 +53,12 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "name": "${NAME}"
+          "name": "${PREFIX}${NAME}"
         },
         "template": {
           "metadata": {
             "labels": {
-              "name": "${NAME}",
+              "name": "${PREFIX}${NAME}",
               "app": "${APP_NAME}",
               "app-group": "${APP_GROUP}"
             }
@@ -66,15 +66,15 @@
           "spec": {
             "volumes": [
               {
-                "name": "${NAME}-data",
+                "name": "${PREFIX}${NAME}-data",
                 "persistentVolumeClaim": {
-                  "claimName": "${NAME}"
+                  "claimName": "${PREFIX}${NAME}"
                 }
               }
             ],
             "containers": [
               {
-                "name": "${NAME}",
+                "name": "${PREFIX}${NAME}",
                 "image": " ",
                 "ports": [
                   {
@@ -87,7 +87,7 @@
                     "name": "POSTGRESQL_USER",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${NAME}",
+                        "name": "${PREFIX}${NAME}",
                         "key": "database-user"
                       }
                     }
@@ -96,7 +96,7 @@
                     "name": "POSTGRESQL_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${NAME}",
+                        "name": "${PREFIX}${NAME}",
                         "key": "database-password"
                       }
                     }
@@ -105,7 +105,7 @@
                     "name": "POSTGRESQL_ADMIN_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${NAME}",
+                        "name": "${PREFIX}${NAME}",
                         "key": "admin-password"
                       }
                     }
@@ -127,7 +127,7 @@
                 },
                 "volumeMounts": [
                   {
-                    "name": "${NAME}-data",
+                    "name": "${PREFIX}${NAME}-data",
                     "mountPath": "${MOUNT_PATH}"
                   }
                 ],
@@ -178,9 +178,9 @@
       "kind": "PersistentVolumeClaim",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}",
+        "name": "${PREFIX}${NAME}",
         "labels": {
-          "name": "${NAME}",
+          "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}"
         }
@@ -201,9 +201,9 @@
       "kind": "Secret",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}",
+        "name": "${PREFIX}${NAME}",
         "labels": {
-          "name": "${NAME}",
+          "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}"
         }
@@ -219,28 +219,28 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}",
+        "name": "${PREFIX}${NAME}",
         "labels": {
-          "name": "${NAME}",
+          "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}",
-          "template": "${NAME}-persistent-template"
+          "template": "${PREFIX}${NAME}-persistent-template"
         },
         "annotations": {
-          "template.openshift.io/expose-uri": "postgres://{.spec.clusterIP}:{.spec.ports[?(.name==\"${NAME}\")].port}"
+          "template.openshift.io/expose-uri": "postgres://{.spec.clusterIP}:{.spec.ports[?(.name==\"${PREFIX}${NAME}\")].port}"
         }
       },
       "spec": {
         "ports": [
           {
-            "name": "${NAME}",
+            "name": "${PREFIX}${NAME}",
             "protocol": "TCP",
             "port": 5432,
             "targetPort": 5432
           }
         ],
         "selector": {
-          "name": "${NAME}"
+          "name": "${PREFIX}${NAME}"
         },
         "type": "ClusterIP",
         "sessionAffinity": "None"
@@ -253,7 +253,7 @@
       "displayName": "Name",
       "description": "The name assigned to all of the OpenShift resources associated to the server instance.",
       "required": true,
-      "value": "vc-authn-db"
+      "value": "database"
     },
     {
       "name": "APP_NAME",
@@ -268,6 +268,13 @@
       "description": "The name assigned to all of the deployments in this project.",
       "required": true,
       "value": "vc-authn-oidc"
+    },
+    {
+      "name": "PREFIX",
+      "displayName": "Prefix",
+      "description": "A name prefix used for all objects",
+      "required": false,
+      "value": "vc-authn-"
     },
     {
       "name": "IMAGE_NAMESPACE",
