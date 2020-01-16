@@ -243,9 +243,9 @@ objects:
   - kind: NetworkSecurityPolicy
     apiVersion: secops.pathfinder.gov.bc.ca/v1alpha1
     metadata:
-      name: custom-${APP_NAME}-agent-to-external-network
+      name: custom-${APP_NAME}-${NAME}-to-external-network
       labels:
-        name: custom-${APP_NAME}-agent-to-external-network
+        name: custom-${APP_NAME}-${NAME}-to-external-network
         env: ${TAG_NAME}
     spec:
       description: |
@@ -261,9 +261,9 @@ objects:
   - kind: NetworkSecurityPolicy
     apiVersion: secops.pathfinder.gov.bc.ca/v1alpha1
     metadata:
-      name: custom-${APP_NAME}-agent-policy
+      name: custom-${APP_NAME}-${NAME}-policy
       labels:
-        name: custom-${APP_NAME}-agent-policy
+        name: custom-${APP_NAME}-${NAME}-policy
         app: ${APP_NAME}
         env: ${TAG_NAME}
     spec:

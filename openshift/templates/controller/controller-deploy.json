@@ -292,9 +292,9 @@
       "kind": "NetworkSecurityPolicy",
       "apiVersion": "secops.pathfinder.gov.bc.ca/v1alpha1",
       "metadata": {
-        "name": "custom-${APP_NAME}-controller-policy",
+        "name": "custom-${APP_NAME}-${NAME}-policy",
         "labels": {
-          "name": "custom-${APP_NAME}-controller-policy",
+          "name": "custom-${APP_NAME}-${NAME}-policy",
           "app": "${APP_NAME}",
           "env": "${TAG_NAME}"
         }
