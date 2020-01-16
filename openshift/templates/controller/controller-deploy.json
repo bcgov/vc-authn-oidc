@@ -267,9 +267,9 @@
       "kind": "NetworkSecurityPolicy",
       "apiVersion": "secops.pathfinder.gov.bc.ca/v1alpha1",
       "metadata": {
-        "name": "custom-${NAME}-pods-to-api",
+        "name": "custom-${APP_NAME}-pods-to-api",
         "labels": {
-          "name": "custom-${NAME}-pods-to-api",
+          "name": "custom-${APP_NAME}-pods-to-api",
           "app": "${APP_NAME}",
           "env": "${TAG_NAME}"
         }
@@ -292,9 +292,9 @@
       "kind": "NetworkSecurityPolicy",
       "apiVersion": "secops.pathfinder.gov.bc.ca/v1alpha1",
       "metadata": {
-        "name": "custom-${NAME}-controller-policy",
+        "name": "custom-${APP_NAME}-controller-policy",
         "labels": {
-          "name": "custom-${NAME}-controller-policy",
+          "name": "custom-${APP_NAME}-controller-policy",
           "app": "${APP_NAME}",
           "env": "${TAG_NAME}"
         }
