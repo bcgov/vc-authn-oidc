@@ -6,7 +6,7 @@
       "description": "Deployment template for a postgresql server with persistent storage.",
       "tags": "${NAME}"
     },
-    "name": "${NAME}-template"
+    "name": "${NAME}-persistent-template"
   },
   "objects": [
     {
@@ -16,8 +16,10 @@
         "name": "${NAME}",
         "generation": 1,
         "labels": {
-          "app": "${APP_GROUP}",
-          "name": "${NAME}"
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}",
+          "template": "${NAME}-persistent-template"
         }
       },
       "spec": {
@@ -34,7 +36,9 @@
             "type": "ImageChange",
             "imageChangeParams": {
               "automatic": true,
-              "containerNames": ["${NAME}"],
+              "containerNames": [
+                "${NAME}"
+              ],
               "from": {
                 "kind": "ImageStreamTag",
                 "namespace": "${IMAGE_NAMESPACE}",
@@ -54,7 +58,9 @@
         "template": {
           "metadata": {
             "labels": {
-              "name": "${NAME}"
+              "name": "${NAME}",
+              "app": "${APP_NAME}",
+              "app-group": "${APP_GROUP}"
             }
           },
           "spec": {
@@ -174,13 +180,16 @@
       "metadata": {
         "name": "${NAME}",
         "labels": {
-          "app": "${APP_GROUP}",
-          "name": "${NAME}"
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}"
         }
       },
       "spec": {
         "storageClassName": "${PERSISTENT_VOLUME_CLASS}",
-        "accessModes": ["ReadWriteOnce"],
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
         "resources": {
           "requests": {
             "storage": "${PERSISTENT_VOLUME_SIZE}"
@@ -194,8 +203,9 @@
       "metadata": {
         "name": "${NAME}",
         "labels": {
-          "app": "${APP_GROUP}",
-          "name": "${NAME}"
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}"
         }
       },
       "stringData": {
@@ -211,8 +221,10 @@
       "metadata": {
         "name": "${NAME}",
         "labels": {
-          "app": "${APP_GROUP}",
-          "name": "${NAME}"
+          "name": "${NAME}",
+          "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}",
+          "template": "${NAME}-persistent-template"
         },
         "annotations": {
           "template.openshift.io/expose-uri": "postgres://{.spec.clusterIP}:{.spec.ports[?(.name==\"${NAME}\")].port}"
@@ -241,7 +253,14 @@
       "displayName": "Name",
       "description": "The name assigned to all of the OpenShift resources associated to the server instance.",
       "required": true,
-      "value": "vc-oidc-controller-db"
+      "value": "vc-authn-db"
+    },
+    {
+      "name": "APP_NAME",
+      "displayName": "App Name",
+      "description": "Used to group components together in the OpenShift console.",
+      "required": true,
+      "value": "vc-authn-oidc"
     },
     {
       "name": "APP_GROUP",
@@ -262,21 +281,21 @@
       "displayName": "Source Image Name",
       "description": "The name of the image to use for this resource.",
       "required": true,
-      "value": "vc-oidc-controller-db"
+      "value": "vc-authn-database"
     },
     {
       "name": "TAG_NAME",
       "displayName": "Environment TAG name",
       "description": "The TAG name for this environment, e.g., dev, test, prod",
       "required": true,
-      "value": "latest"
+      "value": "dev"
     },
     {
       "name": "POSTGRESQL_DATABASE_NAME",
       "displayName": "PostgreSQL Database Name",
       "description": "The name of the PostgreSQL database.",
       "required": true,
-      "value": "vc_identity"
+      "value": "default_wallet"
     },
     {
       "name": "POSTGRESQL_USER",
@@ -284,7 +303,7 @@
       "description": "Username for PostgreSQL user that will be used for accessing the database.  Needs to be basee64 encoded/",
       "required": true,
       "generate": "expression",
-      "from": "User_[a-zA-Z0-9]{10}"
+      "from": "[a-zA-Z_][a-zA-Z0-9_]{10}"
     },
     {
       "name": "POSTGRESQL_PASSWORD",
@@ -292,7 +311,7 @@
       "description": "Password for the PostgreSQL connection user.  Needs to be basee64 encoded/",
       "required": true,
       "generate": "expression",
-      "from": "[a-zA-Z0-9]{16}"
+      "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
     },
     {
       "name": "POSTGRESQL_ADMIN_PASSWORD",
@@ -300,7 +319,7 @@
       "description": "Password for the 'postgres' PostgreSQL administrative account.  Needs to be basee64 encoded.",
       "required": true,
       "generate": "expression",
-      "from": "[a-zA-Z0-9]{16}"
+      "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
     },
     {
       "name": "MOUNT_PATH",
@@ -319,7 +338,7 @@
     {
       "name": "PERSISTENT_VOLUME_CLASS",
       "displayName": "Persistent Volume Class name",
-      "description": "The class of the volume; gluster-file, gluster-block, gluster-file-db",
+      "description": "The class of the volume; gluster-file, gluster-block, gluster-file-db, netapp-file-standard, netapp-block-standard",
       "required": false,
       "value": "gluster-file-db"
     },
@@ -335,7 +354,7 @@
       "displayName": "Resources CPU Limit",
       "description": "The resources CPU limit (in cores) for this build.",
       "required": true,
-      "value": "750m"
+      "value": "1000m"
     },
     {
       "name": "MEMORY_REQUEST",
@@ -349,7 +368,7 @@
       "displayName": "Resources Memory Limit",
       "description": "The resources Memory limit (in Mi, Gi, etc) for this build.",
       "required": true,
-      "value": "4000Mi"
+      "value": "128Mi"
     }
   ]
 }
