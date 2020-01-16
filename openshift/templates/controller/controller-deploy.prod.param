@@ -1,0 +1,27 @@
+#=========================================================
+# OpenShift template parameters for:
+# Component: .
+# Template File: ../openshift/templates/controller/controller-deploy.json
+#=========================================================
+# NAME=controller
+# APP_NAME=vc-authn-oidc
+# APP_GROUP=vc-authn-oidc
+# PREFIX=vc-authn-
+# IMAGE_NAMESPACE=
+TAG_NAME=prod
+# IDENTITY_SERVER_DB_CONNECTION_STRING=Host=vc-authn-database;Port=5432;Database=vc_authn;Username=DB_USER;Password=DB_PASSWORD;
+# APPLICATION_DOMAIN=
+# AGENT_ADMIN_URL=http://vc-authn-agent:8024
+# URL_SHORTENER_DATABASE_CONNECTION_STRING=Host=vc-authn-database;Port=5432;Database=vc_authn;Username=DB_USER;Password=DB_PASSWORD;
+# SESSION_STORAGE_SERVICE_DATABASE_CONNECTION_STRING=Host=vc-authn-database;Port=5432;Database=vc_authn;Username=DB_USER;Password=DB_PASSWORD;
+# CONTROLLER_CERTIFICATE_FILE_PATH=/controller-data/secret.rsa
+# ASPNETCORE_URLS=http://*:8080
+# CONTROLLER_API_KEY=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
+# SWAGGER_ENABLED=false
+# MOUNT_PATH=/controller-data
+# PERSISTENT_VOLUME_SIZE=1Gi
+# PERSISTENT_VOLUME_CLASS=netapp-file-standard
+# CPU_REQUEST=10m
+# CPU_LIMIT=500m
+# MEMORY_REQUEST=128Mi
+# MEMORY_LIMIT=512Mi
