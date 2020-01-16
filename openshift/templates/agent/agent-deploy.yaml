@@ -232,7 +232,7 @@ objects:
               - ${PREFIX}${NAME}
             from:
               kind: ImageStreamTag
-              name: ${NAME}:${TAG_NAME}
+              name: ${PREFIX}${NAME}:${TAG_NAME}
               namespace: ${IMAGE_NAMESPACE}
 
   - kind: HorizontalPodAutoscaler
