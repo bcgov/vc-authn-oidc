@@ -125,7 +125,7 @@
                     "name": "ACAPY__AdminURLApiKey",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "vc-authn-controller-agent",
+                        "name": "vc-authn-agent",
                         "key": "admin-api-key"
                       }
                     }

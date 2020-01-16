@@ -104,7 +104,6 @@ objects:
                 - -c
                 - $(echo aca-py start
                   --inbound-transport http '0.0.0.0' ${HTTP_INTERFACE_PORT}
-                  --inbound-transport ws '0.0.0.0' ${WS_INTERFACE_PORT}
                   --endpoint https://${AGENT_ENDPOINT}
                   --outbound-transport http
                   --genesis-url "${GENESIS_URL}"
@@ -234,21 +233,6 @@ objects:
               kind: ImageStreamTag
               name: ${PREFIX}${NAME}:${TAG_NAME}
               namespace: ${IMAGE_NAMESPACE}
-
-  - kind: HorizontalPodAutoscaler
-    apiVersion: autoscaling/v1
-    metadata:
-      name: ${PREFIX}${NAME}
-      labels:
-        name: ${PREFIX}${NAME}
-        app: ${APP_NAME}
-        app-group: ${APP_GROUP}
-    spec:
-      scaleTargetRef:
-        kind: DeploymentConfig
-        name: ${PREFIX}${NAME}
-      minReplicas: ${{MIN_REPLICAS}}
-      maxReplicas: ${{MAX_REPLICAS}}
 
 parameters:
   - name: NAME
@@ -386,17 +370,6 @@ parameters:
     required: false
     generate: expression
     from: "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
-  # ===============================================================================
-  - name: MIN_REPLICAS
-    displayName: Minimum Replicas
-    description: The minimum number of pods to have running.
-    required: true
-    value: "1"
-  - name: MAX_REPLICAS
-    displayName: Maximum Replicas
-    description: The maximum number of pods to have running.
-    required: true
-    value: "2"
   # ===============================================================================
   - name: CPU_REQUEST
     displayName: Resources CPU Request

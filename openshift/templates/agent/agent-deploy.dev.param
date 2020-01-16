@@ -28,8 +28,6 @@ TAG_NAME=dev
 # WALLET_KEY=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 # WALLET_SEED=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 # WALLET_DID=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
-# MIN_REPLICAS=1
-# MAX_REPLICAS=2
 # CPU_REQUEST=10m
 # CPU_LIMIT=750m
 # MEMORY_REQUEST=10Mi
