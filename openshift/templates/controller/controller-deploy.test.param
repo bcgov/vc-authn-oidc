@@ -4,9 +4,11 @@
 # Template File: ../openshift/templates/controller/controller-deploy.json
 #=========================================================
 # NAME=controller
+# NAMESPACE_NAME=admgjk
 # APP_NAME=vc-authn-oidc
 # APP_GROUP=vc-authn-oidc
 # PREFIX=vc-authn-
+# ROLE=controller
 # IMAGE_NAMESPACE=admgjk-tools
 TAG_NAME=test
 # IDENTITY_SERVER_DB_CONNECTION_STRING=Host=vc-authn-database;Port=5432;Database=vc_authn;Username=DB_USER;Password=DB_PASSWORD;

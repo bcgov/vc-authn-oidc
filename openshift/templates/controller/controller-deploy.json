@@ -17,7 +17,8 @@
         "labels": {
           "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
-          "app-group": "${APP_GROUP}"
+          "app-group": "${APP_GROUP}",
+          "role": "${PREFIX}${ROLE}"
         }
       },
       "stringData": {
@@ -33,7 +34,8 @@
         "labels": {
           "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
-          "app-group": "${APP_GROUP}"
+          "app-group": "${APP_GROUP}",
+          "role": "${PREFIX}${ROLE}"
         }
       },
       "spec": {
@@ -189,7 +191,8 @@
         "labels": {
           "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
-          "app-group": "${APP_GROUP}"
+          "app-group": "${APP_GROUP}",
+          "role": "${PREFIX}${ROLE}"
         }
       },
       "spec": {
@@ -212,7 +215,8 @@
         "labels": {
           "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
-          "app-group": "${APP_GROUP}"
+          "app-group": "${APP_GROUP}",
+          "role": "${PREFIX}${ROLE}"
         }
       },
       "spec": {
@@ -239,7 +243,8 @@
         "labels": {
           "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
-          "app-group": "${APP_GROUP}"
+          "app-group": "${APP_GROUP}",
+          "role": "${PREFIX}${ROLE}"
         }
       },
       "spec": {
@@ -257,6 +262,68 @@
           "weight": 100
         }
       }
+    },
+    {
+      "kind": "NetworkSecurityPolicy",
+      "apiVersion": "secops.pathfinder.gov.bc.ca/v1alpha1",
+      "metadata": {
+        "name": "custom-${NAME}-pods-to-api",
+        "labels": {
+          "name": "custom-${NAME}-pods-to-api",
+          "app": "${APP_NAME}",
+          "env": "${TAG_NAME}"
+        }
+      },
+      "spec": {
+        "description": "Allow pods to talk to the internal api so deployments work.\nThis only needs to be specified once per environment.\n",
+        "source": [
+          [
+            "$namespace=${NAMESPACE_NAME}-${TAG_NAME}"
+          ]
+        ],
+        "destination": [
+          [
+            "int:network=internal-cluster-api-endpoint"
+          ]
+        ]
+      }
+    },
+    {
+      "kind": "NetworkSecurityPolicy",
+      "apiVersion": "secops.pathfinder.gov.bc.ca/v1alpha1",
+      "metadata": {
+        "name": "custom-${NAME}-controller-policy",
+        "labels": {
+          "name": "custom-${NAME}-controller-policy",
+          "app": "${APP_NAME}",
+          "env": "${TAG_NAME}"
+        }
+      },
+      "spec": {
+        "description": "Allow the controller to talk to either the database or agent micro services.\n",
+        "source": [
+          [
+            "role=${PREFIX}${ROLE}",
+            "app=${APP_NAME}",
+            "env=${TAG_NAME}",
+            "$namespace=${NAMESPACE_NAME}-${TAG_NAME}"
+          ]
+        ],
+        "destination": [
+          [
+            "role=${PREFIX}db",
+            "app=${APP_NAME}",
+            "env=${TAG_NAME}",
+            "$namespace=${NAMESPACE_NAME}-${TAG_NAME}"
+          ],
+          [
+            "role=${PREFIX}agent",
+            "app=${APP_NAME}",
+            "env=${TAG_NAME}",
+            "$namespace=${NAMESPACE_NAME}-${TAG_NAME}"
+          ]
+        ]
+      }
     }
   ],
   "parameters": [
@@ -266,6 +333,13 @@
       "name": "NAME",
       "required": true,
       "value": "controller"
+    },
+    {
+      "description": "The name of the namespace being deployed to.",
+      "displayName": "Namespace Name",
+      "name": "NAMESPACE_NAME",
+      "required": true,
+      "value": "admgjk"
     },
     {
       "name": "APP_NAME",
@@ -287,6 +361,13 @@
       "description": "A name prefix used for all objects",
       "required": false,
       "value": "vc-authn-"
+    },
+    {
+      "name": "ROLE",
+      "displayName": "Role",
+      "description": "The role of this service within the application - used for Network Policies",
+      "required": true,
+      "value": "controller"
     },
     {
       "description": "The namespace where to get the above image name",

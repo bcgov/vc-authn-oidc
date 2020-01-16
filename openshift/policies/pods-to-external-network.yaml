@@ -1,0 +1,35 @@
+---
+kind: Template
+apiVersion: v1
+metadata:
+  annotations:
+  name: "pods-to-external-network"
+objects:
+
+  - kind: NetworkSecurityPolicy
+    apiVersion: secops.pathfinder.gov.bc.ca/v1alpha1
+    metadata:
+      name: pods-to-external-network
+      labels:
+        name: pods-to-external-network
+        env: ${ENV_NAME}
+    spec:
+      description: |
+        Allow the builds to access the internet.
+        This only needs to be specified once per environment.
+      source:
+        - - $namespace=${NAMESPACE_NAME}-${ENV_NAME}
+      destination:
+        - - ext:network=any
+
+parameters:
+  - name: NAMESPACE_NAME
+    displayName: Namespace Name
+    description: The name of the namespace where the policy will be applied. 
+    required: true
+    value: 
+  - name: ENV_NAME
+    displayName: Environment Name
+    description: Environment name.  For the build environment this will typically be 'tools'
+    required: true
+    value: tools

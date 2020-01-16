@@ -1,0 +1,33 @@
+---
+kind: NetworkSecurityPolicy
+apiVersion: secops.pathfinder.gov.bc.ca/v1alpha1
+metadata:
+  name: pods-to-external-network
+  labels:
+    name: pods-to-external-network
+    env: dev
+spec:
+  description: |
+      Allow the pods to access the external networks.
+      This only needs to be specified once per environment.
+  source:
+    - - name=oidc-controller-db
+  destination:
+    - - ext:network=any
+
+---
+kind: NetworkSecurityPolicy
+apiVersion: secops.pathfinder.gov.bc.ca/v1alpha1
+metadata:
+  name: pods-to-k8s-api-admgjk-dev
+  labels:
+    name: pods-to-k8s-api-admgjk-dev
+    env: dev
+spec:
+  description: |
+      Allow the pods to access the Kubernetes internal API for deployments.
+      This only needs to be specified once per environment.
+  source:
+    - - $namespace=admgjk-dev
+  destination:
+    - - int:network=internal-cluster-api-endpoint
