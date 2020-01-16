@@ -4,9 +4,11 @@
 # Template File: ../openshift/templates/agent/agent-deploy.yaml
 #=========================================================
 NAME=agent
+NAMESPACE_NAME=admgjk
 PREFIX=vc-authn-
 APP_NAME=vc-authn-oidc
 APP_GROUP=vc-authn-oidc
+ROLE=agent
 APPLICATION_DOMAIN=agent-admgjk-dev.pathfinder.gov.bc.ca
 ROUTE_TIMEOUT=120s
 IMAGE_NAMESPACE=admgjk-tools

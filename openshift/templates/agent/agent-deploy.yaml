@@ -12,6 +12,7 @@ objects:
         name: ${PREFIX}${NAME}
         app: ${APP_NAME}
         app-group: ${APP_GROUP}
+        role: ${PREFIX}${ROLE}
     spec:
       ports:
         - name: ${NAME}-admin
@@ -33,6 +34,7 @@ objects:
         name: ${PREFIX}${NAME}
         app: ${APP_NAME}
         app-group: ${APP_GROUP}
+        role: ${PREFIX}${ROLE}
       annotations:
         haproxy.router.openshift.io/timeout: ${ROUTE_TIMEOUT}
     spec:
@@ -55,6 +57,7 @@ objects:
         name: ${PREFIX}${NAME}
         app: ${APP_NAME}
         app-group: ${APP_GROUP}
+        role: ${PREFIX}${ROLE}
     stringData:
       key: ${WALLET_KEY}
       seed: ${WALLET_SEED}
@@ -69,6 +72,7 @@ objects:
         name: ${PREFIX}${NAME}
         app: ${APP_NAME}
         app-group: ${APP_GROUP}
+        role: ${PREFIX}${ROLE}
     stringData:
       admin-api-key: ${ADMIN_API_KEY}
     type: Opaque
@@ -81,6 +85,7 @@ objects:
         name: ${PREFIX}${NAME}
         app: ${APP_NAME}
         app-group: ${APP_GROUP}
+        role: ${PREFIX}${ROLE}
     spec:
       replicas: 1
       selector:
@@ -94,6 +99,7 @@ objects:
             name: ${PREFIX}${NAME}
             app: ${APP_NAME}
             app-group: ${APP_GROUP}
+            role: ${PREFIX}${ROLE}
         spec:
           containers:
             - name: ${PREFIX}${NAME}
@@ -234,12 +240,62 @@ objects:
               name: ${PREFIX}${NAME}:${TAG_NAME}
               namespace: ${IMAGE_NAMESPACE}
 
+  - kind: NetworkSecurityPolicy
+    apiVersion: secops.pathfinder.gov.bc.ca/v1alpha1
+    metadata:
+      name: custom-${NAME}-agent-to-external-network
+      labels:
+        name: custom-${NAME}-agent-to-external-network
+        env: ${TAG_NAME}
+    spec:
+      description: |
+        Allow the agent to access the internet.
+      source:
+        - - role=${PREFIX}${ROLE}
+          - app=${APP_NAME}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE_NAME}-${TAG_NAME}
+      destination:
+        - - ext:network=any
+
+  - kind: NetworkSecurityPolicy
+    apiVersion: secops.pathfinder.gov.bc.ca/v1alpha1
+    metadata:
+      name: custom-${NAME}-agent-policy
+      labels:
+        name: custom-${NAME}-agent-policy
+        app: ${APP_NAME}
+        env: ${TAG_NAME}
+    spec:
+      description: |
+        Allow the agent to talk to either the wallet or controller micro services.
+      source:
+        - - role=${PREFIX}${ROLE}
+          - app=${APP_NAME}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE_NAME}-${TAG_NAME}
+
+      destination:
+        - - role=${PREFIX}db
+          - app=${APP_NAME}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE_NAME}-${TAG_NAME}
+        - - role=${PREFIX}controller
+          - app=${APP_NAME}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE_NAME}-${TAG_NAME}
+
 parameters:
   - name: NAME
     displayName: Name
     description: The name assigned to all the objects defined in this template.
     required: true
     value: agent
+  - name: NAMESPACE_NAME
+    displayName: Namespace Name
+    description: The name of the namespace being deployed to.
+    required: true
+    value: admgjk
   - name: PREFIX
     displayName: Prefix
     description: A name prefix used for all objects.
@@ -255,6 +311,11 @@ parameters:
     description: Used to group components together.
     required: true
     value: vc-authn-oidc
+  - name: ROLE
+    displayName: Role
+    description: The role of this service within the application - used for Network Policies.
+    required: true
+    value: agent
   - name: APPLICATION_DOMAIN
     displayName: Application Hostname
     description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
