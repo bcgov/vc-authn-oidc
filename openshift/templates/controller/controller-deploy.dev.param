@@ -7,10 +7,10 @@
 # APP_NAME=vc-authn-oidc
 # APP_GROUP=vc-authn-oidc
 # PREFIX=vc-authn-
-# IMAGE_NAMESPACE=
+# IMAGE_NAMESPACE=admgjk-tools
 TAG_NAME=dev
 # IDENTITY_SERVER_DB_CONNECTION_STRING=Host=vc-authn-database;Port=5432;Database=vc_authn;Username=DB_USER;Password=DB_PASSWORD;
-# APPLICATION_DOMAIN=
+APPLICATION_DOMAIN=controller-admgjk-dev.pathfinder.gov.bc.ca
 # AGENT_ADMIN_URL=http://vc-authn-agent:8024
 # URL_SHORTENER_DATABASE_CONNECTION_STRING=Host=vc-authn-database;Port=5432;Database=vc_authn;Username=DB_USER;Password=DB_PASSWORD;
 # SESSION_STORAGE_SERVICE_DATABASE_CONNECTION_STRING=Host=vc-authn-database;Port=5432;Database=vc_authn;Username=DB_USER;Password=DB_PASSWORD;
