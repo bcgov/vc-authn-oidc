@@ -97,6 +97,9 @@ namespace VCAuthn.IdentityServer.Endpoints
                     claims.Add(new Claim(IdentityConstants.SubjectIdentityTokenKey, Guid.NewGuid().ToString()));
                 }
 
+                // Add "issued at" standard OIDC claim - see https://tools.ietf.org/html/rfc7519#section-4
+                claims.Add(new Claim(IdentityConstants.OIDCTokenIssuedAt, DateTimeOffset.Now.ToUnixTimeSeconds().ToString(), System.Security.Claims.ClaimValueTypes.Integer));
+
                 _logger.LogDebug($"Claims list created for presentation record id : {_session.PresentationRecordId}, values : {claims.ToJson()}");
 
                 return claims;
