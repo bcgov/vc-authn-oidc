@@ -6,18 +6,19 @@
       "description": "Deployment template for a .NET Core OIDC Controller",
       "tags": "dotnet"
     },
-    "name": "${NAME}-deployment-template"
+    "name": "${PREFIX}${NAME}-deployment-template"
   },
   "objects": [
     {
       "kind": "Secret",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}",
+        "name": "${PREFIX}${NAME}",
         "labels": {
-          "name": "${NAME}",
-          "app": "${NAME}",
-          "app-group": "${APP_GROUP}"
+          "name": "${PREFIX}${NAME}",
+          "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}",
+          "role": "${PREFIX}${ROLE}"
         }
       },
       "stringData": {
@@ -29,17 +30,19 @@
       "apiVersion": "v1",
       "kind": "DeploymentConfig",
       "metadata": {
+        "name": "${PREFIX}${NAME}",
         "labels": {
-          "app": "${APP_GROUP}",
-          "name": "${NAME}"
-        },
-        "name": "${NAME}"
+          "name": "${PREFIX}${NAME}",
+          "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}",
+          "role": "${PREFIX}${ROLE}"
+        }
       },
       "spec": {
         "replicas": 1,
         "selector": {
           "app": "${APP_GROUP}",
-          "name": "${NAME}"
+          "name": "${PREFIX}${NAME}"
         },
         "strategy": {
           "rollingParams": {
@@ -55,23 +58,23 @@
           "metadata": {
             "labels": {
               "app": "${APP_GROUP}",
-              "name": "${NAME}"
+              "name": "${PREFIX}${NAME}"
             }
           },
           "spec": {
             "volumes": [
               {
-                "name": "${NAME}-data",
+                "name": "${PREFIX}${NAME}-data",
                 "persistentVolumeClaim": {
-                  "claimName": "${NAME}"
+                  "claimName": "${PREFIX}${NAME}"
                 }
               }
             ],
             "containers": [
               {
-                "image": "${NAME}",
+                "image": "${PREFIX}${NAME}",
                 "imagePullPolicy": "Always",
-                "name": "${NAME}",
+                "name": "${PREFIX}${NAME}",
                 "ports": [
                   {
                     "containerPort": 5000,
@@ -89,7 +92,7 @@
                   },
                   {
                     "name": "IdentityServer__PublicOrigin",
-                    "value": "${APPLICATION_URL}"
+                    "value": "https://${APPLICATION_DOMAIN}"
                   },
                   {
                     "name": "ACAPY__BaseUrl",
@@ -101,7 +104,7 @@
                   },
                   {
                     "name": "UrlShortenerService__BaseUrl",
-                    "value": "${APPLICATION_URL}/url"
+                    "value": "https://${APPLICATION_DOMAIN}/url"
                   },
                   {
                     "name": "SessionStorageService__ConnectionStrings_Database",
@@ -115,7 +118,7 @@
                     "name": "ApiKey",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${NAME}",
+                        "name": "${PREFIX}${NAME}",
                         "key": "controller-api-key"
                       }
                     }
@@ -124,7 +127,7 @@
                     "name": "ACAPY__AdminURLApiKey",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "vc-oidc-controller-agent",
+                        "name": "vc-authn-agent",
                         "key": "admin-api-key"
                       }
                     }
@@ -146,7 +149,7 @@
                 },
                 "volumeMounts": [
                   {
-                    "name": "${NAME}-data",
+                    "name": "${PREFIX}${NAME}-data",
                     "mountPath": "${MOUNT_PATH}"
                   }
                 ]
@@ -167,11 +170,13 @@
             "type": "ImageChange",
             "imageChangeParams": {
               "automatic": true,
-              "containerNames": ["${NAME}"],
+              "containerNames": [
+                "${PREFIX}${NAME}"
+              ],
               "from": {
                 "kind": "ImageStreamTag",
                 "namespace": "${IMAGE_NAMESPACE}",
-                "name": "${NAME}:${TAG_NAME}"
+                "name": "${PREFIX}${NAME}:${TAG_NAME}"
               }
             }
           }
@@ -182,15 +187,19 @@
       "kind": "PersistentVolumeClaim",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}",
+        "name": "${PREFIX}${NAME}",
         "labels": {
-          "app": "${APP_GROUP}",
-          "name": "${NAME}"
+          "name": "${PREFIX}${NAME}",
+          "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}",
+          "role": "${PREFIX}${ROLE}"
         }
       },
       "spec": {
         "storageClassName": "${PERSISTENT_VOLUME_CLASS}",
-        "accessModes": ["ReadWriteOnce"],
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
         "resources": {
           "requests": {
             "storage": "${PERSISTENT_VOLUME_SIZE}"
@@ -202,23 +211,25 @@
       "apiVersion": "v1",
       "kind": "Service",
       "metadata": {
+        "name": "${PREFIX}${NAME}",
         "labels": {
-          "app": "${APP_GROUP}",
-          "name": "${NAME}"
-        },
-        "name": "${NAME}"
+          "name": "${PREFIX}${NAME}",
+          "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}",
+          "role": "${PREFIX}${ROLE}"
+        }
       },
       "spec": {
         "ports": [
           {
-            "name": "${NAME}",
+            "name": "${PREFIX}${NAME}",
             "port": 5000,
             "protocol": "TCP",
             "targetPort": 8080
           }
         ],
         "selector": {
-          "name": "${NAME}"
+          "name": "${PREFIX}${NAME}"
         },
         "sessionAffinity": "None",
         "type": "ClusterIP"
@@ -228,16 +239,18 @@
       "apiVersion": "v1",
       "kind": "Route",
       "metadata": {
+        "name": "${PREFIX}${NAME}",
         "labels": {
-          "app": "${APP_GROUP}",
-          "name": "${NAME}"
-        },
-        "name": "${NAME}"
+          "name": "${PREFIX}${NAME}",
+          "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}",
+          "role": "${PREFIX}${ROLE}"
+        }
       },
       "spec": {
-        "host": "${APPLICATION_URL}",
+        "host": "${APPLICATION_DOMAIN}",
         "port": {
-          "targetPort": "${NAME}"
+          "targetPort": "${PREFIX}${NAME}"
         },
         "tls": {
           "insecureEdgeTerminationPolicy": "Redirect",
@@ -245,9 +258,71 @@
         },
         "to": {
           "kind": "Service",
-          "name": "${NAME}",
+          "name": "${PREFIX}${NAME}",
           "weight": 100
         }
+      }
+    },
+    {
+      "kind": "NetworkSecurityPolicy",
+      "apiVersion": "secops.pathfinder.gov.bc.ca/v1alpha1",
+      "metadata": {
+        "name": "custom-${APP_NAME}-pods-to-api",
+        "labels": {
+          "name": "custom-${APP_NAME}-pods-to-api",
+          "app": "${APP_NAME}",
+          "env": "${TAG_NAME}"
+        }
+      },
+      "spec": {
+        "description": "Allow pods to talk to the internal api so deployments work.\nThis only needs to be specified once per environment.\n",
+        "source": [
+          [
+            "$namespace=${NAMESPACE_NAME}-${TAG_NAME}"
+          ]
+        ],
+        "destination": [
+          [
+            "int:network=internal-cluster-api-endpoint"
+          ]
+        ]
+      }
+    },
+    {
+      "kind": "NetworkSecurityPolicy",
+      "apiVersion": "secops.pathfinder.gov.bc.ca/v1alpha1",
+      "metadata": {
+        "name": "custom-${APP_NAME}-${NAME}-policy",
+        "labels": {
+          "name": "custom-${APP_NAME}-${NAME}-policy",
+          "app": "${APP_NAME}",
+          "env": "${TAG_NAME}"
+        }
+      },
+      "spec": {
+        "description": "Allow the controller to talk to either the database or agent micro services.\n",
+        "source": [
+          [
+            "role=${PREFIX}${ROLE}",
+            "app=${APP_NAME}",
+            "env=${TAG_NAME}",
+            "$namespace=${NAMESPACE_NAME}-${TAG_NAME}"
+          ]
+        ],
+        "destination": [
+          [
+            "role=${PREFIX}db",
+            "app=${APP_NAME}",
+            "env=${TAG_NAME}",
+            "$namespace=${NAMESPACE_NAME}-${TAG_NAME}"
+          ],
+          [
+            "role=${PREFIX}agent",
+            "app=${APP_NAME}",
+            "env=${TAG_NAME}",
+            "$namespace=${NAMESPACE_NAME}-${TAG_NAME}"
+          ]
+        ]
       }
     }
   ],
@@ -257,14 +332,42 @@
       "displayName": "Name",
       "name": "NAME",
       "required": true,
-      "value": "vc-oidc-controller"
+      "value": "controller"
+    },
+    {
+      "description": "The name of the namespace being deployed to.",
+      "displayName": "Namespace Name",
+      "name": "NAMESPACE_NAME",
+      "required": true,
+      "value": "admgjk"
+    },
+    {
+      "name": "APP_NAME",
+      "displayName": "App Name",
+      "description": "Used to group components together in the OpenShift console.",
+      "required": true,
+      "value": "vc-authn-oidc"
     },
     {
       "name": "APP_GROUP",
       "displayName": "App Group",
-      "description": "The name assigned to all of the deployments in this project.",
+      "description": "The name assigned to all of the components in this project.",
       "required": true,
       "value": "vc-authn-oidc"
+    },
+    {
+      "name": "PREFIX",
+      "displayName": "Prefix",
+      "description": "A name prefix used for all objects",
+      "required": false,
+      "value": "vc-authn-"
+    },
+    {
+      "name": "ROLE",
+      "displayName": "Role",
+      "description": "The role of this service within the application - used for Network Policies",
+      "required": true,
+      "value": "controller"
     },
     {
       "description": "The namespace where to get the above image name",
@@ -284,13 +387,12 @@
       "displayName": "Database Connection String",
       "description": "The connection string to use to connect to the database.",
       "required": true,
-      "value": "Host=vc-oidc-controller-db;Port=5432;Database=DB_NAME;Username=DB_USER;Password=DB_PASSWORD;"
+      "value": "Host=vc-authn-database;Port=5432;Database=vc_authn;Username=DB_USER;Password=DB_PASSWORD;"
     },
     {
-      "name": "APPLICATION_URL",
-      "displayName": "Controller Public Url",
-      "description": "The public URL for the controller.",
-      "required": true,
+      "name": "APPLICATION_DOMAIN",
+      "description": "The exposed hostname that will route to the service, e.g., myappname.pathfinder.gov.bc.ca, if left blank a value will be defaulted.",
+      "displayName": "Application Hostname",
       "value": ""
     },
     {
@@ -298,21 +400,21 @@
       "displayName": "The controller agent admin URL",
       "description": "The controller agent admin URL",
       "required": true,
-      "value": "http://vc-oidc-controller-agent:8024"
+      "value": "http://vc-authn-agent:8024"
     },
     {
       "name": "URL_SHORTENER_DATABASE_CONNECTION_STRING",
       "displayName": "URL Shortening Service Connection URL",
       "description": "URL Shortening Service Connection string.",
       "required": true,
-      "value": "Host=vc-oidc-controller-db;Port=5432;Database=DB_NAME;Username=DB_USER;Password=DB_PASSWORD;"
+      "value": "Host=vc-authn-database;Port=5432;Database=vc_authn;Username=DB_USER;Password=DB_PASSWORD;"
     },
     {
       "name": "SESSION_STORAGE_SERVICE_DATABASE_CONNECTION_STRING",
       "displayName": "Session Storage Service DB",
       "description": "Session Storage Service DB connection string.",
       "required": true,
-      "value": "Host=vc-oidc-controller-db;Port=5432;Database=DB_NAME;Username=DB_USER;Password=DB_PASSWORD;"
+      "value": "Host=vc-authn-database;Port=5432;Database=vc_authn;Username=DB_USER;Password=DB_PASSWORD;"
     },
     {
       "name": "CONTROLLER_CERTIFICATE_FILE_PATH",
@@ -334,7 +436,7 @@
       "description": "API key for the OIDC controlelr",
       "required": true,
       "generate": "expression",
-      "from": "[a-zA-Z0-9]{16}"
+      "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
     },
     {
       "name": "SWAGGER_ENABLED",
@@ -360,9 +462,9 @@
     {
       "name": "PERSISTENT_VOLUME_CLASS",
       "displayName": "Persistent Volume Class name",
-      "description": "The class of the volume; gluster-file, gluster-block, gluster-file-db",
+      "description": "The class of the volume; gluster-file, gluster-block, gluster-file-db, netapp-file-standard, netapp-block-standard",
       "required": false,
-      "value": "gluster-file"
+      "value": "netapp-file-standard"
     },
     {
       "name": "CPU_REQUEST",

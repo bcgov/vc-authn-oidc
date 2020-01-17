@@ -117,6 +117,22 @@ artifacts/
 # Docker
 proxy-data/
 
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+*_DeploymentConfig.json
+*_BuildConfig.json
+*.crt
+*.key
+
+*.local.*
+
+# General
+.env
+
+# Visual Studio Code
+.vscode
+.idea/*
+.vs
+
 ###
 ### Python
 ###
@@ -304,4 +320,3 @@ $RECYCLE.BIN/
 
 # Docs build
 _build/
-
