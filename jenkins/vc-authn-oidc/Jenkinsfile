@@ -1,0 +1,97 @@
+// The applicatino label
+// This is used to find all of the build configurations associated to the application
+// To work the build configurations must have an "app" label;
+// - For example; app=iiw-book
+def APP_LABEL = 'vc-authn-oidc'
+
+// Wait timeout in minutes
+def WAIT_TIMEOUT = 10
+
+// Assumes Builds, Images, and Deployments all have the same name(s)
+// Components will be deployed in the order they are listed.
+def COMPONENTS = ['vc-authn-agent', 'vc-authn-controller']
+
+// Edit your environment TAG names below
+def TAG_NAMES = ['dev', 'test', 'prod']
+
+// Edit your deployment environment names below
+def DEP_ENV_NAMES = ['tools', 'dev', 'test', 'prod']
+
+
+// The base namespace of you environments.
+def NAME_SPACE = 'admgjk'
+
+// Get an image's hash tag
+String getImageTagHash(String imageName, String tag = "") {
+
+  if(!tag?.trim()) {
+    tag = "latest"
+  }
+
+  def istag = openshift.raw("get istag ${imageName}:${tag} -o template --template='{{.image.dockerImageReference}}'")
+  return istag.out.tokenize('@')[1].trim()
+}
+
+node {
+  stage("Building images ...") {
+    script {
+      openshift.withCluster() {
+        openshift.withProject() {
+
+          // Find all of the build configurations associated to the application using labels ...
+          def buildconfigs = openshift.selector("bc", [ app : "${APP_LABEL}" ])
+          echo "Found ${buildconfigs.count()} buildconfigs for app label (app=${APP_LABEL}): ${buildconfigs.names()}"
+
+          // Kick off all the builds in parallel ...
+          def builds = buildconfigs.startBuild()
+          echo "Started ${builds.count()} builds: ${builds.names()}"
+
+          timeout(WAIT_TIMEOUT) {
+            // Wait for all the builds to complete ...
+            // This section will exit after the last build completes.
+            echo "Waiting for builds to complete ..."
+            builds.withEach {
+              // untilEach and watch - do not support watching multiple named resources,
+              // so we have to feed it one at a time.
+              it.untilEach(1) {
+                  echo "${it.object().status.phase} - ${it.name()}"
+                  return (it.object().status.phase == "Complete")
+              }
+            }
+          }
+
+          echo "Builds complete ..."
+        }
+      }
+    }
+  }
+
+  for(item in COMPONENTS)
+  {
+    stage("Deploying ${item}") {
+      script {
+        openshift.withCluster() {
+          openshift.withProject() {
+
+            echo "Tagging ${item} for deployment to ${TAG_NAMES[0]} ..."
+
+            // Don't tag with BUILD_ID so the pruner can do it's job; it won't delete tagged images.
+            // Tag the images for deployment based on the image's hash
+            def IMAGE_HASH = getImageTagHash("${item}")
+            echo "IMAGE_HASH: ${IMAGE_HASH}"
+            openshift.tag("${item}@${IMAGE_HASH}", "${item}:${TAG_NAMES[0]}")
+          }
+
+          openshift.withProject("${NAME_SPACE}-${DEP_ENV_NAMES[0]}") {
+              def dc = openshift.selector('dc', "${item}")
+              // Wait for the deployment to complete.
+              // This will wait until the desired replicas are all available
+              dc.rollout().status()
+          }
+
+          echo "Deployment Complete."
+        }
+      }
+    }
+  }
+}
