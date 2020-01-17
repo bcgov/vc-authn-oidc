@@ -17,7 +17,7 @@ TAG_NAME=test
 # POSTGRESQL_ADMIN_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 # MOUNT_PATH=/var/lib/pgsql/data
 # PERSISTENT_VOLUME_SIZE=1Gi
-# PERSISTENT_VOLUME_CLASS=gluster-file-db
+PERSISTENT_VOLUME_CLASS=netapp-file-standard
 # CPU_REQUEST=10m
 # CPU_LIMIT=1000m
 # MEMORY_REQUEST=10Mi
