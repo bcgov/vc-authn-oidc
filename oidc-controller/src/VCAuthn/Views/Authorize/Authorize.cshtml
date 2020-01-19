@@ -57,6 +57,9 @@
                     if (!String.IsNullOrEmpty(@restriction.SchemaVersion)) {
                       @:<li class="restriction-item">Schema Version: <span class="claim-value">@restriction.SchemaVersion</span></li>
                     }
+                    if (!String.IsNullOrEmpty(@restriction.CredentialDefinitionId)) {
+                      @:<li class="restriction-item">Credential Definition Id: <span class="claim-value">@restriction.CredentialDefinitionId</span></li>
+                    }
                   }
                 }
               </ul>
