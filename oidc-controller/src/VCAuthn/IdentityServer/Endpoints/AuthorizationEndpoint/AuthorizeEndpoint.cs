@@ -165,7 +165,7 @@ namespace VCAuthn.IdentityServer.Endpoints
                 {
                     PresentationRequestId = presentationRequestId,
                     PresentationRecordId = presentationRecordId,
-                    PresentationRequest = presentationRequest.Request.ExtractIndyPresentationPequest().ToJson(),
+                    PresentationRequest = presentationRequest.Request.ExtractIndyPresentationRequest().ToJson(),
                     RequestParameters = values.AllKeys.ToDictionary(t => t, t => values[t])
                 });
 
@@ -182,7 +182,9 @@ namespace VCAuthn.IdentityServer.Endpoints
                 new AuthorizationViewModel(
                     shortUrl,
                     $"{_options.PublicOrigin}/{IdentityConstants.ChallengePollUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
-                    $"{_options.PublicOrigin}/{IdentityConstants.AuthorizeCallbackUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}"));
+                    $"{_options.PublicOrigin}/{IdentityConstants.AuthorizeCallbackUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
+                    presentationRequest.Request.ExtractIndyPresentationRequest()
+                ));
         }
 
         private PresentationRequestMessage BuildPresentationRequest(CreatePresentationResponse response, WalletPublicDid acapyPublicDid)
