@@ -12,7 +12,7 @@
   </div>
 
 
-  <div class="container">
+  <div class="content">
 
     <div class="introduction">
       <h2>
@@ -21,10 +21,12 @@
     </div>
 
     <div class="qr-code-display">
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="704.094" height="441" viewBox="0 0 704.094 441">
-        <image id="frame" width="288" height="288" transform="translate(209.5 76)" xlink:href="@qrUri"/>
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 700 400">
+        <image id="frame" width="300" height="300" transform="translate(209.5 76)" xlink:href="@qrUri"/>
       </svg>
-      <a href="@txtUri">@txtUri</a>
+      <span>
+        <a class="qr-url" href="@txtUri">@txtUri</a>
+      </span>
     </div>
 
     <div class="presentation-restrictions">
@@ -79,18 +81,20 @@
   
   body {
     background: #fff;
-    padding: 0;
+    padding: 5px;
     margin: 0;
     border:0;
-    height: 100vh;
   }
 
-  .container {
+  .content {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 12px;
+    background-color: slategrey;
+    border: 1px solid navy;
+    border-radius: 15px;
   }
 
   .back {
@@ -129,6 +133,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    word-break: break-all;
+    overflow-wrap: break-word;
+  }
+
+  .qr-url {
+    color: navy;
   }
 
   .presentation-restrictions {
