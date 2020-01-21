@@ -55,7 +55,11 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "name": "${PREFIX}${NAME}"
+          "name": "${PREFIX}${NAME}",
+          "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}",
+          "role": "${PREFIX}${ROLE}",
+          "env": "${TAG_NAME}"
         },
         "template": {
           "metadata": {

@@ -44,7 +44,9 @@
         "replicas": 1,
         "selector": {
           "app": "${APP_GROUP}",
-          "name": "${PREFIX}${NAME}"
+          "name": "${PREFIX}${NAME}",
+          "role": "${PREFIX}${ROLE}",
+          "env": "${TAG_NAME}"
         },
         "strategy": {
           "rollingParams": {
