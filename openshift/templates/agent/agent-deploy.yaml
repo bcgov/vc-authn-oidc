@@ -13,6 +13,7 @@ objects:
         app: ${APP_NAME}
         app-group: ${APP_GROUP}
         role: ${PREFIX}${ROLE}
+        env: ${TAG_NAME}
     spec:
       ports:
         - name: ${NAME}-admin
@@ -35,6 +36,7 @@ objects:
         app: ${APP_NAME}
         app-group: ${APP_GROUP}
         role: ${PREFIX}${ROLE}
+        env: ${TAG_NAME}
       annotations:
         haproxy.router.openshift.io/timeout: ${ROUTE_TIMEOUT}
     spec:
@@ -58,6 +60,7 @@ objects:
         app: ${APP_NAME}
         app-group: ${APP_GROUP}
         role: ${PREFIX}${ROLE}
+        env: ${TAG_NAME}
     stringData:
       key: ${WALLET_KEY}
       seed: ${WALLET_SEED}
@@ -73,6 +76,7 @@ objects:
         app: ${APP_NAME}
         app-group: ${APP_GROUP}
         role: ${PREFIX}${ROLE}
+        env: ${TAG_NAME}
     stringData:
       admin-api-key: ${ADMIN_API_KEY}
     type: Opaque
@@ -86,6 +90,7 @@ objects:
         app: ${APP_NAME}
         app-group: ${APP_GROUP}
         role: ${PREFIX}${ROLE}
+        env: ${TAG_NAME}
     spec:
       replicas: 1
       selector:
@@ -100,6 +105,7 @@ objects:
             app: ${APP_NAME}
             app-group: ${APP_GROUP}
             role: ${PREFIX}${ROLE}
+            env: ${TAG_NAME}
         spec:
           containers:
             - name: ${PREFIX}${NAME}
@@ -246,6 +252,9 @@ objects:
       name: custom-${APP_NAME}-${NAME}-to-external-network
       labels:
         name: custom-${APP_NAME}-${NAME}-to-external-network
+        app: ${APP_NAME}
+        app-group: ${APP_GROUP}
+        role: ${PREFIX}${ROLE}
         env: ${TAG_NAME}
     spec:
       description: |
@@ -265,6 +274,8 @@ objects:
       labels:
         name: custom-${APP_NAME}-${NAME}-policy
         app: ${APP_NAME}
+        app-group: ${APP_GROUP}
+        role: ${PREFIX}${ROLE}
         env: ${TAG_NAME}
     spec:
       description: |

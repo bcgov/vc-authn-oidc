@@ -18,7 +18,8 @@
           "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}",
-          "role": "${PREFIX}${ROLE}"
+          "role": "${PREFIX}${ROLE}",
+          "env": "${TAG_NAME}"
         }
       },
       "stringData": {
@@ -35,14 +36,17 @@
           "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}",
-          "role": "${PREFIX}${ROLE}"
+          "role": "${PREFIX}${ROLE}",
+          "env": "${TAG_NAME}"
         }
       },
       "spec": {
         "replicas": 1,
         "selector": {
           "app": "${APP_GROUP}",
-          "name": "${PREFIX}${NAME}"
+          "name": "${PREFIX}${NAME}",
+          "role": "${PREFIX}${ROLE}",
+          "env": "${TAG_NAME}"
         },
         "strategy": {
           "rollingParams": {
@@ -58,7 +62,9 @@
           "metadata": {
             "labels": {
               "app": "${APP_GROUP}",
-              "name": "${PREFIX}${NAME}"
+              "name": "${PREFIX}${NAME}",
+              "role": "${PREFIX}${ROLE}",
+              "env": "${TAG_NAME}"
             }
           },
           "spec": {
@@ -95,8 +101,12 @@
                     "value": "https://${APPLICATION_DOMAIN}"
                   },
                   {
-                    "name": "ACAPY__BaseUrl",
+                    "name": "ACAPY__AdminUrl",
                     "value": "${AGENT_ADMIN_URL}"
+                  },
+                  {
+                    "name": "ACAPY__AgentUrl",
+                    "value": "${AGENT_PUBLIC_URL}"
                   },
                   {
                     "name": "UrlShortenerService__ConnectionStrings__Database",
@@ -192,7 +202,8 @@
           "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}",
-          "role": "${PREFIX}${ROLE}"
+          "role": "${PREFIX}${ROLE}",
+          "env": "${TAG_NAME}"
         }
       },
       "spec": {
@@ -216,7 +227,8 @@
           "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}",
-          "role": "${PREFIX}${ROLE}"
+          "role": "${PREFIX}${ROLE}",
+          "env": "${TAG_NAME}"
         }
       },
       "spec": {
@@ -244,7 +256,8 @@
           "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}",
-          "role": "${PREFIX}${ROLE}"
+          "role": "${PREFIX}${ROLE}",
+          "env": "${TAG_NAME}"
         }
       },
       "spec": {
@@ -271,6 +284,8 @@
         "labels": {
           "name": "custom-${APP_NAME}-pods-to-api",
           "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}",
+          "role": "${PREFIX}${ROLE}",
           "env": "${TAG_NAME}"
         }
       },
@@ -296,6 +311,8 @@
         "labels": {
           "name": "custom-${APP_NAME}-${NAME}-policy",
           "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}",
+          "role": "${PREFIX}${ROLE}",
           "env": "${TAG_NAME}"
         }
       },
@@ -401,6 +418,13 @@
       "description": "The controller agent admin URL",
       "required": true,
       "value": "http://vc-authn-agent:8024"
+    },
+    {
+      "name": "AGENT_PUBLIC_URL",
+      "displayName": "The controller agent public URL",
+      "description": "The controller agent public URL",
+      "required": true,
+      "value": ""
     },
     {
       "name": "URL_SHORTENER_DATABASE_CONNECTION_STRING",
