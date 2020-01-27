@@ -20,6 +20,7 @@
           "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}",
           "role": "${PREFIX}${ROLE}",
+          "env": "${TAG_NAME}",
           "template": "${PREFIX}${NAME}-persistent-template"
         }
       },
@@ -54,7 +55,11 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "name": "${PREFIX}${NAME}"
+          "name": "${PREFIX}${NAME}",
+          "app": "${APP_NAME}",
+          "app-group": "${APP_GROUP}",
+          "role": "${PREFIX}${ROLE}",
+          "env": "${TAG_NAME}"
         },
         "template": {
           "metadata": {
@@ -62,7 +67,8 @@
               "name": "${PREFIX}${NAME}",
               "app": "${APP_NAME}",
               "app-group": "${APP_GROUP}",
-              "role": "${PREFIX}${ROLE}"
+              "role": "${PREFIX}${ROLE}",
+              "env": "${TAG_NAME}"
             }
           },
           "spec": {
@@ -185,7 +191,8 @@
           "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}",
-          "role": "${PREFIX}${ROLE}"
+          "role": "${PREFIX}${ROLE}",
+          "env": "${TAG_NAME}"
         }
       },
       "spec": {
@@ -209,7 +216,8 @@
           "name": "${PREFIX}${NAME}",
           "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}",
-          "role": "${PREFIX}${ROLE}"
+          "role": "${PREFIX}${ROLE}",
+          "env": "${TAG_NAME}"
         }
       },
       "stringData": {
@@ -229,6 +237,7 @@
           "app": "${APP_NAME}",
           "app-group": "${APP_GROUP}",
           "role": "${PREFIX}${ROLE}",
+          "env": "${TAG_NAME}",
           "template": "${PREFIX}${NAME}-persistent-template"
         },
         "annotations": {
