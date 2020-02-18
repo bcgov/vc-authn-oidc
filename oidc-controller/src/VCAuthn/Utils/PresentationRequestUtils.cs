@@ -56,7 +56,7 @@ namespace VCAuthn.Utils
         /// is identified by <c>"@id": "libindy-request-presentation-0"</c>, as specified in the Aries RFC 0037.
         /// <see cref="https://github.com/hyperledger/aries-rfcs/tree/master/features/0037-present-proof#request-presentation"/> 
         /// </summary>
-        public static PresentationRequest ExtractIndyPresentationPequest(this List<PresentationAttachment> presentationAttachments)
+        public static PresentationRequest ExtractIndyPresentationRequest(this List<PresentationAttachment> presentationAttachments)
         {
             PresentationRequest presentationRequest = null;
 
@@ -64,7 +64,7 @@ namespace VCAuthn.Utils
             {
                 if (attachment.Id.Equals("libindy-request-presentation-0"))
                 {
-                    // found first indy presentation attachment, deserialize it so thatit can be returned
+                    // found first indy presentation attachment, deserialize it so that it can be returned
                     presentationRequest = attachment.Data["base64"].toPresentationRequestObject();
                 }
             });

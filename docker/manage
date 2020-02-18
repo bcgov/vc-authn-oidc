@@ -94,6 +94,10 @@ configureEnvironment() {
 
   # export STI_SCRIPTS_PATH=${STI_SCRIPTS_PATH:-/usr/libexec/s2i}
 
+  # re-map ngrok endpoints to internal environment variables
+  AGENT_ENDPOINT=${AGENT_ENDPOINT:-$NGROK_AGENT_URL}
+  IDENTITY_SERVER_URL=${IDENTITY_SERVER_URL:-$NGROK_CONTROLLER_URL}
+
   # controller-db
   export POSTGRESQL_DATABASE="IDENTITY_DB"
   export POSTGRESQL_USER="DB_USER"
@@ -102,7 +106,7 @@ configureEnvironment() {
   export DATABASE_PORT="5432"
 
   # controller
-  export IDENTITY_SERVER_URL="http://localhost:5000"
+  export IDENTITY_SERVER_URL="${IDENTITY_SERVER_URL:-http://localhost:5000}"
   export IDENTITY_SERVER_API_KEY="controller-api-key"
   export IDENTITY_SERVER_WEB_HOOK_URL=${IDENTITY_SERVER_URL}
   export IDENTITY_SERVER_SWAGGER_ENABLED=true
@@ -114,10 +118,10 @@ configureEnvironment() {
   export AGENT_NAME="vc-oidc-controller-agent"
   export AGENT_HTTP_PORT="5679"
   export AGENT_ADMIN_PORT="5678"
-  export ACAPY_ADMIN_URL="http://aca-py:${AGENT_ADMIN_PORT}"
-  export ACAPY_AGENT_URL="http://aca-py:${AGENT_HTTP_PORT}"
-  export LEDGER_URL=${LEDGER_URL-http://$DOCKERHOST:9000}
   export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$DOCKERHOST:$AGENT_HTTP_PORT}
+  export ACAPY_ADMIN_URL="http://aca-py:${AGENT_ADMIN_PORT}"
+  export ACAPY_AGENT_URL="${AGENT_ENDPOINT:-http://aca-py:$AGENT_HTTP_PORT}"
+  export LEDGER_URL=${LEDGER_URL-http://$DOCKERHOST:9000}
   export AGENT_SEED="000000000000000000000000Steward1"
   export ACAPY_ADMIN_URL_API_KEY=${ACAPY_ADMIN_URL_API_KEY}
   export ACAPY_ADMIN_MODE="admin-insecure-mode"

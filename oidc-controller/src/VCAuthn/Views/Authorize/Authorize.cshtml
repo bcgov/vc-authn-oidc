@@ -4,32 +4,75 @@
     var txtUri = $"{Model.Challenge}"; 
     var qrUri = $"https://chart.googleapis.com/chart?cht=qr&chs=300x300&chld=L|0&chl={Uri.EscapeDataString(Model.Challenge)}";
 }
-<span>
-  <input id="pollInterval" value="@Model.Interval" style="display: none" />
-  <input id="pollUrl" value="@Model.PollUrl" style="display: none" />
-  <input id="resolutionUrl" value="@Model.ResolutionUrl" style="display: none" />
-
-  <div class="container">
-    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="704.094" height="441" viewBox="0 0 704.094 441">
-        <g id="Symbol_3_9" data-name="Symbol 3 – 9" transform="translate(-158.5 -31)">
-          <g id="Group_28" data-name="Group 28" transform="translate(-1 -8)">
-            <g id="Group_26" data-name="Group 26" transform="translate(112)">
-              <g id="iphone_6:7_black" data-name="iphone 6:7 black" transform="translate(2333.094 909) rotate(90)">
-                <rect id="Rectangle_1" data-name="Rectangle 1" width="325" height="703.094" rx="58" transform="translate(-808 1582)" fill="#fff" stroke="#707070" stroke-width="1"/>
-                <rect id="IMG_4428" width="301.671" height="536.572" rx="4" stroke-width="1" fill="#fff" stroke="#707070" transform="translate(-795.933 1663.25)"/>
-              </g>
-            </g>
-          </g>
-        </g>
-        <image id="frame" width="288" height="288" transform="translate(209.5 76)" xlink:href="@qrUri"/>
-      </svg>    
-      <a href="@txtUri">@txtUri</a>
+  <div>
+    <!-- These fields are used by the script at the bottom of the page -->
+    <input id="pollInterval" value="@Model.Interval" style="display: none" />
+    <input id="pollUrl" value="@Model.PollUrl" style="display: none" />
+    <input id="resolutionUrl" value="@Model.ResolutionUrl" style="display: none" />
   </div>
-</span>
 
-<button class="back" onclick="history.back(-1)">
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-</button>
+
+  <div class="content">
+
+    <div class="introduction">
+      <h2>
+        Please scan the QR code to initiate the <strong>Verifiable Credential</strong> exchange
+      </h2>
+    </div>
+
+    <div class="qr-code-display">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 700 400">
+        <image id="frame" width="300" height="300" transform="translate(209.5 76)" xlink:href="@qrUri"/>
+      </svg>
+      <span>
+        <a class="qr-url" href="@txtUri">@txtUri</a>
+      </span>
+    </div>
+
+    <div class="presentation-restrictions">
+      <p>
+        The credential must meet the following requirements:
+      </p>
+
+      <div class="requested-claims">
+        @{
+          foreach (var item in Model.PresentationRequest.RequestedAttributes)
+          {
+            <div class="claim-group">
+              <span class="claim-name">Claim Name:</span> <span class="claim-value">@item.Value.Name</span>
+              <br/>
+              <span class="claim-restrictions-title">Claim restrictions:</span>
+              <ul class="claim-restriction-list">
+                @{
+                  foreach (var restriction in item.Value.Restrictions) {
+                    if (!String.IsNullOrEmpty(@restriction.IssuerDid)) {
+                      @:<li class="restriction-item">Issuer DID: <span class="claim-value">@restriction.IssuerDid</span></li>
+                    }
+                    if (!String.IsNullOrEmpty(@restriction.SchemaId)) {
+                      @:<li class="restriction-item">Schema Id: <span class="claim-value">@restriction.SchemaId</span></li>
+                    }
+                    if (!String.IsNullOrEmpty(@restriction.SchemaIssuerDid)) {
+                      @:<li class="restriction-item">Schema Issuer DID: <span class="claim-value">@restriction.SchemaIssuerDid</span></li>
+                    }
+                    if (!String.IsNullOrEmpty(@restriction.SchemaName)) {
+                      @:<li class="restriction-item">Schema Name: <span class="claim-value">@restriction.SchemaName</span></li>
+                    }
+                    if (!String.IsNullOrEmpty(@restriction.SchemaVersion)) {
+                      @:<li class="restriction-item">Schema Version: <span class="claim-value">@restriction.SchemaVersion</span></li>
+                    }
+                    if (!String.IsNullOrEmpty(@restriction.CredentialDefinitionId)) {
+                      @:<li class="restriction-item">Credential Definition Id: <span class="claim-value">@restriction.CredentialDefinitionId</span></li>
+                    }
+                  }
+                }
+              </ul>
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+  </div>
 
 <style>
   * {
@@ -37,21 +80,21 @@
   }
   
   body {
-    background: #333132;
-    padding: 0;
+    background: #fff;
+    padding: 5px;
     margin: 0;
     border:0;
-    height: 100vh;
   }
 
-  .container {
+  .content {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding-top: 12px;
-    height: 100vh;
-    width: 100vw;
+    padding: 12px;
+    background-color: slategrey;
+    border: 1px solid navy;
+    border-radius: 15px;
   }
 
   .back {
@@ -62,6 +105,44 @@
     left:0;
     width: 64px;
     height: 64px;
+  }
+
+  .introduction {
+    text-align: center;
+  }
+
+  .claim-value {
+    font-style: italic;
+    font-weight: lighter;
+  }
+
+  .claim-restriction-list {
+    list-style: upper-roman;
+  }
+
+  .claim-group:nth-child(n+2) {
+    border-top: 1px black dotted;
+  }
+
+  .requested-claims {
+    background-color: ghostwhite;
+    padding: 5px;
+  }
+
+  .qr-code-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    word-break: break-all;
+    overflow-wrap: break-word;
+  }
+
+  .qr-url {
+    color: navy;
+  }
+
+  .presentation-restrictions {
+    margin-top: 50px;
   }
 </style>
 
