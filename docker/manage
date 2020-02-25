@@ -275,7 +275,6 @@ start|up)
   docker-compose logs -f
  ;;
 start-demo)
-  isS2iInstalled
   isJQInstalled
 
   # Set environment variables
@@ -301,7 +300,6 @@ start-demo)
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
   docker-compose up -d controller controller-db aca-py wallet-db
-  docker-compose logs -f
  ;;
 logs)
   configureEnvironment $@

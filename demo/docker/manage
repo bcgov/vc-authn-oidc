@@ -353,8 +353,7 @@ case "${COMMAND}" in
 
     _startupParams=$(getStartupParams --force-recreate $@)
     configureEnvironment "$@"
-    docker-compose up -d ${_startupParams} 
-    docker-compose logs -f
+    docker-compose up -d ${_startupParams}
     ;;
   restart)
     _startupParams=$(getStartupParams $@)
