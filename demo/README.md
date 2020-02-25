@@ -8,9 +8,9 @@ This is a demo application that uses vc-authn-oidc as Identity Provider to acces
 
 The application in this demo require you to have a mobile wallet installed on your mobile phone, and to have obtained a `Verified Email` credential from this [Email Verification Service](https://email-verification.vonx.io).
 
-You will also need to have Docker and ngrok installed and running.
+You will also need to have Docker installed and running. 
 
-`vc-authn-oidc` depends on [von-network](https://github.com/bcgov/von-network): follow the instructions in the von-network readme to start one locally on your machine. Alternatively, a public ledger can be used by setting the `LEDGER_URL` environment variable. As an example, to use the BCovrin Test ledger: `LEDGER_URL=https://test.bcovrin.vonx.io`.
+:information_source: If you have publicly accessible endpoints for your agent and controller, you can skip starting ngrok and provide your endpoints when starting the components using the `NGROK_AGENT_URL` and `NGROK_CONTROLLER_URL` environment variables.
 
 ### Running the Apps
 
@@ -24,12 +24,9 @@ Run `./manage build` in shells number `1` and `2` to assemble the images require
 
 When the builds are completed, run [start-ngrok.sh](./scripts/start-ngrok.sh) in shell number `3`. This will run an instance of `ngrok` used to allow your mobile agent to communicate with the services running on localhost.
 
-Once ngrok is running go to http://localhost:4040/status : you will notice the two tunnels `vc-authn-agent` and `vc-authn-controller` have been created and have been assigned an ngrok public endpoint. Take note of the urls that have been assigned, as you will need them to start the services.
-
 Now we can start the services:
 
-- In shell number `1` run this command, replacing {NGROK_AGENT_URL} and ${NGROK_CONTROLLER_URL} with the values from the ngrok status page:
-```NGROK_AGENT_URL=${NGROK_AGENT_URL} NGROK_CONTROLLER_URL=${NGROK_CONTROLLER_URL} ./manage start```
+- In shell number `1` run ```./manage start-demo```
 
 Once the services are running, we will need to configure vc-authn-oidc so that it will request the `Verified Email` credential. To do this, execute the following command in another shell (you can use, as an example, shell number `2`):
 
@@ -39,7 +36,7 @@ curl -X POST "http://localhost:5000/api/vc-configs" -H "accept: application/json
 
 Additionally, we need to add the valid redirect URI for the test client to the vc-authn-oidc-controller database: a new entry should be created in the `ClientRedirectUris` table. To acquire the credentials to connect to to the database you can refer to the environment variables set in the `controller-db` section of the main [manage](../docker/manage) script, however the default parameters for the demo clients have been pre-configured for convenience.
 
-- In shell number `2` run this command, replacing ${NGROK_CONTROLLER_URL} with the value fro the ngrok status page:  ```NGROK_CONTROLLER_URL=${NGROK_CONTROLLER_URL} ./manage start```
+- In shell number `2` run ```./manage start```
 
 ### Try the Demo!
 
