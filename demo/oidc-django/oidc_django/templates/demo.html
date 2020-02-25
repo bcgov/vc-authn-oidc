@@ -22,7 +22,7 @@
       <p class="alert alert-success" role="alert">Authentication successful!</p>
       <hr class="my-4">
       <p>You can close your session.</p>
-      <a class="btn btn-primary btn-lg"  href="{{ login_url }}?pres_req_conf_id={{ settings.VC_AUTHN_PRES_REQ_CONF_ID }}" role="button">Close Session</a>
+      <a class="btn btn-primary btn-lg"  href="{% url 'oidc_end_session' %}" role="button">Close Session</a>
       {% endif %}
     </div>
   </body>
