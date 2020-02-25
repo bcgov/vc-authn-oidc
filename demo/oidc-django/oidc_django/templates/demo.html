@@ -1,15 +1,29 @@
-<html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <title>Django OIDC Demo</title>
+  </head>
   <body>
-    {% if user.is_anonymous %}
-    <p>You are not authenticated, please provide a Verified Email by clicking
-        {% url 'oidc_auth_request' as login_url %}
-        <a href="{{ login_url }}?pres_req_conf_id={{ settings.VC_AUTHN_PRES_REQ_CONF_ID }}">HERE</a>
-    </p>
-    {% else %}
-    <p>Authentication successful! You can  
-        <a href="{% url 'oidc_end_session' %}">CLOSE</a> 
-        your session.
-    </p>
-    {% endif %}
+    <div class="jumbotron">
+      <h1 class="display-4">Django OIDC Demo</h1>
+      {% if user.is_anonymous %}
+      <p class="alert alert-danger" role="alert">You are not authenticated.</p>
+      <hr class="my-4">
+      <p>Please authenticate by providing a Verified Email.</p>
+      {% url 'oidc_auth_request' as login_url %}
+      <a class="btn btn-primary btn-lg"  href="{{ login_url }}?pres_req_conf_id={{ settings.VC_AUTHN_PRES_REQ_CONF_ID }}" role="button">Authenticate</a>
+      {% else %}
+      <p class="alert alert-success" role="alert">Authentication successful!</p>
+      <hr class="my-4">
+      <p>You can close your session.</p>
+      <a class="btn btn-primary btn-lg"  href="{{ login_url }}?pres_req_conf_id={{ settings.VC_AUTHN_PRES_REQ_CONF_ID }}" role="button">Close Session</a>
+      {% endif %}
+    </div>
   </body>
 </html>
