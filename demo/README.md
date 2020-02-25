@@ -10,7 +10,9 @@ The application in this demo require you to have a mobile wallet installed on yo
 
 You will also need to have Docker installed and running. 
 
-:information_source: If you have publicly accessible endpoints for your agent and controller, you can skip starting ngrok and provide your endpoints when starting the components using the `NGROK_AGENT_URL` and `NGROK_CONTROLLER_URL` environment variables.
+:information_source: If you have publicly accessible endpoints for your agent and controller, you can skip starting ngrok and provide your endpoints when starting the components prefixing the `manage` command with the `NGROK_AGENT_URL` and `NGROK_CONTROLLER_URL` environment variables.
+
+*Example:* ```NGROK_AGENT_URL=${NGROK_AGENT_URL} NGROK_CONTROLLER_URL=${NGROK_CONTROLLER_URL} ./manage start```
 
 ### Running the Apps
 
