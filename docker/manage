@@ -277,6 +277,11 @@ start-demo)
   fi
   export LEDGER_URL="http://test.bcovrin.vonx.io"
 
+  if [ -z "$NGROK_AGENT_URL" ] || [ -z "$NGROK_CONTROLLER_URL" ]; then
+    echoError "The NGROK_AGENT_URL or NGROK_CONTROLLER_URL have not been set."
+    exit 1
+  fi
+
   echo "Running in demo mode, will use ${LEDGER_URL} as ledger, ${NGROK_AGENT_URL} for the agent and ${NGROK_CONTROLLER_URL} for the controller."
 
   _startupParams=$(getStartupParams $@)

@@ -330,6 +330,10 @@ case "${COMMAND}" in
       isNgrokInstalled
       export NGROK_CONTROLLER_URL=$(${CURL_EXE} http://localhost:4040/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-controller"))) | .[0] | .public_url')
     fi
+    if [ -z "$NGROK_CONTROLLER_URL" ]; then
+      echoError "The NGROK_CONTROLLER_URL has not been set."
+      exit 1
+    fi
 
     echo "Running in demo mode, will use ${NGROK_CONTROLLER_URL} for the controller endpoint."
 
