@@ -1,6 +1,6 @@
 # Special Instructions for Play With Docker
 
-1. Install S2I using the following command: ```curl -L https://github.com/openshift/source-to-image/releases/download/v1.1.14/source-to-image-v1.1.14-874754de-linux-amd64.tar.gz | tar -xz -C /usr/local/bin```
+1. Install S2I using the following command: ```curl -L https://github.com/openshift/source-to-image/releases/download/v1.2.0/source-to-image-v1.2.0-2a579ecd-linux-amd64.tar.gz | tar -xz -C /usr/local/bin```
 
 2. Checkout repository: ```git clone https://github.com/bcgov/vc-authn-oidc.git && cd vc-authn-oidc```
 
