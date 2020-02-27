@@ -6,4 +6,4 @@ else
   NGROK="ngrok"
 fi
 
-$NGROK start --all --config=../ngrok.yml
+$NGROK start --all --config=../ngrok.yml --log=stdout

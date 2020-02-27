@@ -34,7 +34,8 @@ SECRET_KEY = os.getenv(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = parse_bool(os.getenv("DJANGO_DEBUG", "False"))
 
-ALLOWED_HOSTS = []
+# SECURITY WARNING: this setting is only for demo/development and should be changed for production apps!
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition

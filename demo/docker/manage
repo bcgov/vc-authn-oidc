@@ -3,6 +3,20 @@ export MSYS_NO_PATHCONV=1
 export DOCKERHOST=${APPLICATION_URL-$(docker run --rm --net=host eclipse/che-ip)}
 set -e
 
+function echoError (){
+  _msg=${1}
+  _red='\e[31m'
+  _nc='\e[0m' # No Color
+  echo -e "${_red}${_msg}${_nc}"
+}
+
+function echoWarning (){
+  _msg=${1}
+  _yellow='\e[33m'
+  _nc='\e[0m' # No Color
+  echo -e "${_yellow}${_msg}${_nc}"
+}
+
 function echoRed (){
   _msg=${1}
   _red='\e[31m'
@@ -17,13 +31,54 @@ function echoYellow (){
   echo -e "${_yellow}${_msg}${_nc}"
 }
 
-S2I_EXE=s2i
-if [ -z $(type -P "$S2I_EXE") ]; then
-  echoRed "The ${S2I_EXE} executable is needed and not on your path."
-  echoRed "It can be downloaded from here: https://github.com/openshift/source-to-image"
-  echoRed "Make sure you place it in a directory on your path."
-  exit 1
-fi
+function isInstalled () {
+  rtnVal=$(type "$1" >/dev/null 2>&1)
+  rtnCd=$?
+  if [ ${rtnCd} -ne 0 ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+function isS2iInstalled () {
+  S2I_EXE=s2i
+  if ! isInstalled ${S2I_EXE}; then
+    echoError "The ${S2I_EXE} executable is needed and not on your path."
+    echoError "It can be downloaded from here: https://github.com/openshift/source-to-image/releases"
+    echoError "Make sure you extract the binary and place it in a directory on your path."
+    exit 1
+  fi
+}
+
+function isCurlInstalled () {
+  CURL_EXE=curl
+  if ! isInstalled ${CURL_EXE}; then
+    echoError "The ${CURL_EXE} executable is required and was not found on your path."
+    echoError "If your shell of choice doesn't come with curl preinstalled, try installing it using either [Homebrew](https://brew.sh/) (MAC) or [Chocolatey](https://chocolatey.org/) (Windows)."
+    exit 1
+  fi
+}
+
+function isJQInstalled () {
+  JQ_EXE=jq
+  if ! isInstalled ${JQ_EXE}; then
+    echoError "The ${JQ_EXE} executable is required and was not found on your path."
+    echoError "Installation instructions can be found here: https://stedolan.github.io/jq/download"
+    echoError "Alternatively, a package manager such as Chocolatey (Windows) or Brew (Mac) can be used to install this dependecy."
+    exit 1
+  fi
+}
+
+function isNgrokInstalled () {
+  NGROK_EXE=ngrok
+  if ! isInstalled ${NGROK_EXE}; then
+    echoError "The ${NGROK_EXE} executable is needed and not on your path."
+    echoError "It can be downloaded from here: https://ngrok.com/download"
+    echoError "Alternatively, a package manager such as Chocolatey (Windows) or Brew (Mac) can be used to install this dependecy."
+    exit 1
+  fi
+}
 
 SCRIPT_HOME="$(cd "$(dirname "$0")" && pwd)"
 
@@ -280,10 +335,25 @@ shift || COMMAND=usage
 
 case "${COMMAND}" in
   start|up)
+    isS2iInstalled
+    isJQInstalled
+
+    # Set environment variables
+    if [ -z "$NGROK_CONTROLLER_URL" ]; then
+      isCurlInstalled
+      isNgrokInstalled
+      export NGROK_CONTROLLER_URL=$(${CURL_EXE} http://localhost:4040/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-controller"))) | .[0] | .public_url')
+    fi
+    if [ -z "$NGROK_CONTROLLER_URL" ]; then
+      echoError "The NGROK_CONTROLLER_URL has not been set."
+      exit 1
+    fi
+
+    echo "Running in demo mode, will use ${NGROK_CONTROLLER_URL} for the controller endpoint."
+
     _startupParams=$(getStartupParams --force-recreate $@)
     configureEnvironment "$@"
-    docker-compose up -d ${_startupParams} 
-    docker-compose logs -f
+    docker-compose up -d ${_startupParams}
     ;;
   restart)
     _startupParams=$(getStartupParams $@)
@@ -304,6 +374,8 @@ case "${COMMAND}" in
     deleteVolumes
     ;;
   build)
+    isS2iInstalled
+
     configureEnvironment "$@"
 
     buildImage=$(toLower ${1})

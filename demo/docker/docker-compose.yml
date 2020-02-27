@@ -28,8 +28,6 @@ services:
       VC_AUTHN_PRES_REQ_CONF_ID: ${VC_AUTHN_PRES_REQ_CONF_ID}
     volumes:
       - ../oidc-django:/opt/app-root/src
-    networks:
-      - vc-authn-oidc_vc_authn_oidc
     ports:
       - "8080:8080"
     depends_on:
@@ -54,16 +52,10 @@ services:
       POSTGRESQL_USER: ${POSTGRESQL_USER}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
-    networks:
-      - vc-authn-oidc_vc_authn_oidc
     ports:
       - ${EXPOSED_DATABASE_SERVICE_PORT}:5432
     volumes:
       - db-volume:/var/lib/pgsql/data
-
-networks:
-  vc-authn-oidc_vc_authn_oidc:
-    external: true
 
 volumes:
   db-volume:
