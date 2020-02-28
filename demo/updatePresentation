@@ -1,0 +1,16 @@
+#!/bin/bash
+
+export ACTION="PUT"
+if ( "$1" == "--new" ); then
+    export ACTION="POST"
+    shift
+fi
+
+if [ ! -f "$1" ]; then
+    echo "Error: File "$1" does not exist!"
+fi
+
+curl -X POST "http://localhost:5000/api/vc-configs" -H "accept: application/json"\
+     -H "X-Api-Key: controller-api-key"\
+     -H "Content-Type: application/json-patch+json"\
+     -F $1
