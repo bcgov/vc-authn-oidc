@@ -18,6 +18,7 @@ curl -X ${ACTION} "http://localhost:5000/api/vc-configs" -H "accept: application
      -d @$1
 
 echo ""
+echo ""
 echo Current list of presentation requests:
 echo ""
 
