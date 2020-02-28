@@ -2,6 +2,7 @@
 
 # set -x
 
+# Setup variables for PWD
 if [ $PWD_HOST_FQDN == "labs.play-with-docker.com" ]
     then
         export ETH_CONFIG="eth1"
@@ -17,23 +18,27 @@ export NGROK_AGENT_URL="http://ip${myhost}-${SESSION_ID}-5679.direct.${PWD_HOST_
 export NGROK_CONTROLLER_URL="http://ip${myhost}-${SESSION_ID}-5000.direct.${PWD_HOST_FQDN}"
 
 echo Get S2I
-
 curl -L https://github.com/openshift/source-to-image/releases/download/v1.2.0/source-to-image-v1.2.0-2a579ecd-linux-amd64.tar.gz | tar -xz -C /usr/local/bin
 
 echo Update appsettings.json
-
-sed -i "37,37s#http://localhost:8080#${DEMO_APP_URL}#" oidc-controller/src/VCAuthn/appsettings.json
+export APPSETTINGS=../oidc-controller/src/VCAuthn/appsettings.json
+cp ${APPSETTINGS} ${APPSETTINGS}.bck
+sed -i "37,37s#http://localhost:8080#${DEMO_APP_URL}#" ${APPSETTINGS}
 
 echo Verify update to appsettings file
-git diff
+diff ${APPSETTINGS} ${APPSETTINGS}.bck
 
 echo Build vc-authn
-cd docker
+pushd ../docker
 ./manage build
 
 echo Deploy vc-authn
 ./manage start-demo
 
+# Back to demo folder
+popd
+
+# Add the Presentation Request to VC Authn. Loop until container is ready
 export CONTROLLER_WAIT=10
 echo Wait ${CONTROLLER_WAIT} seconds for the controller to be initialized
 sleep ${CONTROLLER_WAIT}
@@ -45,13 +50,12 @@ do
 done
 
 echo Build demo app
-cd ../demo/docker
+pushd ../demo/docker
 ./manage build
 
 echo Deploy demo app
 ./manage start
+popd
 
 echo Check what docker containers are running
 docker ps
-
-cd ~

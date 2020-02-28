@@ -2,105 +2,38 @@
 
 These instructions guide you through running this demo in [Play with Docker](https://labs.play-with-docker.com/). Not familiar with Play with Docker?  Read [this](https://github.com/cloudcompass/ToIPLabs/blob/master/docs/LFS173x/RunningLabs.md#running-on-play-with-docker) for information about Play with Docker and how to use it.
 
-To run the demo, start up a Play with Docker terminal session, highlight and copy the script below, and then paste it (right-click, paste) it into the terminal session.
-
-> Note: There is a second script below to bring the docker containers down so you can rerun the process.
+To run the demo, start up a Play with Docker terminal session and run the following commands. Copying and pasting (right-click Paste) into the terminal session is easiest.
 
 ```
-#!/bin/bash
-
-# set -x
-
-if [ $PWD_HOST_FQDN == "labs.play-with-docker.com" ]
-    then
-        export ETH_CONFIG="eth1"
-    elif [ $PWD_HOST_FQDN == "play-with-docker.vonx.io" ]
-    then
-        export ETH_CONFIG="eth0"
-    else
-        export ETH_CONFIG="eth0"
-fi
-myhost=`ifconfig ${ETH_CONFIG} | grep inet | cut -d':' -f2 | cut -d' ' -f1 | sed 's/\./\-/g'`
-export DEMO_APP_URL="http://ip${myhost}-${SESSION_ID}-8080.direct.${PWD_HOST_FQDN}"
-export NGROK_AGENT_URL="http://ip${myhost}-${SESSION_ID}-5679.direct.${PWD_HOST_FQDN}"
-export NGROK_CONTROLLER_URL="http://ip${myhost}-${SESSION_ID}-5000.direct.${PWD_HOST_FQDN}"
-
-echo Get S2I
-
-curl -L https://github.com/openshift/source-to-image/releases/download/v1.2.0/source-to-image-v1.2.0-2a579ecd-linux-amd64.tar.gz | tar -xz -C /usr/local/bin
-
-echo Clone repo
-
-git clone https://github.com/bcgov/vc-authn-oidc.git && cd vc-authn-oidc
-
-echo Update appsettings.json
-
-sed -i "37,37s#http://localhost:8080#${DEMO_APP_URL}#" oidc-controller/src/VCAuthn/appsettings.json
-
-echo Verify update to appsettings file
-git diff
-
-echo Build vc-authn
-cd docker
-./manage build
-
-echo Deploy vc-authn
-./manage start-demo
-
-export CONTROLLER_WAIT=10
-echo Wait ${CONTROLLER_WAIT} seconds for the controller to be initialized
-sleep ${CONTROLLER_WAIT}
-
-echo Loop: Configure the VC IdP presentation request
-until curl -X POST "http://localhost:5000/api/vc-configs" -H "accept: application/json"\
-     -H "X-Api-Key: controller-api-key"\
-     -H "Content-Type: application/json-patch+json"\
-     -d "{\"id\": \"verified-email\",\
-          \"subject_identifier\": \"email\",\
-          \"configuration\": { \
-                \"name\": \"verified-email\",\
-                \"version\": \"1.0\",\
-                \"requested_attributes\": [ { \
-                     \"name\": \"email\",\
-                     \"restrictions\": [ { \
-                          \"schema_name\": \"verified-email\",\
-                          \"issuer_did\": \"MTYqmTBoLT7KLP5RNfgK3b\" } ]\
-                     } ],\
-                     \"requested_predicates\": []\
-                }\
-            }"
-do
-  sleep ${CONTROLLER_WAIT}
-done
-
-echo Build demo app
-cd ../demo/docker
-./manage build
-
-echo Deploy demo app
-./manage start
-
-echo Check what docker containers are running
-docker ps
-
-cd ~
-
-echo Done!
+git clone https://github.com/bcgov/vc-authn-oidc
+cd vc-authn-oidc
+cd demo
+./PWDrun
 
 ```
 
-Here is a script to bring the process down after completing the test:
+The last of those commands invokes a script that:
+
+- Builds and deploys the verifiable credential Identity Provider (IdP).
+- Registers an authentication presentation request that requires proof of having a verified email verifiable credential from the [BC Gov Verified Email service](https://email-verification.vonx.io/).
+- Builds and deploys the (demo) website that is protected by the IdP.
+
+Once everything is running, click on the port at the top of the screen labelled `8080`. That goes to the demo website. If you are quick, you may see a `502 Bad Gateway` error because the website isn't initialized yet. Hitting refresh should get you the website.
+
+Once you are on the website, click the `Authenticate` link. The IdP is invoked and you are asked to scan a QR code, or click a link to receive the presentation request so that you can present your proof. Once done, you will be granted access to the site. And that's it!
+
+If you want, in the `demo` folder (same as the script that runs everything) is a file `presentationRequest.json`. You can edit that to change the presentation request to anything you want. This is a good way to test presentation requests. On Play with Docker you can use either `vi` or a GUI editor (click `Editor` in the header and enlarge the resulting window) to edit the file. Once you have updated the Presentation Request you can run:
 
 ```
-#/bin/bash
+./updatePresentation presentationRequest.json
 
-cd ~
-cd vc-authn-oidc/docker
-./manage down
-cd ../demo/docker
-./manage down
-cd ~
+```
 
-echo Down!
+> NOTE: If you change the `id` of the presentation request, you must add a `--new` parameter between the command and file names.
+
+Once you are finished with the demo you can just close the Play with Docker session. If you want to stop and restart the demo, then you can use the command:
+
+```
+./PWDdown
 
 ```
