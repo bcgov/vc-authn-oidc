@@ -7,6 +7,7 @@ NAME=controller
 APP_NAME=vc-authn-oidc
 APP_GROUP=vc-authn-oidc
 PREFIX=vc-authn-
+NAMESPACE_NAME=admgjk
 ENV_NAME=tools
 GIT_REPO_URL=https://github.com/bcgov/vc-authn-oidc.git
 GIT_REF=master

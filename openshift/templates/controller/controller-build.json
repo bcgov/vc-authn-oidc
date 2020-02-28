@@ -116,6 +116,13 @@
       "value": "vc-authn-"
     },
     {
+      "name": "NAMESPACE_NAME",
+      "displayName": "Namespace Name",
+      "description": "The name of the namespace being deployed to..",
+      "required": true,
+      "value": "admgjk"
+    },
+    {
       "name": "ENV_NAME",
       "displayName": "Environment Name",
       "description": "Environment name.  For the build environment this will typically be 'tools'",
