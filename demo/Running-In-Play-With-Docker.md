@@ -1,20 +1,39 @@
 # Special Instructions for Play With Docker
 
-1. Install S2I using the following command: ```curl -L https://github.com/openshift/source-to-image/releases/download/v1.2.0/source-to-image-v1.2.0-2a579ecd-linux-amd64.tar.gz | tar -xz -C /usr/local/bin```
+These instructions guide you through running this demo in [Play with Docker](https://labs.play-with-docker.com/). Not familiar with Play with Docker?  Read [this](https://github.com/cloudcompass/ToIPLabs/blob/master/docs/LFS173x/RunningLabs.md#running-on-play-with-docker) for information about Play with Docker and how to use it.
 
-2. Checkout repository: ```git clone https://github.com/bcgov/vc-authn-oidc.git && cd vc-authn-oidc```
+To run the demo, start up a Play with Docker terminal session and run the following commands. Copying and pasting (right-click Paste) into the terminal session is easiest.
 
-3. Open ports 5679 (agent), 5000 (controller) and 8080 (demo app). Keep the tabs open as the URLs will be necessary to start the app.
+```
+git clone https://github.com/bcgov/vc-authn-oidc
+cd vc-authn-oidc
+cd demo
+./PWDrun
 
-4. Open the editor and replace `http://localhost:8080` at line 37 of [appsettings.json](../oidc-controller/src/VCAuthn/appsettings.json#L37) with the demo app URL obtained at step 3.
+```
 
-5. Build vc-authn by running the following command in the [docker](./docker) folder: ```./manage build```
+The last of those commands invokes a script that:
 
-6. Start vc-authn by running the following command in the [docker](./docker) folder: ```NGROK_AGENT_URL=... NGROK_CONTROLLER_URL=... ./manage start-demo```. Set the values for `NGROK_AGENT_URL` and `NGROK_CONTROLLER_URL` to the relevant URLs that were obtained at step 3.
+- Builds and deploys the verifiable credential Identity Provider (IdP).
+- Registers an authentication presentation request that requires proof of having a verified email verifiable credential from the [BC Gov Verified Email service](https://email-verification.vonx.io/).
+- Builds and deploys the (demo) website that is protected by the IdP.
 
-7. Run the following command to add the appropriate configuration to vc-authn:```
-curl -X POST "http://localhost:5000/api/vc-configs" -H "accept: application/json" -H "X-Api-Key: controller-api-key" -H "Content-Type: application/json-patch+json" -d "{\"id\": \"verified-email\",\"subject_identifier\": \"email\", \"configuration\": { \"name\": \"verified-email\", \"version\": \"1.0\", \"requested_attributes\": [ { \"name\": \"email\", \"restrictions\": [ { \"schema_name\": \"verified-email\", \"issuer_did\": \"MTYqmTBoLT7KLP5RNfgK3b\" } ] } ], \"requested_predicates\": [] }}"```
+Once everything is running, click on the port at the top of the screen labelled `8080`. That goes to the demo website. If you are quick, you may see a `502 Bad Gateway` error because the website isn't initialized yet. Hitting refresh should get you the website.
 
-8. Build the demo app by running the following command in the [demo/docker](./demo/docker) folder: ```./manage build```
+Once you are on the website, click the `Authenticate` link. The IdP is invoked and you are asked to scan a QR code, or click a link to receive the presentation request so that you can present your proof. Once done, you will be granted access to the site. And that's it!
 
-9. Start the demo app by running the following command in the [demo/docker](./demo/docker) folder: ```./manage start```
+If you want, in the `demo` folder (same as the script that runs everything) is a file `presentationRequest.json`. You can edit that to change the presentation request to anything you want. This is a good way to test presentation requests. On Play with Docker you can use either `vi` or a GUI editor (click `Editor` in the header and enlarge the resulting window) to edit the file. Once you have updated the Presentation Request you can run:
+
+```
+./updatePresentation presentationRequest.json
+
+```
+
+> NOTE: If you change the `id` of the presentation request, you must add a `--new` parameter between the command and file names.
+
+Once you are finished with the demo you can just close the Play with Docker session. If you want to stop and restart the demo, then you can use the command:
+
+```
+./PWDdown
+
+```
