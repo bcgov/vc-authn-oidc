@@ -15,7 +15,7 @@ def COMPONENTS = ['vc-authn-agent', 'vc-authn-controller']
 def TAG_NAMES = ['dev', 'test', 'prod']
 
 // Edit your deployment environment names below
-def DEP_ENV_NAMES = ['tools', 'dev', 'test', 'prod']
+def DEP_ENV_NAMES = ['dev', 'test', 'prod']
 
 
 // The base namespace of you environments.
