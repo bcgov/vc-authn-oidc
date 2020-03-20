@@ -40,10 +40,7 @@ popd
 
 # Add the Presentation Request to VC Authn. Loop until container is ready
 export CONTROLLER_WAIT=10
-echo Wait ${CONTROLLER_WAIT} seconds for the controller to be initialized
-sleep ${CONTROLLER_WAIT}
-
-echo Loop: Configure the VC IdP presentation request
+echo Looping for the controller to be initialized -- ${CONTROLLER_WAIT} seconds between tries
 until ./updatePresentation --new presentationRequest.json
 do
   sleep ${CONTROLLER_WAIT}

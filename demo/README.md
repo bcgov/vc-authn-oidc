@@ -6,9 +6,11 @@ This is a demo application that uses vc-authn-oidc as Identity Provider to acces
 
 ### Pre-Requisites
 
-The application in this demo require you to have a mobile wallet installed on your mobile phone, and to have obtained a `Verified Email` credential from this [Email Verification Service](https://email-verification.vonx.io).
+This demo requires you to have a mobile wallet installed on your mobile phone. Visit this [page](https://github.com/bcgov/identity-kit-poc/blob/master/docs/GettingApp.md) for guidance on getting your own mobile wallet on iOS or Android.
 
-You will also need to have Docker installed and running. 
+Once you have the mobile app, you must obtain a `Verified Email` credential from this [Email Verification Service](https://email-verification.vonx.io). Instructions to do that are on the site.
+
+You will also need to have Docker installed and running. Want to run this a&mdash;no Docker needed?  See [these instructions](Running-In-Play-With-Docker.md) about running this in your browser using Play with Docker.
 
 :information_source: If you have publicly accessible endpoints for your agent and controller, you can skip starting ngrok and provide your endpoints when starting the components prefixing the `manage` command with the `NGROK_AGENT_URL` and `NGROK_CONTROLLER_URL` environment variables.
 
