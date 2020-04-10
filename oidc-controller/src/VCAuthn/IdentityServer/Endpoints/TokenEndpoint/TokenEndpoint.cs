@@ -92,7 +92,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             try
             {
                 _logger.LogDebug($"Constructing token result for session : {sessionId}");
-                return new TokenEndpointResult(session, _tokenIssuerService, _presentationConfigurationService, _sessionStore, _logger);
+                return new TokenEndpointResult(session, _clientValidator, _tokenIssuerService, _presentationConfigurationService, _sessionStore, _logger);
             }
             catch (Exception e)
             {
