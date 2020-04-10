@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
+using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using VCAuthn.Models;
@@ -19,14 +20,16 @@ namespace VCAuthn.IdentityServer.Endpoints
         public class TokenEndpointResult : IEndpointResult
         {
             private readonly AuthSession _session;
+            private readonly IClientSecretValidator _clientValidator;
             private readonly ITokenIssuerService _tokenIssuerService;
             private readonly IPresentationConfigurationService _presentationConfigurationService;
             private readonly ISessionStorageService _sessionStorage;
             private readonly ILogger _logger;
 
-            public TokenEndpointResult(AuthSession session, ITokenIssuerService tokenIssuerService, IPresentationConfigurationService presentationConfigurationService, ISessionStorageService sessionStorage, ILogger logger)
+            public TokenEndpointResult(AuthSession session, IClientSecretValidator clientValidator, ITokenIssuerService tokenIssuerService, IPresentationConfigurationService presentationConfigurationService, ISessionStorageService sessionStorage, ILogger logger)
             {
                 _session = session;
+                _clientValidator = clientValidator;
                 _tokenIssuerService = tokenIssuerService;
                 _presentationConfigurationService = presentationConfigurationService;
                 _sessionStorage = sessionStorage;
@@ -53,6 +56,17 @@ namespace VCAuthn.IdentityServer.Endpoints
                 }
 
                 _logger.LogDebug($"Returning token result");
+
+                var clientResult = await _clientValidator.ValidateAsync(context);
+                if (clientResult.Client.AllowedCorsOrigins.Count() == 1)
+                {
+                    _logger.LogDebug("Adding Access-Control-Allow-Origin header");
+                    context.Response.Headers.Add("Access-Control-Allow-Origin", clientResult.Client.AllowedCorsOrigins.ToArray());
+                }
+                else
+                {
+                    _logger.LogError("Multiple Access-Control-Allow-Origin headers defined");
+                }
 
                 await context.Response.WriteJsonAsync(new
                 {

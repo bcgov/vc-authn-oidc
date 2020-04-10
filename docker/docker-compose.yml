@@ -16,7 +16,7 @@ services:
       - controller-db-data:/var/lib/pgsql/data
 
   keycloak:
-    image: jboss/keycloak:7.0.0
+    image: jboss/keycloak:9.0.0
     ports:
       - 8180:8080
     volumes:
