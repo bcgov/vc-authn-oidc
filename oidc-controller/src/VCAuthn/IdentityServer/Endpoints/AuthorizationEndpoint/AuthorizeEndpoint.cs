@@ -183,7 +183,7 @@ namespace VCAuthn.IdentityServer.Endpoints
                     shortUrl,
                     $"{_options.PublicOrigin}/{IdentityConstants.ChallengePollUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
                     $"{_options.PublicOrigin}/{IdentityConstants.AuthorizeCallbackUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
-                    presentationRequest.Request.ExtractIndyPresentationRequest()
+                    presentationRequest.ToJson()
                 ));
         }
 

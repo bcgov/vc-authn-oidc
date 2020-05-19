@@ -76,7 +76,7 @@ An example of a valid presentation request configuration is the following.
 }
 ```
 
-After configuring this, if you used the above presentation request configuration example, you can browse to keycloaks login page with this [link](http://localhost:8180/auth/realms/vc-authn/protocol/openid-connect/auth?client_id=security-admin-console&redirect_uri=http%3A%2F%2Flocalhost%3A8180%2Fauth%2Fadmin%2Fmaster%2Fconsole%2F%23%2Frealms%2Fvc-authn%2Fidentity-provider-settings&state=f0bfe2a2-a9b3-42dc-a84b-cb50e88055eb&response_mode=fragment&response_type=code&scope=openid&nonce=c93d4634-e6fc-45d8-8a4c-bc9a28db56dc&pres_req_conf_id=test-request-config)
+After configuring this, if you used the above presentation request configuration example, you can browse to keycloaks login page with this [link](http://localhost:5000/vc/connect/authorize?scope=openid+vc_authn&state=EI3kI8RFbpuIqZE_MEI0xsv18NjQOS1lkbrBtj3x2CE.wOX0F5IZd74.security-admin-console&response_type=code&client_id=keycloak&redirect_uri=http%3A%2F%2Flocalhost%3A8180%2Fauth%2Frealms%2Fvc-authn%2Fbroker%2Fvc-authn%2Fendpoint&nonce=eEJ7joxB5CC8j_LaOaw3Dg&pres_req_conf_id=test-request-config)
 
 From here you can click the `vc-authn` option to try out the flow. Clicking this should redirect your browser to the VC-Authn service and display a QR-Code base challenge.
 

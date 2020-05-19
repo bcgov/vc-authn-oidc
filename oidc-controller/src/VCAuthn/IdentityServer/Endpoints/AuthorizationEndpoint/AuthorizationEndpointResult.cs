@@ -22,9 +22,9 @@ namespace VCAuthn.IdentityServer.Endpoints
         public string ResolutionUrl { get; }
         public int Interval { get; }
 
-        public PresentationRequest PresentationRequest { get; }
+        public string PresentationRequest { get; }
 
-        public AuthorizationViewModel(string challenge, string pollUrl, string resolutionUrl, PresentationRequest presentationRequest = null)
+        public AuthorizationViewModel(string challenge, string pollUrl, string resolutionUrl, string presentationRequest = null)
         {
             Challenge = challenge;
             PollUrl = pollUrl;
