@@ -18,7 +18,7 @@ If you want, you can use your verified email credential to get an IIWBook creden
 
 ## Use the Verifiable Credential Identity Provider
 
-With the necessary verified credential(s) in hand, you are ready to access the protected resources&mdash;the mock BC Government service ("Access to Audio"). Go to the [service](https://csb-audio.pathfinder.gov.bc.ca/), and click on the "Verifiable Credential" authorization option. You will see a QR code that your mobile agent should be able to process. Assuming you have your verified email credential already, the mobile agent will help you present your credentials. If you only have the verified email credential, you will be prompted to manually enter your name, and on completion, you will have access to the service.
+With the necessary verified credential(s) in hand, you are ready to access the protected resources&mdash;the mock BC Government service ("Access to Audio"). Go to the [service](https://verified-email-authentication.pathfinder.gov.bc.ca), and click on the "Proceed" button to authenticate. You will see a QR code that your mobile agent should be able to process. Assuming you have your verified email credential already, the mobile agent will help you present your credentials and you will be granted access to the service.
 
 If you are an OIDC IAM provider, or you have an IAM deployment with any standard OIDC implementation (e.g. [Keyclock](https://www.keycloak.org/), [Gluu](https://www.gluu.org/), [Forge Rock](https://www.forgerock.com/), etc.) and would like to add verifiable credential-based authorization, let us know. We'd be glad to work with you to get this demonstration setup on your site, including how you can issue your own credentials to your users.
 
