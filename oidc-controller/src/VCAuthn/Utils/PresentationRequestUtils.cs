@@ -47,7 +47,7 @@ namespace VCAuthn.Utils
             {
                 {"proof_request", presentationRequest_1_0}
             };
-            return JsonConvert.SerializeObject(requestBody);
+            return JsonConvert.SerializeObject(requestBody, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
         }
 
         public static List<PresentationAttachment> GeneratePresentationAttachments(this PresentationRequest presentationRequest)
