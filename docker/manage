@@ -178,7 +178,7 @@ configureEnvironment() {
   export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$DOCKERHOST:$AGENT_HTTP_PORT}
   export ACAPY_ADMIN_URL="http://aca-py:${AGENT_ADMIN_PORT}"
   export ACAPY_AGENT_URL="${AGENT_ENDPOINT:-http://aca-py:$AGENT_HTTP_PORT}"
-  export LEDGER_URL=${LEDGER_URL-http://$DOCKERHOST:9000}
+  export GENESIS_URL=${GENESIS_URL-http://$DOCKERHOST:9000/genesis}
   export AGENT_SEED="000000000000000000000000Steward1"
   export ACAPY_ADMIN_URL_API_KEY=${ACAPY_ADMIN_URL_API_KEY}
   export ACAPY_ADMIN_MODE="admin-insecure-mode"
@@ -267,7 +267,7 @@ case "${COMMAND}" in
 start|up)
   unset NGROK_AGENT_URL
   unset NGROK_CONTROLLER_URL
-  unset LEDGER_URL
+  unset GENESIS_URL
 
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
@@ -288,14 +288,14 @@ start-demo)
     isNgrokInstalled
     export NGROK_CONTROLLER_URL=$(${CURL_EXE} http://localhost:4040/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-controller"))) | .[0] | .public_url')
   fi
-  export LEDGER_URL="http://test.bcovrin.vonx.io"
+  export GENESIS_URL="https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_sandbox_genesis"
 
   if [ -z "$NGROK_AGENT_URL" ] || [ -z "$NGROK_CONTROLLER_URL" ]; then
     echoError "The NGROK_AGENT_URL or NGROK_CONTROLLER_URL have not been set."
     exit 1
   fi
 
-  echo "Running in demo mode, will use ${LEDGER_URL} as ledger, ${NGROK_AGENT_URL} for the agent and ${NGROK_CONTROLLER_URL} for the controller."
+  echo "Running in demo mode, will use ${GENESIS_URL} to fetch the genesis transaction, ${NGROK_AGENT_URL} for the agent and ${NGROK_CONTROLLER_URL} for the controller."
 
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
