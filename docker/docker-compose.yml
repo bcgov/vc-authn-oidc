@@ -66,6 +66,7 @@ services:
         --outbound-transport http \
         --endpoint ${AGENT_ENDPOINT} \
         --genesis-url '${LEDGER_URL}/genesis' \
+        --auto-verify-presentation \
         --wallet-type 'indy' \
         --wallet-name 'oidc_agent_wallet' \
         --wallet-key '${WALLET_ENCRYPTION_KEY}' \
