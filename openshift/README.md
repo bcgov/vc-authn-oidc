@@ -16,4 +16,4 @@ The database connection strings set by the following environment variables will 
 
 The `WEBHOOK_URL` environment variable will need to be updated to use the controller's API key. This is achieved by adding `/my-controller-api-key` to the existing value.
 
-Additionally, the agent will need to be registered on the ledger, as it cannot perform this task automatically. To do this, go to the URL that is stored in the `GENESIS_URL` agent environment variable (without the trailing `/genesis`) and register the agent using the seed stored in the agent's wallet secret in OpenShift. 
+Additionally, the agent will need to be registered on the ledger, as it cannot perform this task automatically. To do this, determine which ledger the agent will be connected to (e.g.: by inspecting the `GENESIS_URL` agent environment variable) and register the agent using the seed stored in the agent's wallet secret in OpenShift.
