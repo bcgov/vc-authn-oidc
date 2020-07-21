@@ -1,81 +1,110 @@
+
 @model  VCAuthn.IdentityServer.Endpoints.AuthorizationViewModel
 @{
     Layout = "_Layout";
-    var txtUri = $"{Model.Challenge}"; 
-    var qrUri = $"https://chart.googleapis.com/chart?cht=qr&chs=300x300&chld=L|0&chl={Uri.EscapeDataString(Model.Challenge)}";
 }
-<span>
-  <input id="pollInterval" value="@Model.Interval" style="display: none" />
-  <input id="pollUrl" value="@Model.PollUrl" style="display: none" />
-  <input id="resolutionUrl" value="@Model.ResolutionUrl" style="display: none" />
-
-  <div class="container">
-    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="704.094" height="441" viewBox="0 0 704.094 441">
-        <g id="Symbol_3_9" data-name="Symbol 3 – 9" transform="translate(-158.5 -31)">
-          <g id="Group_28" data-name="Group 28" transform="translate(-1 -8)">
-            <g id="Group_26" data-name="Group 26" transform="translate(112)">
-              <g id="iphone_6:7_black" data-name="iphone 6:7 black" transform="translate(2333.094 909) rotate(90)">
-                <rect id="Rectangle_1" data-name="Rectangle 1" width="325" height="703.094" rx="58" transform="translate(-808 1582)" fill="#fff" stroke="#707070" stroke-width="1"/>
-                <rect id="IMG_4428" width="301.671" height="536.572" rx="4" stroke-width="1" fill="#fff" stroke="#707070" transform="translate(-795.933 1663.25)"/>
-              </g>
-            </g>
-          </g>
-        </g>
-        <image id="frame" width="288" height="288" transform="translate(209.5 76)" xlink:href="@qrUri"/>
-      </svg>    
-      <a href="@txtUri">@txtUri</a>
-  </div>
-</span>
-
-<button class="back" onclick="history.back(-1)">
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-</button>
-
-<style>
-  * {
-    box-sizing: border-box;
-  }
   
-  body {
-    background: #333132;
-    padding: 0;
-    margin: 0;
-    border:0;
-    height: 100vh;
-  }
+  <div id="dependencies">
+    <!-- Load required Bootstrap and BootstrapVue CSS -->
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css"
+    />
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css"
+    />
 
-  .container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding-top: 12px;
-    height: 100vh;
-    width: 100vw;
-  }
+    <!-- Load polyfills to support older browsers -->
+    <script
+      src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"
+      crossorigin="anonymous"
+    ></script>
 
-  .back {
-    background: none;
-    border: none;
-    position: absolute;
-    top: 0;
-    left:0;
-    width: 64px;
-    height: 64px;
-  }
-</style>
+    <!-- Load Vue followed by BootstrapVue -->
+    <script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
 
-<script type="text/javascript">
-    $(document).ready((function poll() {
-        setTimeout(function () {
-            $.ajax({
-                type: 'GET',
-                url: document.getElementById('pollUrl').value,
-                success: function () {
-                    window.location.replace(document.getElementById('resolutionUrl').value);
-                },
-                error: poll
+    <!-- Load the following for BootstrapVueIcons support -->
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+
+    <!-- qrcode.vue -->
+    <script src="//unpkg.com/qrcode.vue@1.7.0/dist/qrcode.vue.js"></script>
+
+    <!-- axios -->
+    <script src="//unpkg.com/axios/dist/axios.min.js"></script>
+
+  </div>
+
+    <div id="app">
+
+      <b-container fluid="md" class="py-3">
+
+        <b-card :body-class="cardBodyClass" style="min-width: 400px;">
+          <b-card-title>
+            <b-icon icon="shield-shaded" variant="primary"></b-icon>
+            Authentication Required
+            <b-icon icon="shield-shaded"  variant="primary"></b-icon>
+          </b-card-title>
+          <b-card-text>Please provide your Verifiable Credentials</b-card-text>
+          
+          <div class="my-5">
+            <qrcode-vue :value="qrUri" :size="qrWidth" level="H"></qrcode-vue>
+          </div>
+
+          <b-button :href="btnUri" variant="outline-primary">
+              <b-icon icon="box-arrow-up-right"></b-icon>
+              Open in a Trusted Digital Wallet
+          </b-button>
+        </b-card>
+       
+      </b-container>
+      
+    </div>
+
+    <script type="text/javascript">
+      const presReq = @Html.Raw(Model.PresentationRequest);
+      var app = new Vue({
+        components: {
+          QrcodeVue,
+        },
+        delimiters: ["[[", "]]"],
+        el: "#app",
+        data: {
+          qrUri: "@Model.Challenge",
+          qrWidth: 300,
+          btnUri: `didcomm://launch?d_m=${btoa(JSON.stringify(presReq))}`,
+          cardBodyClass: ['mx-auto', 'text-center'],
+          pollInterval: "@Model.Interval",
+          pollUrl: "@Model.PollUrl",
+          resolutionUrl: "@Model.ResolutionUrl"
+        },
+        mounted: function () {
+          this.$nextTick(function () {
+            // start polling after view has rendered
+            this.poll();
+          })
+        },
+        methods: {
+          poll: function () {
+            const retryInterceptor = axios.interceptors.response.use(
+              response => {
+                window.location.replace(this.resolutionUrl);
+              },
+              async error => {
+                await this.sleep(this.pollInterval);
+                return axios.request(error.config);
+              }
+            );
+            axios.get(this.pollUrl).finally(() => {
+              axios.interceptors.response.eject(retryInterceptor);
             });
-        }, parseInt(document.getElementById('pollInterval').value, 10));
-    })());
-</script>
+          },
+          sleep: function (ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+          }
+        },
+      });
+    </script>

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using VCAuthn.Models;
 
 namespace VCAuthn.IdentityServer.Endpoints
 {
@@ -21,11 +22,14 @@ namespace VCAuthn.IdentityServer.Endpoints
         public string ResolutionUrl { get; }
         public int Interval { get; }
 
-        public AuthorizationViewModel(string challenge, string pollUrl, string resolutionUrl)
+        public string PresentationRequest { get; }
+
+        public AuthorizationViewModel(string challenge, string pollUrl, string resolutionUrl, string presentationRequest = null)
         {
             Challenge = challenge;
             PollUrl = pollUrl;
             ResolutionUrl = resolutionUrl;
+            PresentationRequest = presentationRequest;
             Interval = 2000;
         }
     }

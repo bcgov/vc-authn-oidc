@@ -6,7 +6,7 @@ The premise of the demo is that you first get a verifiable credential from an ap
 
 ## Get a compatible mobile agent
 
-The demo currently supports only one mobile agent, the IOS (only&mdash;for now!) agent from [Streetcred.id](https://Streetcred.id). There is some setup special setup needed for the Streetcred agent. Please follow the instructions [here](https://github.com/bcgov/identity-kit-poc/blob/master/docs/GettingApp.md) to setup the agent and then return back here for the rest of the instructions.
+The demo supports the identity agent app from [Streetcred.id](https://Streetcred.id) for iOS and Android. There is some setup special setup needed for the Streetcred agent. Please follow the instructions [here](https://github.com/bcgov/identity-kit-poc/blob/master/docs/GettingApp.md) to setup the agent and then return back here for the rest of the instructions.
 
 **Are you a mobile agent builder?**  We'd love to work with you to get your implementation working with the [vc-authn-oidc](https://github.com/bcgov/vc-authn-oidc) identity provider. If you are testing with our deployed service and have questions, please contact us on the #aries channel on [Hyperledger Rocketchat](https://chat.hyperledger.org) (you will need a free [Linux Foundation account](https://identity.linuxfoundation.org/user) to access that channel), or email us [here](mailto:swcurran@cloudcompass.ca).
 
@@ -18,7 +18,7 @@ If you want, you can use your verified email credential to get an IIWBook creden
 
 ## Use the Verifiable Credential Identity Provider
 
-With the necessary verified credential(s) in hand, you are ready to access the protected resources&mdash;the mock BC Government service. Go to the [service](https://law-society-demo.pathfinder.gov.bc.ca/), and click on the "Verifiable Credential" authorization option. You will see a QR code that your mobile agent should be able to process. Assuming you have your verified email credential already, the mobile agent will help you present your credentials. If you only have the verified email credential, you will be prompted to manually enter your name, and on completion, you will have access to the service.
+With the necessary verified credential(s) in hand, you are ready to access the protected resources&mdash;the mock BC Government service ("Access to Audio"). Go to the [service](https://verified-email-authentication.pathfinder.gov.bc.ca), and click on the "Proceed" button to authenticate. You will see a QR code that your mobile agent should be able to process. Assuming you have your verified email credential already, the mobile agent will help you present your credentials and you will be granted access to the service.
 
 If you are an OIDC IAM provider, or you have an IAM deployment with any standard OIDC implementation (e.g. [Keyclock](https://www.keycloak.org/), [Gluu](https://www.gluu.org/), [Forge Rock](https://www.forgerock.com/), etc.) and would like to add verifiable credential-based authorization, let us know. We'd be glad to work with you to get this demonstration setup on your site, including how you can issue your own credentials to your users.
 
