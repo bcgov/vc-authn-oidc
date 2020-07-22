@@ -207,18 +207,24 @@ objects:
                   protocol: TCP
                 - containerPort: ${{AGENT_HTTP_PORT}}
                   protocol: TCP
+
               readinessProbe:
                 timeoutSeconds: 30
                 initialDelaySeconds: 3
-                httpGet:
-                  path: /
-                  port: ${{AGENT_HTTP_PORT}}
+                exec:
+                  command:
+                    - bash
+                    - "-c"
+                    - 'curl --fail "http://localhost:${ADMIN_INTERFACE_PORT}/status/ready" -H "X-API-KEY: ${AGENT_ADMIN_API_KEY}"'
               livenessProbe:
                 timeoutSeconds: 30
                 initialDelaySeconds: 300
-                httpGet:
-                  path: /
-                  port: ${{AGENT_HTTP_PORT}}
+                exec:
+                  command:
+                    - bash
+                    - "-c"
+                    - 'curl --fail "http://localhost:${ADMIN_INTERFACE_PORT}/status/live" -H "X-API-KEY: ${AGENT_ADMIN_API_KEY}"'
+
               imagePullPolicy: IfNotPresent
               resources:
                 limits:
