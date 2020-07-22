@@ -1,163 +1,110 @@
+
 @model  VCAuthn.IdentityServer.Endpoints.AuthorizationViewModel
 @{
     Layout = "_Layout";
-    var txtUri = $"{Model.Challenge}"; 
-    var qrUri = $"https://chart.googleapis.com/chart?cht=qr&chs=300x300&chld=L|0&chl={Uri.EscapeDataString(Model.Challenge)}";
 }
-  <div>
-    <!-- These fields are used by the script at the bottom of the page -->
-    <input id="pollInterval" value="@Model.Interval" style="display: none" />
-    <input id="pollUrl" value="@Model.PollUrl" style="display: none" />
-    <input id="resolutionUrl" value="@Model.ResolutionUrl" style="display: none" />
-  </div>
-
-
-  <div class="content">
-
-    <div class="introduction">
-      <h2>
-        Please scan the QR code to initiate the <strong>Verifiable Credential</strong> exchange
-      </h2>
-    </div>
-
-    <div class="qr-code-display">
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 700 400">
-        <image id="frame" width="300" height="300" transform="translate(209.5 76)" xlink:href="@qrUri"/>
-      </svg>
-      <span>
-        <a class="qr-url" href="@txtUri">@txtUri</a>
-      </span>
-    </div>
-
-    <div class="presentation-restrictions">
-      <p>
-        The credential must meet the following requirements:
-      </p>
-
-      <div class="requested-claims">
-        @{
-          foreach (var item in Model.PresentationRequest.RequestedAttributes)
-          {
-            <div class="claim-group">
-              <span class="claim-name">Claim Name:</span> <span class="claim-value">@item.Value.Name</span>
-              <br/>
-              <span class="claim-restrictions-title">Claim restrictions:</span>
-              <ul class="claim-restriction-list">
-                @{
-                  foreach (var restriction in item.Value.Restrictions) {
-                    if (!String.IsNullOrEmpty(@restriction.IssuerDid)) {
-                      @:<li class="restriction-item">Issuer DID: <span class="claim-value">@restriction.IssuerDid</span></li>
-                    }
-                    if (!String.IsNullOrEmpty(@restriction.SchemaId)) {
-                      @:<li class="restriction-item">Schema Id: <span class="claim-value">@restriction.SchemaId</span></li>
-                    }
-                    if (!String.IsNullOrEmpty(@restriction.SchemaIssuerDid)) {
-                      @:<li class="restriction-item">Schema Issuer DID: <span class="claim-value">@restriction.SchemaIssuerDid</span></li>
-                    }
-                    if (!String.IsNullOrEmpty(@restriction.SchemaName)) {
-                      @:<li class="restriction-item">Schema Name: <span class="claim-value">@restriction.SchemaName</span></li>
-                    }
-                    if (!String.IsNullOrEmpty(@restriction.SchemaVersion)) {
-                      @:<li class="restriction-item">Schema Version: <span class="claim-value">@restriction.SchemaVersion</span></li>
-                    }
-                    if (!String.IsNullOrEmpty(@restriction.CredentialDefinitionId)) {
-                      @:<li class="restriction-item">Credential Definition Id: <span class="claim-value">@restriction.CredentialDefinitionId</span></li>
-                    }
-                  }
-                }
-              </ul>
-            </div>
-          }
-        }
-      </div>
-    </div>
-
-  </div>
-
-<style>
-  * {
-    box-sizing: border-box;
-  }
   
-  body {
-    background: #fff;
-    padding: 5px;
-    margin: 0;
-    border:0;
-  }
+  <div id="dependencies">
+    <!-- Load required Bootstrap and BootstrapVue CSS -->
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css"
+    />
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css"
+    />
 
-  .content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 12px;
-    background-color: slategrey;
-    border: 1px solid navy;
-    border-radius: 15px;
-  }
+    <!-- Load polyfills to support older browsers -->
+    <script
+      src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"
+      crossorigin="anonymous"
+    ></script>
 
-  .back {
-    background: none;
-    border: none;
-    position: absolute;
-    top: 0;
-    left:0;
-    width: 64px;
-    height: 64px;
-  }
+    <!-- Load Vue followed by BootstrapVue -->
+    <script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
 
-  .introduction {
-    text-align: center;
-  }
+    <!-- Load the following for BootstrapVueIcons support -->
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
 
-  .claim-value {
-    font-style: italic;
-    font-weight: lighter;
-  }
+    <!-- qrcode.vue -->
+    <script src="//unpkg.com/qrcode.vue@1.7.0/dist/qrcode.vue.js"></script>
 
-  .claim-restriction-list {
-    list-style: upper-roman;
-  }
+    <!-- axios -->
+    <script src="//unpkg.com/axios/dist/axios.min.js"></script>
 
-  .claim-group:nth-child(n+2) {
-    border-top: 1px black dotted;
-  }
+  </div>
 
-  .requested-claims {
-    background-color: ghostwhite;
-    padding: 5px;
-  }
+    <div id="app">
 
-  .qr-code-display {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    word-break: break-all;
-    overflow-wrap: break-word;
-  }
+      <b-container fluid="md" class="py-3">
 
-  .qr-url {
-    color: navy;
-  }
+        <b-card :body-class="cardBodyClass" style="min-width: 400px;">
+          <b-card-title>
+            <b-icon icon="shield-shaded" variant="primary"></b-icon>
+            Authentication Required
+            <b-icon icon="shield-shaded"  variant="primary"></b-icon>
+          </b-card-title>
+          <b-card-text>Please provide your Verifiable Credentials</b-card-text>
+          
+          <div class="my-5">
+            <qrcode-vue :value="qrUri" :size="qrWidth" level="H"></qrcode-vue>
+          </div>
 
-  .presentation-restrictions {
-    display: none;
-    margin-top: 50px;
-  }
-</style>
+          <b-button :href="btnUri" variant="outline-primary">
+              <b-icon icon="box-arrow-up-right"></b-icon>
+              Open in a Trusted Digital Wallet
+          </b-button>
+        </b-card>
+       
+      </b-container>
+      
+    </div>
 
-<script type="text/javascript">
-    $(document).ready((function poll() {
-        setTimeout(function () {
-            $.ajax({
-                type: 'GET',
-                url: document.getElementById('pollUrl').value,
-                success: function () {
-                    window.location.replace(document.getElementById('resolutionUrl').value);
-                },
-                error: poll
+    <script type="text/javascript">
+      const presReq = @Html.Raw(Model.PresentationRequest);
+      var app = new Vue({
+        components: {
+          QrcodeVue,
+        },
+        delimiters: ["[[", "]]"],
+        el: "#app",
+        data: {
+          qrUri: "@Model.Challenge",
+          qrWidth: 300,
+          btnUri: `didcomm://launch?d_m=${btoa(JSON.stringify(presReq))}`,
+          cardBodyClass: ['mx-auto', 'text-center'],
+          pollInterval: "@Model.Interval",
+          pollUrl: "@Model.PollUrl",
+          resolutionUrl: "@Model.ResolutionUrl"
+        },
+        mounted: function () {
+          this.$nextTick(function () {
+            // start polling after view has rendered
+            this.poll();
+          })
+        },
+        methods: {
+          poll: function () {
+            const retryInterceptor = axios.interceptors.response.use(
+              response => {
+                window.location.replace(this.resolutionUrl);
+              },
+              async error => {
+                await this.sleep(this.pollInterval);
+                return axios.request(error.config);
+              }
+            );
+            axios.get(this.pollUrl).finally(() => {
+              axios.interceptors.response.eject(retryInterceptor);
             });
-        }, parseInt(document.getElementById('pollInterval').value, 10));
-    })());
-</script>
+          },
+          sleep: function (ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+          }
+        },
+      });
+    </script>

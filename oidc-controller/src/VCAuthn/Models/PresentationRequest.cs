@@ -46,6 +46,9 @@ namespace VCAuthn.Models
         [JsonProperty("version")]
         public string Version { get; set; }
 
+        [JsonProperty("non_revoked", NullValueHandling = NullValueHandling.Ignore)]
+        public RevocationInterval NonRevoked { get; set; }
+
         [JsonProperty("requested_attributes")]
         public Dictionary<string, RequestedAttribute> RequestedAttributes { get; set; } = new Dictionary<string, RequestedAttribute>();
 

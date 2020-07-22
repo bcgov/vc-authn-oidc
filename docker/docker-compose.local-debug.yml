@@ -19,7 +19,7 @@ services:
       - KEYCLOAK_PASSWORD=admin
       - KEYCLOAK_IMPORT=/tmp/master.json
   aca-py:
-    image: bcgovimages/aries-cloudagent:py36-1.14-1_0.4.5
+    image: bcgovimages/aries-cloudagent:py36-1.15-0_0.5.2
     ports:
       - 5678:5678 
       - 5679:5679

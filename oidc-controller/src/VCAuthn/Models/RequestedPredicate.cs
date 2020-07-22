@@ -8,6 +8,9 @@ namespace VCAuthn.Models
         [JsonProperty("name")]
         public string Name { get; set; }
 
+        [JsonProperty("label"), Optional]
+        public string Label { get; set; }
+
         [JsonProperty("restrictions")]
         public List<AttributeFilter> Restrictions { get; set; }
 

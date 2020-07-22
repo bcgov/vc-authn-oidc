@@ -12,24 +12,47 @@ namespace VCAuthn.Utils
             PresentationRequest_v_1_0 presentationRequest_1_0 = new PresentationRequest_v_1_0()
             {
                 Version = configuration.Version,
-                Name = configuration.Name
+                Name = configuration.Name,
+                NonRevoked = new RevocationInterval()
+                {
+                    From = 0,
+                    To = new DateTimeOffset(DateTime.Now, TimeSpan.Zero).ToUnixTimeSeconds()
+                }
             };
 
-            configuration.RequestedAttributes.ForEach(delegate(RequestedAttribute reqAttribute)
+            configuration.RequestedAttributes.ForEach(delegate (RequestedAttribute reqAttribute)
             {
-                presentationRequest_1_0.RequestedAttributes.Add(Guid.NewGuid().ToString(), reqAttribute);
+                string referent = !String.IsNullOrEmpty(reqAttribute.Label) ? reqAttribute.Label : Guid.NewGuid().ToString();
+                reqAttribute.Label = null; // purge unsupported value from object that will be sent to aca-py
+                if (!presentationRequest_1_0.RequestedAttributes.ContainsKey(referent))
+                {
+                    presentationRequest_1_0.RequestedAttributes.Add(referent, reqAttribute);
+                }
+                else
+                {
+                    presentationRequest_1_0.RequestedAttributes.Add(disambiguateReferent(referent), reqAttribute);
+                }
             });
 
-            configuration.RequestedPredicates.ForEach(delegate(RequestedPredicate reqPredicate)
+            configuration.RequestedPredicates.ForEach(delegate (RequestedPredicate reqPredicate)
             {
-                presentationRequest_1_0.RequestedPredicates.Add(Guid.NewGuid().ToString(), reqPredicate);
+                string referent = !String.IsNullOrEmpty(reqPredicate.Label) ? reqPredicate.Label : Guid.NewGuid().ToString();
+                reqPredicate.Label = null; // purge unsupported value from object that will be sent to aca-py
+                if (!presentationRequest_1_0.RequestedPredicates.ContainsKey(referent))
+                {
+                    presentationRequest_1_0.RequestedPredicates.Add(referent, reqPredicate);
+                }
+                else
+                {
+                    presentationRequest_1_0.RequestedPredicates.Add(disambiguateReferent(referent), reqPredicate);
+                }
             });
 
             Dictionary<string, PresentationRequest_v_1_0> requestBody = new Dictionary<string, PresentationRequest_v_1_0>()
             {
                 {"proof_request", presentationRequest_1_0}
             };
-            return JsonConvert.SerializeObject(requestBody);
+            return JsonConvert.SerializeObject(requestBody, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
         }
 
         public static List<PresentationAttachment> GeneratePresentationAttachments(this PresentationRequest presentationRequest)
@@ -60,7 +83,7 @@ namespace VCAuthn.Utils
         {
             PresentationRequest presentationRequest = null;
 
-            presentationAttachments.ForEach(delegate(PresentationAttachment attachment)
+            presentationAttachments.ForEach(delegate (PresentationAttachment attachment)
             {
                 if (attachment.Id.Equals("libindy-request-presentation-0"))
                 {
@@ -75,6 +98,18 @@ namespace VCAuthn.Utils
         public static PresentationRequest toPresentationRequestObject(this string attachmentBase64Data)
         {
             return JsonConvert.DeserializeObject<PresentationRequest>(attachmentBase64Data.FromBase64());
+        }
+
+        private static String disambiguateReferent(this string referent)
+        {
+            int refIdx = 1;
+            if (referent.Split("~").Length > 1)
+            {
+                string[] splitReferent = referent.Split("~");
+                int oldIdx = Int32.Parse(splitReferent[splitReferent.Length - 1]);
+                refIdx += oldIdx;
+            }
+            return $"{referent}~{refIdx}";
         }
     }
 
