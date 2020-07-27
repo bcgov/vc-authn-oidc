@@ -37,10 +37,15 @@ namespace VCAuthn.Controllers
                 return NotFound();
             }
 
-            if (authSession.PresentationRequestSatisfied == false)
+            if (authSession.Presentation == null)
+            {
+                _logger.LogDebug($"No presentation has yet been received. AuthSession: [{authSession}]");
+                return BadRequest();
+            }
+            else if (authSession.Presentation != null && authSession.PresentationRequestSatisfied == false)
             {
                 _logger.LogDebug($"Presentation request was not satisfied. AuthSession: [{authSession}]");
-                return BadRequest();
+                return Unauthorized();
             }
 
 
@@ -62,7 +67,7 @@ namespace VCAuthn.Controllers
                 _logger.LogDebug($"Url is empty. Url key: [{key}]");
                 return NotFound();
             }
-            
+
             return Redirect(url);
         }
     }
