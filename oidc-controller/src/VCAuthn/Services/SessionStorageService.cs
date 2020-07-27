@@ -44,7 +44,7 @@ namespace VCAuthn.Services
             return await _context.SaveChangesAsync() == 1;
         }
 
-        public async Task<bool> SatisfyPresentationRequestIdAsync(string presentationRequestId, Presentation partialPresentation)
+        public async Task<bool> UpdatePresentationRequestIdAsync(string presentationRequestId, Presentation partialPresentation, bool verified = false)
         {
             var session = await _context.Sessions.FirstOrDefaultAsync(x => x.PresentationRequestId == presentationRequestId);
 
@@ -54,7 +54,7 @@ namespace VCAuthn.Services
                 return false;
             }
 
-            session.PresentationRequestSatisfied = true;
+            session.PresentationRequestSatisfied = verified;
             session.Presentation = partialPresentation;
 
             _context.Sessions.Update(session);

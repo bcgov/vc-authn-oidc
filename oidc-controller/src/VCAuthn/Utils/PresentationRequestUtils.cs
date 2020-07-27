@@ -12,12 +12,12 @@ namespace VCAuthn.Utils
             PresentationRequest_v_1_0 presentationRequest_1_0 = new PresentationRequest_v_1_0()
             {
                 Version = configuration.Version,
-                Name = configuration.Name
-                // NonRevoked = new RevocationInterval()
-                // {
-                //     From = 0,
-                //     To = new DateTimeOffset(DateTime.Now, TimeSpan.Zero).ToUnixTimeSeconds()
-                // }
+                Name = configuration.Name,
+                NonRevoked = new RevocationInterval()
+                {
+                    From = 0,
+                    To = new DateTimeOffset(DateTime.Now, TimeSpan.Zero).ToUnixTimeSeconds()
+                }
             };
 
             configuration.RequestedAttributes.ForEach(delegate (RequestedAttribute reqAttribute)
