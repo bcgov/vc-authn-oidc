@@ -59,7 +59,7 @@ namespace VCAuthn.Controllers
             {
                 if (update.State != ACAPYConstants.SuccessfulPresentationUpdate)
                 {
-                    _logger.LogDebug($"Presentation Request not yet received, state is [{update.State}]");
+                    _logger.LogDebug($"Presentation Request not yet completed, state is [{update.State}]");
                     return Ok();
                 }
 
@@ -69,9 +69,16 @@ namespace VCAuthn.Controllers
                     RequestedProof = proof
                 };
 
-                _logger.LogDebug($"Marking Presentation Request with id : {update.PresentationExchangeId} as satisfied");
+                if (!update.Verified)
+                {
+                    _logger.LogDebug($"Verification was not successful for presentation with id {update.PresentationExchangeId}");
+                    await _sessionStorageService.UpdatePresentationRequestIdAsync(update.PresentationExchangeId, partialPresentation);
+                    return Ok();
+                }
 
-                await _sessionStorageService.SatisfyPresentationRequestIdAsync(update.PresentationExchangeId, partialPresentation);
+                _logger.LogDebug($"Marking Presentation Request with id : {update.PresentationExchangeId} as processed");
+
+                await _sessionStorageService.UpdatePresentationRequestIdAsync(update.PresentationExchangeId, partialPresentation, true);
             }
             catch (Exception e)
             {
