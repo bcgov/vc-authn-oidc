@@ -10,7 +10,7 @@ namespace VCAuthn.ACAPY
 
         public const string GetPresentationRecord = "/present-proof/records";
 
-        public const string VerifiedPresentationState = "verified";
+        public const string SuccessfulPresentationUpdate = "presentation_received";
 
         public const string PresentationsTopic = "present_proof";
     }
