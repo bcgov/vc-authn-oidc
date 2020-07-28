@@ -49,6 +49,9 @@
             <b-icon icon="shield-shaded"  variant="primary"></b-icon>
           </b-card-title>
           <b-card-text>Please provide your Verifiable Credentials</b-card-text>
+
+          <b-alert variant="success" :show="success === true">Authentication Successful</b-alert>
+          <b-alert variant="danger" :show="success === false">Authentication Failed</b-alert>
           
           <div class="my-5">
             <qrcode-vue :value="qrUri" :size="qrWidth" level="H"></qrcode-vue>
@@ -79,7 +82,8 @@
           cardBodyClass: ['mx-auto', 'text-center'],
           pollInterval: "@Model.Interval",
           pollUrl: "@Model.PollUrl",
-          resolutionUrl: "@Model.ResolutionUrl"
+          resolutionUrl: "@Model.ResolutionUrl",
+          success: undefined
         },
         mounted: function () {
           this.$nextTick(function () {
@@ -91,9 +95,14 @@
           poll: function () {
             const retryInterceptor = axios.interceptors.response.use(
               response => {
+                this.success = true;
                 window.location.replace(this.resolutionUrl);
               },
               async error => {
+                if (401 === error.response.status) {
+                  // provided credentials did not satisfy the proof
+                  this.success = false;
+                }
                 await this.sleep(this.pollInterval);
                 return axios.request(error.config);
               }
