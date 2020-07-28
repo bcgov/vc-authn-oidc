@@ -50,8 +50,19 @@
           </b-card-title>
           <b-card-text>Please provide your Verifiable Credentials</b-card-text>
 
-          <b-alert variant="success" :show="success === true">Authentication Successful</b-alert>
-          <b-alert variant="danger" :show="success === false">Authentication Failed</b-alert>
+          <div v-if="success === true">
+            <b-card body-class="alert-success">
+              <b-card-title>Authentication Successful</b-card-title>
+              <b-card-text>Redirecting, please wait...</b-card-text>
+            </b-card>
+          </div>
+
+          <div v-if="success === false">
+            <b-card body-class="alert-danger">
+              <b-card-title>Authentication Failed</b-card-title>
+              <b-card-text>The credential didn't satisfy the Proof Request. Please try again.</b-card-text>
+            </b-card>
+          </div>
           
           <div class="my-5">
             <qrcode-vue :value="qrUri" :size="qrWidth" level="H"></qrcode-vue>
