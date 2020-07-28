@@ -38,93 +38,142 @@
 
   </div>
 
-    <div id="app">
+  <style>
+    pre.vc-debug-info {
+      background: #F8F9FA;
+      border: 1px solid #E9ECEF;
+      border-radius: .3rem;
+    }
 
-      <b-container fluid="md" class="py-3">
+    textarea.vc-debug-info {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 0px;
+      width: 0;
+      z-index: -10;
+    }
+  </style>
 
-        <b-card :body-class="cardBodyClass" style="min-width: 400px;">
-          <b-card-title>
-            <b-icon icon="shield-shaded" variant="primary"></b-icon>
-            Authentication Required
-            <b-icon icon="shield-shaded"  variant="primary"></b-icon>
-          </b-card-title>
-          <b-card-text>Please provide your Verifiable Credentials</b-card-text>
+  <div id="app">
 
-          <div v-if="success === true">
-            <b-card body-class="alert-success">
-              <b-card-title>Authentication Successful</b-card-title>
-              <b-card-text>Redirecting, please wait...</b-card-text>
-            </b-card>
+    <b-container fluid="md" class="py-3">
+
+      <b-card :body-class="cardBodyClass" style="min-width: 400px;">
+        <b-card-title>
+          <b-icon icon="shield-shaded" variant="primary"></b-icon>
+          Authentication Required
+          <b-icon icon="shield-shaded"  variant="primary"></b-icon>
+        </b-card-title>
+        <b-card-text>Please provide your Verifiable Credentials</b-card-text>
+
+        <div v-if="success === true">
+          <b-card body-class="alert-success">
+            <b-card-title>Successful Proof</b-card-title>
+            <b-card-text>Redirecting, please wait...</b-card-text>
+          </b-card>
+        </div>
+
+        <div v-if="success === false">
+          <b-card body-class="alert-warning">
+            <b-card-title>Unsuccessful Proof</b-card-title>
+            <b-card-text>
+              <span>The credential didn't satisfy the Proof Request, please try again.</span>
+              <br/>
+              <span>To view the details for the presentation request, 
+                <b-button variant="link" style="padding: 0; padding-bottom: 0.3rem;" v-b-modal.modal-debug-info>click here</b-button>
+              </span>
+            </b-card-text>
+          </b-card>
+          <div>
+            <b-modal ok-only ok-title="Close" id="modal-debug-info" title="Debug Info">
+              <b-button variant="link" v-on:click="copyPresReqToClipboard">Copy to clipboard <b-icon icon="clipboard" variant="secondary"></b-icon></b-button>
+              <pre class="vc-debug-info">
+                [[ debugInfo ]]
+              </pre>
+              <b-form-textarea
+                id="debugInfo"
+                v-model="debugInfo"
+                class="vc-debug-info"
+              ></b-form-textarea>
+            </b-modal>
           </div>
+        </div>
+        
+        <div class="my-5">
+          <qrcode-vue :value="qrUri" :size="qrWidth" level="H"></qrcode-vue>
+        </div>
 
-          <div v-if="success === false">
-            <b-card body-class="alert-danger">
-              <b-card-title>Authentication Failed</b-card-title>
-              <b-card-text>The credential didn't satisfy the Proof Request. Please try again.</b-card-text>
-            </b-card>
-          </div>
-          
-          <div class="my-5">
-            <qrcode-vue :value="qrUri" :size="qrWidth" level="H"></qrcode-vue>
-          </div>
-
-          <b-button :href="btnUri" variant="outline-primary">
-              <b-icon icon="box-arrow-up-right"></b-icon>
-              Open in a Trusted Digital Wallet
-          </b-button>
-        </b-card>
-       
-      </b-container>
+        <b-button :href="btnUri" variant="outline-primary">
+            <b-icon icon="box-arrow-up-right"></b-icon>
+            Open in a Trusted Digital Wallet
+        </b-button>
+      </b-card>
       
-    </div>
+    </b-container>
+    
+  </div>
 
-    <script type="text/javascript">
-      const presReq = @Html.Raw(Model.PresentationRequest);
-      var app = new Vue({
-        components: {
-          QrcodeVue,
-        },
-        delimiters: ["[[", "]]"],
-        el: "#app",
-        data: {
-          qrUri: "@Model.Challenge",
-          qrWidth: 300,
-          btnUri: `didcomm://launch?d_m=${btoa(JSON.stringify(presReq))}`,
-          cardBodyClass: ['mx-auto', 'text-center'],
-          pollInterval: "@Model.Interval",
-          pollUrl: "@Model.PollUrl",
-          resolutionUrl: "@Model.ResolutionUrl",
-          success: undefined
-        },
-        mounted: function () {
-          this.$nextTick(function () {
-            // start polling after view has rendered
-            this.poll();
-          })
-        },
-        methods: {
-          poll: function () {
-            const retryInterceptor = axios.interceptors.response.use(
-              response => {
-                this.success = true;
-                window.location.replace(this.resolutionUrl);
-              },
-              async error => {
-                if (401 === error.response.status) {
-                  // provided credentials did not satisfy the proof
-                  this.success = false;
-                }
-                await this.sleep(this.pollInterval);
-                return axios.request(error.config);
+  <script type="text/javascript">
+    const presReq = @Html.Raw(Model.PresentationRequest);
+    var app = new Vue({
+      components: {
+        QrcodeVue,
+      },
+      delimiters: ["[[", "]]"],
+      el: "#app",
+      data: {
+        qrUri: "@Model.Challenge",
+        qrWidth: 300,
+        btnUri: `didcomm://launch?d_m=${btoa(JSON.stringify(presReq))}`,
+        cardBodyClass: ['mx-auto', 'text-center'],
+        pollInterval: "@Model.Interval",
+        pollUrl: "@Model.PollUrl",
+        resolutionUrl: "@Model.ResolutionUrl",
+        success: undefined
+      },
+      mounted: function () {
+        this.$nextTick(function () {
+          // start polling after view has rendered
+          this.poll();
+        })
+      },
+      computed: {
+        debugInfo: function() {
+          let restrictions = presReq["request_presentations~attach"][0].data.base64;
+          restrictions = JSON.parse(atob(restrictions));
+          return JSON.stringify(restrictions, undefined, 2)
+        }
+      },
+      methods: {
+        poll: function () {
+          const retryInterceptor = axios.interceptors.response.use(
+            response => {
+              this.success = true;
+              window.location.replace(this.resolutionUrl);
+            },
+            async error => {
+              if (401 === error.response.status) {
+                // provided credentials did not satisfy the proof
+                this.success = false;
               }
-            );
-            axios.get(this.pollUrl).finally(() => {
-              axios.interceptors.response.eject(retryInterceptor);
-            });
-          },
-          sleep: function (ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-          }
+              await this.sleep(this.pollInterval);
+              return axios.request(error.config);
+            }
+          );
+          axios.get(this.pollUrl).finally(() => {
+            axios.interceptors.response.eject(retryInterceptor);
+          });
         },
-      });
-    </script>
+        sleep: function (ms) {
+          return new Promise(resolve => setTimeout(resolve, ms));
+        },
+        copyPresReqToClipboard: function() {
+          var copyText = document.querySelector("#debugInfo");
+          console.log(copyText);
+          copyText.select();
+          const res = document.execCommand("copy");
+        }
+      },
+    });
+  </script>
