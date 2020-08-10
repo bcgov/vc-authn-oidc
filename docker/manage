@@ -126,6 +126,7 @@ build-oidc-controller() {
   #
   echo -e "\nBuilding oidc-controller image..."
   docker build \
+    --rm \
     -t 'vc-authn-oidc-controller' \
     -f './oidc-controller/Dockerfile' '..'
 }

@@ -15,7 +15,7 @@ namespace VCAuthn.Utils
                 Name = configuration.Name,
                 NonRevoked = new RevocationInterval()
                 {
-                    From = 0,
+                    From = new DateTimeOffset(DateTime.Now, TimeSpan.Zero).ToUnixTimeSeconds(),
                     To = new DateTimeOffset(DateTime.Now, TimeSpan.Zero).ToUnixTimeSeconds()
                 }
             };
