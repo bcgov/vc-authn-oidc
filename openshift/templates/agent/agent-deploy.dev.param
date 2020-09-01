@@ -21,6 +21,7 @@ TAG_NAME=dev
 # GENESIS_FILE_URL=http://dev.bcovrin.vonx.io/genesis
 # LOG_LEVEL=WARNING
 # AGENT_TIMING=
+AGENT_READ_ONLY_LEDGER=true
 # WALLET_STORAGE_TYPE=postgres_storage
 # WALLET_HOST=wallet
 # WALLET_HOST_PORT=5432
