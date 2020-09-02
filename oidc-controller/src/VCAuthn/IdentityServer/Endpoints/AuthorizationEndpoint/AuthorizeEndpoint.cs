@@ -141,7 +141,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             catch (Exception e)
             {
                 _logger.LogError(e, "Failed to create presentation request");
-                return VCResponseHelpers.Error(IdentityConstants.AcapyCallFailed, "Failed to create presentation request");
+                return VCResponseHelpers.Error(IdentityConstants.AcapyCallFailed, $"Failed to create presentation request: {e.Message}");
             }
 
 
