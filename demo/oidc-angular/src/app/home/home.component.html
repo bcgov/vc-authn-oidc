@@ -1,0 +1,44 @@
+<h2>Angular OIDC with Keycloak demo</h2>
+<div class="panel panel-default">
+  <div class="panel-body">
+    <p>
+      <b>Status:</b><span [style.color]="isAuthenticated?'green':'red'"> {{ isAuthenticated ? 'Authentication successful!' : 'You are not authenticated.' }} </span>
+    </p>
+    <p *ngIf="isAuthenticated">
+      <b>with email:</b> {{ userData.email }}
+      <br/>
+      <b>in roles:</b> {{ roles }}
+    </p>
+  </div>
+</div>
+<div class="panel panel-default">
+  <div class="panel-body">
+    <p *ngIf="isAuthenticated">You can close your session</p>
+    <p *ngIf="!isAuthenticated">Please authenticate by providing a Verified Email.</p>
+    <p>
+      <button *ngIf="isAuthenticated" class="btn btn-default" (click)="logout()">Close Session</button>
+      <button *ngIf="!isAuthenticated" class="btn btn-default" (click)="login()">Authenticate</button>
+    </p>
+  </div>
+</div>
+
+<div *ngIf="isAuthenticated" class="panel panel-default">
+  <div class="panel-body">
+    <p >
+      <b>id_token:</b>
+    </p>
+    <p style="word-break: break-all">{{ id_token }}</p>
+    <p >
+      <b>access_token:</b>
+    </p>
+    <p style="word-break: break-all">{{ token }}</p>
+    <p>
+      <b>user data:</b>
+    </p>
+    <pre>{{ userData | json }}</pre>
+    <p>
+      <b>access token payload:</b>
+    </p>
+    <pre>{{ accessTokenPayload | json }}</pre>
+  </div>
+</div>
