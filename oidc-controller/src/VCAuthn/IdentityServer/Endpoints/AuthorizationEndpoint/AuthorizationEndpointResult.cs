@@ -24,13 +24,13 @@ namespace VCAuthn.IdentityServer.Endpoints
 
         public string PresentationRequest { get; }
 
-        public AuthorizationViewModel(string challenge, string pollUrl, string resolutionUrl, string presentationRequest = null)
+        public AuthorizationViewModel(string challenge, string pollUrl, string resolutionUrl, string presentationRequest = null, int interval = 10000)
         {
             Challenge = challenge;
             PollUrl = pollUrl;
             ResolutionUrl = resolutionUrl;
             PresentationRequest = presentationRequest;
-            Interval = 2000;
+            Interval = interval;
         }
     }
 

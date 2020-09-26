@@ -46,6 +46,7 @@ namespace VCAuthn.IdentityServer
         
         public const string ChallengeIdQueryParameterName = "pid";
         public const string ChallengePollUri = "vc/connect/poll";
+        public const int PollInterval = 2000;
         public const string AuthorizeCallbackUri = "vc/connect/callback";
         public const string VerifiedCredentialAuthorizeUri = "vc/connect/authorize";
         public const string VerifiedCredentialTokenUri = "vc/connect/token";
