@@ -178,7 +178,7 @@ configureEnvironment() {
   export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$DOCKERHOST:$AGENT_HTTP_PORT}
   export ACAPY_ADMIN_URL="http://aca-py:${AGENT_ADMIN_PORT}"
   export ACAPY_AGENT_URL="${AGENT_ENDPOINT:-http://aca-py:$AGENT_HTTP_PORT}"
-  export GENESIS_URL="${GENESIS_URL:-http://$DOCKERHOST:9000/genesis}"
+  export GENESIS_URL=${GENESIS_URL-http://$DOCKERHOST:9000/genesis}
   export AGENT_SEED="000000000000000000000000Steward1"
   export ACAPY_ADMIN_URL_API_KEY=${ACAPY_ADMIN_URL_API_KEY}
   export ACAPY_ADMIN_MODE="admin-insecure-mode"
@@ -299,7 +299,7 @@ start-demo)
 
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
-  docker-compose up -d
+  docker-compose up -d controller controller-db aca-py wallet-db
  ;;
 logs)
   configureEnvironment $@
