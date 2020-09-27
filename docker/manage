@@ -299,7 +299,7 @@ start-demo)
 
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
-  docker-compose up -d controller controller-db aca-py wallet-db
+  docker-compose up -d
  ;;
 logs)
   configureEnvironment $@
