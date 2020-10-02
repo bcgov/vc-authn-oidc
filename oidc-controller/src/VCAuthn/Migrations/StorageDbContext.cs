@@ -14,15 +14,15 @@ namespace VCAuthn.Migrations
         {
             modelBuilder.Entity<PresentationConfiguration>()
                 .Property<string>("Config")
-                .HasField("_configuration");
+                .HasColumnName("_configuration");
 
             modelBuilder.Entity<AuthSession>()
                 .Property<string>("Proof")
-                .HasField("_presentation");
+                .HasColumnName("_presentation");
 
             modelBuilder.Entity<AuthSession>()
                 .Property<string>("RequestParams")
-                .HasField("_requestParameters");
+                .HasColumnName("_requestParameters");
         }
 
     }

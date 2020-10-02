@@ -35,9 +35,8 @@ namespace VCAuthn.IdentityServer
                     options.Events.RaiseInformationEvents = true;
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseSuccessEvents = true;
-
-                    // When forwarded headers aren't sufficient we leverage PublicOrigin option
-                    options.PublicOrigin = config.GetSection("PublicOrigin").Value;
+                    
+                    // TODO: disable default endpoints that are not being used/available
                 })
                 .AddConfigurationStore(options =>
                 {
@@ -52,30 +51,29 @@ namespace VCAuthn.IdentityServer
                     options.EnableTokenCleanup = true;
                 })
 
-                // If cert supplied will parse and call AddSigningCredential(), if not found will create a temp one
-                .AddDeveloperSigningCredential(true, config.GetSection("CertificateFilename").Value)
+                .AddDeveloperSigningCredential()
 
                 // Custom Endpoints
                 .AddEndpoint<AuthorizeEndpoint>(AuthorizeEndpoint.Name, IdentityConstants.VerifiedCredentialAuthorizeUri.EnsureLeadingSlash())
                 .AddEndpoint<TokenEndpoint>(TokenEndpoint.Name, IdentityConstants.VerifiedCredentialTokenUri.EnsureLeadingSlash())
                 .AddEndpoint<AuthorizeCallbackEndpoint>(AuthorizeCallbackEndpoint.Name, IdentityConstants.AuthorizeCallbackUri.EnsureLeadingSlash());
-            
+
             services.AddScoped<IPresentationConfigurationService, PresentationConfigurationService>();
             services.AddScoped<ITokenIssuerService, TokenIssuerService>();
-            
+
             services.AddTransient<ISecretParser, QueryStringSecretParser>();
         }
-        
+
         public static void UseAuthServer(this IApplicationBuilder app, IConfiguration config)
         {
             InitializeDatabase(app, config);
             app.UseIdentityServer();
         }
-        
+
         public static void InitializeDatabase(IApplicationBuilder app, IConfiguration config)
         {
             var _logger = app.ApplicationServices.GetService<ILogger<Startup>>();
-            
+
             // Init Identity server db
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
@@ -85,7 +83,7 @@ namespace VCAuthn.IdentityServer
 
                 // Migrate any required db contexts
                 configContext.Database.Migrate();
-                
+
                 var currentIdentityResources = configContext.IdentityResources.ToList();
                 foreach (var resource in Config.GetIdentityResources())
                 {
@@ -95,7 +93,7 @@ namespace VCAuthn.IdentityServer
                     }
                 }
                 configContext.SaveChanges();
-                
+
                 // Seed pre-configured clients
                 var currentClients = configContext.Clients.ToList();
 
@@ -118,13 +116,13 @@ namespace VCAuthn.IdentityServer
                     else
                     {
                         _logger.LogDebug($"Inserting client [{client.ClientId}]");
-                        configContext.Clients.Add(client.ToEntity());    
+                        configContext.Clients.Add(client.ToEntity());
                     }
                     configContext.SaveChanges();
                 }
                 configContext.SaveChanges();
             }
-            
+
             // Storage Db init
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
@@ -132,7 +130,7 @@ namespace VCAuthn.IdentityServer
                 context.Database.Migrate();
             }
         }
-        
+
         public static void AddUrlShortenerService(this IServiceCollection services, IConfiguration config)
         {
             // Fetch the migration assembly
@@ -156,7 +154,7 @@ namespace VCAuthn.IdentityServer
                 options.UseNpgsql(config.GetConnectionString("Database"), x => x.MigrationsAssembly(migrationsAssembly)));
 
             services.Configure<SessionStorageServiceOptions>(config);
-            
+
             // Adds the session storage service
             services.AddTransient<ISessionStorageService, SessionStorageService>();
         }
