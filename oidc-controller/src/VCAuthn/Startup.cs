@@ -89,6 +89,12 @@ namespace VCAuthn
                     });
                 });
             }
+            
+            // enable NewtonSoft.Json support for SwashBuckle
+            services.AddSwaggerGenNewtonsoftSupport();
+
+            // replace System.Text.Json with NewtonSoft.Json
+            services.AddControllers().AddNewtonsoftJson();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
