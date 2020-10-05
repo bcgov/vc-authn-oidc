@@ -13,16 +13,20 @@ namespace VCAuthn.Migrations
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<PresentationConfiguration>()
-                .Property<string>("Config")
-                .HasColumnName("_configuration");
+                .Property<string>("_configuration")
+                .HasColumnName("Config");
 
             modelBuilder.Entity<AuthSession>()
-                .Property<string>("Proof")
-                .HasColumnName("_presentation");
+                .Property<string>("_presentation")
+                .HasColumnName("Proof");
 
             modelBuilder.Entity<AuthSession>()
-                .Property<string>("RequestParams")
-                .HasColumnName("_requestParameters");
+                .Property<string>("_requestParameters")
+                .HasColumnName("RequestParams");
+            
+            modelBuilder.Entity<AuthSession>()
+                .Property<string>("_presentationRequest")
+                .HasColumnName("ProofRequest");
         }
 
     }
