@@ -2,14 +2,14 @@ version: '3'
 
 services:
   database:
-    image: postgres:10.6
+    image: registry.access.redhat.com/rhscl/postgresql-10-rhel7:latest
     environment:
       - POSTGRES_USER=identity
       - POSTGRES_PASSWORD=
     ports:
       - 5432:5432
   keycloak:
-    image: jboss/keycloak:7.0.0
+    image: jboss/keycloak:9.0.0
     ports:
       - 8180:8080
     volumes:
