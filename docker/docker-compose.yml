@@ -105,6 +105,33 @@ services:
       echo waiting for controller-db ...;
       sleep 15;
       dotnet VCAuthn.dll"
+  
+  controller-dev:
+    image: vc-authn-oidc-controller-dev
+    ports:
+      - "${IP:-0.0.0.0}:5000:5000"
+    environment:
+      - ApiKey=${IDENTITY_SERVER_API_KEY}
+      - SwaggerEnabled=${IDENTITY_SERVER_SWAGGER_ENABLED}
+      - IdentityServer__ConnectionStrings__Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};
+      - IdentityServer__PublicOrigin=${IDENTITY_SERVER_URL}
+      - ACAPY__AdminUrl=${ACAPY_ADMIN_URL}
+      - ACAPY__AdminURLApiKey=${ACAPY_ADMIN_URL_API_KEY}
+      - ACAPY__AgentUrl=${ACAPY_AGENT_URL}
+      - UrlShortenerService__ConnectionStrings__Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};
+      - UrlShortenerService__BaseUrl=${IDENTITY_SERVER_URL}/url
+      - SessionStorageService__ConnectionStrings_Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};
+    networks:
+      - vc_authn_oidc
+    volumes:
+      - ../oidc-controller/src/VCAuthn:/app
+    depends_on:
+      - controller-db
+    command: >
+      /bin/bash -c "
+      echo waiting for controller-db ...;
+      sleep 15;
+      dotnet watch run"
 
   wallet-db:
     image: registry.access.redhat.com/rhscl/postgresql-10-rhel7:latest

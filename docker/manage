@@ -91,9 +91,11 @@ usage() {
 
               $0 start
 
-      start - Same as up
+      start - Same as up.
 
-      start-demo - Starts in demo mode
+      start-dev - Starts in development mode, with hot-reloading enabled for the controller.
+
+      start-demo - Starts in demo mode.
 
       logs - Display the logs from the docker compose run (ctrl-c to exit).
 
@@ -109,8 +111,9 @@ EOF
 # -----------------------------------------------------------------------------------------------------------------
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
-DEFAULT_CONTAINERS="keycloak controller-db aca-py controller wallet-db"
-
+DEFAULT_CONTAINERS="keycloak controller-db aca-py wallet-db"
+PROD_CONTAINERS="controller"
+DEV_CONTAINERS="controller-dev"
 # -----------------------------------------------------------------------------------------------------------------
 # Functions:
 # -----------------------------------------------------------------------------------------------------------------
@@ -123,6 +126,16 @@ build-oidc-controller() {
   docker build \
     -t 'vc-authn-oidc-controller' \
     -f './oidc-controller/Dockerfile' '..'
+}
+
+build-oidc-controller-dev() {
+  #
+  # oidc-controller
+  #
+  echo -e "\nBuilding oidc-controller development image..."
+  docker build \
+    -t 'vc-authn-oidc-controller-dev' \
+    -f './oidc-controller/Dockerfile.dev' '..'
 }
 
 buildImages() {
@@ -271,7 +284,20 @@ start|up)
 
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
-  docker-compose up -d ${_startupParams} 
+  docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${PROD_CONTAINERS}
+  docker-compose logs -f
+ ;;
+start-dev)
+  unset NGROK_AGENT_URL
+  unset NGROK_CONTROLLER_URL
+  unset GENESIS_URL
+
+  # build development image 
+  build-oidc-controller-dev
+
+  _startupParams=$(getStartupParams $@)
+  configureEnvironment $@
+  docker-compose up -d ${_startupParams}  ${DEFAULT_CONTAINERS} ${DEV_CONTAINERS}
   docker-compose logs -f
  ;;
 start-demo)
