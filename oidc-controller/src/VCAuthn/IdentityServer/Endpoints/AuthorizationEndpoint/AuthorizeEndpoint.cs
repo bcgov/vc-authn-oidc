@@ -6,9 +6,11 @@ using System.Net;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.Configuration;
+using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using VCAuthn.ACAPY;
@@ -28,7 +30,7 @@ namespace VCAuthn.IdentityServer.Endpoints
         private readonly IUrlShortenerService _urlShortenerService;
         private readonly ISessionStorageService _sessionStorage;
         private readonly IACAPYClient _acapyClient;
-        private readonly IdentityServerOptions _options;
+        private readonly IConfiguration _configuration;
         private readonly ILogger _logger;
 
         public AuthorizeEndpoint(
@@ -37,7 +39,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             IUrlShortenerService urlShortenerService,
             ISessionStorageService sessionStorage,
             IACAPYClient acapyClient,
-            IOptions<IdentityServerOptions> options,
+            IConfiguration configuration,
             ILogger<AuthorizeEndpoint> logger
             )
         {
@@ -46,7 +48,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             _urlShortenerService = urlShortenerService;
             _sessionStorage = sessionStorage;
             _acapyClient = acapyClient;
-            _options = options.Value;
+            _configuration = configuration;
             _logger = logger;
         }
 
@@ -149,7 +151,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             string shortUrl;
             try
             {
-                var url = string.Format("{0}?m={1}", _options.PublicOrigin, presentationRequest.ToJson().ToBase64());
+                var url = string.Format("{0}?m={1}", _configuration.GetSection("PublicOrigin").Value, presentationRequest.ToJson().ToBase64());
                 shortUrl = await _urlShortenerService.CreateShortUrlAsync(url);
             }
             catch (Exception e)
@@ -181,8 +183,8 @@ namespace VCAuthn.IdentityServer.Endpoints
             return new AuthorizationEndpointResult(
                 new AuthorizationViewModel(
                     shortUrl,
-                    $"{_options.PublicOrigin}/{IdentityConstants.ChallengePollUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
-                    $"{_options.PublicOrigin}/{IdentityConstants.AuthorizeCallbackUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
+                    $"{_configuration.GetSection("PublicOrigin").Value}/{IdentityConstants.ChallengePollUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
+                    $"{_configuration.GetSection("PublicOrigin").Value}/{IdentityConstants.AuthorizeCallbackUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
                     presentationRequest.ToJson()
                 ));
         }
