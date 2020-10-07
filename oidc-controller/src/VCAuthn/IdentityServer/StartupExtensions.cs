@@ -51,7 +51,7 @@ namespace VCAuthn.IdentityServer
                     options.EnableTokenCleanup = true;
                 })
 
-                .AddDeveloperSigningCredential()
+                .AddDeveloperSigningCredential( persistKey: false )
 
                 // Custom Endpoints
                 .AddEndpoint<AuthorizeEndpoint>(AuthorizeEndpoint.Name, IdentityConstants.VerifiedCredentialAuthorizeUri.EnsureLeadingSlash())
