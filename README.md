@@ -4,6 +4,8 @@ This repository is the home of a project to achieve verifiable credential based 
 
 See [here](/docs/README.md) for background into how this integration is defined.
 
+For configuration instructions, refer to the [configuration guide](/docs/ConfigurationGuide.md).
+
 ## A Quick Demo
 
 ### Pre-requisites
