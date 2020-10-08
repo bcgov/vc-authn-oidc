@@ -15,23 +15,22 @@ namespace VCAuthn.IdentityServer.Endpoints.AuthorizeCallbackEndpoint
         public const string Name = "VCAuthorizeCallback";
         
         private readonly ISessionStorageService _sessionStorageService;
-        private readonly ILogger<AuthorizeCallbackEndpoint> _logger;
+        private static Serilog.ILogger Log => Serilog.Log.ForContext<AuthorizeCallbackEndpoint>();
 
-        public AuthorizeCallbackEndpoint(ISessionStorageService sessionStorageService, ILogger<AuthorizeCallbackEndpoint> logger)
+        public AuthorizeCallbackEndpoint(ISessionStorageService sessionStorageService)
         {
             _sessionStorageService = sessionStorageService;
-            _logger = logger;
         }
         
         public async Task<IEndpointResult> ProcessAsync(HttpContext context)
         {
             if (!HttpMethods.IsGet(context.Request.Method))
             {
-                _logger.LogDebug($"Invalid HTTP method for authorize endpoint. Method: [{context.Request.Method}]");
+                Log.Debug($"Invalid HTTP method for authorize endpoint. Method: [{context.Request.Method}]");
                 return  new StatusCodeResult(HttpStatusCode.UnsupportedMediaType);
             }
             
-            _logger.LogDebug("Start authorize callback request");
+            Log.Debug("Start authorize callback request");
                 
             var sessionParam = context.Request.Query[IdentityConstants.ChallengeIdQueryParameterName];
             if (sessionParam.IsNullOrEmpty() || string.IsNullOrEmpty(sessionParam.FirstOrDefault()))
@@ -53,14 +52,14 @@ namespace VCAuthn.IdentityServer.Endpoints.AuthorizeCallbackEndpoint
                 if (session.RequestParameters.ContainsKey(IdentityConstants.StateParameterName))
                     url += $"&state={session.RequestParameters[IdentityConstants.StateParameterName]}";
 
-                _logger.LogDebug($"Code flow. Redirecting to {url}");
+                Log.Debug($"Code flow. Redirecting to {url}");
                 
                 return new AuthorizeCallbackResult(url);
             }
 
             //TODO add token flow handling
 
-            _logger.LogError("Unknown response type");
+            Log.Error("Unknown response type");
             return VCResponseHelpers.Error("invalid_response_type", $"Unknown response type: [{session.RequestParameters[IdentityConstants.ResponseModeUriParameterName]}]");
         }
     }

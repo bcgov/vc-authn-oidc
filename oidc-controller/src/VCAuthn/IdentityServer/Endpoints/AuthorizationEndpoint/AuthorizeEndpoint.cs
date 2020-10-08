@@ -31,7 +31,7 @@ namespace VCAuthn.IdentityServer.Endpoints
         private readonly ISessionStorageService _sessionStorage;
         private readonly IACAPYClient _acapyClient;
         private readonly IConfiguration _configuration;
-        private readonly ILogger _logger;
+        private static Serilog.ILogger Log => Serilog.Log.ForContext<AuthorizeEndpoint>();
 
         public AuthorizeEndpoint(
             IClientSecretValidator clientValidator,
@@ -39,9 +39,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             IUrlShortenerService urlShortenerService,
             ISessionStorageService sessionStorage,
             IACAPYClient acapyClient,
-            IConfiguration configuration,
-            ILogger<AuthorizeEndpoint> logger
-            )
+            IConfiguration configuration)
         {
             _clientValidator = clientValidator;
             _presentationConfigurationService = presentationConfigurationService;
@@ -49,12 +47,11 @@ namespace VCAuthn.IdentityServer.Endpoints
             _sessionStorage = sessionStorage;
             _acapyClient = acapyClient;
             _configuration = configuration;
-            _logger = logger;
         }
 
         public async Task<IEndpointResult> ProcessAsync(HttpContext context)
         {
-            _logger.LogDebug("Processing Authorize request");
+            Log.Debug("Processing Authorize request");
 
             NameValueCollection values;
             switch (context.Request.Method)
@@ -128,7 +125,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Cannot fetch ACAPy wallet public did");
+                Log.Error(e, "Cannot fetch ACAPy wallet public did");
                 return VCResponseHelpers.Error(IdentityConstants.AcapyCallFailed, "Cannot fetch ACAPy wallet public did");
             }
 
@@ -142,7 +139,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to create presentation request");
+                Log.Error(e, "Failed to create presentation request");
                 return VCResponseHelpers.Error(IdentityConstants.AcapyCallFailed, $"Failed to create presentation request: {e.Message}");
             }
 
@@ -156,7 +153,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Presentation url build failed");
+                Log.Error(e, "Presentation url build failed");
                 return VCResponseHelpers.Error(IdentityConstants.PresentationUrlBuildFailed, "Presentation url build failed");
             }
 
@@ -176,7 +173,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to start a new session");
+                Log.Error(e, "Failed to start a new session");
                 return VCResponseHelpers.Error(IdentityConstants.SessionStartFailed, "Failed to start a new session");
             }
 

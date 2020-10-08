@@ -17,13 +17,12 @@ namespace VCAuthn.Controllers
     {
         private readonly ISessionStorageService _sessionStorageService;
         private readonly IConfiguration _config;
-        private readonly ILogger<WebHooksController> _logger;
+        private static Serilog.ILogger Log => Serilog.Log.ForContext<WebHooksController>();
 
-        public WebHooksController(ISessionStorageService sessionStorageService, IConfiguration config, ILogger<WebHooksController> logger)
+        public WebHooksController(ISessionStorageService sessionStorageService, IConfiguration config)
         {
             _sessionStorageService = sessionStorageService;
             _config = config;
-            _logger = logger;
         }
 
 
@@ -43,23 +42,23 @@ namespace VCAuthn.Controllers
         {
             if (!string.IsNullOrEmpty(_config.GetValue<string>("ApiKey")) && !string.Equals(_config.GetValue<string>("ApiKey"), apiKey))
             {
-                _logger.LogDebug($"Web hook operation un-authorized");
+                Log.Debug($"Web hook operation un-authorized");
                 return Unauthorized();
             }
 
             if (string.Equals(ACAPYConstants.PresentationsTopic, topic, StringComparison.InvariantCultureIgnoreCase) == false)
             {
-                _logger.LogDebug($"Skipping webhook for topic [{topic}]");
+                Log.Debug($"Skipping webhook for topic [{topic}]");
                 return Ok();
             }
 
-            _logger.LogDebug($"Received web hook update object : {update.ToJson()}");
+            Log.Debug($"Received web hook update object : {update.ToJson()}");
 
             try
             {
                 if (update.State != ACAPYConstants.SuccessfulPresentationUpdate)
                 {
-                    _logger.LogDebug($"Presentation Request not yet received, state is [{update.State}]");
+                    Log.Debug($"Presentation Request not yet received, state is [{update.State}]");
                     return Ok();
                 }
 
@@ -69,13 +68,13 @@ namespace VCAuthn.Controllers
                     RequestedProof = proof
                 };
 
-                _logger.LogDebug($"Marking Presentation Request with id : {update.PresentationExchangeId} as satisfied");
+                Log.Debug($"Marking Presentation Request with id : {update.PresentationExchangeId} as satisfied");
 
                 await _sessionStorageService.SatisfyPresentationRequestIdAsync(update.PresentationExchangeId, partialPresentation);
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to deserialize a payload");
+                Log.Error(e, "Failed to deserialize a payload");
             }
 
             return Ok();

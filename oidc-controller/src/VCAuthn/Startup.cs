@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using VCAuthn.ACAPY;
 using VCAuthn.IdentityServer;
 using System.Collections.Generic;
@@ -21,15 +20,14 @@ namespace VCAuthn
         /// </summary>
         public static string ApiVersion = "v1";
 
-        private readonly ILogger<Startup> _logger;
-
-        public Startup(IConfiguration configuration, ILogger<Startup> logger)
+        public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            _logger = logger;
         }
 
         public IConfiguration Configuration { get; }
+
+        private static Serilog.ILogger Log => Serilog.Log.ForContext<Startup>();
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -44,7 +42,7 @@ namespace VCAuthn
             services.AddMvc();
 
             // register ACAPY Client
-            services.AddSingleton<IACAPYClient, ACAPYClient>(s => new ACAPYClient(Configuration.GetSection("ACAPY"), s.GetService<ILogger<ACAPYClient>>()));
+            services.AddSingleton<IACAPYClient, ACAPYClient>(s => new ACAPYClient(Configuration.GetSection("ACAPY")));
 
             services.AddAuthServer(Configuration.GetSection("IdentityServer"));
 
@@ -54,7 +52,7 @@ namespace VCAuthn
 
             if (Configuration.GetValue<bool>("SwaggerEnabled"))
             {
-                _logger.LogDebug("Enabling SwaggerUI");
+                Log.Information("Enabling SwaggerUI");
 
                 services.AddSwaggerGen(c =>
                 {

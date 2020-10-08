@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using VCAuthn.Models;
 using VCAuthn.Utils;
@@ -21,17 +20,17 @@ namespace VCAuthn.ACAPY
 
     public class ACAPYClient : IACAPYClient
     {
-        private readonly ILogger<ACAPYClient> _logger;
         private readonly string _adminUrl;
         private readonly string _adminUrlApiKey;
 
         private readonly string _agentUrl;
         private HttpClient _httpClient;
 
-        public ACAPYClient(IConfiguration config, ILogger<ACAPYClient> logger)
+        private static Serilog.ILogger Log => Serilog.Log.ForContext<ACAPYClient>();
+
+        public ACAPYClient(IConfiguration config)
         {
             _httpClient = new HttpClient();
-            _logger = logger;
             _adminUrl = config.GetValue<string>("AdminUrl");
             _adminUrlApiKey = config.GetValue<string>("AdminUrlApiKey");
             _agentUrl = config.GetValue<string>("AgentUrl");
@@ -65,7 +64,7 @@ namespace VCAuthn.ACAPY
                 var response = await _httpClient.SendAsync(request);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                _logger.LogDebug($"Status: [{response.StatusCode}], Content: [{responseContent}, Headers: [{response.Headers}]");
+                Log.Debug($"Status: [{response.StatusCode}], Content: [{responseContent}, Headers: [{response.Headers}]");
 
                 switch (response.StatusCode)
                 {
@@ -97,7 +96,7 @@ namespace VCAuthn.ACAPY
                 var response = await _httpClient.PostAsync($"{_adminUrl}{ACAPYConstants.PresentProofCreateRequest}", httpContent);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                _logger.LogDebug($"Status: [{response.StatusCode}], Content: [{responseContent}, Headers: [{response.Headers}]");
+                Log.Debug($"Status: [{response.StatusCode}], Content: [{responseContent}, Headers: [{response.Headers}]");
 
                 switch (response.StatusCode)
                 {

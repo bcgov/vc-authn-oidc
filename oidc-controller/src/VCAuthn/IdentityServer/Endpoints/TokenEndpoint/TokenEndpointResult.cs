@@ -24,48 +24,47 @@ namespace VCAuthn.IdentityServer.Endpoints
             private readonly ITokenIssuerService _tokenIssuerService;
             private readonly IPresentationConfigurationService _presentationConfigurationService;
             private readonly ISessionStorageService _sessionStorage;
-            private readonly ILogger _logger;
+            private static Serilog.ILogger Log => Serilog.Log.ForContext<TokenEndpointResult>();
 
-            public TokenEndpointResult(AuthSession session, IClientSecretValidator clientValidator, ITokenIssuerService tokenIssuerService, IPresentationConfigurationService presentationConfigurationService, ISessionStorageService sessionStorage, ILogger logger)
+            public TokenEndpointResult(AuthSession session, IClientSecretValidator clientValidator, ITokenIssuerService tokenIssuerService, IPresentationConfigurationService presentationConfigurationService, ISessionStorageService sessionStorage)
             {
                 _session = session;
                 _clientValidator = clientValidator;
                 _tokenIssuerService = tokenIssuerService;
                 _presentationConfigurationService = presentationConfigurationService;
                 _sessionStorage = sessionStorage;
-                _logger = logger;
             }
 
             public async Task ExecuteAsync(HttpContext context)
             {
-                _logger.LogDebug("Constructing token result");
+                Log.Debug("Constructing token result");
 
                 var issuer = context.GetIdentityServerIssuerUri();
 
                 var audience = _session.RequestParameters.ContainsKey(IdentityConstants.ClientId) ? _session.RequestParameters[IdentityConstants.ClientId] : "";
 
-                _logger.LogDebug($"Generating token for audience : {audience}");
+                Log.Debug($"Generating token for audience : {audience}");
 
                 var token = await _tokenIssuerService.IssueJwtAsync(10000, issuer, new string[] { audience }, await GetClaims());
 
-                _logger.LogDebug($"Token created, invalidating session");
+                Log.Debug($"Token created, invalidating session");
 
                 if (_sessionStorage.DeleteSession(_session) == false)
                 {
-                    _logger.LogError("Failed to delete a session");
+                    Log.Error("Failed to delete a session");
                 }
 
-                _logger.LogDebug($"Returning token result");
+                Log.Debug($"Returning token result");
 
                 var clientResult = await _clientValidator.ValidateAsync(context);
                 if (clientResult.Client.AllowedCorsOrigins.Count() == 1)
                 {
-                    _logger.LogDebug("Adding Access-Control-Allow-Origin header");
+                    Log.Debug("Adding Access-Control-Allow-Origin header");
                     context.Response.Headers.Add("Access-Control-Allow-Origin", clientResult.Client.AllowedCorsOrigins.ToArray());
                 }
                 else
                 {
-                    _logger.LogError("Multiple Access-Control-Allow-Origin headers defined");
+                    Log.Error("Multiple Access-Control-Allow-Origin headers defined");
                 }
 
                 await context.Response.WriteJsonAsync(new
@@ -78,7 +77,7 @@ namespace VCAuthn.IdentityServer.Endpoints
 
             private async Task<List<Claim>> GetClaims()
             {
-                _logger.LogDebug($"Creating Claims list for presentation record id : {_session.PresentationRecordId}");
+                Log.Debug($"Creating Claims list for presentation record id : {_session.PresentationRecordId}");
 
                 var claims = new List<Claim>
                 {
@@ -114,7 +113,7 @@ namespace VCAuthn.IdentityServer.Endpoints
                 // Add "issued at" standard OIDC claim - see https://tools.ietf.org/html/rfc7519#section-4
                 claims.Add(new Claim(IdentityConstants.OIDCTokenIssuedAt, DateTimeOffset.Now.ToUnixTimeSeconds().ToString(), System.Security.Claims.ClaimValueTypes.Integer));
 
-                _logger.LogDebug($"Claims list created for presentation record id : {_session.PresentationRecordId}, values : {claims.ToJson()}");
+                Log.Debug($"Claims list created for presentation record id : {_session.PresentationRecordId}, values : {claims.ToJson()}");
 
                 return claims;
             }

@@ -19,22 +19,21 @@ namespace VCAuthn.IdentityServer.Endpoints
         private readonly ISessionStorageService _sessionStore;
         private readonly ITokenIssuerService _tokenIssuerService;
         private readonly IPresentationConfigurationService _presentationConfigurationService;
-        private readonly ILogger<TokenEndpoint> _logger;
+        private static Serilog.ILogger Log => Serilog.Log.ForContext<TokenEndpoint>();
 
         public const string Name = "VCToken";
 
-        public TokenEndpoint(IClientSecretValidator clientValidator, ISessionStorageService sessionStore, ITokenIssuerService tokenIssuerService, IPresentationConfigurationService presentationConfigurationService, ILogger<TokenEndpoint> logger)
+        public TokenEndpoint(IClientSecretValidator clientValidator, ISessionStorageService sessionStore, ITokenIssuerService tokenIssuerService, IPresentationConfigurationService presentationConfigurationService)
         {
             _clientValidator = clientValidator;
             _sessionStore = sessionStore;
             _tokenIssuerService = tokenIssuerService;
             _presentationConfigurationService = presentationConfigurationService;
-            _logger = logger;
         }
 
         public async Task<IEndpointResult> ProcessAsync(HttpContext context)
         {
-            _logger.LogDebug($"Starting token request");
+            Log.Debug($"Starting token request");
 
             NameValueCollection values;
 
@@ -42,7 +41,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             {
                 if (!context.Request.HasFormContentType)
                 {
-                    _logger.LogDebug($"Unsupported media type");
+                    Log.Debug($"Unsupported media type");
                     return new StatusCodeResult(HttpStatusCode.UnsupportedMediaType);
                 }
 
@@ -50,14 +49,14 @@ namespace VCAuthn.IdentityServer.Endpoints
             }
             else
             {
-                _logger.LogDebug($"Method not allowed");
+                Log.Debug($"Method not allowed");
                 return new StatusCodeResult(HttpStatusCode.MethodNotAllowed);
             }
 
             var clientResult = await _clientValidator.ValidateAsync(context);
             if (clientResult.Client == null)
             {
-                _logger.LogDebug($"Invalid client");
+                Log.Debug($"Invalid client");
                 return VCResponseHelpers.Error(OidcConstants.TokenErrors.InvalidClient);
             }
 
@@ -65,7 +64,7 @@ namespace VCAuthn.IdentityServer.Endpoints
 
             if (string.IsNullOrEmpty(grantType))
             {
-                _logger.LogDebug($"Invalid grant type of : {grantType}");
+                Log.Debug($"Invalid grant type of : {grantType}");
                 return VCResponseHelpers.Error(IdentityConstants.InvalidGrantTypeError);
             }
 
@@ -73,31 +72,31 @@ namespace VCAuthn.IdentityServer.Endpoints
 
             if (string.IsNullOrEmpty(sessionId))
             {
-                _logger.LogDebug($"Invalid authorization code : {sessionId}");
+                Log.Debug($"Invalid authorization code : {sessionId}");
                 return VCResponseHelpers.Error(IdentityConstants.InvalidAuthorizationCodeError);
             }
 
             var session = await _sessionStore.FindBySessionIdAsync(sessionId);
             if (session == null)
             {
-                _logger.LogDebug($"Invalid session : {sessionId}");
+                Log.Debug($"Invalid session : {sessionId}");
                 return VCResponseHelpers.Error(IdentityConstants.InvalidSessionError, $"Cannot find stored session");
             }
 
             if (session.PresentationRequestSatisfied == false)
             {
-                _logger.LogDebug($"Presentation not satisfied, session id : {sessionId}");
+                Log.Debug($"Presentation not satisfied, session id : {sessionId}");
                 return VCResponseHelpers.Error(IdentityConstants.InvalidSessionError, "Presentation request wasn't satisfied");
             }
 
             try
             {
-                _logger.LogDebug($"Constructing token result for session : {sessionId}");
-                return new TokenEndpointResult(session, _clientValidator, _tokenIssuerService, _presentationConfigurationService, _sessionStore, _logger);
+                Log.Debug($"Constructing token result for session : {sessionId}");
+                return new TokenEndpointResult(session, _clientValidator, _tokenIssuerService, _presentationConfigurationService, _sessionStore);
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to create a token response");
+                Log.Error(e, "Failed to create a token response");
                 return VCResponseHelpers.Error(IdentityConstants.GeneralError, "Failed to create a token");
             }
         }

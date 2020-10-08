@@ -17,13 +17,12 @@ namespace VCAuthn.Services
     public class SessionStorageService : ISessionStorageService
     {
         private readonly StorageDbContext _context;
-        private readonly ILogger<SessionStorageService> _logger;
+        private static Serilog.ILogger Log => Serilog.Log.ForContext<SessionStorageService>();
         private readonly SessionStorageServiceOptions _options;
 
-        public SessionStorageService(StorageDbContext context, IOptions<SessionStorageServiceOptions> options, ILogger<SessionStorageService> logger)
+        public SessionStorageService(StorageDbContext context, IOptions<SessionStorageServiceOptions> options)
         {
             _context = context;
-            _logger = logger;
             _options = options.Value;
         }
 
@@ -50,7 +49,7 @@ namespace VCAuthn.Services
 
             if (session == null)
             {
-                _logger.LogWarning($"Couldn't find a corresponding auth session to satisfy. Presentation request id: [{presentationRequestId}]");
+                Log.Warning($"Couldn't find a corresponding auth session to satisfy. Presentation request id: [{presentationRequestId}]");
                 return false;
             }
 

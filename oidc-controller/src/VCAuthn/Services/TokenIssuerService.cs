@@ -15,18 +15,17 @@ namespace VCAuthn.Services
     {
         private readonly ITokenCreationService _tokenCreation;
         private readonly ISystemClock _clock;
-        private readonly ILogger<TokenIssuerService> _logger;
+        private static Serilog.ILogger Log => Serilog.Log.ForContext<TokenIssuerService>();
 
-        public TokenIssuerService(ITokenCreationService tokenCreation, ISystemClock clock, ILogger<TokenIssuerService> logger)
+        public TokenIssuerService(ITokenCreationService tokenCreation, ISystemClock clock)
         {
             _tokenCreation = tokenCreation;
             _clock = clock;
-            _logger = logger;
         }
 
         public async Task<string> IssueJwtAsync(int lifetime, string issuer, ICollection<string> audiences, List<Claim> claims)
         {
-            _logger.LogDebug($"Issuing token for audience : {audiences.ToJson()}, with claims {claims.ToJson()}, from issuer {issuer}, for lifetime {lifetime}");
+            Log.Debug($"Issuing token for audience : {audiences.ToJson()}, with claims {claims.ToJson()}, from issuer {issuer}, for lifetime {lifetime}");
 
             var token = new Token
             {

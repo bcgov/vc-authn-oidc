@@ -12,13 +12,12 @@ namespace VCAuthn.Controllers
     {
         private readonly ISessionStorageService _sessionStorageService;
         private readonly IUrlShortenerService _urlShortenerService;
-        private readonly ILogger<WebHooksController> _logger;
+        private static Serilog.ILogger Log => Serilog.Log.ForContext<PresentationRequestController>();
 
-        public PresentationRequestController(ISessionStorageService sessionStorageService, IUrlShortenerService urlShortenerService, ILogger<WebHooksController> logger)
+        public PresentationRequestController(ISessionStorageService sessionStorageService, IUrlShortenerService urlShortenerService)
         {
             _sessionStorageService = sessionStorageService;
             _urlShortenerService = urlShortenerService;
-            _logger = logger;
         }
 
         [HttpGet(IdentityConstants.ChallengePollUri)]
@@ -26,20 +25,20 @@ namespace VCAuthn.Controllers
         {
             if (string.IsNullOrEmpty(presentationRequestId))
             {
-                _logger.LogDebug($"Missing presentation request Id");
+                Log.Debug($"Missing presentation request Id");
                 return NotFound();
             }
 
             var authSession = await _sessionStorageService.FindByPresentationIdAsync(presentationRequestId);
             if (authSession == null)
             {
-                _logger.LogDebug($"Cannot find a session corresponding to the presentation request. Presentation request Id: [{presentationRequestId}]");
+                Log.Debug($"Cannot find a session corresponding to the presentation request. Presentation request Id: [{presentationRequestId}]");
                 return NotFound();
             }
 
             if (authSession.PresentationRequestSatisfied == false)
             {
-                _logger.LogDebug($"Presentation request was not satisfied. AuthSession: [{authSession}]");
+                Log.Debug($"Presentation request was not satisfied. AuthSession: [{authSession}]");
                 return BadRequest();
             }
 
@@ -50,22 +49,22 @@ namespace VCAuthn.Controllers
         [HttpGet("/url/{key}")]
         public async Task<ActionResult> ResolveUrl(string key)
         {
-            _logger.LogDebug($"Resolving shortened url: {Request.Path.Value}");
+            Log.Debug($"Resolving shortened url: {Request.Path.Value}");
 
             if (string.IsNullOrEmpty(key))
             {
-                _logger.LogDebug("Url key is null or empty");
+                Log.Debug("Url key is null or empty");
                 return BadRequest();
             }
 
             var url = await _urlShortenerService.GetUrlAsync(key);
             if (string.IsNullOrEmpty(url))
             {
-                _logger.LogDebug($"Url is empty. Url key: [{key}]");
+                Log.Debug($"Url is empty. Url key: [{key}]");
                 return NotFound();
             }
             
-            _logger.LogDebug($"Redirecting to {url}");
+            Log.Debug($"Redirecting to {url}");
             return Redirect(url);
         }
     }

@@ -13,25 +13,24 @@ namespace VCAuthn.IdentityServer
     public class QueryStringSecretParser : ISecretParser
     {
         private readonly IdentityServerOptions _options;
-        private readonly ILogger<QueryStringSecretParser> _logger;
+        private static Serilog.ILogger Log => Serilog.Log.ForContext<QueryStringSecretParser>();
 
-        public QueryStringSecretParser(IdentityServerOptions options, ILogger<QueryStringSecretParser> logger)
+        public QueryStringSecretParser(IdentityServerOptions options)
         {
             _options = options;
-            _logger = logger;
         }
         
         public string AuthenticationMethod => "client_secret_query";
 
         public async Task<ParsedSecret> ParseAsync(HttpContext context)
         {
-            _logger.LogDebug("Start parsing for secret in query string");
+            Log.Debug("Start parsing for secret in query string");
 
             var query = context.Request.Query;
 
             if (query == null)
             {
-                _logger.LogDebug("No secret in query string found");
+                Log.Debug("No secret in query string found");
                 return null;
             }
 
@@ -41,20 +40,20 @@ namespace VCAuthn.IdentityServer
             // client id must be present
             if (string.IsNullOrEmpty(id))
             {
-                _logger.LogDebug("No client_id in query string found");
+                Log.Debug("No client_id in query string found");
                 return null;
             }
             
             if (id.Length > _options.InputLengthRestrictions.ClientId)
             {
-                _logger.LogError($"Client id exceeds maximum length of { _options.InputLengthRestrictions.ClientId}");
+                Log.Error($"Client id exceeds maximum length of { _options.InputLengthRestrictions.ClientId}");
                 return null;
             }
 
             if (string.IsNullOrEmpty(secret))
             {
                 // client secret is optional
-                _logger.LogDebug("client id without secret found");
+                Log.Debug("client id without secret found");
 
                 return new ParsedSecret
                 {
@@ -65,7 +64,7 @@ namespace VCAuthn.IdentityServer
             
             if (secret.Length > _options.InputLengthRestrictions.ClientSecret)
             {
-                _logger.LogError("Client secret exceeds maximum length.");
+                Log.Error("Client secret exceeds maximum length.");
                 return null;
             }
 

@@ -20,6 +20,8 @@ namespace VCAuthn.IdentityServer
 {
     public static class StartupExtensions
     {
+        private static Serilog.ILogger Log => Serilog.Log.ForContext<Startup>();
+
         public static void AddAuthServer(this IServiceCollection services, IConfiguration config)
         {
             // Fetch the migration assembly
@@ -72,8 +74,6 @@ namespace VCAuthn.IdentityServer
 
         public static void InitializeDatabase(IApplicationBuilder app, IConfiguration config)
         {
-            var _logger = app.ApplicationServices.GetService<ILogger<Startup>>();
-
             // Init Identity server db
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
@@ -99,7 +99,7 @@ namespace VCAuthn.IdentityServer
 
                 foreach (var client in currentClients)
                 {
-                    _logger.LogDebug($"Existing client: [{client.ClientId} ; {client.Id}]");
+                    Log.Debug($"Existing client: [{client.ClientId} ; {client.Id}]");
                 }
 
                 var clients = Config.GetClients(config.GetSection("Clients"));
@@ -108,14 +108,14 @@ namespace VCAuthn.IdentityServer
                     var existingClient = currentClients.FirstOrDefault(_ => _.ClientId == client.ClientId);
                     if (existingClient != null)
                     {
-                        _logger.LogDebug($"Updating client [{client.ClientId}]");
+                        Log.Debug($"Updating client [{client.ClientId}]");
                         var c = client.ToEntity();
                         c.Id = existingClient.Id;
                         configContext.Entry(existingClient).CurrentValues.SetValues(c);
                     }
                     else
                     {
-                        _logger.LogDebug($"Inserting client [{client.ClientId}]");
+                        Log.Debug($"Inserting client [{client.ClientId}]");
                         configContext.Clients.Add(client.ToEntity());
                     }
                     configContext.SaveChanges();
