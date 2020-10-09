@@ -9,6 +9,7 @@ using IdentityServer4.Configuration;
 using IdentityServer4.Hosting;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using VCAuthn.ACAPY;
@@ -30,6 +31,7 @@ namespace VCAuthn.IdentityServer.Endpoints
         private readonly IACAPYClient _acapyClient;
         private readonly IdentityServerOptions _options;
         private readonly ILogger _logger;
+        private readonly IConfiguration _config;
 
         public AuthorizeEndpoint(
             IClientSecretValidator clientValidator,
@@ -38,8 +40,8 @@ namespace VCAuthn.IdentityServer.Endpoints
             ISessionStorageService sessionStorage,
             IACAPYClient acapyClient,
             IOptions<IdentityServerOptions> options,
-            ILogger<AuthorizeEndpoint> logger
-            )
+            ILogger<AuthorizeEndpoint> logger,
+            IConfiguration config)
         {
             _clientValidator = clientValidator;
             _presentationConfigurationService = presentationConfigurationService;
@@ -48,6 +50,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             _acapyClient = acapyClient;
             _options = options.Value;
             _logger = logger;
+            _config = config.GetSection("IdentityServer");
         }
 
         public async Task<IEndpointResult> ProcessAsync(HttpContext context)
@@ -184,7 +187,7 @@ namespace VCAuthn.IdentityServer.Endpoints
                     $"{_options.PublicOrigin}/{IdentityConstants.ChallengePollUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
                     $"{_options.PublicOrigin}/{IdentityConstants.AuthorizeCallbackUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
                     presentationRequest.ToJson(),
-                    IdentityConstants.PollInterval
+                    _config.GetValue<int>("PollInterval")
                 ));
         }
 
