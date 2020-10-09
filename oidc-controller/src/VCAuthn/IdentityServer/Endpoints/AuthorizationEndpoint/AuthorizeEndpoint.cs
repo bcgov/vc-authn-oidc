@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.Configuration;
+using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
 using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Http;
@@ -29,9 +30,8 @@ namespace VCAuthn.IdentityServer.Endpoints
         private readonly IUrlShortenerService _urlShortenerService;
         private readonly ISessionStorageService _sessionStorage;
         private readonly IACAPYClient _acapyClient;
-        private readonly IdentityServerOptions _options;
+        private readonly IConfiguration _configuration;
         private readonly ILogger _logger;
-        private readonly IConfiguration _config;
 
         public AuthorizeEndpoint(
             IClientSecretValidator clientValidator,
@@ -39,18 +39,17 @@ namespace VCAuthn.IdentityServer.Endpoints
             IUrlShortenerService urlShortenerService,
             ISessionStorageService sessionStorage,
             IACAPYClient acapyClient,
-            IOptions<IdentityServerOptions> options,
-            ILogger<AuthorizeEndpoint> logger,
-            IConfiguration config)
+            IConfiguration configuration,
+            ILogger<AuthorizeEndpoint> logger
+            )
         {
             _clientValidator = clientValidator;
             _presentationConfigurationService = presentationConfigurationService;
             _urlShortenerService = urlShortenerService;
             _sessionStorage = sessionStorage;
             _acapyClient = acapyClient;
-            _options = options.Value;
+            _configuration = configuration;
             _logger = logger;
-            _config = config.GetSection("IdentityServer");
         }
 
         public async Task<IEndpointResult> ProcessAsync(HttpContext context)
@@ -152,7 +151,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             string shortUrl;
             try
             {
-                var url = string.Format("{0}?m={1}", _options.PublicOrigin, presentationRequest.ToJson().ToBase64());
+                var url = string.Format("{0}?m={1}", _configuration.GetSection("IdentityServer").GetValue<string>("PublicOrigin"), presentationRequest.ToJson().ToBase64());
                 shortUrl = await _urlShortenerService.CreateShortUrlAsync(url);
             }
             catch (Exception e)
@@ -184,10 +183,10 @@ namespace VCAuthn.IdentityServer.Endpoints
             return new AuthorizationEndpointResult(
                 new AuthorizationViewModel(
                     shortUrl,
-                    $"{_options.PublicOrigin}/{IdentityConstants.ChallengePollUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
-                    $"{_options.PublicOrigin}/{IdentityConstants.AuthorizeCallbackUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
+                    $"{_configuration.GetSection("IdentityServer").GetValue<string>("PublicOrigin")}/{IdentityConstants.ChallengePollUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
+                    $"{_configuration.GetSection("IdentityServer").GetValue<string>("PublicOrigin")}/{IdentityConstants.AuthorizeCallbackUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
                     presentationRequest.ToJson(),
-                    _config.GetValue<int>("PollInterval")
+                    _configuration.GetSection("IdentityServer").GetValue<int>("PollInterval")
                 ));
         }
 

@@ -91,9 +91,11 @@ usage() {
 
               $0 start
 
-      start - Same as up
+      start - Same as up.
 
-      start-demo - Starts in demo mode
+      start-dev - Starts in development mode, with hot-reloading enabled for the controller.
+
+      start-demo - Starts in demo mode.
 
       logs - Display the logs from the docker compose run (ctrl-c to exit).
 
@@ -109,8 +111,9 @@ EOF
 # -----------------------------------------------------------------------------------------------------------------
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
-DEFAULT_CONTAINERS="keycloak controller-db aca-py controller wallet-db"
-
+DEFAULT_CONTAINERS="keycloak controller-db aca-py wallet-db"
+PROD_CONTAINERS="controller"
+DEV_CONTAINERS="controller-dev"
 # -----------------------------------------------------------------------------------------------------------------
 # Functions:
 # -----------------------------------------------------------------------------------------------------------------
@@ -123,6 +126,16 @@ build-oidc-controller() {
   docker build \
     -t 'vc-authn-oidc-controller' \
     -f './oidc-controller/Dockerfile' '..'
+}
+
+build-oidc-controller-dev() {
+  #
+  # oidc-controller
+  #
+  echo -e "\nBuilding oidc-controller development image..."
+  docker build \
+    -t 'vc-authn-oidc-controller-dev' \
+    -f './oidc-controller/Dockerfile.dev' '..'
 }
 
 buildImages() {
@@ -166,7 +179,7 @@ configureEnvironment() {
   export IDENTITY_SERVER_URL="${IDENTITY_SERVER_URL:-http://localhost:5000}"
   export IDENTITY_SERVER_POLL_INTERVAL=2000
   export IDENTITY_SERVER_API_KEY="controller-api-key"
-  export IDENTITY_SERVER_WEB_HOOK_URL=${IDENTITY_SERVER_URL}
+  export IDENTITY_SERVER_WEB_HOOK_URL=${IDENTITY_SERVER_WEB_HOOK_URL:-http://$DOCKERHOST:5000}
   export IDENTITY_SERVER_SWAGGER_ENABLED=true
   if [ ! -z "${IDENTITY_SERVER_API_KEY}" ]; then
     IDENTITY_SERVER_WEB_HOOK_URL="${IDENTITY_SERVER_URL}/${IDENTITY_SERVER_API_KEY}"
@@ -179,7 +192,7 @@ configureEnvironment() {
   export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$DOCKERHOST:$AGENT_HTTP_PORT}
   export ACAPY_ADMIN_URL="http://aca-py:${AGENT_ADMIN_PORT}"
   export ACAPY_AGENT_URL="${AGENT_ENDPOINT:-http://aca-py:$AGENT_HTTP_PORT}"
-  export GENESIS_URL=${GENESIS_URL-http://$DOCKERHOST:9000/genesis}
+  export GENESIS_URL="${GENESIS_URL:-http://$DOCKERHOST:9000/genesis}"
   export AGENT_SEED="000000000000000000000000Steward1"
   export ACAPY_ADMIN_URL_API_KEY=${ACAPY_ADMIN_URL_API_KEY}
   export ACAPY_ADMIN_MODE="admin-insecure-mode"
@@ -272,7 +285,20 @@ start|up)
 
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
-  docker-compose up -d ${_startupParams} 
+  docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${PROD_CONTAINERS}
+  docker-compose logs -f
+ ;;
+start-dev)
+  unset NGROK_AGENT_URL
+  unset NGROK_CONTROLLER_URL
+  unset GENESIS_URL
+
+  # build development image 
+  build-oidc-controller-dev
+
+  _startupParams=$(getStartupParams $@)
+  configureEnvironment $@
+  docker-compose up -d ${_startupParams}  ${DEFAULT_CONTAINERS} ${DEV_CONTAINERS}
   docker-compose logs -f
  ;;
 start-demo)

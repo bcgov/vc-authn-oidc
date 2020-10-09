@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using Serilog;
+using System.IO;
 
 namespace VCAuthn
 {
@@ -14,7 +10,7 @@ namespace VCAuthn
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            CreateWebHostBuilder(args).UseSerilog().Build().Run();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
@@ -22,18 +18,21 @@ namespace VCAuthn
             var config = new ConfigurationBuilder()
                 .AddCommandLine(args)
                 .AddEnvironmentVariables()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
                 .Build();
             
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(config)
+                .CreateLogger();
+
+            Log.Information(config.ToString());
+
             return WebHost.CreateDefaultBuilder(args)
                 .UseConfiguration(config)
-                .ConfigureLogging((hostingContext, logging) =>
-                {
-                    logging.ClearProviders(); // to clear CreateDefaultBuilder's setup of standard debug and console loggers, rely on log4net exclusively
-                    logging.AddLog4Net();
-                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                })
+                .UseSerilog()
                 .UseStartup<Startup>();
         }
-            
+
     }
 }

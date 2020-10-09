@@ -10,7 +10,7 @@ Verifiable credentials are a pending [W3C standard](https://www.w3.org/TR/verifi
 
 A verifiable credential ecosystem, breaks down in the following way
 
-![ecosystem](ecosystem.svg)
+![ecosystem](img/ecosystem.svg)
 
 > Note - the above diagram originated from the Verifiable Credential [specification](https://w3c.github.io/vc-data-model/)
 
@@ -75,7 +75,7 @@ As the above diagram indicates, DID Communication (DIDComm) is used as the messa
 
 Below is the general sequence diagram that describes the flow.
 
-![vc-authn-oidc-flow](vc-authn-oidc-flow.png)
+![vc-authn-oidc-flow](img/vc-authn-oidc-flow.png)
 
 There are two main ways the interactions between the actors of VC-AuthN will be used
 

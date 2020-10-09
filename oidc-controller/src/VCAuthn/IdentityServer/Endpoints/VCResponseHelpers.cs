@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using IdentityModel;
+using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
 using Microsoft.AspNetCore.Http;
 
@@ -15,7 +16,7 @@ namespace VCAuthn.IdentityServer.Endpoints
                 ErrorDescription = errorDescription
             };
 
-            return new VCErrorResult(response);   
+            return new VCErrorResult(response);
         }
     }
 
@@ -25,7 +26,7 @@ namespace VCAuthn.IdentityServer.Endpoints
     public class VCErrorResponse
     {
         public string Error { get; set; } = OidcConstants.TokenErrors.InvalidRequest;
-            
+
         public string ErrorDescription { get; set; }
     }
 

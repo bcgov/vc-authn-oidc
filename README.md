@@ -4,25 +4,7 @@ This repository is the home of a project to achieve verifiable credential based 
 
 See [here](/docs/README.md) for background into how this integration is defined.
 
-## Debug
-
-The VCAuthn-Service has two main dependencies
-
-1. A backend database, postgres is used as the provider
-2. An instance of [ACA-Py](https://github.com/hyperledger/aries-cloudagent-python) for handling the interactions with verifiable credentials
-
-To run the OIDC-Controller in debug, first you must run these dependencies with the following command
-
-```
-    docker-compose -f ./docker/docker-compose.local-debug.yml build
-    docker-compose -f ./docker/docker-compose.local-debug.yml up
-```
-
-Following this you can either launch the VCAuthn-Service in debug via an IDE like VS Code or Visual Studio or run the following command
-
-```
-    dotnet run ./src/VCAuthn
-```
+For configuration instructions, refer to the [configuration guide](/docs/ConfigurationGuide.md).
 
 ## A Quick Demo
 
