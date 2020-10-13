@@ -185,7 +185,8 @@ namespace VCAuthn.IdentityServer.Endpoints
                     shortUrl,
                     $"{_configuration.GetSection("IdentityServer").GetValue<string>("PublicOrigin")}/{IdentityConstants.ChallengePollUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
                     $"{_configuration.GetSection("IdentityServer").GetValue<string>("PublicOrigin")}/{IdentityConstants.AuthorizeCallbackUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
-                    presentationRequest.ToJson()
+                    presentationRequest.ToJson(),
+                    _configuration.GetSection("IdentityServer").GetValue<int>("PollInterval")
                 ));
         }
 

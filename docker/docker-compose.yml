@@ -90,6 +90,7 @@ services:
       - SwaggerEnabled=${IDENTITY_SERVER_SWAGGER_ENABLED}
       - IdentityServer__ConnectionStrings__Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};
       - IdentityServer__PublicOrigin=${IDENTITY_SERVER_URL}
+      - IdentityServer__PollInterval=${IDENTITY_SERVER_POLL_INTERVAL}
       - ACAPY__AdminUrl=${ACAPY_ADMIN_URL}
       - ACAPY__AdminURLApiKey=${ACAPY_ADMIN_URL_API_KEY}
       - ACAPY__AgentUrl=${ACAPY_AGENT_URL}
