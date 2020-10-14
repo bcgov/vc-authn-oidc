@@ -50,6 +50,8 @@ namespace VCAuthn.Controllers
         [HttpGet("/url/{key}")]
         public async Task<ActionResult> ResolveUrl(string key)
         {
+            _logger.LogDebug($"Resolving shortened url: {Request.Path.Value}");
+
             if (string.IsNullOrEmpty(key))
             {
                 _logger.LogDebug("Url key is null or empty");
@@ -63,6 +65,7 @@ namespace VCAuthn.Controllers
                 return NotFound();
             }
             
+            _logger.LogDebug($"Redirecting to {url}");
             return Redirect(url);
         }
     }

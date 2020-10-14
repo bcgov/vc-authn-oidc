@@ -1,15 +1,16 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using VCAuthn.ACAPY;
 using VCAuthn.IdentityServer;
-using Swashbuckle.AspNetCore.Swagger;
 using System.Collections.Generic;
 using System.Linq;
 using VCAuthn.Security;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
 namespace VCAuthn
 {
@@ -40,15 +41,15 @@ namespace VCAuthn
             })
             .AddApiKeySupport();
 
-            services.AddMvc()
-                    .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc();
 
             // register ACAPY Client
             services.AddSingleton<IACAPYClient, ACAPYClient>(s => new ACAPYClient(Configuration.GetSection("ACAPY"), s.GetService<ILogger<ACAPYClient>>()));
 
             services.AddAuthServer(Configuration.GetSection("IdentityServer"));
-            
+
             services.AddUrlShortenerService(Configuration.GetSection("UrlShortenerService"));
+
             services.AddSessionStorage(Configuration.GetSection("SessionStorageService"));
 
             if (Configuration.GetValue<bool>("SwaggerEnabled"))
@@ -57,27 +58,38 @@ namespace VCAuthn
 
                 services.AddSwaggerGen(c =>
                 {
-                    c.SwaggerDoc(ApiVersion, new Info { Title = "VC-Authn API", Version = ApiVersion });
+                    c.SwaggerDoc(ApiVersion, new OpenApiInfo { Title = "VC-Authn API", Version = ApiVersion });
                     c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
                     c.AddSecurityDefinition("ApiKey",
-                        new ApiKeyScheme
+                        new OpenApiSecurityScheme
                         {
-                            In = "header",
+                            In = ParameterLocation.Header,
                             Description = "Controller API Key",
                             Name = "X-Api-Key",
-                            Type = "apiKey"
+                            Type = SecuritySchemeType.ApiKey
                         });
-                    c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                    c.AddSecurityRequirement(new OpenApiSecurityRequirement{
                         {
-                            {"ApiKey", Enumerable.Empty<string>()}
-                        });
-                    c.DescribeAllEnumsAsStrings();
+                            new OpenApiSecurityScheme{
+                                Reference = new OpenApiReference{
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "ApiKey"
+                                }
+                            },new List<string>()
+                        }
+                    });
                 });
             }
+
+            // enable NewtonSoft.Json support for SwashBuckle
+            services.AddSwaggerGenNewtonsoftSupport();
+
+            // replace System.Text.Json with NewtonSoft.Json
+            services.AddControllers().AddNewtonsoftJson();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -85,17 +97,24 @@ namespace VCAuthn
             }
 
             app.UseStaticFiles();
-
             app.UseAuthentication();
+            app.UseRouting();
+            app.UseAuthorization();
 
-            app.UseMvc();
-            
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapRazorPages();
+                endpoints.MapControllers();
+            });
+
             // Use the auth server
             app.UseAuthServer(Configuration.GetSection("IdentityServer"));
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
 
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+            // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint($"/swagger/{ApiVersion}/swagger.json", $"VC-Authn API {ApiVersion}");

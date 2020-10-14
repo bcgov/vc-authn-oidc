@@ -1,2 +1,10 @@
 .git
+.gitignore
 **/node_modules
+.dockerignore
+.env
+.vs
+.vscode
+docker-compose*.yml
+**/bin
+**/obj
