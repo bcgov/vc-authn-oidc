@@ -120,21 +120,6 @@ usage() {
 
       start - Same as up
 
-      start-dev - Starts the containers in development mode, using hot-reload.
-
-      makemigrations - Runs the makemigrations command for the django app (the database container needs to be running).
-
-                      Examples:
-                      - Create the initial migrations for a new module
-
-                        $0 makemigrations <module-name>
-                      
-                      - Update migrations for all the modules in the project
-
-                        $0 makemigrations
-
-      migrate - Applies pending migrations to the database (the database container needs to be running).
-
       logs - Display the logs from the docker compose run (ctrl-c to exit).
 
       stop - Stops the services.  This is a non-destructive process.  The volumes and containers

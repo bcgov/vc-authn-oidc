@@ -62,6 +62,8 @@ After configuring this, if you used the above presentation request configuration
 
 From here you can click the `vc-authn` option to try out the flow. Clicking this should redirect your browser to the VC-Authn service and display a QR-Code base challenge.
 
+For more interactive demos, refer to the [demo readme](demo/README.md)
+
 ## Project Affiliation
 
 This project was formed from the code with us [opportunity](https://www.bcdevexchange.org/opportunities/cwu/opp-create-a-red-hat-keycloak-identity-provider--idp--capable-of-processing-verifiable-credentials-using-decentralized-identity-technology-created-by-bc-gov-to-authorize-access-to-a-bc-government-digital-service-) executed by [Mattr](https://mattr.global) funded by [BCGov](https://www2.gov.bc.ca/).
