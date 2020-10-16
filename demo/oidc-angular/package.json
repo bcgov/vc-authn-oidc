@@ -23,7 +23,7 @@
     "@angular/router": "~10.1.6",
     "angular-auth-oidc-client": "^10.0.15",
     "bootstrap": "^4.5.3",
-    "jquery": "^3.5.1",
+    "jquery": "^3.5.0",
     "popper.js": "^1.16.1",
     "rxjs": "~6.6.3",
     "tslib": "^2.0.0",
