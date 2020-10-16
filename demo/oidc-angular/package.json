@@ -22,7 +22,7 @@
     "angular-auth-oidc-client": "^10.0.15",
     "bootstrap": "^4.5.3",
     "rxjs": "~6.6.3",
-    "tslib": "^2.0.3",
+    "tslib": "^1.14.1",
     "zone.js": "~0.11.1"
   },
   "devDependencies": {
