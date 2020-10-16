@@ -298,7 +298,7 @@ start-dev)
 
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
-  docker-compose up -d ${_startupParams}  ${DEFAULT_CONTAINERS} ${DEV_CONTAINERS}
+  docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${DEV_CONTAINERS}
   docker-compose logs -f
  ;;
 start-demo)
@@ -326,7 +326,7 @@ start-demo)
 
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
-  docker-compose up -d controller controller-db aca-py wallet-db
+  docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${PROD_CONTAINERS}
  ;;
 logs)
   configureEnvironment $@
