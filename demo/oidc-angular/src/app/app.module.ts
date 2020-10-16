@@ -1,10 +1,9 @@
 import { BrowserModule } from '@angular/platform-browser';
 import {APP_INITIALIZER, NgModule} from '@angular/core';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import {HttpClientModule} from "@angular/common/http";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {HttpClientModule} from '@angular/common/http';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { HomeComponent } from './home/home.component';
 import {
   AuthModule,
@@ -12,12 +11,12 @@ import {
   OidcConfigService,
   OidcSecurityService,
   OpenIdConfiguration
-} from "angular-auth-oidc-client";
+} from 'angular-auth-oidc-client';
 
-const oidc_configuration = 'assets/auth.clientConfiguration.json';
+const OIDC_CONFIGURATION = 'assets/auth.clientConfiguration.json';
 
 export function loadConfig(oidcConfigService: OidcConfigService) {
-  return () => oidcConfigService.load(oidc_configuration);
+  return () => oidcConfigService.load(OIDC_CONFIGURATION);
 }
 
 @NgModule({
@@ -78,7 +77,7 @@ export class AppModule {
 
       this.oidcSecurityService.setupModule(config, configResult.authWellknownEndpoints);
       //
-      this.oidcSecurityService.setCustomRequestParameters({ "pres_req_conf_id": configResult.customConfig.pres_req_conf_id });
+      this.oidcSecurityService.setCustomRequestParameters({ pres_req_conf_id: configResult.customConfig.pres_req_conf_id });
     });
   }
 }
