@@ -67,7 +67,13 @@ namespace VCAuthn.IdentityServer
         public static void UseAuthServer(this IApplicationBuilder app, IConfiguration config)
         {
             InitializeDatabase(app, config);
-            app.UseIdentityServer();
+            
+            app.UseForwardedHeaders()
+               .UseHttpsRedirection()
+               .UseCors()
+               .UseStaticFiles()
+               .UseRouting()
+               .UseIdentityServer();
         }
 
         public static void InitializeDatabase(IApplicationBuilder app, IConfiguration config)
