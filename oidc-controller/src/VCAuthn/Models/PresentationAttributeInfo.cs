@@ -5,8 +5,11 @@ namespace VCAuthn.Models
 {
     public class PresentationAttributeInfo
     {
-        [JsonProperty("name")]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; set; }
+
+        [JsonProperty("names", NullValueHandling = NullValueHandling.Ignore)]
+        public string[] Names { get; set; }
 
         /// <summary>
         /// Gets or sets the restrictions.
@@ -35,6 +38,7 @@ namespace VCAuthn.Models
         public override string ToString() =>
             $"{GetType().Name}: " +
             $"Name={Name}, " +
+            $"Names={Names}, " +
             $"Restrictions={string.Join(",", Restrictions ?? new List<AttributeFilter>())}, " +
             $"NonRevoked={NonRevoked}";
     }
