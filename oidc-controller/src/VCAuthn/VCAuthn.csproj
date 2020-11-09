@@ -9,6 +9,7 @@
     <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.1" />
     
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="3.1.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
