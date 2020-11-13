@@ -98,10 +98,24 @@ namespace VCAuthn.IdentityServer.Endpoints
                 {
                     if (_session.Presentation.RequestedProof.RevealedAttributes.ContainsKey(requestedAttr.Key))
                     {
+                        _logger.LogDebug("Processing revealed attributes");
                         claims.Add(new Claim(requestedAttr.Value.Name, _session.Presentation.RequestedProof.RevealedAttributes[requestedAttr.Key].Raw));
                         if (!string.IsNullOrEmpty(presentationConfig.SubjectIdentifier) && string.Equals(requestedAttr.Value.Name, presentationConfig.SubjectIdentifier, StringComparison.InvariantCultureIgnoreCase))
                         {
                             claims.Add(new Claim(IdentityConstants.SubjectIdentityTokenKey, _session.Presentation.RequestedProof.RevealedAttributes[requestedAttr.Key].Raw));
+                        }
+                    }
+                    else if (_session.Presentation.RequestedProof.RevealedAttributesGroups.ContainsKey(requestedAttr.Key))
+                    {
+                        _logger.LogDebug("Processing revealed attributes groups");
+                        foreach (string name in requestedAttr.Value.Names)
+                        {
+                            claims.Add(new Claim(name, _session.Presentation.RequestedProof.RevealedAttributesGroups[requestedAttr.Key].Values[name].Raw));
+                            if (!string.IsNullOrEmpty(presentationConfig.SubjectIdentifier) && string.Equals(name, presentationConfig.SubjectIdentifier, StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                claims.Add(new Claim(IdentityConstants.SubjectIdentityTokenKey, _session.Presentation.RequestedProof.RevealedAttributesGroups[requestedAttr.Key].Values[name].Raw));
+                            }
+
                         }
                     }
                 }
