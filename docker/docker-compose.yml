@@ -126,6 +126,8 @@ services:
       - vc_authn_oidc
     volumes:
       - ../oidc-controller/src/VCAuthn:/app
+      - controller-dev-bin:/app/bin
+      - controller-dev-obj:/app/obj
     depends_on:
       - controller-db
     command: >
@@ -152,6 +154,8 @@ networks:
   vc_authn_oidc:
 
 volumes:
+  controller-dev-bin:
+  controller-dev-obj:
   controller-db-data:
   keycloak-db-data:
   agent-wallet-db:
