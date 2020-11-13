@@ -4,13 +4,10 @@ using System.Collections.Generic;
 
 namespace VCAuthn.Models
 {
-    public class RequestedProof
+    public class ProofAttributeGroup
     {
-        [JsonProperty("revealed_attrs")]
-        public Dictionary<string, ProofAttribute> RevealedAttributes { get; set; }
-
-        [JsonProperty("revealed_attr_groups")]
-        public Dictionary<string, ProofAttributeGroup> RevealedAttributesGroups { get; set; }
+        [JsonProperty("values")]
+        public Dictionary<string, ProofAttribute> Values { get; set; }
 
         /// <summary>
         /// ignore structural mapping of other properties
