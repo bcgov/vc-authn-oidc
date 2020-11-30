@@ -6,6 +6,8 @@ See [here](/docs/README.md) for background into how this integration is defined.
 
 For configuration instructions, refer to the [configuration guide](/docs/ConfigurationGuide.md).
 
+Make sure to read the [best practices](/docs/BestPractices.md) to be used when protecting a web application using `vc-authn-oidc`.
+
 ## A Quick Demo
 
 ### Pre-requisites
