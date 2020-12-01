@@ -4,25 +4,9 @@ This repository is the home of a project to achieve verifiable credential based 
 
 See [here](/docs/README.md) for background into how this integration is defined.
 
-## Debug
+For configuration instructions, refer to the [configuration guide](/docs/ConfigurationGuide.md).
 
-The VCAuthn-Service has two main dependencies
-
-1. A backend database, postgres is used as the provider
-2. An instance of [ACA-Py](https://github.com/hyperledger/aries-cloudagent-python) for handling the interactions with verifiable credentials
-
-To run the OIDC-Controller in debug, first you must run these dependencies with the following command
-
-```
-    docker-compose -f ./docker/docker-compose.local-debug.yml build
-    docker-compose -f ./docker/docker-compose.local-debug.yml up
-```
-
-Following this you can either launch the VCAuthn-Service in debug via an IDE like VS Code or Visual Studio or run the following command
-
-```
-    dotnet run ./src/VCAuthn
-```
+Make sure to read the [best practices](/docs/BestPractices.md) to be used when protecting a web application using `vc-authn-oidc`.
 
 ## A Quick Demo
 
@@ -79,6 +63,8 @@ An example of a valid presentation request configuration is the following.
 After configuring this, if you used the above presentation request configuration example, you can browse to keycloaks login page with this [link](http://localhost:5000/vc/connect/authorize?scope=openid+vc_authn&state=EI3kI8RFbpuIqZE_MEI0xsv18NjQOS1lkbrBtj3x2CE.wOX0F5IZd74.security-admin-console&response_type=code&client_id=keycloak&redirect_uri=http%3A%2F%2Flocalhost%3A8180%2Fauth%2Frealms%2Fvc-authn%2Fbroker%2Fvc-authn%2Fendpoint&nonce=eEJ7joxB5CC8j_LaOaw3Dg&pres_req_conf_id=test-request-config)
 
 From here you can click the `vc-authn` option to try out the flow. Clicking this should redirect your browser to the VC-Authn service and display a QR-Code base challenge.
+
+For more interactive demos, refer to the [demo readme](demo/README.md)
 
 ## Project Affiliation
 

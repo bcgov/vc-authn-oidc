@@ -87,7 +87,7 @@ namespace VCAuthn.ACAPY
             {
                 // Build appropriate json request body
                 string jsonRequestBody = configuration.GeneratePresentationRequest();
-                
+
                 var httpContent = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");
                 if (!string.IsNullOrEmpty(_adminUrlApiKey))
                 {
@@ -104,12 +104,12 @@ namespace VCAuthn.ACAPY
                     case HttpStatusCode.OK:
                         return JsonConvert.DeserializeObject<CreatePresentationResponse>(responseContent);
                     default:
-                        throw new Exception($"Create presentation request error . Code: {response.StatusCode}");
+                        throw new Exception($"Code: [{response.StatusCode}], Reason: [{responseContent}]");
                 }
             }
             catch (Exception e)
             {
-                throw new Exception("Create presentation request failed .", e);
+                throw new Exception($"Create presentation request failed: {e.Message}", e);
             }
         }
     }

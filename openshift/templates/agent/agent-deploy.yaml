@@ -116,9 +116,10 @@ objects:
                 - -c
                 - $(echo aca-py start
                   --inbound-transport http '0.0.0.0' ${HTTP_INTERFACE_PORT}
-                  --endpoint https://${AGENT_ENDPOINT}
+                  $([ ! -z "${AGENT_ENDPOINT}" ] && echo "--endpoint ${AGENT_ENDPOINT}" || echo "")
                   --outbound-transport http
                   --genesis-url "${GENESIS_URL}"
+                  $(echo "${CONTROLLER_WEBHOOK_URL:+--webhook-url ${CONTROLLER_WEBHOOK_URL%/}${CONTROLLER_API_KEY:+/${CONTROLLER_API_KEY}}}")
                   --auto-accept-invites
                   --auto-accept-requests
                   --auto-ping-connection
@@ -131,12 +132,13 @@ objects:
                   --wallet-storage-type "${WALLET_TYPE}"
                   --wallet-storage-config "$(eval echo \"${WALLET_STORAGE_CONFIGURATION}\")"
                   --wallet-storage-creds "$(eval echo \"${WALLET_STORAGE_CREDENTIALS}\")"
-                  --seed "${INDY_WALLET_SEED}"
+                  $([ ! -z "${INDY_WALLET_SEED}" ] && echo "--seed ${INDY_WALLET_SEED}" || echo "")
                   --admin '0.0.0.0' ${ADMIN_INTERFACE_PORT}
                   $([ ! -z "${AGENT_ADMIN_API_KEY}" ] && echo "--admin-api-key ${AGENT_ADMIN_API_KEY}" || echo "--admin-insecure-mode")
                   --label "${AGENT_NAME}"
                   --log-level ${AGENT_LOG_LEVEL}
-                  $([ ! -z "${TIMING}" ] && echo "--timing" || echo ""));
+                  $([ ! -z "${TIMING}" ] && echo "--timing" || echo "")
+                  $([ ! -z "${READ_ONLY_LEDGER}" ] && echo "--read-only-ledger" || echo ""));
               env:
                 - name: GENESIS_URL
                   value: ${GENESIS_FILE_URL}
@@ -182,8 +184,13 @@ objects:
                     secretKeyRef:
                       name: ${PREFIX}${WALLET_CREDENTIAL_STORE_NAME}
                       key: did
-                - name: WEBHOOK_URL
+                - name: CONTROLLER_WEBHOOK_URL
                   value: ${WEBHOOK_URL}
+                - name: CONTROLLER_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${PREFIX}controller
+                      key: controller-api-key
                 - name: HTTP_INTERFACE_PORT
                   value: ${AGENT_HTTP_PORT}
                 - name: ADMIN_INTERFACE_PORT
@@ -195,12 +202,14 @@ objects:
                       key: admin-api-key
                 - name: AGENT_NAME
                   value: ${AGENT_LABEL_NAME}
-                - name: AGENT_ENDPOINT
-                  value: https://${APPLICATION_DOMAIN}
+                # - name: AGENT_ENDPOINT
+                #   value: https://${APPLICATION_DOMAIN}
                 - name: AGENT_LOG_LEVEL
                   value: ${LOG_LEVEL}
                 - name: TIMING
                   value: ${AGENT_TIMING}
+                - name: READ_ONLY_LEDGER
+                  value: ${AGENT_READ_ONLY_LEDGER}
               image:
               ports:
                 - containerPort: ${{AGENT_ADMIN_PORT}}
@@ -393,6 +402,11 @@ parameters:
     description: Enable/Disable collection of agent timing information.  Controls the inclusion/exclusion of the agent '--timing' startup parameter.  Defaults to disabled.
     required: false
     value: ""
+  - name: AGENT_READ_ONLY_LEDGER
+    displayName: Set read only ledger flag.
+    description: Enable/Disable the read only ledger flag.  Controls the inclusion/exclusion of the agent '--read-only-ledger' startup parameter.  Defaults to disabled.
+    required: false
+    value: ''
   # ===============================================================================
   # Wallet Configuration
   #--------------------------------------------------------------------------------

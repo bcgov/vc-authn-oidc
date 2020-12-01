@@ -1,4 +1,5 @@
 ﻿using IdentityServer4.Hosting;
+using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;

@@ -49,7 +49,7 @@ services:
       - vc_authn_oidc
 
   aca-py:
-    image: bcgovimages/aries-cloudagent:py36-1.15-0_0.5.2
+    image: bcgovimages/aries-cloudagent:py36-1.15-0_0.5.6
     ports:
       - ${AGENT_ADMIN_PORT}:${AGENT_ADMIN_PORT}
       - ${AGENT_HTTP_PORT}:${AGENT_HTTP_PORT}
@@ -90,6 +90,7 @@ services:
       - SwaggerEnabled=${IDENTITY_SERVER_SWAGGER_ENABLED}
       - IdentityServer__ConnectionStrings__Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};
       - IdentityServer__PublicOrigin=${IDENTITY_SERVER_URL}
+      - IdentityServer__PollInterval=${IDENTITY_SERVER_POLL_INTERVAL}
       - ACAPY__AdminUrl=${ACAPY_ADMIN_URL}
       - ACAPY__AdminURLApiKey=${ACAPY_ADMIN_URL_API_KEY}
       - ACAPY__AgentUrl=${ACAPY_AGENT_URL}
@@ -105,6 +106,35 @@ services:
       echo waiting for controller-db ...;
       sleep 15;
       dotnet VCAuthn.dll"
+  
+  controller-dev:
+    image: vc-authn-oidc-controller-dev
+    ports:
+      - "${IP:-0.0.0.0}:5000:5000"
+    environment:
+      - ApiKey=${IDENTITY_SERVER_API_KEY}
+      - SwaggerEnabled=${IDENTITY_SERVER_SWAGGER_ENABLED}
+      - IdentityServer__ConnectionStrings__Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};
+      - IdentityServer__PublicOrigin=${IDENTITY_SERVER_URL}
+      - ACAPY__AdminUrl=${ACAPY_ADMIN_URL}
+      - ACAPY__AdminURLApiKey=${ACAPY_ADMIN_URL_API_KEY}
+      - ACAPY__AgentUrl=${ACAPY_AGENT_URL}
+      - UrlShortenerService__ConnectionStrings__Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};
+      - UrlShortenerService__BaseUrl=${IDENTITY_SERVER_URL}/url
+      - SessionStorageService__ConnectionStrings_Database=Host=controller-db;Port=${DATABASE_PORT};Database=${POSTGRESQL_DATABASE};Username=${POSTGRESQL_USER};Password=${POSTGRESQL_PASSWORD};
+    networks:
+      - vc_authn_oidc
+    volumes:
+      - ../oidc-controller/src/VCAuthn:/app
+      - controller-dev-bin:/app/bin
+      - controller-dev-obj:/app/obj
+    depends_on:
+      - controller-db
+    command: >
+      /bin/bash -c "
+      echo waiting for controller-db ...;
+      sleep 15;
+      dotnet watch run"
 
   wallet-db:
     image: registry.access.redhat.com/rhscl/postgresql-10-rhel7:latest
@@ -124,6 +154,8 @@ networks:
   vc_authn_oidc:
 
 volumes:
+  controller-dev-bin:
+  controller-dev-obj:
   controller-db-data:
   keycloak-db-data:
   agent-wallet-db:

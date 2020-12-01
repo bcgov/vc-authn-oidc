@@ -15,28 +15,41 @@ namespace VCAuthn.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
+                .HasAnnotation("ProductVersion", "3.1.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("VCAuthn.Models.AuthSession", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("ExpiredTimestamp");
+                    b.Property<DateTime>("ExpiredTimestamp")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("PresentationRecordId");
+                    b.Property<string>("PresentationRecordId")
+                        .HasColumnType("text");
 
-                    b.Property<string>("PresentationRequest");
+                    b.Property<string>("PresentationRequest")
+                        .HasColumnType("text");
 
-                    b.Property<string>("PresentationRequestId");
+                    b.Property<string>("PresentationRequestId")
+                        .HasColumnType("text");
 
-                    b.Property<bool>("PresentationRequestSatisfied");
+                    b.Property<bool>("PresentationRequestSatisfied")
+                        .HasColumnType("boolean");
 
-                    b.Property<string>("Proof");
+                    b.Property<string>("_presentation")
+                        .HasColumnName("Proof")
+                        .HasColumnType("text");
 
-                    b.Property<string>("RequestParams");
+                    b.Property<string>("_presentationRequest")
+                        .HasColumnName("ProofRequest")
+                        .HasColumnType("text");
+
+                    b.Property<string>("_requestParameters")
+                        .HasColumnName("RequestParams")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -46,9 +59,10 @@ namespace VCAuthn.Migrations
             modelBuilder.Entity("VCAuthn.Models.MappedUrl", b =>
                 {
                     b.Property<string>("Key")
-                        .ValueGeneratedOnAdd();
+                        .HasColumnType("text");
 
-                    b.Property<string>("Url");
+                    b.Property<string>("Url")
+                        .HasColumnType("text");
 
                     b.HasKey("Key");
 
@@ -58,11 +72,14 @@ namespace VCAuthn.Migrations
             modelBuilder.Entity("VCAuthn.Models.PresentationConfiguration", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
+                        .HasColumnType("text");
 
-                    b.Property<string>("Config");
+                    b.Property<string>("SubjectIdentifier")
+                        .HasColumnType("text");
 
-                    b.Property<string>("SubjectIdentifier");
+                    b.Property<string>("_configuration")
+                        .HasColumnName("Config")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

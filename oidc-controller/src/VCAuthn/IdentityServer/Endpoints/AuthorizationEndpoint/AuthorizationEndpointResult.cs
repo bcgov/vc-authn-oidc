@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using IdentityServer4.Hosting;
+using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -11,7 +12,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using VCAuthn.Models;
 
 namespace VCAuthn.IdentityServer.Endpoints
 {
@@ -24,13 +24,13 @@ namespace VCAuthn.IdentityServer.Endpoints
 
         public string PresentationRequest { get; }
 
-        public AuthorizationViewModel(string challenge, string pollUrl, string resolutionUrl, string presentationRequest = null)
+        public AuthorizationViewModel(string challenge, string pollUrl, string resolutionUrl, string presentationRequest = null, int interval = 10000)
         {
             Challenge = challenge;
             PollUrl = pollUrl;
             ResolutionUrl = resolutionUrl;
             PresentationRequest = presentationRequest;
-            Interval = 2000;
+            Interval = interval;
         }
     }
 
@@ -58,12 +58,12 @@ namespace VCAuthn.IdentityServer.Endpoints
                 {
                     throw new ArgumentNullException($"{_viewName} does not match any available view");
                 }
- 
+
                 var viewDictionary = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
                 {
                     Model = _authorizationRequest
                 };
- 
+
                 var viewContext = new ViewContext(
                     actionContext,
                     viewResult.View,
@@ -72,7 +72,7 @@ namespace VCAuthn.IdentityServer.Endpoints
                     sw,
                     new HtmlHelperOptions()
                 );
- 
+
                 await viewResult.View.RenderAsync(viewContext);
                 await context.Response.WriteHtmlAsync(sw.ToString());
             }

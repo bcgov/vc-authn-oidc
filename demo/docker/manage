@@ -120,21 +120,6 @@ usage() {
 
       start - Same as up
 
-      start-dev - Starts the containers in development mode, using hot-reload.
-
-      makemigrations - Runs the makemigrations command for the django app (the database container needs to be running).
-
-                      Examples:
-                      - Create the initial migrations for a new module
-
-                        $0 makemigrations <module-name>
-                      
-                      - Update migrations for all the modules in the project
-
-                        $0 makemigrations
-
-      migrate - Applies pending migrations to the database (the database container needs to be running).
-
       logs - Display the logs from the docker compose run (ctrl-c to exit).
 
       stop - Stops the services.  This is a non-destructive process.  The volumes and containers
@@ -149,7 +134,7 @@ EOF
 # -----------------------------------------------------------------------------------------------------------------
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
-DEFAULT_CONTAINERS="oidc-django database"
+DEFAULT_CONTAINERS="oidc-angular oidc-django database"
 
 # -----------------------------------------------------------------------------------------------------------------
 # Functions:
@@ -179,8 +164,41 @@ build-oidc-django() {
   fi
 }
 
+build-oidc-angular() {
+  echo -e "\nBuilding oidc-angular image..."
+  docker build -t oidc-angular -f ../oidc-angular/Dockerfile ../oidc-angular
+}
+
 build-all() {
   build-oidc-django
+  build-oidc-angular
+}
+
+updateKeycloakIdentityProviderUrls() {
+  echo "update keycloak realm config..."
+  echo "set identity provider tokenUrl=$NGROK_CONTROLLER_URL/vc/connect/token"
+  echo "set identity provider authorizationUrl=$NGROK_CONTROLLER_URL/vc/connect/authorize"
+
+  # auth
+  TKN=$(curl -X POST 'http://localhost:8180/auth/realms/master/protocol/openid-connect/token' \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=admin" \
+  -d 'password=admin' \
+  -d 'grant_type=password' \
+  -d 'client_id=admin-cli' | jq -r '.access_token')
+
+  # getting identity provider config and prepare that to update update URL's
+  ID_PROVIDER=$(curl -X GET 'http://localhost:8180/auth/admin/realms/vc-authn/identity-provider/instances/vc-authn' \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer $TKN" | \
+  jq --arg tokenUrl "$NGROK_CONTROLLER_URL/vc/connect/token" --arg authUrl "$NGROK_CONTROLLER_URL/vc/connect/authorize" '.config.tokenUrl = $tokenUrl | .config.authorizationUrl = $authUrl')
+
+  # save/update identity provider config
+  curl -X PUT 'http://localhost:8180/auth/admin/realms/vc-authn/identity-provider/instances/vc-authn' \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer $TKN" \
+  --data-raw "${ID_PROVIDER}"
 }
 
 configureEnvironment() {
@@ -353,6 +371,7 @@ case "${COMMAND}" in
 
     _startupParams=$(getStartupParams --force-recreate $@)
     configureEnvironment "$@"
+    updateKeycloakIdentityProviderUrls
     docker-compose up -d ${_startupParams}
     ;;
   restart)
