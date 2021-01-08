@@ -43,12 +43,16 @@
       <b-container fluid="md" class="py-3">
 
         <b-card :body-class="cardBodyClass" style="min-width: 400px;">
-          <b-card-header class="card-header" variant="primary">
+          <b-card-title class="card-title" variant="primary">
             <b-icon icon="shield-shaded" variant="primary"></b-icon>
             Authentication Required
             <b-icon icon="shield-shaded"  variant="primary"></b-icon>
-          </b-card-header>
+          </b-card-title>
           <b-card-text>Please provide your Verifiable Credentials</b-card-text>
+
+           <div class="my-5">
+            <qrcode-vue :value="qrUri" :size="qrWidth" level="H"></qrcode-vue>
+          </div>
 
           <p class="info"><span class="info-header">MOBILE DEVICE USERS: </span> To authenticate, tap the button below</p>
           <b-button :href="btnUri" variant="outline-primary">
@@ -59,9 +63,7 @@
           <p class="info"><span class="info-header">DESKTOP/LAPTOP USERS: </span>
            To authenticate, present your digital credential by using your identity wallet phone app to scan the QR code below</p>
           
-          <div class="my-5">
-            <qrcode-vue :value="qrUri" :size="qrWidth" level="H"></qrcode-vue>
-          </div>
+         
 
           
         </b-card>
