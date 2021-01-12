@@ -1,3 +1,6 @@
+[![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
 # Verifiable Credential Authentication with OpenID Connect (VC-AuthN OIDC)
 
 This repository is the home of a project to achieve verifiable credential based authentication using OpenID Connect.
