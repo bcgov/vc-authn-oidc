@@ -43,21 +43,29 @@
       <b-container fluid="md" class="py-3">
 
         <b-card :body-class="cardBodyClass" style="min-width: 400px;">
-          <b-card-title>
+          <b-card-title class="card-title" variant="primary">
             <b-icon icon="shield-shaded" variant="primary"></b-icon>
             Authentication Required
             <b-icon icon="shield-shaded"  variant="primary"></b-icon>
           </b-card-title>
           <b-card-text>Please provide your Verifiable Credentials</b-card-text>
-          
-          <div class="my-5">
+
+           <div class="my-5">
             <qrcode-vue :value="qrUri" :size="qrWidth" level="H"></qrcode-vue>
           </div>
 
+          <p class="info"><span class="info-header">MOBILE DEVICE USERS: </span> To authenticate, tap the button above</p>
           <b-button :href="btnUri" variant="outline-primary">
               <b-icon icon="box-arrow-up-right"></b-icon>
               Open in a Trusted Digital Wallet
           </b-button>
+
+          <p class="info"><span class="info-header">DESKTOP/LAPTOP USERS: </span>
+           To authenticate, present your digital credential by using your identity wallet phone app to scan the QR code above</p>
+          
+         
+
+          
         </b-card>
        
       </b-container>
@@ -108,3 +116,15 @@
         },
       });
     </script>
+
+    <style>
+    .info-header{
+      color: #007bff;
+      font-weight: bold;
+    }
+    .info{
+      text-align: center;
+      margin-top: 2em;
+    }
+    
+    </style>
