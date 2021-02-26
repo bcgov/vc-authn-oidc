@@ -126,6 +126,7 @@ objects:
                   --auto-respond-messages
                   --auto-respond-credential-offer
                   --auto-verify-presentation
+                  --auto-provision
                   --wallet-type 'indy'
                   --wallet-name "$(echo ${AGENT_WALLET_NAME} | tr '[:upper:]' '[:lower:]' | sed "s~-~_~g")"
                   --wallet-key "${WALLET_ENCRYPTION_KEY}"
