@@ -49,7 +49,7 @@ services:
       - vc_authn_oidc
 
   aca-py:
-    image: bcgovimages/aries-cloudagent:py36-1.15-0_0.5.6
+    image: bcgovimages/aries-cloudagent:py36-1.15-1_0.6.0
     ports:
       - ${AGENT_ADMIN_PORT}:${AGENT_ADMIN_PORT}
       - ${AGENT_HTTP_PORT}:${AGENT_HTTP_PORT}
@@ -67,6 +67,7 @@ services:
         --endpoint ${AGENT_ENDPOINT} \
         --genesis-url '${GENESIS_URL}' \
         --auto-verify-presentation \
+        --auto-provision \
         --wallet-type 'indy' \
         --wallet-name 'oidc_agent_wallet' \
         --wallet-key '${WALLET_ENCRYPTION_KEY}' \
