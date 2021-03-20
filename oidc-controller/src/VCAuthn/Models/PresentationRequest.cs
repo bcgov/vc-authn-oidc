@@ -8,6 +8,9 @@ namespace VCAuthn.Models
         [JsonProperty("name")]
         public string Name { get; set; }
 
+        [JsonProperty("names")]
+        public string[] Names { get; set; }
+
         [JsonProperty("version")]
         public string Version { get; set; }
 

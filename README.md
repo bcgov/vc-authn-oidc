@@ -1,3 +1,6 @@
+[![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
 # Verifiable Credential Authentication with OpenID Connect (VC-AuthN OIDC)
 
 This repository is the home of a project to achieve verifiable credential based authentication using OpenID Connect.
@@ -5,6 +8,8 @@ This repository is the home of a project to achieve verifiable credential based 
 See [here](/docs/README.md) for background into how this integration is defined.
 
 For configuration instructions, refer to the [configuration guide](/docs/ConfigurationGuide.md).
+
+Make sure to read the [best practices](/docs/BestPractices.md) to be used when protecting a web application using `vc-authn-oidc`.
 
 ## A Quick Demo
 
@@ -61,6 +66,8 @@ An example of a valid presentation request configuration is the following.
 After configuring this, if you used the above presentation request configuration example, you can browse to keycloaks login page with this [link](http://localhost:5000/vc/connect/authorize?scope=openid+vc_authn&state=EI3kI8RFbpuIqZE_MEI0xsv18NjQOS1lkbrBtj3x2CE.wOX0F5IZd74.security-admin-console&response_type=code&client_id=keycloak&redirect_uri=http%3A%2F%2Flocalhost%3A8180%2Fauth%2Frealms%2Fvc-authn%2Fbroker%2Fvc-authn%2Fendpoint&nonce=eEJ7joxB5CC8j_LaOaw3Dg&pres_req_conf_id=test-request-config)
 
 From here you can click the `vc-authn` option to try out the flow. Clicking this should redirect your browser to the VC-Authn service and display a QR-Code base challenge.
+
+For more interactive demos, refer to the [demo readme](demo/README.md)
 
 ## Project Affiliation
 

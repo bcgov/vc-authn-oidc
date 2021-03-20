@@ -34,6 +34,13 @@ namespace VCAuthn
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+            });
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = ApiKeyAuthenticationOptions.DefaultScheme;
@@ -43,21 +50,13 @@ namespace VCAuthn
 
             services.AddMvc();
 
-            services.Configure<ForwardedHeadersOptions>(options =>
-            {
-                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor |
-                                            ForwardedHeaders.XForwardedProto |
-                                            ForwardedHeaders.XForwardedHost;
-                options.KnownNetworks.Clear();
-                options.KnownProxies.Clear();
-            });
-
             // register ACAPY Client
             services.AddSingleton<IACAPYClient, ACAPYClient>(s => new ACAPYClient(Configuration.GetSection("ACAPY"), s.GetService<ILogger<ACAPYClient>>()));
 
             services.AddAuthServer(Configuration.GetSection("IdentityServer"));
 
             services.AddUrlShortenerService(Configuration.GetSection("UrlShortenerService"));
+
             services.AddSessionStorage(Configuration.GetSection("SessionStorageService"));
 
             if (Configuration.GetValue<bool>("SwaggerEnabled"))
@@ -88,7 +87,7 @@ namespace VCAuthn
                     });
                 });
             }
-            
+
             // enable NewtonSoft.Json support for SwashBuckle
             services.AddSwaggerGenNewtonsoftSupport();
 
@@ -105,11 +104,10 @@ namespace VCAuthn
             }
 
             app.UseStaticFiles();
-
             app.UseAuthentication();
-
             app.UseRouting();
             app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
@@ -118,13 +116,6 @@ namespace VCAuthn
 
             // Use the auth server
             app.UseAuthServer(Configuration.GetSection("IdentityServer"));
-
-            app.UseForwardedHeaders()
-               .UseHttpsRedirection()
-               .UseCors()
-               .UseStaticFiles()
-               .UseRouting()
-               .UseIdentityServer();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();

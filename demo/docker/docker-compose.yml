@@ -1,5 +1,19 @@
 version: "3"
 services:
+
+  #
+  # oidc-angular
+  # -------------------------------------------------
+  # The depends on keycloak from the main app,
+  # as it needs to update the client configuration there.
+  #
+  oidc-angular:
+    container_name: oidc-angular
+    image: oidc-angular
+    command: /bin/sh -c "exec nginx -g 'daemon off;'"
+    ports:
+      - 4200:80
+
   #
   # oidc-django
   # -------------------------------------------------

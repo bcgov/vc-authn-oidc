@@ -330,7 +330,7 @@
           "attributes": {}
         }
       ],
-      "test": [],
+      "angular-oidc-demo": [],
       "security-admin-console": [],
       "admin-cli": [],
       "broker": [
@@ -956,13 +956,13 @@
     },
     {
       "id": "a6368741-0912-4952-8a0f-d2f24b6bc224",
-      "clientId": "test",
+      "clientId": "angular-oidc-demo",
       "surrogateAuthRequired": false,
       "enabled": true,
       "clientAuthenticatorType": "client-secret",
       "secret": "**********",
       "redirectUris": ["http*"],
-      "webOrigins": [],
+      "webOrigins": ["*"],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,

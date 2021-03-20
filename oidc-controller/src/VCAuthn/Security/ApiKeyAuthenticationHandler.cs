@@ -29,6 +29,8 @@ namespace VCAuthn.Security
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
+            _logger.LogDebug($"Processing authentication request for {Request.Path.Value}.");
+            
             if (string.IsNullOrEmpty(_apiKey))
             {
                 _logger.LogDebug("No API key configured.");
@@ -50,7 +52,7 @@ namespace VCAuthn.Security
 
             if (providedApiKey.Equals(_apiKey))
             {
-                _logger.LogDebug("API key authentication succeded, returning success.");
+                _logger.LogDebug("API key authentication succeeded, returning success.");
                 return TaskSuccess();
             }
 

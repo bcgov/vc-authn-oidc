@@ -177,11 +177,12 @@ configureEnvironment() {
 
   # controller
   export IDENTITY_SERVER_URL="${IDENTITY_SERVER_URL:-http://localhost:5000}"
+  export IDENTITY_SERVER_POLL_INTERVAL=2000
   export IDENTITY_SERVER_API_KEY="controller-api-key"
-  export IDENTITY_SERVER_WEB_HOOK_URL=${IDENTITY_SERVER_URL}
+  export IDENTITY_SERVER_WEB_HOOK_URL=${IDENTITY_SERVER_WEB_HOOK_URL:-http://$DOCKERHOST:5000}
   export IDENTITY_SERVER_SWAGGER_ENABLED=true
   if [ ! -z "${IDENTITY_SERVER_API_KEY}" ]; then
-    IDENTITY_SERVER_WEB_HOOK_URL="${IDENTITY_SERVER_URL}/${IDENTITY_SERVER_API_KEY}"
+    IDENTITY_SERVER_WEB_HOOK_URL="${IDENTITY_SERVER_WEB_HOOK_URL}/${IDENTITY_SERVER_API_KEY}"
   fi
 
   # aca-py
@@ -297,7 +298,7 @@ start-dev)
 
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
-  docker-compose up -d ${_startupParams}  ${DEFAULT_CONTAINERS} ${DEV_CONTAINERS}
+  docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${DEV_CONTAINERS}
   docker-compose logs -f
  ;;
 start-demo)
@@ -325,7 +326,7 @@ start-demo)
 
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
-  docker-compose up -d controller controller-db aca-py wallet-db
+  docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${PROD_CONTAINERS}
  ;;
 logs)
   configureEnvironment $@

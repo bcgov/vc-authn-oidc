@@ -151,7 +151,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             string shortUrl;
             try
             {
-                var url = string.Format("{0}?m={1}", _configuration.GetSection("PublicOrigin").Value, presentationRequest.ToJson().ToBase64());
+                var url = string.Format("{0}?m={1}", _configuration.GetSection("IdentityServer").GetValue<string>("PublicOrigin"), presentationRequest.ToJson().ToBase64());
                 shortUrl = await _urlShortenerService.CreateShortUrlAsync(url);
             }
             catch (Exception e)
@@ -183,9 +183,10 @@ namespace VCAuthn.IdentityServer.Endpoints
             return new AuthorizationEndpointResult(
                 new AuthorizationViewModel(
                     shortUrl,
-                    $"{_configuration.GetSection("PublicOrigin").Value}/{IdentityConstants.ChallengePollUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
-                    $"{_configuration.GetSection("PublicOrigin").Value}/{IdentityConstants.AuthorizeCallbackUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
-                    presentationRequest.ToJson()
+                    $"{_configuration.GetSection("IdentityServer").GetValue<string>("PublicOrigin")}/{IdentityConstants.ChallengePollUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
+                    $"{_configuration.GetSection("IdentityServer").GetValue<string>("PublicOrigin")}/{IdentityConstants.AuthorizeCallbackUri}?{IdentityConstants.ChallengeIdQueryParameterName}={presentationRequestId}",
+                    presentationRequest.ToJson(),
+                    _configuration.GetSection("IdentityServer").GetValue<int>("PollInterval")
                 ));
         }
 
