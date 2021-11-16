@@ -2,6 +2,7 @@ using System;
 using System.Web;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
@@ -82,7 +83,7 @@ namespace VCAuthn.Controllers
                 var jsonMessage = message.FromBase64();
                 if (string.IsNullOrEmpty(jsonMessage)) {
                     _logger.LogDebug("JSON is null or empty");
-                    return BadRequest();
+                    return StatusCode(StatusCodes.Status500InternalServerError);
                 }
 
                 _logger.LogDebug($"Returning JSON");
