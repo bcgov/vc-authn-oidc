@@ -1,9 +1,13 @@
 using System;
+using System.Web;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using VCAuthn.IdentityServer;
 using VCAuthn.Services.Contracts;
+using VCAuthn.Utils;
 
 namespace VCAuthn.Controllers
 {
@@ -64,7 +68,28 @@ namespace VCAuthn.Controllers
                 _logger.LogDebug($"Url is empty. Url key: [{key}]");
                 return NotFound();
             }
-            
+
+            Request.Headers.TryGetValue("Accept", out var accept);
+            if (!StringValues.IsNullOrEmpty(accept) && ((ICollection<string>)accept).Contains("application/json"))
+            {
+                var uri = new Uri(url);
+                var message = HttpUtility.ParseQueryString(uri.Query)["m"];
+                if (string.IsNullOrEmpty(message)) {
+                    _logger.LogDebug("Url query param is null or empty");
+                    return BadRequest();
+                }
+
+                var jsonMessage = message.FromBase64();
+                if (string.IsNullOrEmpty(jsonMessage)) {
+                    _logger.LogDebug("JSON is null or empty");
+                    return BadRequest();
+                }
+
+                _logger.LogDebug($"Returning JSON");
+                Response.Headers.Add("Location", url);
+                return Content(jsonMessage, "application/json; charset=utf-8");
+            }
+
             _logger.LogDebug($"Redirecting to {url}");
             return Redirect(url);
         }
