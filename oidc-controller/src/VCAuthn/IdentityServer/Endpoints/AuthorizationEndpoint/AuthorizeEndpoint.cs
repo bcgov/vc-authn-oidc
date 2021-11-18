@@ -153,7 +153,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             string shortUrl;
             try
             {
-                var url = string.Format("{0}?m={1}", _configuration.GetSection("IdentityServer").GetValue<string>("PublicOrigin"), HttpUtility.UrlEncode(presentationRequest.ToJson().ToBase64(), Encoding.UTF8));
+                var url = string.Format("{0}?m={1}", _configuration.GetSection("IdentityServer").GetValue<string>("PublicOrigin"), HttpUtility.UrlEncode(presentationRequest.ToJson().ToBase64Url(), Encoding.UTF8));
                 shortUrl = await _urlShortenerService.CreateShortUrlAsync(url);
             }
             catch (Exception e)
