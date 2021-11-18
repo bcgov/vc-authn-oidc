@@ -70,29 +70,36 @@ namespace VCAuthn.Controllers
                 return NotFound();
             }
 
+            var uri = new UriBuilder(url);
+            var message = HttpUtility.ParseQueryString(uri.Query)["m"];
+            if (string.IsNullOrEmpty(message)) {
+                _logger.LogDebug("Url query param is null or empty");
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            // This is a hack in case URL messages were originally stored unencoded
+            // When URL messages are decoded '+' is converted to a space and must be converted back
+            var formattedMessage = message.Replace(" ", "+");
+            uri.Query = string.Format($"?m={formattedMessage}");
+            var formattedUrl = uri.ToString();
+
             Request.Headers.TryGetValue("Accept", out var accept);
             if (!StringValues.IsNullOrEmpty(accept) && ((ICollection<string>)accept).Contains("application/json"))
             {
-                var uri = new Uri(url);
-                var message = HttpUtility.ParseQueryString(uri.Query)["m"];
-                if (string.IsNullOrEmpty(message)) {
-                    _logger.LogDebug("Url query param is null or empty");
-                    return BadRequest();
-                }
 
-                var jsonMessage = message.FromBase64();
+                var jsonMessage = formattedMessage.FromBase64();
                 if (string.IsNullOrEmpty(jsonMessage)) {
                     _logger.LogDebug("JSON is null or empty");
                     return StatusCode(StatusCodes.Status500InternalServerError);
                 }
 
                 _logger.LogDebug($"Returning JSON");
-                Response.Headers.Add("Location", url);
+                Response.Headers.Add("Location", formattedUrl);
                 return Content(jsonMessage, "application/json; charset=utf-8");
             }
 
-            _logger.LogDebug($"Redirecting to {url}");
-            return Redirect(url);
+            _logger.LogDebug($"Redirecting to {formattedUrl}");
+            return Redirect(formattedUrl);
         }
     }
 }
