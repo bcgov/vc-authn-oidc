@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
+using System.Text;
+using System.Web;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.Configuration;
@@ -151,7 +153,7 @@ namespace VCAuthn.IdentityServer.Endpoints
             string shortUrl;
             try
             {
-                var url = string.Format("{0}?m={1}", _configuration.GetSection("IdentityServer").GetValue<string>("PublicOrigin"), presentationRequest.ToJson().ToBase64());
+                var url = string.Format("{0}?m={1}", _configuration.GetSection("IdentityServer").GetValue<string>("PublicOrigin"), HttpUtility.UrlEncode(presentationRequest.ToJson().ToBase64Url(), Encoding.UTF8));
                 shortUrl = await _urlShortenerService.CreateShortUrlAsync(url);
             }
             catch (Exception e)

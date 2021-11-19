@@ -1,3 +1,5 @@
+
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Text;
 using System;
@@ -21,6 +23,17 @@ namespace VCAuthn.Utils
         {
             byte[] stringBytes = Convert.FromBase64String(value);
             return Encoding.UTF8.GetString(stringBytes);
+        }
+
+        public static string ToBase64Url(this string value)
+        {
+            return Base64UrlEncoder.Encode(value);
+        }
+
+        public static string FromBase64Url(this string value)
+        {
+            return Base64UrlEncoder.Decode(value);
+
         }
     }
 }
