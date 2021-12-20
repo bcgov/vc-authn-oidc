@@ -6,7 +6,7 @@ This is a demo application that uses vc-authn-oidc as Identity Provider to acces
 
 ### Pre-Requisites
 
-This demo requires you to have a mobile wallet installed on your mobile phone. Visit this [page](https://github.com/bcgov/identity-kit-poc/blob/master/docs/GettingApp.md) for guidance on getting your own mobile wallet on iOS or Android.
+This demo requires you to have a mobile wallet installed on your mobile phone. Visit this [page](https://github.com/bcgov/identity-kit-poc/blob/main/docs/GettingApp.md) for guidance on getting your own mobile wallet on iOS or Android.
 
 Once you have the mobile app, you must obtain a `Verified Email` credential from this [Email Verification Service](https://email-verification.vonx.io). Instructions to do that are on the site.
 

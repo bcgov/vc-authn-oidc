@@ -41,7 +41,7 @@ Below are some abbreviations that are used throughout this document.
 | VC Presentation Response | A response made by an IdentityWallet presenting the credentials requested back to a OP                                                                                                          |
 | ID Token                 | An OIDC identity token emitted by an OP on successful authentication                                                                                                                            |
 | IAM                      | Identity and Access Management                                                                                                                                                                  |
-| DIDComm                  | An emerging messaging protocol based on DID infrastructure, see [here](https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0005-didcomm) for more details                            |
+| DIDComm                  | An emerging messaging protocol based on DID infrastructure, see [here](https://github.com/hyperledger/aries-rfcs/tree/main/concepts/0005-didcomm) for more details                            |
 | IW                       | IdentityWallet                                                                                                                                                                                  |
 | VC-PR                    | Verifiable Credential Presentation Request                                                                                                                                                      |
 | VC-P                     | Verifiable Credential Presentation                                                                                                                                                              |
@@ -200,12 +200,12 @@ Return : 404 Not Found
 
 ### Verifiable Credential Presentation DIDComm Messages
 
-The DIDComm protocol applicable to this integration is the [present proof protocol](https://github.com/hyperledger/aries-rfcs/tree/master/features/0037-present-proof)
+The DIDComm protocol applicable to this integration is the [present proof protocol](https://github.com/hyperledger/aries-rfcs/tree/main/features/0037-present-proof)
 
 For more background into DIDComm please refer to the following links
-    - [DIDComm](https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0005-didcomm)
-    - [DIDComm Message Anatomy](https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0021-didcomm-message-anatomy)
-    - [DIDComm Message Decorators](https://github.com/hyperledger/aries-rfcs/tree/master/concepts/0011-decorators)
+    - [DIDComm](https://github.com/hyperledger/aries-rfcs/tree/main/concepts/0005-didcomm)
+    - [DIDComm Message Anatomy](https://github.com/hyperledger/aries-rfcs/tree/main/concepts/0021-didcomm-message-anatomy)
+    - [DIDComm Message Decorators](https://github.com/hyperledger/aries-rfcs/tree/main/concepts/0011-decorators)
 
 The OP when presented with a valid OIDC VC-AuthN request will generate a verifiable credential presentation request from the configuration referenced in the request.
 
@@ -233,7 +233,7 @@ The OP when presented with a valid OIDC VC-AuthN request will generate a verifia
 }
 ```
 
-Note - The above request should use the [signed envelope](https://github.com/hyperledger/aries-rfcs/tree/master/features/0066-non-repudiable-cryptographic-envelope) format, where by the signer should be the public DID of the OP. This signed envelope should then be formatted to the defined URL format (TBA).
+Note - The above request should use the [signed envelope](https://github.com/hyperledger/aries-rfcs/tree/main/features/0066-non-repudiable-cryptographic-envelope) format, where by the signer should be the public DID of the OP. This signed envelope should then be formatted to the defined URL format (TBA).
 
 **Example Presentation From IW**
 
@@ -254,7 +254,7 @@ Note - The above request should use the [signed envelope](https://github.com/hyp
 }
 ```
 
-Note - the above response should use the [encryption envelope](https://github.com/hyperledger/aries-rfcs/tree/master/features/0019-encryption-envelope) format, using the `~service` decorator from the request to [prepare](https://github.com/hyperledger/aries-rfcs/blob/master/features/0056-service-decorator/README.md) the encrypted content.
+Note - the above response should use the [encryption envelope](https://github.com/hyperledger/aries-rfcs/tree/main/features/0019-encryption-envelope) format, using the `~service` decorator from the request to [prepare](https://github.com/hyperledger/aries-rfcs/blob/main/features/0056-service-decorator/README.md) the encrypted content.
 
 ### VC-AuthN Response
 
