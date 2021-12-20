@@ -14,7 +14,7 @@ APPLICATION_DOMAIN=agent-admgjk.pathfinder.gov.bc.ca
 # IMAGE_NAMESPACE=admgjk-tools
 TAG_NAME=prod
 # AGENT_LABEL_NAME=vc-authn-agent
-# WEBHOOK_URL=http://vc-authn-controller:5000
+# WEBHOOK_URL=http://vc-authn-controller:5001
 # AGENT_ADMIN_PORT=8024
 # ADMIN_API_KEY=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 # AGENT_HTTP_PORT=8021

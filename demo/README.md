@@ -35,7 +35,7 @@ Now we can start the services:
 Once the services are running, we will need to configure vc-authn-oidc so that it will request the `Verified Email` credential. To do this, execute the following command in another shell (you can use, as an example, shell number `2`):
 
 ```bash
-curl -X POST "http://localhost:5000/api/vc-configs" -H "accept: application/json" -H "X-Api-Key: controller-api-key" -H "Content-Type: application/json-patch+json" -d "{\"id\": \"verified-email\",\"subject_identifier\": \"email\", \"configuration\": { \"name\": \"verified-email\", \"version\": \"1.0\", \"requested_attributes\": [ { \"name\": \"email\", \"restrictions\": [ { \"schema_name\": \"verified-email\", \"issuer_did\": \"MTYqmTBoLT7KLP5RNfgK3b\" } ] } ], \"requested_predicates\": [] }}"
+curl -X POST "http://localhost:5001/api/vc-configs" -H "accept: application/json" -H "X-Api-Key: controller-api-key" -H "Content-Type: application/json-patch+json" -d "{\"id\": \"verified-email\",\"subject_identifier\": \"email\", \"configuration\": { \"name\": \"verified-email\", \"version\": \"1.0\", \"requested_attributes\": [ { \"name\": \"email\", \"restrictions\": [ { \"schema_name\": \"verified-email\", \"issuer_did\": \"MTYqmTBoLT7KLP5RNfgK3b\" } ] } ], \"requested_predicates\": [] }}"
 ```
 
 Additionally, we need to add the valid redirect URI for the test client to the vc-authn-oidc-controller database: a new entry should be created in the `ClientRedirectUris` table. To acquire the credentials to connect to to the database you can refer to the environment variables set in the `controller-db` section of the main [manage](../docker/manage) script, however the default parameters for the demo clients have been pre-configured for convenience.

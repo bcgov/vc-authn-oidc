@@ -85,7 +85,7 @@ services:
   controller:
     image: vc-authn-oidc-controller
     ports:
-      - "${IP:-0.0.0.0}:5000:80"
+      - "${IP:-0.0.0.0}:5001:80"
     environment:
       - ApiKey=${IDENTITY_SERVER_API_KEY}
       - SwaggerEnabled=${IDENTITY_SERVER_SWAGGER_ENABLED}
@@ -111,7 +111,7 @@ services:
   controller-dev:
     image: vc-authn-oidc-controller-dev
     ports:
-      - "${IP:-0.0.0.0}:5000:5000"
+      - "${IP:-0.0.0.0}:5001:5001"
     environment:
       - ApiKey=${IDENTITY_SERVER_API_KEY}
       - SwaggerEnabled=${IDENTITY_SERVER_SWAGGER_ENABLED}

@@ -27,10 +27,10 @@ To start the demo run the following commands from within the `docker` folder:
     ./manage start
 ```
 
-Once you have the service running, a presentation request configuration must be configured on the service. You can configure this through either browsing to the swagger interface [here](http://localhost:5000) or running the following curl command with a valid request body
+Once you have the service running, a presentation request configuration must be configured on the service. You can configure this through either browsing to the swagger interface [here](http://localhost:5001) or running the following curl command with a valid request body
 
 ```
-    curl -X POST "http://localhost:5000/api/vc-configs" -H "accept: application/json" -H "X-Api-Key: controller-api-key" -H "Content-Type: application/json-patch+json" -d "{ \"id\": \"test-request-config\", \"subject_identifier\": \"email\", \"configuration\": { \"name\": \"Basic Proof\", \"version\": \"1.0\", \"requested_attributes\": [ { \"name\": \"email\", \"restrictions\": [] }, { \"name\": \"first_name\", \"restrictions\": [] }, { \"name\": \"last_name\", \"restrictions\": [] } ], \"requested_predicates\": [] }}"
+    curl -X POST "http://localhost:5001/api/vc-configs" -H "accept: application/json" -H "X-Api-Key: controller-api-key" -H "Content-Type: application/json-patch+json" -d "{ \"id\": \"test-request-config\", \"subject_identifier\": \"email\", \"configuration\": { \"name\": \"Basic Proof\", \"version\": \"1.0\", \"requested_attributes\": [ { \"name\": \"email\", \"restrictions\": [] }, { \"name\": \"first_name\", \"restrictions\": [] }, { \"name\": \"last_name\", \"restrictions\": [] } ], \"requested_predicates\": [] }}"
 ```
 
 > The API is protected with an APIKey which defaults to `Test` in the demo
@@ -63,7 +63,7 @@ An example of a valid presentation request configuration is the following.
 }
 ```
 
-After configuring this, if you used the above presentation request configuration example, you can browse to keycloaks login page with this [link](http://localhost:5000/vc/connect/authorize?scope=openid+vc_authn&state=EI3kI8RFbpuIqZE_MEI0xsv18NjQOS1lkbrBtj3x2CE.wOX0F5IZd74.security-admin-console&response_type=code&client_id=keycloak&redirect_uri=http%3A%2F%2Flocalhost%3A8180%2Fauth%2Frealms%2Fvc-authn%2Fbroker%2Fvc-authn%2Fendpoint&nonce=eEJ7joxB5CC8j_LaOaw3Dg&pres_req_conf_id=test-request-config)
+After configuring this, if you used the above presentation request configuration example, you can browse to keycloaks login page with this [link](http://localhost:5001/vc/connect/authorize?scope=openid+vc_authn&state=EI3kI8RFbpuIqZE_MEI0xsv18NjQOS1lkbrBtj3x2CE.wOX0F5IZd74.security-admin-console&response_type=code&client_id=keycloak&redirect_uri=http%3A%2F%2Flocalhost%3A8180%2Fauth%2Frealms%2Fvc-authn%2Fbroker%2Fvc-authn%2Fendpoint&nonce=eEJ7joxB5CC8j_LaOaw3Dg&pres_req_conf_id=test-request-config)
 
 From here you can click the `vc-authn` option to try out the flow. Clicking this should redirect your browser to the VC-Authn service and display a QR-Code base challenge.
 
