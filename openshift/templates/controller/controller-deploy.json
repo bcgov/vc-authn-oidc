@@ -83,7 +83,7 @@
                 "name": "${PREFIX}${NAME}",
                 "ports": [
                   {
-                    "containerPort": 5001,
+                    "containerPort": 5000,
                     "protocol": "TCP"
                   }
                 ],
@@ -235,7 +235,7 @@
         "ports": [
           {
             "name": "${PREFIX}${NAME}",
-            "port": 5001,
+            "port": 5000,
             "protocol": "TCP",
             "targetPort": 8080
           }
