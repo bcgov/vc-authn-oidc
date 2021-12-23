@@ -38,7 +38,7 @@ namespace VCAuthn.Models
     }
 
     /**
-      * See https://github.com/hyperledger/aries-rfcs/tree/master/features/0037-present-proof#request-presentation
+      * See https://github.com/hyperledger/aries-rfcs/tree/main/features/0037-present-proof#request-presentation
       * for RFC spec.
       */ 
     class PresentationRequest_v_1_0

@@ -2,11 +2,11 @@
 
 This is a demo application that uses vc-authn-oidc as Identity Provider to access a web resource directly, without requiring the use of third-party Access and Identity Management solutions.
 
-These instructions guide you through running this demo using [Play with Docker](https://labs.play-with-docker.com/). Not familiar with Play with Docker?  Read [this](https://github.com/cloudcompass/ToIPLabs/blob/master/docs/LFS173x/RunningLabs.md#running-on-play-with-docker) for information about Play with Docker and how to use it.
+These instructions guide you through running this demo using [Play with Docker](https://labs.play-with-docker.com/). Not familiar with Play with Docker?  Read [this](https://github.com/cloudcompass/ToIPLabs/blob/main/docs/LFS173x/RunningLabs.md#running-on-play-with-docker) for information about Play with Docker and how to use it.
 
 ## Prerequisites
 
-This demo requires you to have a mobile wallet installed on your mobile phone. Visit this [page](https://github.com/bcgov/identity-kit-poc/blob/master/docs/GettingApp.md) for guidance on getting your own mobile wallet on iOS or Android.
+This demo requires you to have a mobile wallet installed on your mobile phone. Visit this [page](https://github.com/bcgov/identity-kit-poc/blob/main/docs/GettingApp.md) for guidance on getting your own mobile wallet on iOS or Android.
 
 Once you have the mobile app, you must obtain a `Verified Email` credential from this [Email Verification Service](https://email-verification.vonx.io). Instructions to do that are on the site.
 
