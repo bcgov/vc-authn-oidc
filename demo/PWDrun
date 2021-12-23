@@ -15,7 +15,7 @@ fi
 myhost=`ifconfig ${ETH_CONFIG} | grep inet | cut -d':' -f2 | cut -d' ' -f1 | sed 's/\./\-/g'`
 export DEMO_APP_URL="http://ip${myhost}-${SESSION_ID}-8080.direct.${PWD_HOST_FQDN}"
 export NGROK_AGENT_URL="http://ip${myhost}-${SESSION_ID}-5679.direct.${PWD_HOST_FQDN}"
-export NGROK_CONTROLLER_URL="http://ip${myhost}-${SESSION_ID}-5000.direct.${PWD_HOST_FQDN}"
+export NGROK_CONTROLLER_URL="http://ip${myhost}-${SESSION_ID}-5001.direct.${PWD_HOST_FQDN}"
 
 echo Get S2I
 curl -L https://github.com/openshift/source-to-image/releases/download/v1.2.0/source-to-image-v1.2.0-2a579ecd-linux-amd64.tar.gz | tar -xz -C /usr/local/bin
