@@ -114,7 +114,7 @@
       "displayName": "Git Reference",
       "description": "The git reference or branch.",
       "required": true,
-      "value": "master"
+      "value": "main"
     },
     {
       "name": "SOURCE_CONTEXT_DIR",

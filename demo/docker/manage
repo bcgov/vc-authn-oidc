@@ -258,7 +258,7 @@ configureEnvironment() {
   export DJANGO_ADMIN_USER="admin"
   export DJANGO_ADMIN_PASSWORD="admin"
   export DJANGO_ADMIN_EMAIL="noreply@example.com"
-  export OIDC_RP_PROVIDER_ENDPOINT="${NGROK_CONTROLLER_URL:-http://DOCKERHOST:5000}"
+  export OIDC_RP_PROVIDER_ENDPOINT="${NGROK_CONTROLLER_URL:-http://DOCKERHOST:5001}"
   export OIDC_RP_CLIENT_ID="django-oidc-demo"
   export OIDC_RP_CLIENT_SECRET="django-oidc-demo"
   export OIDC_RP_SCOPES="openid profile vc_authn"

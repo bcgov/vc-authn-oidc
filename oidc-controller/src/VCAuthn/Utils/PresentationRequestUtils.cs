@@ -77,7 +77,7 @@ namespace VCAuthn.Utils
         /// <summary> Utility function that extracts the first Indy <c>Presentationrequest</c> object found
         /// in the provided list of <c>PresentationAttachment</c> objects. The Indy <c>Presentationrequest</c>
         /// is identified by <c>"@id": "libindy-request-presentation-0"</c>, as specified in the Aries RFC 0037.
-        /// <see cref="https://github.com/hyperledger/aries-rfcs/tree/master/features/0037-present-proof#request-presentation"/> 
+        /// <see cref="https://github.com/hyperledger/aries-rfcs/tree/main/features/0037-present-proof#request-presentation"/> 
         /// </summary>
         public static PresentationRequest ExtractIndyPresentationRequest(this List<PresentationAttachment> presentationAttachments)
         {

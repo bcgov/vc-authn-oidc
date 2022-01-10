@@ -2,11 +2,11 @@
 
 This is a demo application that uses vc-authn-oidc as Identity Provider to access a web resource directly, without requiring the use of third-party Access and Identity Management solutions.
 
-These instructions guide you through running this demo using [Play with Docker](https://labs.play-with-docker.com/). Not familiar with Play with Docker?  Read [this](https://github.com/cloudcompass/ToIPLabs/blob/master/docs/LFS173x/RunningLabs.md#running-on-play-with-docker) for information about Play with Docker and how to use it.
+These instructions guide you through running this demo using [Play with Docker](https://labs.play-with-docker.com/). Not familiar with Play with Docker?  Read [this](https://github.com/cloudcompass/ToIPLabs/blob/main/docs/LFS173x/RunningLabs.md#running-on-play-with-docker) for information about Play with Docker and how to use it.
 
 ## Prerequisites
 
-This demo requires you to have a mobile wallet installed on your mobile phone. Visit this [page](https://github.com/bcgov/identity-kit-poc/blob/master/docs/GettingApp.md) for guidance on getting your own mobile wallet on iOS or Android.
+This demo requires you to have a mobile wallet installed on your mobile phone. Visit this [page](https://github.com/bcgov/identity-kit-poc/blob/main/docs/GettingApp.md) for guidance on getting your own mobile wallet on iOS or Android.
 
 Once you have the mobile app, you must obtain a `Verified Email` credential from this [Email Verification Service](https://email-verification.vonx.io). Instructions to do that are on the site.
 
@@ -14,7 +14,7 @@ Once you have the mobile app, you must obtain a `Verified Email` credential from
 
 To run the demo service, start up a [Play with Docker](https://labs.play-with-docker.com/) terminal session and run the following commands. Copying and pasting (right-click Paste) into the terminal session is easiest.
 
-```
+``` bash
 git clone https://github.com/bcgov/vc-authn-oidc
 cd vc-authn-oidc
 cd demo
@@ -36,7 +36,7 @@ Once you are on the website, click the `Authenticate` link. The Identity Provide
 
 If you want, in the `demo` folder (same as the script that runs everything) is a file `presentationRequest.json`. You can edit that to change the presentation request to anything you want. This is a good way to test presentation requests. On Play with Docker you can use either `vi` or a GUI editor (click `Editor` in the header and enlarge the resulting window) to edit the file. Once you have updated the Presentation Request you can run:
 
-```
+``` bash
 ./updatePresentation presentationRequest.json
 
 ```
@@ -45,7 +45,7 @@ If you want, in the `demo` folder (same as the script that runs everything) is a
 
 Once you are finished with the demo you can just close the Play with Docker session. If you want to stop and restart the demo, then you can use the command:
 
-```
+``` bash
 ./PWDdown
 
 ```

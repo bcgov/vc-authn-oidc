@@ -6,7 +6,7 @@ The premise of the demo is that you first get a verifiable credential from an ap
 
 ## Get a compatible mobile agent
 
-The demo supports the identity agent app from [Streetcred.id](https://Streetcred.id) for iOS and Android. There is some setup special setup needed for the Streetcred agent. Please follow the instructions [here](https://github.com/bcgov/identity-kit-poc/blob/master/docs/GettingApp.md) to setup the agent and then return back here for the rest of the instructions.
+The demo supports the identity agent app from [trinsic.id](https://trinsic.id) for iOS and Android. There is some setup special setup needed for the Trinsic agent. Please follow the instructions [here](https://github.com/bcgov/identity-kit-poc/blob/main/docs/GettingApp.md) to setup the agent and then return back here for the rest of the instructions.
 
 **Are you a mobile agent builder?** We'd love to work with you to get your implementation working with the [vc-authn-oidc](https://github.com/bcgov/vc-authn-oidc) identity provider. If you are testing with our deployed service and have questions, please contact us on the #aries channel on [Hyperledger Rocketchat](https://chat.hyperledger.org) (you will need a free [Linux Foundation account](https://identity.linuxfoundation.org/user) to access that channel), or email us [here](mailto:swcurran@cloudcompass.ca).
 
