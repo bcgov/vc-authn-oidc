@@ -1,4 +1,6 @@
-# Deploying To Openshift
+# Deploying `vc-authn-oidc` To Openshift
+
+OpenShift build and deployment configurations for this project are maintained in [Trust Over IP Configurations](https://github.com/bcgov/trust-over-ip-configurations)
 
 ## Post-Deployment Tweaks
 
