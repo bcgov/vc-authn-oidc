@@ -1,0 +1,4 @@
+# These users will be the default owners for everything in the repo.
+# Unless a later match takes precedence, the following users will be
+# requested for review when someone opens a pull request.
+* @jujaga @kamorel @TimCsaky

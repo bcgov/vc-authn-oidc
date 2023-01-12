@@ -1,0 +1,84 @@
+---
+apiVersion: v1
+kind: Template
+labels:
+  build: "${REPO_NAME}-app"
+  template: "${REPO_NAME}-app-bc-template"
+metadata:
+  name: "${REPO_NAME}-app-bc"
+objects:
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      name: "${REPO_NAME}-app"
+    spec:
+      lookupPolicy:
+        local: false
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      name: "${REPO_NAME}-app-${JOB_NAME}"
+    spec:
+      completionDeadlineSeconds: 600
+      failedBuildsHistoryLimit: 3
+      nodeSelector:
+      output:
+        to:
+          kind: ImageStreamTag
+          name: "${REPO_NAME}-app:latest"
+      postCommit: {}
+      resources:
+        requests:
+          cpu: 2000m
+          memory: 1Gi
+        limits:
+          cpu: 4000m
+          memory: 6Gi
+      runPolicy: SerialLatestOnly
+      source:
+        contextDir: app
+        git:
+          ref: "${SOURCE_REPO_REF}"
+          uri: "${SOURCE_REPO_URL}"
+        type: Git
+        dockerfile: |-
+          FROM BuildConfig
+          ENV NO_UPDATE_NOTIFIER=true
+          WORKDIR /opt/app-root/src
+          COPY . .
+          RUN npm run all:ci \
+           && npm run all:build \
+           && npm run frontend:purge
+          EXPOSE 8000
+          CMD ["npm", "run", "start"]
+      strategy:
+        dockerStrategy:
+          env:
+            - name: FRONTEND_BASEPATH
+              value: "${ROUTE_PATH}"
+          from:
+            kind: DockerImage
+            name: docker.io/node:16.15.0-alpine
+        type: Docker
+      successfulBuildsHistoryLimit: 3
+parameters:
+  - name: REPO_NAME
+    description: Application repository name
+    displayName: Repository Name
+    required: true
+  - name: ROUTE_PATH
+    description: Configure the route path (ex. /pr-5 or /app), also used for FRONTEND_BASEPATH
+    displayName: Route path
+    required: true
+  - name: JOB_NAME
+    description: Job identifier (i.e. 'pr-5' OR 'master')
+    displayName: Job Branch Name
+    required: true
+  - name: SOURCE_REPO_REF
+    description: Git Pull Request Reference (i.e. 'pull/CHANGE_ID/head')
+    displayName: Source Repository Reference
+    required: true
+  - name: SOURCE_REPO_URL
+    description: Git Repository URL
+    displayName: Source Repository URL
+    required: true
