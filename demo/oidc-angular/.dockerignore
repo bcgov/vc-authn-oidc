@@ -1,7 +1,0 @@
-node_modules
-dist
-tmp_data
-
-package-lock.json
-
-.DS_Store
