@@ -1,7 +1,7 @@
 import logging, base64, io
 
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from oic.oic.message import (
     AuthorizationRequest,
     AccessTokenRequest,
@@ -102,9 +102,11 @@ async def get_authorize(
         setInterval(function() {{
             fetch('{controller_host}/vc/connect{ChallengePollUri}/{auth_session.pres_exch_id}')
                 .then(response => response.json())
-                .then(data => console.log(data))
-                .catch(err => console.log(err));
-        }}, 5000);
+                .then(data => {{if (data.verified) {{
+                        window.location.replace('{controller_host}/vc/connect{AuthorizeCallbackUri}?pid={auth_session.uuid}', {{method: 'POST'}});
+                    }}
+                }})
+        }}, 2000);
 
         </script>
         <head>
@@ -126,7 +128,7 @@ async def get_authorize(
     """
 
 
-@router.get(AuthorizeCallbackUri, response_class=HTMLResponse)
+@router.get(AuthorizeCallbackUri, response_class=RedirectResponse)
 async def get_authorize_callback(
     request: Request,
     pid: str,
@@ -148,17 +150,7 @@ async def get_authorize_callback(
         + "&state="
         + str(auth_session.request_parameters["state"])
     )
-    return f"""
-    <html>
-        <head>
-            <title>Resulting redirect</title>
-        </head>
-        <body>
-            <p>The presentation is {"" if auth_session.verified else "NOT"} VERIFIED</p>
-            <a href="{url}">{url}</a>
-        </body>
-    </html>
-    """
+    return RedirectResponse(url)
 
 
 @router.post(VerifiedCredentialTokenUri)
