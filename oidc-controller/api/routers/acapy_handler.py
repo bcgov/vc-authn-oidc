@@ -17,7 +17,7 @@ async def _parse_webhook_body(request: Request):
     return json.loads((await request.body()).decode("ascii"))
 
 
-@router.post("/topic/{topic}/")
+@router.post("/topic/{topic}")
 async def post_topic(
     request: Request,
     topic: str,
