@@ -18,8 +18,11 @@ class EnvironmentEnum(str, Enum):
 
 
 class GlobalConfig(BaseSettings):
-    TITLE: str = "Traction"
-    DESCRIPTION: str = "A digital wallet solution for organizations"
+    TITLE: str = os.environ.get("CONTROLLER_APP_TITLE", "vc-authn-oidc Controller")
+    DESCRIPTION: str = os.environ.get(
+        "CONTROLLER_APP_DESCRIPTION",
+        "An oidc authentication solution for verification credentials",
+    )
 
     ENVIRONMENT: EnvironmentEnum
     DEBUG: bool = False
