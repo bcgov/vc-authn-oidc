@@ -1,0 +1,355 @@
+#!/bin/bash
+export MSYS_NO_PATHCONV=1
+# getDockerHost; for details refer to https://github.com/bcgov/DITP-DevOps/tree/main/code/snippets#getdockerhost
+. /dev/stdin <<<"$(cat <(curl -s --raw https://raw.githubusercontent.com/bcgov/DITP-DevOps/main/code/snippets/getDockerHost))" 
+export DOCKERHOST=$(getDockerHost)
+set -e
+
+function echoError (){
+  _msg=${1}
+  _red='\e[31m'
+  _nc='\e[0m' # No Color
+  echo -e "${_red}${_msg}${_nc}"
+}
+
+function echoWarning (){
+  _msg=${1}
+  _yellow='\e[33m'
+  _nc='\e[0m' # No Color
+  echo -e "${_yellow}${_msg}${_nc}"
+}
+
+function isInstalled () {
+  rtnVal=$(type "$1" >/dev/null 2>&1)
+  rtnCd=$?
+  if [ ${rtnCd} -ne 0 ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+function isS2iInstalled () {
+  S2I_EXE=s2i
+  if ! isInstalled ${S2I_EXE}; then
+    echoError "The ${S2I_EXE} executable is needed and not on your path."
+    echoError "It can be downloaded from here: https://github.com/openshift/source-to-image/releases"
+    echoError "Make sure you extract the binary and place it in a directory on your path."
+    exit 1
+  fi
+}
+
+function isCurlInstalled () {
+  CURL_EXE=curl
+  if ! isInstalled ${CURL_EXE}; then
+    echoError "The ${CURL_EXE} executable is required and was not found on your path."
+    echoError "If your shell of choice doesn't come with curl preinstalled, try installing it using either [Homebrew](https://brew.sh/) (MAC) or [Chocolatey](https://chocolatey.org/) (Windows)."
+    exit 1
+  fi
+}
+
+function isJQInstalled () {
+  JQ_EXE=jq
+  if ! isInstalled ${JQ_EXE}; then
+    echoError "The ${JQ_EXE} executable is required and was not found on your path."
+    echoError "Installation instructions can be found here: https://stedolan.github.io/jq/download"
+    echoError "Alternatively, a package manager such as Chocolatey (Windows) or Brew (Mac) can be used to install this dependecy."
+    exit 1
+  fi
+}
+
+function isNgrokInstalled () {
+  NGROK_EXE=ngrok
+  if ! isInstalled ${NGROK_EXE}; then
+    echoError "The ${NGROK_EXE} executable is needed and not on your path."
+    echoError "It can be downloaded from here: https://ngrok.com/download"
+    echoError "Alternatively, a package manager such as Chocolatey (Windows) or Brew (Mac) can be used to install this dependecy."
+    exit 1
+  fi
+}
+
+SCRIPT_HOME="$(cd "$(dirname "$0")" && pwd)"
+
+# =================================================================================================================
+# Usage:
+# -----------------------------------------------------------------------------------------------------------------
+usage() {
+  cat <<-EOF
+    
+      Usage: $0 [command] [options]
+    
+      Commands:
+    
+      build - Build the docker images for the project.
+              You need to do this first.
+    
+                $0 build 
+    
+      up -  Creates the application containers from the built images
+            and starts the services based on the docker-compose.yml file.
+
+            You can pass in a list of containers to start.  
+            By default all containers will be started.
+
+              $0 start
+
+      start - Same as up.
+
+      start-dev - Starts in development mode, with hot-reloading enabled for the controller.
+
+      start-demo - Starts in demo mode.
+
+      logs - Display the logs from the docker compose run (ctrl-c to exit).
+
+      stop - Stops the services.  This is a non-destructive process.  The volumes and containers
+             are not deleted so they will be reused the next time you run start.
+    
+      down - Brings down the services and removes the volumes (storage) and containers.
+      
+      rm - Same as down
+EOF
+  exit 1
+}
+# -----------------------------------------------------------------------------------------------------------------
+# Default Settings:
+# -----------------------------------------------------------------------------------------------------------------
+DEFAULT_CONTAINERS="keycloak controller-db aca-py wallet-db"
+PROD_CONTAINERS="controller"
+DEV_CONTAINERS="controller-dev"
+# -----------------------------------------------------------------------------------------------------------------
+# Functions:
+# -----------------------------------------------------------------------------------------------------------------
+
+build-oidc-controller() {
+  #
+  # oidc-controller
+  #
+  echo -e "\nBuilding oidc-controller image..."
+  docker build \
+    -t 'vc-authn-oidc-controller' \
+    -f './oidc-controller/Dockerfile' '..'
+}
+
+build-oidc-controller-dev() {
+  #
+  # oidc-controller
+  #
+  echo -e "\nBuilding oidc-controller development image..."
+  docker build \
+    -t 'vc-authn-oidc-controller-dev' \
+    -f './oidc-controller/Dockerfile.dev' '..'
+}
+
+buildImages() {
+  build-oidc-controller
+}
+
+configureEnvironment() {
+
+  if [ -f .env ]; then
+    while read line; do
+      if [[ ! "$line" =~ ^\# ]] && [[ "$line" =~ .*= ]]; then
+        export ${line//[$'\r\n']}
+      fi
+    done <.env
+  fi
+
+  for arg in $@; do
+    case "$arg" in
+      *=*)
+        export ${arg}
+        ;;
+    esac
+  done
+
+  export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn-oidc}"
+
+  # export STI_SCRIPTS_PATH=${STI_SCRIPTS_PATH:-/usr/libexec/s2i}
+
+  # re-map ngrok endpoints to internal environment variables
+  AGENT_ENDPOINT=${AGENT_ENDPOINT:-$NGROK_AGENT_URL}
+  IDENTITY_SERVER_URL=${IDENTITY_SERVER_URL:-$NGROK_CONTROLLER_URL}
+
+  # controller-db
+  export POSTGRESQL_DATABASE="IDENTITY_DB"
+  export POSTGRESQL_USER="DB_USER"
+  export POSTGRESQL_PASSWORD="DB_PASSWORD"
+  export POSTGRESQL_ADMIN_PASSWORD="DB_ADMIN"
+  export DATABASE_PORT="5432"
+
+  # controller
+  export IDENTITY_SERVER_URL="${IDENTITY_SERVER_URL:-http://localhost:5001}"
+  export IDENTITY_SERVER_POLL_INTERVAL=2000
+  export IDENTITY_SERVER_API_KEY="controller-api-key"
+  export IDENTITY_SERVER_WEB_HOOK_URL=${IDENTITY_SERVER_WEB_HOOK_URL:-http://$DOCKERHOST:5001}
+  export IDENTITY_SERVER_SWAGGER_ENABLED=true
+  if [ ! -z "${IDENTITY_SERVER_API_KEY}" ]; then
+    IDENTITY_SERVER_WEB_HOOK_URL="${IDENTITY_SERVER_WEB_HOOK_URL}/${IDENTITY_SERVER_API_KEY}"
+  fi
+
+  # aca-py
+  export AGENT_NAME="vc-oidc-controller-agent"
+  export AGENT_HTTP_PORT="5679"
+  export AGENT_ADMIN_PORT="5678"
+  export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$DOCKERHOST:$AGENT_HTTP_PORT}
+  export ACAPY_ADMIN_URL="http://aca-py:${AGENT_ADMIN_PORT}"
+  export ACAPY_AGENT_URL="${AGENT_ENDPOINT:-http://aca-py:$AGENT_HTTP_PORT}"
+  export GENESIS_URL="${GENESIS_URL:-http://$DOCKERHOST:9000/genesis}"
+  export AGENT_SEED="000000000000000000000000Steward1"
+  export ACAPY_ADMIN_URL_API_KEY=${ACAPY_ADMIN_URL_API_KEY}
+  export ACAPY_ADMIN_MODE="admin-insecure-mode"
+  if [ ! -z "${ACAPY_ADMIN_URL_API_KEY}" ]; then
+    ACAPY_ADMIN_MODE="admin-api-key ${ACAPY_ADMIN_URL_API_KEY}"
+  fi
+
+  # wallet-db
+  export WALLET_TYPE="postgres_storage"
+  export WALLET_ENCRYPTION_KEY="key"
+  export POSTGRESQL_WALLET_HOST="wallet-db"
+  export POSTGRESQL_WALLET_PORT="5432"
+  export POSTGRESQL_WALLET_DATABASE="wallet_db"
+  export POSTGRESQL_WALLET_USER="walletuser"
+  export POSTGRESQL_WALLET_PASSWORD="walletpassword"
+  export POSTGRESQL_WALLET_ADMIN_USER="postgres"
+  export POSTGRESQL_WALLET_ADMIN_PASSWORD="mysecretpassword"
+
+  # keycloak-db
+  export KEYCLOAK_DB_NAME="keycloak"
+  export KEYCLOAK_DB_USER="keycloak"
+  export KEYCLOAK_DB_PASSWORD="keycloak"
+
+  # keycloak
+  export KEYCLOAK_DB_VENDOR="POSTGRES"
+  export KEYCLOAK_DB_ADDR="keycloak-db"
+  export KEYCLOAK_USER="admin"
+  export KEYCLOAK_PASSWORD="admin"
+  export KEYCLOAK_IMPORT="/tmp/master.json"
+  export KEYCLOAK_LOGLEVEL="WARN"
+  export KEYCLOAK_ROOT_LOGLEVEL="WARN"
+}
+
+getStartupParams() {
+  CONTAINERS=""
+  ARGS="--force-recreate"
+
+  for arg in $@; do
+    case "$arg" in
+    *=*)
+      # Skip it
+      ;;
+    -*)
+      ARGS+=" $arg"
+      ;;
+    *)
+      CONTAINERS+=" $arg"
+      ;;
+    esac
+  done
+
+  if [ -z "$CONTAINERS" ]; then
+    CONTAINERS="$DEFAULT_CONTAINERS"
+  fi
+
+  echo ${ARGS} ${CONTAINERS}
+}
+
+deleteVolumes() {
+  _projectName=${COMPOSE_PROJECT_NAME:-docker}
+
+  echo "Stopping and removing any running containers ..."
+  docker-compose down -v
+
+  _pattern="^${_projectName}_\|^docker_"
+  _volumes=$(docker volume ls -q | grep ${_pattern})
+
+  if [ ! -z "${_volumes}" ]; then
+    echo "Removing project volumes ..."
+    echo ${_volumes} | xargs docker volume rm
+  else
+    echo "No project volumes exist."
+  fi
+}
+
+toLower() {
+  echo $(echo ${@} | tr '[:upper:]' '[:lower:]')
+}
+# =================================================================================================================
+
+pushd ${SCRIPT_HOME} >/dev/null
+COMMAND=$(toLower ${1})
+shift || COMMAND=usage
+
+case "${COMMAND}" in
+start|up)
+  unset NGROK_AGENT_URL
+  unset NGROK_CONTROLLER_URL
+  unset GENESIS_URL
+
+  _startupParams=$(getStartupParams $@)
+  configureEnvironment $@
+  docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${PROD_CONTAINERS}
+  docker-compose logs -f
+ ;;
+start-dev)
+  unset NGROK_AGENT_URL
+  unset NGROK_CONTROLLER_URL
+  unset GENESIS_URL
+
+  # build development image 
+  build-oidc-controller-dev
+
+  _startupParams=$(getStartupParams $@)
+  configureEnvironment $@
+  docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${DEV_CONTAINERS}
+  docker-compose logs -f
+ ;;
+start-demo)
+  isJQInstalled
+
+  # Set environment variables
+  if [ -z "$NGROK_AGENT_URL" ]; then
+    isCurlInstalled
+    isNgrokInstalled
+    export NGROK_AGENT_URL=$(${CURL_EXE} http://localhost:4040/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-agent"))) | .[0] | .public_url')
+  fi
+  if [ -z "$NGROK_CONTROLLER_URL" ]; then
+    isCurlInstalled
+    isNgrokInstalled
+    export NGROK_CONTROLLER_URL=$(${CURL_EXE} http://localhost:4040/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-controller"))) | .[0] | .public_url')
+  fi
+  export GENESIS_URL="https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_sandbox_genesis"
+
+  if [ -z "$NGROK_AGENT_URL" ] || [ -z "$NGROK_CONTROLLER_URL" ]; then
+    echoError "The NGROK_AGENT_URL or NGROK_CONTROLLER_URL have not been set."
+    exit 1
+  fi
+
+  echo "Running in demo mode, will use ${GENESIS_URL} to fetch the genesis transaction, ${NGROK_AGENT_URL} for the agent and ${NGROK_CONTROLLER_URL} for the controller."
+
+  _startupParams=$(getStartupParams $@)
+  configureEnvironment $@
+  docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${PROD_CONTAINERS}
+ ;;
+logs)
+  configureEnvironment $@
+  docker-compose logs -f
+  ;;
+stop)
+  configureEnvironment
+  docker-compose stop 
+  ;;
+rm|down)
+  configureEnvironment
+  deleteVolumes
+  ;;
+build)
+  _startupParams=$(getStartupParams $@)
+  configureEnvironment $@
+  buildImages
+  ;;
+*)
+  usage
+  ;;
+esac
+
+popd >/dev/null
