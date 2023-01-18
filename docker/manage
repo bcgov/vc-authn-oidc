@@ -284,44 +284,47 @@ start|up)
   docker-compose logs -f
  ;;
 start-dev)
-  unset NGROK_AGENT_URL
-  unset NGROK_CONTROLLER_URL
-  unset GENESIS_URL
+  echo "start-dev command is not configured yet"
+  # unset NGROK_AGENT_URL
+  # unset NGROK_CONTROLLER_URL
+  # unset GENESIS_URL
 
-  # build development image 
-  build-oidc-controller-dev
+  # # build development image 
+  # build-oidc-controller-dev
 
-  _startupParams=$(getStartupParams $@)
-  configureEnvironment $@
-  docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${DEV_CONTAINERS}
-  docker-compose logs -f
+  # _startupParams=$(getStartupParams $@)
+  # configureEnvironment $@
+  # docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${DEV_CONTAINERS}
+  # docker-compose logs -f
  ;;
 start-demo)
-  isJQInstalled
+  echo "start-demo command is not configured yet"
 
-  # Set environment variables
-  if [ -z "$NGROK_AGENT_URL" ]; then
-    isCurlInstalled
-    isNgrokInstalled
-    export NGROK_AGENT_URL=$(${CURL_EXE} ${ACAPY_NGROK_TUNNEL_HOST}/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-agent"))) | .[0] | .public_url')
-  fi
-  if [ -z "$NGROK_CONTROLLER_URL" ]; then
-    isCurlInstalled
-    isNgrokInstalled
-    export NGROK_CONTROLLER_URL=$(${CURL_EXE} http://controller-ngrok:4040/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-controller"))) | .[0] | .public_url')
-  fi
-  export GENESIS_URL="https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_sandbox_genesis"
+  # isJQInstalled
 
-  if [ -z "$NGROK_AGENT_URL" ] || [ -z "$NGROK_CONTROLLER_URL" ]; then
-    echoError "The NGROK_AGENT_URL or NGROK_CONTROLLER_URL have not been set."
-    exit 1
-  fi
+  # # Set environment variables
+  # if [ -z "$NGROK_AGENT_URL" ]; then
+  #   isCurlInstalled
+  #   isNgrokInstalled
+  #   export NGROK_AGENT_URL=$(${CURL_EXE} ${ACAPY_NGROK_TUNNEL_HOST}/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-agent"))) | .[0] | .public_url')
+  # fi
+  # if [ -z "$NGROK_CONTROLLER_URL" ]; then
+  #   isCurlInstalled
+  #   isNgrokInstalled
+  #   export NGROK_CONTROLLER_URL=$(${CURL_EXE} http://controller-ngrok:4040/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-controller"))) | .[0] | .public_url')
+  # fi
+  # export GENESIS_URL="https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_sandbox_genesis"
 
-  echo "Running in demo mode, will use ${GENESIS_URL} to fetch the genesis transaction, ${NGROK_AGENT_URL} for the agent and ${NGROK_CONTROLLER_URL} for the controller."
+  # if [ -z "$NGROK_AGENT_URL" ] || [ -z "$NGROK_CONTROLLER_URL" ]; then
+  #   echoError "The NGROK_AGENT_URL or NGROK_CONTROLLER_URL have not been set."
+  #   exit 1
+  # fi
 
-  _startupParams=$(getStartupParams $@)
-  configureEnvironment $@
-  docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${PROD_CONTAINERS}
+  # echo "Running in demo mode, will use ${GENESIS_URL} to fetch the genesis transaction, ${NGROK_AGENT_URL} for the agent and ${NGROK_CONTROLLER_URL} for the controller."
+
+  # _startupParams=$(getStartupParams $@)
+  # configureEnvironment $@
+  # docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${PROD_CONTAINERS}
  ;;
 logs)
   configureEnvironment $@
