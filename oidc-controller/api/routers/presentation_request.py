@@ -41,6 +41,7 @@ async def send_connectionless_proof_req(
     byo_attachment = PresentProofv10Attachment.build(
         auth_session.presentation_exchange["presentation_request"]
     )
+    # TODO Change this message type to OOB Protocol.
     msg = PresentationRequestMessage(
         id=auth_session.presentation_exchange["thread_id"],
         request=[byo_attachment],
