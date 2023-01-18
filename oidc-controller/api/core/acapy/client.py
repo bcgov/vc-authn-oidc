@@ -19,7 +19,7 @@ class AcapyClient:
     wallet_key = settings.ACAPY_WALLET_KEY
     acapy_host = settings.ACAPY_ADMIN_URL
     acapy_admin_api_key = settings.ACAPY_ADMIN_URL_API_KEY
-    service_endpoint = settings.ACAPY_PUBLIC_SERVICE_URL
+    service_endpoint = settings.ACAPY_AGENT_URL
 
     wallet_token: str = None
 

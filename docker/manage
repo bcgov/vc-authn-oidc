@@ -171,14 +171,15 @@ configureEnvironment() {
   IDENTITY_SERVER_URL=${IDENTITY_SERVER_URL:-$NGROK_CONTROLLER_URL}
 
   # controller-db
-  export POSTGRESQL_DATABASE="IDENTITY_DB"
-  export POSTGRESQL_USER="DB_USER"
-  export POSTGRESQL_PASSWORD="DB_PASSWORD"
-  export POSTGRESQL_ADMIN_PASSWORD="DB_ADMIN"
-  export POSTGRESQL_PORT="5432"
+  export POSTGRESQL_HOST="controller-db"
+  export POSTGRESQL_PORT=5432
+  export POSTGRESQL_DB="oidccontroller"
+  export POSTGRESQL_USER="postgres"
+  export POSTGRESQL_PASSWORD="postgresPass"
 
   # controller
-  export IDENTITY_SERVER_URL="${IDENTITY_SERVER_URL:-http://localhost:5001}"
+  export CONTROLLER_URL="${IDENTITY_SERVER_URL:-http://localhost:5021}"
+  export CONTROLLER_NGROK="http://controller-ngrok:4040"
   export IDENTITY_SERVER_POLL_INTERVAL=2000
   export IDENTITY_SERVER_API_KEY="controller-api-key"
   export IDENTITY_SERVER_WEB_HOOK_URL=${IDENTITY_SERVER_WEB_HOOK_URL:-http://$DOCKERHOST:5001}
@@ -187,17 +188,20 @@ configureEnvironment() {
     IDENTITY_SERVER_WEB_HOOK_URL="${IDENTITY_SERVER_WEB_HOOK_URL}/${IDENTITY_SERVER_API_KEY}"
   fi
 
-  # aca-py
+  # aca-py config
   export ACAPY_HOST="http://traction-agent"
   export ACAPY_WALLET_ID="ece83a72-81df-40b0-b770-9a55d92b254d"
-  export AGENT_NAME="vc-oidc-controller-agent"
+
+  export ACAPY_ADMIN_URL_API_KEY="change-me"
+
+  # url constructions
   export AGENT_HTTP_PORT="8030"
   export AGENT_ADMIN_PORT="8031"
-  export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$DOCKERHOST:$AGENT_HTTP_PORT}
   export ACAPY_ADMIN_URL="${ACAPY_HOST}:${AGENT_ADMIN_PORT}"
-  export ACAPY_NGROK_TUNNEL_HOST="http://ngrok-traction-agent:4040"
+  export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$DOCKERHOST:$AGENT_HTTP_PORT}
   export ACAPY_AGENT_URL="${AGENT_ENDPOINT:-${ACAPY_HOST}:$AGENT_HTTP_PORT}"
-  export ACAPY_ADMIN_URL_API_KEY="change-me"
+
+  export ACAPY_NGROK_TUNNEL_HOST="http://ngrok-traction-agent:4040"
 
   # keycloak-db
   export KEYCLOAK_DB_NAME="keycloak"
@@ -299,12 +303,12 @@ start-demo)
   if [ -z "$NGROK_AGENT_URL" ]; then
     isCurlInstalled
     isNgrokInstalled
-    export NGROK_AGENT_URL=$(${CURL_EXE} http://localhost:4040/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-agent"))) | .[0] | .public_url')
+    export NGROK_AGENT_URL=$(${CURL_EXE} ${ACAPY_NGROK_TUNNEL_HOST}/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-agent"))) | .[0] | .public_url')
   fi
   if [ -z "$NGROK_CONTROLLER_URL" ]; then
     isCurlInstalled
     isNgrokInstalled
-    export NGROK_CONTROLLER_URL=$(${CURL_EXE} http://localhost:4040/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-controller"))) | .[0] | .public_url')
+    export NGROK_CONTROLLER_URL=$(${CURL_EXE} http://controller-ngrok:4040/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-controller"))) | .[0] | .public_url')
   fi
   export GENESIS_URL="https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_sandbox_genesis"
 

@@ -44,35 +44,31 @@ class GlobalConfig(BaseSettings):
         "OIDC_CONTROLLER_DB_ADMIN_PWD", "oidccontrolleradminpass"
     )
 
-    # Get SELF_CONTROLLER_HOST_URL from env or NGROK.
-    SELF_CONTROLLER_HOST_URL: str = os.environ.get("SELF_CONTROLLER_HOST_URL")
-    NGROK_TUNNEL_HOST: str = os.environ.get("NGROK_TUNNEL_HOST")
-    if not SELF_CONTROLLER_HOST_URL and NGROK_TUNNEL_HOST:
-        raw_resp = requests.get(NGROK_TUNNEL_HOST + "/api/tunnels")
+    CONTROLLER_URL: str = os.environ.get("CONTROLLER_URL")
+    # # Get CONTROLLER_URL from env or NGROK.
+    CONTROLLER_NGROK: str = os.environ.get("CONTROLLER_NGROK")
+    if not CONTROLLER_URL and CONTROLLER_NGROK:
+        raw_resp = requests.get(CONTROLLER_NGROK + "/api/tunnels")
         resp = json.loads(raw_resp.content)
-        SELF_CONTROLLER_HOST_URL = resp["tunnels"][0]["public_url"]
-        print(
-            "loaded SELF_CONTROLLER_HOST_URL from NGROK_TUNNEL_HOST: "
-            + SELF_CONTROLLER_HOST_URL
-        )
+        CONTROLLER_URL = resp["tunnels"][0]["public_url"]
+        print("loaded CONTROLLER_URL from NGROK_TUNNEL_HOST")
+    print("CONTROLLER_URL: " + CONTROLLER_URL)
 
     #
-    ACAPY_PUBLIC_SERVICE_URL: str = os.environ.get("ACAPY_PUBLIC_SERVICE_URL")
+    ACAPY_AGENT_URL: str = os.environ.get("ACAPY_AGENT_URL")
     ACAPY_NGROK_TUNNEL_HOST: str = os.environ.get("ACAPY_NGROK_TUNNEL_HOST")
-    if not ACAPY_PUBLIC_SERVICE_URL and not ACAPY_NGROK_TUNNEL_HOST:
+    if not ACAPY_AGENT_URL and not ACAPY_NGROK_TUNNEL_HOST:
         print(
             "WARNING: neither ACAPY_PUBLIC_SERVICE_URL or ACAPY_NGROK_TUNNEL_HOST provided, agent will not be accessible"
         )
 
-    if not ACAPY_PUBLIC_SERVICE_URL and ACAPY_NGROK_TUNNEL_HOST:
+    if not ACAPY_AGENT_URL and ACAPY_NGROK_TUNNEL_HOST:
         raw_resp = requests.get(ACAPY_NGROK_TUNNEL_HOST + "/api/tunnels")
         resp = json.loads(raw_resp.content)
         https_tunnels = [t for t in resp["tunnels"] if t["proto"] == "https"]
-        ACAPY_PUBLIC_SERVICE_URL = https_tunnels[0]["public_url"]
-        print(
-            "loaded ACAPY_PUBLIC_SERVICE_URL from ACAPY_NGROK_TUNNEL_HOST: "
-            + ACAPY_PUBLIC_SERVICE_URL
-        )
+        ACAPY_AGENT_URL = https_tunnels[0]["public_url"]
+        print("loaded ACAPY_AGENT_URL from ACAPY_NGROK_TUNNEL_HOST")
+    print("ACAPY_AGENT_URL: " + ACAPY_AGENT_URL)
 
     # application connection is async
     # fmt: off

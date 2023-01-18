@@ -86,7 +86,7 @@ async def get_authorize(
     auth_session = await auth_sessions.create(new_auth_session)
 
     # QR CONTENTS
-    controller_host = settings.SELF_CONTROLLER_HOST_URL
+    controller_host = settings.CONTROLLER_URL
     url_to_message = (
         controller_host + "/url/pres_exch/" + str(auth_session.pres_exch_id)
     )
