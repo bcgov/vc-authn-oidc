@@ -162,7 +162,7 @@ configureEnvironment() {
     esac
   done
 
-  export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn-oidc}"
+  export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-oidc}"
 
   # export STI_SCRIPTS_PATH=${STI_SCRIPTS_PATH:-/usr/libexec/s2i}
 
@@ -178,6 +178,7 @@ configureEnvironment() {
   export POSTGRESQL_PASSWORD="postgresPass"
 
   # controller
+  export CONTROLLER_SERVICE_PORT=5201
   export CONTROLLER_URL="${IDENTITY_SERVER_URL:-http://localhost:5021}"
   export CONTROLLER_NGROK="http://controller-ngrok:4040"
   export IDENTITY_SERVER_POLL_INTERVAL=2000
