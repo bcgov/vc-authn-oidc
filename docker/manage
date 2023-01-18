@@ -113,7 +113,7 @@ EOF
 # -----------------------------------------------------------------------------------------------------------------
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
-DEFAULT_CONTAINERS="keycloak controller-db aca-py wallet-db"
+DEFAULT_CONTAINERS="keycloak controller-db"
 PROD_CONTAINERS="controller"
 DEV_CONTAINERS="controller-dev"
 # -----------------------------------------------------------------------------------------------------------------
@@ -187,20 +187,20 @@ configureEnvironment() {
     IDENTITY_SERVER_WEB_HOOK_URL="${IDENTITY_SERVER_WEB_HOOK_URL}/${IDENTITY_SERVER_API_KEY}"
   fi
 
+
   # aca-py
+  export ACAPY_HOST="http://traction-agent"
+  export ACAPY_WALLET_ID="ece83a72-81df-40b0-b770-9a55d92b254d"
   export AGENT_NAME="vc-oidc-controller-agent"
-  export AGENT_HTTP_PORT="5679"
-  export AGENT_ADMIN_PORT="5678"
+  export AGENT_HTTP_PORT="8030"
+  export AGENT_ADMIN_PORT="8031"
   export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$DOCKERHOST:$AGENT_HTTP_PORT}
-  export ACAPY_ADMIN_URL="http://aca-py:${AGENT_ADMIN_PORT}"
-  export ACAPY_AGENT_URL="${AGENT_ENDPOINT:-http://aca-py:$AGENT_HTTP_PORT}"
+  export ACAPY_ADMIN_URL="${ACAPY_HOST}:${AGENT_ADMIN_PORT}"
+  export ACAPY_NGROK_TUNNEL_HOST="http://ngrok-traction-agent:4040"
+  export ACAPY_AGENT_URL="${AGENT_ENDPOINT:-${ACAPY_HOST}:$AGENT_HTTP_PORT}"
   export GENESIS_URL="${GENESIS_URL:-http://$DOCKERHOST:9000/genesis}"
   export AGENT_SEED="000000000000000000000000Steward1"
-  export ACAPY_ADMIN_URL_API_KEY=${ACAPY_ADMIN_URL_API_KEY}
-  export ACAPY_ADMIN_MODE="admin-insecure-mode"
-  if [ ! -z "${ACAPY_ADMIN_URL_API_KEY}" ]; then
-    ACAPY_ADMIN_MODE="admin-api-key ${ACAPY_ADMIN_URL_API_KEY}"
-  fi
+  export ACAPY_ADMIN_URL_API_KEY="change-me"
 
   # wallet-db
   export WALLET_TYPE="postgres_storage"
@@ -223,10 +223,13 @@ configureEnvironment() {
   export KEYCLOAK_DB_ADDR="keycloak-db"
   export KEYCLOAK_USER="admin"
   export KEYCLOAK_PASSWORD="admin"
-  export KEYCLOAK_IMPORT="/tmp/master.json"
+  export KEYCLOAK_IMPORT="/tmp/keycloak_import.json"
   export KEYCLOAK_LOGLEVEL="WARN"
   export KEYCLOAK_ROOT_LOGLEVEL="WARN"
+
 }
+
+
 
 getStartupParams() {
   CONTAINERS=""

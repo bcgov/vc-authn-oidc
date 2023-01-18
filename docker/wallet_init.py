@@ -2,7 +2,7 @@ import requests, json
 
 acapy_traction_host: str = ""
 wallet_name: str
-wallet_webhook_url: str = "http://oidc-controller:5000/webhooks"
+wallet_webhook_url: str = "http://controller:5000/webhooks"
 ledger_register_url: str = "http://test.bcovrin.vonx.io/register"
 acapy_x_api_key: str = "change-me"
 

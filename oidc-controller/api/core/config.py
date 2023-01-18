@@ -60,6 +60,11 @@ class GlobalConfig(BaseSettings):
     #
     ACAPY_PUBLIC_SERVICE_URL: str = os.environ.get("ACAPY_PUBLIC_SERVICE_URL")
     ACAPY_NGROK_TUNNEL_HOST: str = os.environ.get("ACAPY_NGROK_TUNNEL_HOST")
+    if not ACAPY_PUBLIC_SERVICE_URL or ACAPY_NGROK_TUNNEL_HOST:
+        print(
+            "WARNING: neither ACAPY_PUBLIC_SERVICE_URL or ACAPY_NGROK_TUNNEL_HOST provided, agent will not be accessible"
+        )
+
     if not ACAPY_PUBLIC_SERVICE_URL and ACAPY_NGROK_TUNNEL_HOST:
         raw_resp = requests.get(ACAPY_NGROK_TUNNEL_HOST + "/api/tunnels")
         resp = json.loads(raw_resp.content)
@@ -75,10 +80,12 @@ class GlobalConfig(BaseSettings):
     SQLALCHEMY_DATABASE_URI: PostgresDsn = (
         f"postgresql+asyncpg://{PSQL_USER}:{PSQL_PASS}@{PSQL_HOST}:{PSQL_PORT}/{PSQL_DB}"  # noqa: E501
     )
+
     # migrations connection uses owner role and is synchronous
     SQLALCHEMY_DATABASE_ADMIN_URI: PostgresDsn = (
         f"postgresql://{PSQL_ADMIN_USER}:{PSQL_ADMIN_PASS}@{PSQL_HOST}:{PSQL_PORT}/{PSQL_DB}"  # noqa: E501
     )
+
     ACAPY_ADMIN_URL: str = os.environ.get("ACAPY_ADMIN_URL", "http://localhost:8031")
     ACAPY_ADMIN_URL_API_KEY: str = os.environ.get(
         "ACAPY_ADMIN_URL_API_KEY", "change-me"

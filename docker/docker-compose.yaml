@@ -1,14 +1,12 @@
 version: "3"
 services:
-  oidc-controller:
-    build:
-      context: ../oidc-controller
-      dockerfile: Dockerfile
+  controller:
+    image: vc-authn-oidc-controller
     entrypoint: bash -c "alembic upgrade head && uvicorn api.main:app --reload --host 0.0.0.0 --port 5000 --log-level info"
     depends_on:
-      oidc-controller-db:
+      controller-db:
         condition: service_healthy
-      ngrok-oidc-controller:
+      controller-ngrok:
         condition: service_started
     environment:
       - POSTGRESQL_HOST=${POSTGRESQL_HOST}
@@ -19,7 +17,7 @@ services:
       - ACAPY_ADMIN_URL_API_KEY=${ACAPY_ADMIN_URL_API_KEY}
       - ACAPY_WALLET_ID=${ACAPY_WALLET_ID}
       - ACAPY_WALLET_KEY=${ACAPY_WALLET_KEY}
-      - NGROK_TUNNEL_HOST=http://ngrok-oidc-controller:4040
+      - NGROK_TUNNEL_HOST=http://controller-ngrok:4040
       - ACAPY_NGROK_TUNNEL_HOST=${ACAPY_NGROK_TUNNEL_HOST}
     ports:
       - ${CONTROLLER_SERVICE_PORT}:5000
@@ -28,15 +26,14 @@ services:
     networks:
       - vc_auth
 
-  oidc-controller-db:
-    image: "postgres:12"
+  controller-db:
+    image: postgres:12
     environment:
       - POSTGRES_PASSWORD=${POSTGRESQL_PASSWORD}
-      - POST
     extra_hosts:
       - host.docker.internal:host-gateway
     volumes:
-      - oidc-controller-db-data:/var/lib/postgresql/data
+      - controller-db-data:/var/lib/postgresql/data
       - ./db_init.sql:/docker-entrypoint-initdb.d/1-init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -79,13 +76,13 @@ services:
     networks:
       - vc_auth
 
-  ngrok-oidc-controller:
+  controller-ngrok:
     image: wernight/ngrok
     environment:
       - CONTROLLER_SERVICE_PORT=5000
     ports:
       - 4056:4040
-    command: ngrok http oidc-controller:5000 --log stdout
+    command: ngrok http controller:5000 --log stdout
     networks:
       - vc_auth
 
@@ -95,6 +92,6 @@ networks:
 
 
 volumes:
-  oidc-controller-db-data:
+  controller-db-data:
   keycloak-db-data:
   
