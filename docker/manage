@@ -175,7 +175,7 @@ configureEnvironment() {
   export POSTGRESQL_USER="DB_USER"
   export POSTGRESQL_PASSWORD="DB_PASSWORD"
   export POSTGRESQL_ADMIN_PASSWORD="DB_ADMIN"
-  export DATABASE_PORT="5432"
+  export POSTGRESQL_PORT="5432"
 
   # controller
   export IDENTITY_SERVER_URL="${IDENTITY_SERVER_URL:-http://localhost:5001}"
@@ -187,7 +187,6 @@ configureEnvironment() {
     IDENTITY_SERVER_WEB_HOOK_URL="${IDENTITY_SERVER_WEB_HOOK_URL}/${IDENTITY_SERVER_API_KEY}"
   fi
 
-
   # aca-py
   export ACAPY_HOST="http://traction-agent"
   export ACAPY_WALLET_ID="ece83a72-81df-40b0-b770-9a55d92b254d"
@@ -198,20 +197,7 @@ configureEnvironment() {
   export ACAPY_ADMIN_URL="${ACAPY_HOST}:${AGENT_ADMIN_PORT}"
   export ACAPY_NGROK_TUNNEL_HOST="http://ngrok-traction-agent:4040"
   export ACAPY_AGENT_URL="${AGENT_ENDPOINT:-${ACAPY_HOST}:$AGENT_HTTP_PORT}"
-  export GENESIS_URL="${GENESIS_URL:-http://$DOCKERHOST:9000/genesis}"
-  export AGENT_SEED="000000000000000000000000Steward1"
   export ACAPY_ADMIN_URL_API_KEY="change-me"
-
-  # wallet-db
-  export WALLET_TYPE="postgres_storage"
-  export WALLET_ENCRYPTION_KEY="key"
-  export POSTGRESQL_WALLET_HOST="wallet-db"
-  export POSTGRESQL_WALLET_PORT="5432"
-  export POSTGRESQL_WALLET_DATABASE="wallet_db"
-  export POSTGRESQL_WALLET_USER="walletuser"
-  export POSTGRESQL_WALLET_PASSWORD="walletpassword"
-  export POSTGRESQL_WALLET_ADMIN_USER="postgres"
-  export POSTGRESQL_WALLET_ADMIN_PASSWORD="mysecretpassword"
 
   # keycloak-db
   export KEYCLOAK_DB_NAME="keycloak"

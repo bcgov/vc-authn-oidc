@@ -32,9 +32,8 @@ class GlobalConfig(BaseSettings):
     # the following defaults match up with default values in scripts/.env.example
     # these MUST be all set in non-local environments.
     PSQL_HOST: str = os.environ.get("POSTGRESQL_HOST", "localhost")
-    PSQL_PORT: int = 5432  # os.environ.get("POSTGRESQL_PORT", 5432)
+    PSQL_PORT: int = os.environ.get("POSTGRESQL_PORT", "5432")
     PSQL_DB: str = os.environ.get("POSTGRESQL_DB", "traction")
-
     PSQL_USER: str = os.environ.get("OIDC_CONTROLLER_DB_USER", "oidccontrolleruser")
     PSQL_PASS: str = os.environ.get("OIDC_CONTROLLER_DB_USER_PWD", "oidccontrollerpass")
 
@@ -60,7 +59,7 @@ class GlobalConfig(BaseSettings):
     #
     ACAPY_PUBLIC_SERVICE_URL: str = os.environ.get("ACAPY_PUBLIC_SERVICE_URL")
     ACAPY_NGROK_TUNNEL_HOST: str = os.environ.get("ACAPY_NGROK_TUNNEL_HOST")
-    if not ACAPY_PUBLIC_SERVICE_URL or ACAPY_NGROK_TUNNEL_HOST:
+    if not ACAPY_PUBLIC_SERVICE_URL and not ACAPY_NGROK_TUNNEL_HOST:
         print(
             "WARNING: neither ACAPY_PUBLIC_SERVICE_URL or ACAPY_NGROK_TUNNEL_HOST provided, agent will not be accessible"
         )
@@ -94,8 +93,6 @@ class GlobalConfig(BaseSettings):
     ACAPY_WALLET_ID: str = os.environ.get("ACAPY_WALLET_ID")
     ACAPY_WALLET_KEY: str = os.environ.get("ACAPY_WALLET_KEY", "random-key")
 
-    ACAPY_ENDORSER_PUBLIC_DID: str = os.environ.get("ACAPY_ENDORSER_PUBLIC_DID")
-    ACAPY_GENESIS_URL: str = os.environ.get("ACAPY_GENESIS_URL")
 
     DB_ECHO_LOG: bool = False
 
