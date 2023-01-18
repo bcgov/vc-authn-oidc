@@ -1,0 +1,98 @@
+version: "3"
+services:
+  controller:
+    image: vc-authn-oidc-controller
+    entrypoint: bash -c "alembic upgrade head && uvicorn api.main:app --reload --host 0.0.0.0 --port 5000 --log-level info"
+    depends_on:
+      controller-db:
+        condition: service_healthy
+      controller-ngrok:
+        condition: service_started
+    environment:
+      - POSTGRESQL_HOST=${POSTGRESQL_HOST}
+      - POSTGRESQL_PORT=${POSTGRESQL_PORT}
+      - POSTGRESQL_DB=${POSTGRESQL_DB}
+      - POSTGRESQL_USER=${POSTGRESQL_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
+      - ACAPY_ADMIN_URL=${ACAPY_ADMIN_URL}
+      - ACAPY_ADMIN_URL_API_KEY=${ACAPY_ADMIN_URL_API_KEY}
+      - ACAPY_WALLET_ID=${ACAPY_WALLET_ID}
+      - ACAPY_WALLET_KEY=${ACAPY_WALLET_KEY}
+      - ACAPY_NGROK_TUNNEL_HOST=${ACAPY_NGROK_TUNNEL_HOST}
+      - CONTROLLER_NGROK=${CONTROLLER_NGROK}
+    ports:
+      - ${CONTROLLER_SERVICE_PORT}:5000
+    volumes:
+      - ../oidc-controller:/app:rw
+    networks:
+      - vc_auth
+
+  controller-db:
+    image: postgres:12
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRESQL_PASSWORD}
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - controller-db-data:/var/lib/postgresql/data
+      - ./db_init.sql:/docker-entrypoint-initdb.d/1-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vc_auth
+
+  keycloak:
+    image: jboss/keycloak:16.0.0
+    ports:
+      - 8880:8080
+    volumes:
+      - ./keycloak/config:/tmp
+    environment:
+      DB_VENDOR: ${KEYCLOAK_DB_VENDOR}
+      DB_ADDR: ${KEYCLOAK_DB_ADDR}
+      DB_DATABASE: ${KEYCLOAK_DB_NAME}
+      DB_USER: ${KEYCLOAK_DB_USER}
+      DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KEYCLOAK_USER: ${KEYCLOAK_USER}
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
+      KEYCLOAK_LOGLEVEL: ${KEYCLOAK_LOGLEVEL}
+      ROOT_LOGLEVEL: ${KEYCLOAK_ROOT_LOGLEVEL}
+      KEYCLOAK_IMPORT: ${KEYCLOAK_IMPORT}
+    depends_on:
+      - keycloak-db
+    networks:
+      - vc_auth
+
+  keycloak-db:
+    image: registry.access.redhat.com/rhscl/postgresql-10-rhel7:latest
+    environment:
+      POSTGRESQL_USER: ${KEYCLOAK_DB_USER}
+      POSTGRESQL_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      POSTGRESQL_DATABASE: ${KEYCLOAK_DB_NAME}
+    volumes:
+      - keycloak-db-data:/var/lib/pgsql/data
+    networks:
+      - vc_auth
+
+  controller-ngrok:
+    image: wernight/ngrok
+    environment:
+      - CONTROLLER_SERVICE_PORT=5000
+    ports:
+      - 4056:4040
+    command: ngrok http controller:5000 --log stdout
+    networks:
+      - vc_auth
+
+networks:
+  vc_auth:
+    driver: bridge
+
+
+volumes:
+  controller-db-data:
+  keycloak-db-data:
+  

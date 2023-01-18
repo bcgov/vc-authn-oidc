@@ -1,23 +1,11 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
+FROM python:3.10
+
 WORKDIR /app
 
-# Copy sln and csproj and restore as distinct layers
-COPY oidc-controller/src/*.sln ./
-COPY oidc-controller/src/*/*.csproj ./
-RUN for file in $(ls *.csproj); do mkdir -p ./${file%.*}/ && mv $file ./${file%.*}/; done
-RUN dotnet restore
+COPY oidc-controller/requirements.txt requirements.txt
+RUN pip3 install -r requirements.txt
 
-# Copy everything else and build app
-COPY oidc-controller/src ./
-RUN dotnet publish -c Release -o /app/out --no-restore
-
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
+COPY oidc-controller ./
 
 EXPOSE 5000
-
-WORKDIR /app
-
-COPY --from=build-env /app/out .
-
-CMD ["dotnet", "VCAuthn.dll"]
+ENTRYPOINT ["./docker-entrypoint.sh"]

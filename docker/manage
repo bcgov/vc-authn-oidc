@@ -113,7 +113,7 @@ EOF
 # -----------------------------------------------------------------------------------------------------------------
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
-DEFAULT_CONTAINERS="keycloak controller-db aca-py wallet-db"
+DEFAULT_CONTAINERS="keycloak controller-db"
 PROD_CONTAINERS="controller"
 DEV_CONTAINERS="controller-dev"
 # -----------------------------------------------------------------------------------------------------------------
@@ -162,7 +162,7 @@ configureEnvironment() {
     esac
   done
 
-  export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn-oidc}"
+  export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-oidc}"
 
   # export STI_SCRIPTS_PATH=${STI_SCRIPTS_PATH:-/usr/libexec/s2i}
 
@@ -171,14 +171,16 @@ configureEnvironment() {
   IDENTITY_SERVER_URL=${IDENTITY_SERVER_URL:-$NGROK_CONTROLLER_URL}
 
   # controller-db
-  export POSTGRESQL_DATABASE="IDENTITY_DB"
-  export POSTGRESQL_USER="DB_USER"
-  export POSTGRESQL_PASSWORD="DB_PASSWORD"
-  export POSTGRESQL_ADMIN_PASSWORD="DB_ADMIN"
-  export DATABASE_PORT="5432"
+  export POSTGRESQL_HOST="controller-db"
+  export POSTGRESQL_PORT=5432
+  export POSTGRESQL_DB="oidccontroller"
+  export POSTGRESQL_USER="postgres"
+  export POSTGRESQL_PASSWORD="postgresPass"
 
   # controller
-  export IDENTITY_SERVER_URL="${IDENTITY_SERVER_URL:-http://localhost:5001}"
+  export CONTROLLER_SERVICE_PORT=5201
+  export CONTROLLER_URL="${IDENTITY_SERVER_URL:-http://localhost:5021}"
+  export CONTROLLER_NGROK="http://controller-ngrok:4040"
   export IDENTITY_SERVER_POLL_INTERVAL=2000
   export IDENTITY_SERVER_API_KEY="controller-api-key"
   export IDENTITY_SERVER_WEB_HOOK_URL=${IDENTITY_SERVER_WEB_HOOK_URL:-http://$DOCKERHOST:5001}
@@ -187,31 +189,20 @@ configureEnvironment() {
     IDENTITY_SERVER_WEB_HOOK_URL="${IDENTITY_SERVER_WEB_HOOK_URL}/${IDENTITY_SERVER_API_KEY}"
   fi
 
-  # aca-py
-  export AGENT_NAME="vc-oidc-controller-agent"
-  export AGENT_HTTP_PORT="5679"
-  export AGENT_ADMIN_PORT="5678"
-  export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$DOCKERHOST:$AGENT_HTTP_PORT}
-  export ACAPY_ADMIN_URL="http://aca-py:${AGENT_ADMIN_PORT}"
-  export ACAPY_AGENT_URL="${AGENT_ENDPOINT:-http://aca-py:$AGENT_HTTP_PORT}"
-  export GENESIS_URL="${GENESIS_URL:-http://$DOCKERHOST:9000/genesis}"
-  export AGENT_SEED="000000000000000000000000Steward1"
-  export ACAPY_ADMIN_URL_API_KEY=${ACAPY_ADMIN_URL_API_KEY}
-  export ACAPY_ADMIN_MODE="admin-insecure-mode"
-  if [ ! -z "${ACAPY_ADMIN_URL_API_KEY}" ]; then
-    ACAPY_ADMIN_MODE="admin-api-key ${ACAPY_ADMIN_URL_API_KEY}"
-  fi
+  # aca-py config
+  export ACAPY_HOST="http://traction-agent"
+  export ACAPY_WALLET_ID="ece83a72-81df-40b0-b770-9a55d92b254d"
 
-  # wallet-db
-  export WALLET_TYPE="postgres_storage"
-  export WALLET_ENCRYPTION_KEY="key"
-  export POSTGRESQL_WALLET_HOST="wallet-db"
-  export POSTGRESQL_WALLET_PORT="5432"
-  export POSTGRESQL_WALLET_DATABASE="wallet_db"
-  export POSTGRESQL_WALLET_USER="walletuser"
-  export POSTGRESQL_WALLET_PASSWORD="walletpassword"
-  export POSTGRESQL_WALLET_ADMIN_USER="postgres"
-  export POSTGRESQL_WALLET_ADMIN_PASSWORD="mysecretpassword"
+  export ACAPY_ADMIN_URL_API_KEY="change-me"
+
+  # url constructions
+  export AGENT_HTTP_PORT="8030"
+  export AGENT_ADMIN_PORT="8031"
+  export ACAPY_ADMIN_URL="${ACAPY_HOST}:${AGENT_ADMIN_PORT}"
+  export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$DOCKERHOST:$AGENT_HTTP_PORT}
+  export ACAPY_AGENT_URL="${AGENT_ENDPOINT:-${ACAPY_HOST}:$AGENT_HTTP_PORT}"
+
+  export ACAPY_NGROK_TUNNEL_HOST="http://ngrok-traction-agent:4040"
 
   # keycloak-db
   export KEYCLOAK_DB_NAME="keycloak"
@@ -223,10 +214,13 @@ configureEnvironment() {
   export KEYCLOAK_DB_ADDR="keycloak-db"
   export KEYCLOAK_USER="admin"
   export KEYCLOAK_PASSWORD="admin"
-  export KEYCLOAK_IMPORT="/tmp/master.json"
+  export KEYCLOAK_IMPORT="/tmp/keycloak_import.json"
   export KEYCLOAK_LOGLEVEL="WARN"
   export KEYCLOAK_ROOT_LOGLEVEL="WARN"
+
 }
+
+
 
 getStartupParams() {
   CONTAINERS=""
@@ -291,44 +285,47 @@ start|up)
   docker-compose logs -f
  ;;
 start-dev)
-  unset NGROK_AGENT_URL
-  unset NGROK_CONTROLLER_URL
-  unset GENESIS_URL
+  echo "start-dev command is not configured yet"
+  # unset NGROK_AGENT_URL
+  # unset NGROK_CONTROLLER_URL
+  # unset GENESIS_URL
 
-  # build development image 
-  build-oidc-controller-dev
+  # # build development image 
+  # build-oidc-controller-dev
 
-  _startupParams=$(getStartupParams $@)
-  configureEnvironment $@
-  docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${DEV_CONTAINERS}
-  docker-compose logs -f
+  # _startupParams=$(getStartupParams $@)
+  # configureEnvironment $@
+  # docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${DEV_CONTAINERS}
+  # docker-compose logs -f
  ;;
 start-demo)
-  isJQInstalled
+  echo "start-demo command is not configured yet"
 
-  # Set environment variables
-  if [ -z "$NGROK_AGENT_URL" ]; then
-    isCurlInstalled
-    isNgrokInstalled
-    export NGROK_AGENT_URL=$(${CURL_EXE} http://localhost:4040/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-agent"))) | .[0] | .public_url')
-  fi
-  if [ -z "$NGROK_CONTROLLER_URL" ]; then
-    isCurlInstalled
-    isNgrokInstalled
-    export NGROK_CONTROLLER_URL=$(${CURL_EXE} http://localhost:4040/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-controller"))) | .[0] | .public_url')
-  fi
-  export GENESIS_URL="https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_sandbox_genesis"
+  # isJQInstalled
 
-  if [ -z "$NGROK_AGENT_URL" ] || [ -z "$NGROK_CONTROLLER_URL" ]; then
-    echoError "The NGROK_AGENT_URL or NGROK_CONTROLLER_URL have not been set."
-    exit 1
-  fi
+  # # Set environment variables
+  # if [ -z "$NGROK_AGENT_URL" ]; then
+  #   isCurlInstalled
+  #   isNgrokInstalled
+  #   export NGROK_AGENT_URL=$(${CURL_EXE} ${ACAPY_NGROK_TUNNEL_HOST}/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-agent"))) | .[0] | .public_url')
+  # fi
+  # if [ -z "$NGROK_CONTROLLER_URL" ]; then
+  #   isCurlInstalled
+  #   isNgrokInstalled
+  #   export NGROK_CONTROLLER_URL=$(${CURL_EXE} http://controller-ngrok:4040/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-controller"))) | .[0] | .public_url')
+  # fi
+  # export GENESIS_URL="https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_sandbox_genesis"
 
-  echo "Running in demo mode, will use ${GENESIS_URL} to fetch the genesis transaction, ${NGROK_AGENT_URL} for the agent and ${NGROK_CONTROLLER_URL} for the controller."
+  # if [ -z "$NGROK_AGENT_URL" ] || [ -z "$NGROK_CONTROLLER_URL" ]; then
+  #   echoError "The NGROK_AGENT_URL or NGROK_CONTROLLER_URL have not been set."
+  #   exit 1
+  # fi
 
-  _startupParams=$(getStartupParams $@)
-  configureEnvironment $@
-  docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${PROD_CONTAINERS}
+  # echo "Running in demo mode, will use ${GENESIS_URL} to fetch the genesis transaction, ${NGROK_AGENT_URL} for the agent and ${NGROK_CONTROLLER_URL} for the controller."
+
+  # _startupParams=$(getStartupParams $@)
+  # configureEnvironment $@
+  # docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${PROD_CONTAINERS}
  ;;
 logs)
   configureEnvironment $@
