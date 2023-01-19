@@ -1,23 +1,19 @@
-import logging, base64, io
+import base64
+import io
+import logging
 
-from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
-from oic.oic.message import (
-    AuthorizationRequest,
-    AccessTokenRequest,
-    AccessTokenResponse,
-    IdToken,
-)
 import qrcode
-
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from oic.oic.message import (AccessTokenRequest, AccessTokenResponse,
+                             AuthorizationRequest, IdToken)
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..db.session import get_async_session
-from ..core.config import settings
 
+from ..authSessions.crud import AuthSessionCreate, AuthSessionCRUD
 from ..core.acapy.client import AcapyClient
+from ..core.config import settings
 from ..core.oidc.issue_token_service import Token
-from ..authSessions.crud import AuthSessionCRUD, AuthSessionCreate
+from ..db.session import get_async_session
 from ..verificationConfigs.crud import VerificationConfigCRUD
 
 ChallengePollUri = "/poll"

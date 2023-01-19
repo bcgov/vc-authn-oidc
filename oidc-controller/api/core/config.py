@@ -1,12 +1,11 @@
+import json
 import logging
 import os
-import requests
-import json
-
 from enum import Enum
 from functools import lru_cache
 from typing import Optional
 
+import requests
 from pydantic import BaseSettings, PostgresDsn
 
 logger = logging.getLogger(__name__)

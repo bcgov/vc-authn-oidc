@@ -1,4 +1,5 @@
-import requests, json
+import json
+import requests
 
 acapy_traction_host: str = ""
 wallet_name: str

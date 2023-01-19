@@ -1,16 +1,14 @@
 import logging
 import os
 import time
-import uvicorn
 from pathlib import Path
 
+import uvicorn
+from api.core.config import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.core.config import settings
-from .routers import oidc
-from .routers import acapy_handler
-from .routers import presentation_request
+from .routers import acapy_handler, oidc, presentation_request, well_known_oid_config
 from .verificationConfigs.router import router as ver_configs_router
 
 # setup loggers
@@ -36,9 +34,12 @@ def get_application() -> FastAPI:
 
 app = get_application()
 app.include_router(ver_configs_router, prefix="/ver_configs", tags=["ver_configs"])
+
+app.include_router(well_known_oid_config.router, include_in_schema=True)
 app.include_router(
     oidc.router, prefix="/vc/connect", tags=["oidc"], include_in_schema=False
 )
+
 app.include_router(acapy_handler.router, prefix="/webhooks", include_in_schema=False)
 app.include_router(presentation_request.router, include_in_schema=False)
 

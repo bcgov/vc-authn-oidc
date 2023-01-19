@@ -3,17 +3,16 @@ import logging
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..db.session import get_async_session
 
-from ..authSessions.models import AuthSession
 from ..authSessions.crud import AuthSessionCRUD
+from ..authSessions.models import AuthSession
 from ..core.acapy.client import AcapyClient
-
 from ..core.aries import (
     PresentationRequestMessage,
-    ServiceDecorator,
     PresentProofv10Attachment,
+    ServiceDecorator,
 )
+from ..db.session import get_async_session
 
 logger = logging.getLogger(__name__)
 
