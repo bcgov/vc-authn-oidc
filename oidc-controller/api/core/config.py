@@ -80,10 +80,15 @@ class GlobalConfig(BaseSettings):
         f"postgresql://{PSQL_ADMIN_USER}:{PSQL_ADMIN_PASS}@{PSQL_HOST}:{PSQL_PORT}/{PSQL_DB}"  # noqa: E501
     )
 
+    ACAPY_TENANCY: str = os.environ.get("ACAPY_TENANCY", "single") # other option is "multi"
+
     ACAPY_ADMIN_URL: str = os.environ.get("ACAPY_ADMIN_URL", "http://localhost:8031")
+
     MT_ACAPY_WALLET_ID: str = os.environ.get("MT_ACAPY_WALLET_ID")
     MT_ACAPY_WALLET_KEY: str = os.environ.get("MT_ACAPY_WALLET_KEY", "random-key")
 
+    ST_ACAPY_ADMIN_API_KEY_NAME: str = os.environ.get("ST_ACAPY_ADMIN_API_KEY_NAME")
+    ST_ACAPY_ADMIN_API_KEY: str = os.environ.get("ST_ACAPY_ADMIN_API_KEY")
     DB_ECHO_LOG: bool = False
 
     DEFAULT_PAGE_SIZE: int = os.environ.get("DEFAULT_PAGE_SIZE", 10)

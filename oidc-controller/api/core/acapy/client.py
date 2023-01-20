@@ -2,9 +2,9 @@ import requests
 import json
 import logging
 from uuid import UUID
-
 from .models import WalletPublicDid, CreatePresentationResponse
 from ..config import settings
+from .config import AgentConfig, MultiTenantAcapy, SingleTenantAcapy
 
 _client = None
 logger = logging.getLogger(__name__)
@@ -15,47 +15,34 @@ PRESENT_PROOF_RECORDS = "/present-proof/records"
 
 
 class AcapyClient:
-    wallet_id = settings.MT_ACAPY_WALLET_ID
-    wallet_key = settings.MT_ACAPY_WALLET_KEY
     acapy_host = settings.ACAPY_ADMIN_URL
     service_endpoint = settings.ACAPY_AGENT_URL
 
     wallet_token: str = None
+    agent_config: AgentConfig
 
     def __init__(self):
+        if settings.ACAPY_TENANCY == "multi":
+            self.agent_config = MultiTenantAcapy
+        elif settings.ACAPY_TENANCY == "single":
+            self.agent_config = SingleTenantAcapy
+        else:
+            logger.warning("ACAPY_TENANCY not set, assuming SingleTenantAcapy")
+            self.agent_config = SingleTenantAcapy
+
         if _client:
             return _client
         super().__init__()
-
-    def get_wallet_token(self):
-        logger.debug(f">>> get_wallet_token")
-        resp_raw = requests.post(
-            self.acapy_host + f"/multitenancy/wallet/{self.wallet_id}/token",
-            json={"wallet_key": self.wallet_key},
-        )
-        assert (
-            resp_raw.status_code == 200
-        ), f"{resp_raw.status_code}::{resp_raw.content}"
-        resp = json.loads(resp_raw.content)
-        self.wallet_token = resp["token"]
-        logger.debug(f"<<< get_wallet_token")
-
-        return self.wallet_token
 
     def create_presentation_request(
         self, presentation_request_configuration: dict
     ) -> CreatePresentationResponse:
         logger.debug(f">>> create_presentation_request")
-        if not self.wallet_token:
-            self.get_wallet_token()
-
         present_proof_payload = {"proof_request": presentation_request_configuration}
 
         resp_raw = requests.post(
             self.acapy_host + CREATE_PRESENTATION_REQUEST_URL,
-            headers={
-                "Authorization": "Bearer " + self.wallet_token,
-            },
+            headers=self.agent_config.get_headers(),
             json=present_proof_payload,
         )
         assert resp_raw.status_code == 200, resp_raw.content
@@ -67,17 +54,13 @@ class AcapyClient:
 
     def get_presentation_request(self, presentation_exchange_id: UUID):
         logger.debug(f">>> get_presentation_request")
-        if not self.wallet_token:
-            self.get_wallet_token()
 
         resp_raw = requests.get(
             self.acapy_host
             + PRESENT_PROOF_RECORDS
             + "/"
             + str(presentation_exchange_id),
-            headers={
-                "Authorization": "Bearer " + self.wallet_token,
-            },
+            headers=self.agent_config.get_headers(),
         )
         assert resp_raw.status_code == 200, resp_raw.content
         resp = json.loads(resp_raw.content)
@@ -87,8 +70,6 @@ class AcapyClient:
 
     def verify_presentation(self, presentation_exchange_id: UUID):
         logger.debug(f">>> verify_presentation")
-        if not self.wallet_token:
-            self.get_wallet_token()
 
         resp_raw = requests.post(
             self.acapy_host
@@ -96,9 +77,7 @@ class AcapyClient:
             + "/"
             + str(presentation_exchange_id)
             + "/verify-presentation",
-            headers={
-                "Authorization": "Bearer " + self.wallet_token,
-            },
+            headers=self.agent_config.get_headers(),
         )
         assert resp_raw.status_code == 200, resp_raw.content
         resp = json.loads(resp_raw.content)
@@ -109,13 +88,9 @@ class AcapyClient:
     def get_wallet_public_did(self) -> WalletPublicDid:
         logger.debug(f">>> get_wallet_public_did")
 
-        if not self.wallet_token:
-            self.get_wallet_token()
         resp_raw = requests.get(
             self.acapy_host + WALLET_DID_URI,
-            headers={
-                "Authorization": "Bearer " + self.wallet_token,
-            },
+            headers=self.agent_config.get_headers(),
         )
         assert (
             resp_raw.status_code == 200

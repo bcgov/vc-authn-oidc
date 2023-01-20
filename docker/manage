@@ -188,8 +188,13 @@ configureEnvironment() {
 
   # aca-py config
   export ACAPY_HOST="http://tenant-proxy"
+  export ACAPY_TENANCY="multi"
   # Multi-Tenant ACA-Py config
   export MT_ACAPY_WALLET_ID="ece83a72-81df-40b0-b770-9a55d92b254d"
+
+  # Single-Tenant ACA-Py config
+  export ST_ACAPY_ADMIN_API_KEY_NAME="x-api-key"
+  export ST_ACAPY_ADMIN_API_KEY="change-me"
 
 
   # url constructions
