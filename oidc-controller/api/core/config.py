@@ -58,7 +58,7 @@ class GlobalConfig(BaseSettings):
     ACAPY_NGROK_TUNNEL_HOST: str = os.environ.get("ACAPY_NGROK_TUNNEL_HOST")
     if not ACAPY_AGENT_URL and not ACAPY_NGROK_TUNNEL_HOST:
         print(
-            "WARNING: neither ACAPY_PUBLIC_SERVICE_URL or ACAPY_NGROK_TUNNEL_HOST provided, agent will not be accessible"
+            "WARNING: neither ACAPY_AGENT_URL or ACAPY_NGROK_TUNNEL_HOST provided, agent will not be accessible"
         )
 
     if not ACAPY_AGENT_URL and ACAPY_NGROK_TUNNEL_HOST:
@@ -67,7 +67,7 @@ class GlobalConfig(BaseSettings):
         https_tunnels = [t for t in resp["tunnels"] if t["proto"] == "https"]
         ACAPY_AGENT_URL = https_tunnels[0]["public_url"]
         print("loaded ACAPY_AGENT_URL from ACAPY_NGROK_TUNNEL_HOST")
-    print("ACAPY_AGENT_URL: " + ACAPY_AGENT_URL)
+    print("ACAPY_AGENT_URL: " + str(ACAPY_AGENT_URL))
 
     # application connection is async
     # fmt: off
