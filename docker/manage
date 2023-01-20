@@ -305,8 +305,6 @@ start|up)
   unset NGROK_CONTROLLER_URL
   unset GENESIS_URL
 
-  export ACAPY_ADMIN_URL="http://aca-py:${AGENT_ADMIN_PORT}"
-
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
   docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${ACAPY_CONTAINERS} ${PROD_CONTAINERS}
