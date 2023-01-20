@@ -23,12 +23,12 @@ class AcapyClient:
 
     def __init__(self):
         if settings.ACAPY_TENANCY == "multi":
-            self.agent_config = MultiTenantAcapy
+            self.agent_config = MultiTenantAcapy()
         elif settings.ACAPY_TENANCY == "single":
-            self.agent_config = SingleTenantAcapy
+            self.agent_config = SingleTenantAcapy()
         else:
             logger.warning("ACAPY_TENANCY not set, assuming SingleTenantAcapy")
-            self.agent_config = SingleTenantAcapy
+            self.agent_config = SingleTenantAcapy()
 
         if _client:
             return _client
