@@ -81,13 +81,8 @@ class GlobalConfig(BaseSettings):
     )
 
     ACAPY_ADMIN_URL: str = os.environ.get("ACAPY_ADMIN_URL", "http://localhost:8031")
-    ACAPY_ADMIN_URL_API_KEY: str = os.environ.get(
-        "ACAPY_ADMIN_URL_API_KEY", "change-me"
-    )
-    ACAPY_WEBHOOK_URL_API_KEY_NAME = "x-api-key"
-    ACAPY_WALLET_ID: str = os.environ.get("ACAPY_WALLET_ID")
-    ACAPY_WALLET_KEY: str = os.environ.get("ACAPY_WALLET_KEY", "random-key")
-
+    MT_ACAPY_WALLET_ID: str = os.environ.get("MT_ACAPY_WALLET_ID")
+    MT_ACAPY_WALLET_KEY: str = os.environ.get("MT_ACAPY_WALLET_KEY", "random-key")
 
     DB_ECHO_LOG: bool = False
 

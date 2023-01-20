@@ -15,10 +15,9 @@ PRESENT_PROOF_RECORDS = "/present-proof/records"
 
 
 class AcapyClient:
-    wallet_id = settings.ACAPY_WALLET_ID
-    wallet_key = settings.ACAPY_WALLET_KEY
+    wallet_id = settings.MT_ACAPY_WALLET_ID
+    wallet_key = settings.MT_ACAPY_WALLET_KEY
     acapy_host = settings.ACAPY_ADMIN_URL
-    acapy_admin_api_key = settings.ACAPY_ADMIN_URL_API_KEY
     service_endpoint = settings.ACAPY_AGENT_URL
 
     wallet_token: str = None
@@ -33,7 +32,6 @@ class AcapyClient:
         resp_raw = requests.post(
             self.acapy_host + f"/multitenancy/wallet/{self.wallet_id}/token",
             json={"wallet_key": self.wallet_key},
-            headers={settings.ACAPY_WEBHOOK_URL_API_KEY_NAME: self.acapy_admin_api_key},
         )
         assert (
             resp_raw.status_code == 200
@@ -56,7 +54,6 @@ class AcapyClient:
         resp_raw = requests.post(
             self.acapy_host + CREATE_PRESENTATION_REQUEST_URL,
             headers={
-                settings.ACAPY_WEBHOOK_URL_API_KEY_NAME: self.acapy_admin_api_key,
                 "Authorization": "Bearer " + self.wallet_token,
             },
             json=present_proof_payload,
@@ -79,7 +76,6 @@ class AcapyClient:
             + "/"
             + str(presentation_exchange_id),
             headers={
-                settings.ACAPY_WEBHOOK_URL_API_KEY_NAME: self.acapy_admin_api_key,
                 "Authorization": "Bearer " + self.wallet_token,
             },
         )
@@ -101,7 +97,6 @@ class AcapyClient:
             + str(presentation_exchange_id)
             + "/verify-presentation",
             headers={
-                settings.ACAPY_WEBHOOK_URL_API_KEY_NAME: self.acapy_admin_api_key,
                 "Authorization": "Bearer " + self.wallet_token,
             },
         )
@@ -119,7 +114,6 @@ class AcapyClient:
         resp_raw = requests.get(
             self.acapy_host + WALLET_DID_URI,
             headers={
-                settings.ACAPY_WEBHOOK_URL_API_KEY_NAME: self.acapy_admin_api_key,
                 "Authorization": "Bearer " + self.wallet_token,
             },
         )
