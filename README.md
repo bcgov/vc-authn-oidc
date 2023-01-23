@@ -15,12 +15,12 @@ networks:
 `docker-compose up` from `<traction_folder>/scripts`
 
 run `docker-compose up` from `demo/vue` of this project
-run `docker-compose up` from `/script` of this project
+run `./manage up` from `/docker` of this project
 
 ### Prepare Acapy wallet for use
 
 run `pip install requests` if needed.
-run `python wallet_init.py` from `/scripts`
+run `python wallet_init.py` from `/docker`
 
 ### Prepare controller for use
 
