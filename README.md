@@ -15,10 +15,12 @@ networks:
 `docker-compose up` from `<traction_folder>/scripts`
 
 run `docker-compose up` from `demo/vue` of this project
+run `./manage build` from `/docker` of this project to create and tag the image
 run `./manage up` from `/docker` of this project
 
 ### Prepare Acapy wallet for use
 
+have python installed. TODO, replace with this with BASH script.
 run `pip install requests` if needed.
 run `python wallet_init.py` from `/docker`
 
