@@ -1,12 +1,11 @@
+import json
 import logging
 import os
-import requests
-import json
-
 from enum import Enum
 from functools import lru_cache
 from typing import Optional
 
+import requests
 from pydantic import BaseSettings, PostgresDsn
 
 logger = logging.getLogger(__name__)
@@ -59,7 +58,7 @@ class GlobalConfig(BaseSettings):
     ACAPY_NGROK_TUNNEL_HOST: str = os.environ.get("ACAPY_NGROK_TUNNEL_HOST")
     if not ACAPY_AGENT_URL and not ACAPY_NGROK_TUNNEL_HOST:
         print(
-            "WARNING: neither ACAPY_PUBLIC_SERVICE_URL or ACAPY_NGROK_TUNNEL_HOST provided, agent will not be accessible"
+            "WARNING: neither ACAPY_AGENT_URL or ACAPY_NGROK_TUNNEL_HOST provided, agent will not be accessible"
         )
 
     if not ACAPY_AGENT_URL and ACAPY_NGROK_TUNNEL_HOST:
@@ -68,7 +67,7 @@ class GlobalConfig(BaseSettings):
         https_tunnels = [t for t in resp["tunnels"] if t["proto"] == "https"]
         ACAPY_AGENT_URL = https_tunnels[0]["public_url"]
         print("loaded ACAPY_AGENT_URL from ACAPY_NGROK_TUNNEL_HOST")
-    print("ACAPY_AGENT_URL: " + ACAPY_AGENT_URL)
+    print("ACAPY_AGENT_URL: " + str(ACAPY_AGENT_URL))
 
     # application connection is async
     # fmt: off
@@ -81,15 +80,15 @@ class GlobalConfig(BaseSettings):
         f"postgresql://{PSQL_ADMIN_USER}:{PSQL_ADMIN_PASS}@{PSQL_HOST}:{PSQL_PORT}/{PSQL_DB}"  # noqa: E501
     )
 
+    ACAPY_TENANCY: str = os.environ.get("ACAPY_TENANCY", "single") # other option is "multi"
+
     ACAPY_ADMIN_URL: str = os.environ.get("ACAPY_ADMIN_URL", "http://localhost:8031")
-    ACAPY_ADMIN_URL_API_KEY: str = os.environ.get(
-        "ACAPY_ADMIN_URL_API_KEY", "change-me"
-    )
-    ACAPY_WEBHOOK_URL_API_KEY_NAME = "x-api-key"
-    ACAPY_WALLET_ID: str = os.environ.get("ACAPY_WALLET_ID")
-    ACAPY_WALLET_KEY: str = os.environ.get("ACAPY_WALLET_KEY", "random-key")
 
+    MT_ACAPY_WALLET_ID: str = os.environ.get("MT_ACAPY_WALLET_ID")
+    MT_ACAPY_WALLET_KEY: str = os.environ.get("MT_ACAPY_WALLET_KEY", "random-key")
 
+    ST_ACAPY_ADMIN_API_KEY_NAME: str = os.environ.get("ST_ACAPY_ADMIN_API_KEY_NAME")
+    ST_ACAPY_ADMIN_API_KEY: str = os.environ.get("ST_ACAPY_ADMIN_API_KEY")
     DB_ECHO_LOG: bool = False
 
     DEFAULT_PAGE_SIZE: int = os.environ.get("DEFAULT_PAGE_SIZE", 10)

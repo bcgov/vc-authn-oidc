@@ -1,12 +1,13 @@
-import logging, json
+import json
+import logging
 
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..db.session import get_async_session
 
-from ..authSessions.models import AuthSession, AuthSessionPatch
 from ..authSessions.crud import AuthSessionCRUD
+from ..authSessions.models import AuthSession, AuthSessionPatch
 from ..core.acapy.client import AcapyClient
+from ..db.session import get_async_session
 
 logger = logging.getLogger(__name__)
 
