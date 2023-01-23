@@ -68,6 +68,16 @@ function isNgrokInstalled () {
   fi
 }
 
+
+function generateSeed(){
+  (
+    _prefix=${1}
+    _seed=$(echo "${_prefix}$(generateKey 32)" | fold -w 32 | head -n 1 )
+    _seed=$(echo -n "${_seed}")
+    echo ${_seed}
+  )
+}
+
 SCRIPT_HOME="$(cd "$(dirname "$0")" && pwd)"
 
 # =================================================================================================================
@@ -237,7 +247,7 @@ configureEnvironment() {
   # ACA-py Dev
   export AGENT_NAME="vc-oidc-controller-agent"
   export GENESIS_URL="${GENESIS_URL:-http://test.bcovrin.vonx.io/genesis}"
-  export AGENT_SEED="000000000000000000000000Steward1"
+  export AGENT_SEED=$(generateSeed vc-authn-oidc)
   export ACAPY_ADMIN_URL_API_KEY=${ACAPY_ADMIN_URL_API_KEY}
   export ACAPY_ADMIN_MODE="admin-insecure-mode"
   if [ ! -z "${ACAPY_ADMIN_URL_API_KEY}" ]; then
