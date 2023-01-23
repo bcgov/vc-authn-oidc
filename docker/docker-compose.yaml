@@ -138,7 +138,8 @@ services:
         --wallet-storage-config '{\"url\":\"${POSTGRESQL_WALLET_HOST}:${POSTGRESQL_WALLET_PORT}\",\"max_connections\":5}' \
         --wallet-storage-creds '{\"account\":\"${POSTGRESQL_WALLET_USER}\",\"password\":\"${POSTGRESQL_WALLET_PASSWORD}\",\"admin_account\":\"${POSTGRESQL_WALLET_ADMIN_USER}\",\"admin_password\":\"${POSTGRESQL_WALLET_ADMIN_PASSWORD}\"}' \ 
         --admin '0.0.0.0' ${AGENT_ADMIN_PORT} \
-        --${ACAPY_ADMIN_MODE} \
+        --${ACAPY_ADMIN_MODE} 
+      "
       ]
 
   wallet-db:
