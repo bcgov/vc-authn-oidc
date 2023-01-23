@@ -101,6 +101,25 @@ services:
 
   aca-py:
     image: bcgovimages/aries-cloudagent:py36-1.16-1_0.7.5
+    environment:
+      - ACAPY_LABEL=${AGENT_NAME}
+      - ACAPY_ENDPOINT=${AGENT_ENDPOINT}
+      - ACAPY_GENESIS_URL=${GENESIS_URL}
+      - ACAPY_WALLET_NAME=oidc_agent_wallet
+      - ACAPY_WALLET_TYPE=indy
+      - ACAPY_WALLET_KEY=${WALLET_ENCRYPTION_KEY}
+      - ACAPY_WALLET_SEED=${AGENT_SEED}
+      - ACAPY_AUTO_VERIFY_PRESENTATION=true
+      - ACAPY_WALLET_STORAGE_TYPE=${WALLET_TYPE}
+      - ACAPY_LOG_LEVEL=debug
+      - ACAPY_WEBHOOK_URL=${CONTROLLER_WEB_HOOK_URL}
+      - ACAPY_AUTO_PROVISION=true
+      - POSTGRESQL_WALLET_HOST=${POSTGRESQL_WALLET_HOST}
+      - POSTGRESQL_WALLET_PORT=${POSTGRESQL_WALLET_PORT}
+      - POSTGRESQL_WALLET_USER=${POSTGRESQL_USER}
+      - POSTGRESQL_WALLET_PASSWORD=${POSTGRESQL_PASSWORD}
+      - POSTGRESQL_WALLET_ADMIN_PASSWORD=${POSTGRESQL_ADMIN_PASSWORD}
+      - POSTGRESQL_WALLET_ADMIN_USER=${POSTGRESQL_WALLET_ADMIN_USER}
     ports:
       - ${AGENT_ADMIN_PORT}:${AGENT_ADMIN_PORT}
       - ${AGENT_HTTP_PORT}:${AGENT_HTTP_PORT}
@@ -116,22 +135,10 @@ services:
         aca-py start \
         --inbound-transport http '0.0.0.0' ${AGENT_HTTP_PORT} \
         --outbound-transport http \
-        --endpoint ${AGENT_ENDPOINT} \
-        --genesis-url '${GENESIS_URL}' \
-        --auto-verify-presentation \
-        --auto-provision \
-        --wallet-type 'indy' \
-        --wallet-name 'oidc_agent_wallet' \
-        --wallet-key '${WALLET_ENCRYPTION_KEY}' \
-        --wallet-storage-type '${WALLET_TYPE}' \
         --wallet-storage-config '{\"url\":\"${POSTGRESQL_WALLET_HOST}:${POSTGRESQL_WALLET_PORT}\",\"max_connections\":5}' \
-        --wallet-storage-creds '{\"account\":\"${POSTGRESQL_WALLET_USER}\",\"password\":\"${POSTGRESQL_WALLET_PASSWORD}\",\"admin_account\":\"${POSTGRESQL_WALLET_ADMIN_USER}\",\"admin_password\":\"${POSTGRESQL_WALLET_ADMIN_PASSWORD}\"}' \
-        --seed '${AGENT_SEED}' \
+        --wallet-storage-creds '{\"account\":\"${POSTGRESQL_WALLET_USER}\",\"password\":\"${POSTGRESQL_WALLET_PASSWORD}\",\"admin_account\":\"${POSTGRESQL_WALLET_ADMIN_USER}\",\"admin_password\":\"${POSTGRESQL_WALLET_ADMIN_PASSWORD}\"}' \ 
         --admin '0.0.0.0' ${AGENT_ADMIN_PORT} \
         --${ACAPY_ADMIN_MODE} \
-        --label ${AGENT_NAME} \
-        --webhook-url ${CONTROLLER_WEB_HOOK_URL}
-        --log-level debug",
       ]
 
   wallet-db:
