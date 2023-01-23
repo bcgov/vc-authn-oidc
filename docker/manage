@@ -183,8 +183,8 @@ configureEnvironment() {
   export CONTROLLER_URL="${CONTROLLER_URL:-http://controller:5000}"
   export CONTROLLER_NGROK="http://controller-ngrok:4040"
   export CONTROLLER_WEB_HOOK_URL=${CONTROLLER_WEB_HOOK_URL:-${CONTROLLER_URL}/webhooks}
-  if [ ! -z "${IDENTITY_SERVER_API_KEY}" ]; then
-    CONTROLLER_WEB_HOOK_URL="${CONTROLLER_WEB_HOOK_URL}/${IDENTITY_SERVER_API_KEY}"
+  if [ ! -z "${CONTROLLER_API_KEY}" ]; then
+    CONTROLLER_WEB_HOOK_URL="${CONTROLLER_WEB_HOOK_URL}/${CONTROLLER_API_KEY}"
   fi
 
   # Multi-Tenant ACA-Py config
