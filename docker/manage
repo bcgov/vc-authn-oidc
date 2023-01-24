@@ -68,6 +68,15 @@ function isNgrokInstalled () {
   fi
 }
 
+function generateKey(){
+  (
+    _length=${1:-48}
+    # Format can be `-base64` or `-hex`
+    _format=${2:--base64}
+
+    echo $(openssl rand ${_format} ${_length})
+  )
+}
 
 function generateSeed(){
   (
