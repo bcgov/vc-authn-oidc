@@ -16,7 +16,10 @@ networks:
 
 run `docker-compose up` from `demo/vue` of this project
 run `./manage build` from `/docker` of this project to create and tag the image
-run `./manage up` from `/docker` of this project
+
+*inspect `./manage` file for environment variables, commenting/un-commenting configuration for an external multi-tenanted acapy, or using the single-tenant acapy defined in `../docker/docker-compose.yaml`
+
+run `./manage start-no-acapy` from `/docker` of this project
 
 ### Prepare Acapy wallet for use
 

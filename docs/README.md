@@ -159,6 +159,8 @@ A verifiable credential presentation request configuration, takes the following 
 }
 ```
 
+
+<TODO ENSURE THIS IS CORRECT FOR 2.0 controller>
 This data model is inspired by that is defined and used in the [Hyperledger Indy](https://www.hyperledger.org/projects/hyperledger-indy) project for [proof requests](https://hyperledger-indy.readthedocs.io/projects/sdk/en/latest/docs/design/002-anoncreds/README.html).
 
 - `id` : The identifier for the presentation configuration.
@@ -180,20 +182,20 @@ This data model is inspired by that is defined and used in the [Hyperledger Indy
 
 In order to manage the different verifiable credential presentation requests an OP can generate, the OP must expose the following endpoints.
 
-`/vc-configs` HTTP POST
+`/ver-configs` HTTP POST
 
 Request Body : [Data Model](#data-model)
 Returns : id
 
-`/vc-configs` HTTP GET
+`/ver-configs` HTTP GET
 
 Returns : List of [Data Model](#data-model)
 
-`/vc-configs/{id}` HTTP GET
+`/ver-configs/{id}` HTTP GET
 
 Returns : [Data Model](#data-model)
 
-`/vc-configs/{id}` HTTP DELETE
+`/ver-configs/{id}` HTTP DELETE
 
 Return : 200 Ok
 Return : 404 Not Found
