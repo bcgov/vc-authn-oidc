@@ -6,19 +6,15 @@ The premise of the demo is that you first get a verifiable credential from an ap
 
 ## Get a compatible mobile agent
 
-The demo supports the identity agent app from [trinsic.id](https://trinsic.id) for iOS and Android. There is some setup special setup needed for the Trinsic agent. Please follow the instructions [here](https://github.com/bcgov/identity-kit-poc/blob/main/docs/GettingApp.md) to setup the agent and then return back here for the rest of the instructions.
+The demo supports the identity agent app from [BC Mobile Wallet](https://www2.gov.bc.ca/gov/content/governments/government-id/bc-wallet) for iOS and Android. 
+
 
 **Are you a mobile agent builder?** We'd love to work with you to get your implementation working with the [vc-authn-oidc](https://github.com/bcgov/vc-authn-oidc) identity provider. If you are testing with our deployed service and have questions, please contact us on the #aries channel on [Hyperledger Rocketchat](https://chat.hyperledger.org) (you will need a free [Linux Foundation account](https://identity.linuxfoundation.org/user) to access that channel), or email us [here](mailto:swcurran@cloudcompass.ca).
 
-## Configure your mobile agent
-
-Set Network under settings to `Sovrin Staging`.
 
 ## Get a verifiable email credential
 
-To get your verified email credential, go to this [email verification service](https://email-verification.vonx.io/) run by the Province of BC. Enter your email address, check your email for an message from the service, and follow the instructions to get your verified email address credential.
-
-If you want, you can use your verified email credential to get an IIWBook credential that can also be used for authorization in the next step. Interested? Follow the instructions [here](https://iiwbook.vonx.io).
+<TODO PROVIDE INSTRUCTIONS FOR OBTAINING A CREDENTIAL FOR THE DEMO>
 
 ## Use the Verifiable Credential Identity Provider
 
