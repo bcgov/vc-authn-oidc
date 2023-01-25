@@ -37,7 +37,7 @@ To configure VC Authn you will need access to its database, either through a ter
 
 The following steps are applicable whether your client is an AIM broker or a web  trying to authenticate directly.
 
-There are several tables that need to be updated when configuring a new client. For exhaustive documentation please refer to the [IdentityServer4 docs](https://identityserver4.readthedocs.io/en/latest), the following is a list of commonly used settings:
+There are several tables that need to be updated when configuring a new client, the following is a list of commonly used settings:
 
 - **Clients**: this table holds the main list of clients that are authorized to authenticate using VC Authn. Add your client, making sure to use your unique **Client ID** name when doing so:
 
