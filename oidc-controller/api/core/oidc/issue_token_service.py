@@ -1,5 +1,7 @@
 import logging
+import json
 import uuid
+import dataclasses
 from datetime import datetime
 from typing import List, Dict, Any
 from pydantic import BaseModel
@@ -10,6 +12,7 @@ from ...verificationConfigs.models import VerificationConfig
 logger = logging.getLogger(__name__)
 
 
+@dataclasses.dataclass(frozen=True)
 class Claim(BaseModel):
     type: str
     value: str
@@ -20,7 +23,7 @@ class Token(BaseModel):
     issuer: str
     audiences: List[str]
     lifetime: int
-    claims: Dict[str, Claim]
+    claims: Dict[str, Any]
 
     @classmethod
     def get_claims(
@@ -30,17 +33,16 @@ class Token(BaseModel):
         logger.debug(f">>> Token.get_claims")
         logger.info(pres_exch)
 
-        claims: List[Claim] = [
+        oidc_claims: List[Claim] = [
             Claim(
                 type="pres_req_conf_id",
                 value=auth_session.request_parameters["pres_req_conf_id"],
             ),
             Claim(type="acr", value="vc_authn"),
         ]
-
         # subject claim
 
-        claims.append(
+        oidc_claims.append(
             Claim(type="nonce", value=auth_session.request_parameters["nonce"])
         )
 
@@ -75,12 +77,13 @@ class Token(BaseModel):
             sub_id_value = sub_id_claim.value
 
         # add sub and append presentation_claims
-        claims.append(Claim(type="sub", value=sub_id_value))
-        claims += list(presentation_claims.values())
+        oidc_claims.append(Claim(type="sub", value=sub_id_value))
+        presentation_claims.values()
 
-        result = {c.type: c for c in claims}
-        logger.info("claims generated for the token:")
-        logger.info(result)
+        result = {c.type: c.value for c in oidc_claims}
+        result["vc_proof_claims"] = json.dumps(
+            {c.type: c.value for c in presentation_claims.values()}
+        )
         return result
 
     # renames and calculates dict members appropriate to https://openid.net/specs/openid-connect-core-1_0.html#IDToken
@@ -91,12 +94,15 @@ class Token(BaseModel):
         """Converts oidc claims to IdToken attribute names"""
 
         result = {}  # nest VC attribute claims under the key=pres_req_conf_id
-        for claim in self.claims.values():
-            result[claim.type] = claim.value
 
-        result["t_id"] = "132465e4-c57f-459f-8534-e30e78484f24"  # what this do?
+        # for type, value in self.claims.items():
+        #     result[type] = value
+
         result["exp"] = int(round(datetime.now().timestamp())) + self.lifetime
         result["aud"] = self.audiences
         result["nonce"] = nonce
+
+        result.update(self.claims)
+        logger.info(f"<<< idtoken_dict r={result}")
 
         return result
