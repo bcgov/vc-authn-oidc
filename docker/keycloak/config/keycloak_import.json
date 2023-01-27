@@ -1110,13 +1110,13 @@
     },
     {
       "id": "f4893fe6-da75-4cb5-bced-0500991988bf",
-      "name": "vc_proof_claims",
+      "name": "vc_presented_attributes",
       "identityProviderAlias": "vc-authn",
       "identityProviderMapper": "oidc-user-attribute-idp-mapper",
       "config": {
         "syncMode": "inherit",
-        "claim": "vc_proof_claims",
-        "user.attribute": "vc_proof_claims"
+        "claim": "vc_presented_attributes",
+        "user.attribute": "vc_presented_attributes"
       }
     }
   ],
