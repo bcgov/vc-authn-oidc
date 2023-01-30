@@ -1107,6 +1107,17 @@
         "claim": "pres_req_conf_id",
         "user.attribute": "pres_req_conf_id"
       }
+    },
+    {
+      "id": "f4893fe6-da75-4cb5-bced-0500991988bf",
+      "name": "vc_presented_attributes",
+      "identityProviderAlias": "vc-authn",
+      "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+      "config": {
+        "syncMode": "inherit",
+        "claim": "vc_presented_attributes",
+        "user.attribute": "vc_presented_attributes"
+      }
     }
   ],
   "components": {

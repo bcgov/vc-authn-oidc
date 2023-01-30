@@ -207,20 +207,20 @@ configureEnvironment() {
   fi
 
   # Multi-Tenant ACA-Py config
-  # export ACAPY_HOST="http://tenant-proxy"
-  # export ACAPY_TENANCY="multi"
-  # export MT_ACAPY_WALLET_ID="ece83a72-81df-40b0-b770-9a55d92b254d"
-  # export ACAPY_NGROK_TUNNEL_HOST="http://ngrok-traction-agent:4040"
-  # export AGENT_ADMIN_PORT="8080"
+  export ACAPY_HOST="http://tenant-proxy"
+  export ACAPY_TENANCY="multi"
+  export MT_ACAPY_WALLET_ID="ece83a72-81df-40b0-b770-9a55d92b254d"
+  export ACAPY_NGROK_TUNNEL_HOST="http://ngrok-traction-agent:4040"
+  export AGENT_ADMIN_PORT="8080"
 
 
-  # # Single-Tenant ACA-Py config
-  export ACAPY_HOST="http://aca-py"
-  export ACAPY_TENANCY="single"
-  export ST_ACAPY_ADMIN_API_KEY_NAME="x-api-key"
-  export ST_ACAPY_ADMIN_API_KEY="change-me"
-  export ACAPY_NGROK_TUNNEL_HOST="http://aca-py-ngrok:4040"
-  export AGENT_ADMIN_PORT="8077"
+  # # # Single-Tenant ACA-Py config
+  # export ACAPY_HOST="http://aca-py"
+  # export ACAPY_TENANCY="single"
+  # export ST_ACAPY_ADMIN_API_KEY_NAME="x-api-key"
+  # export ST_ACAPY_ADMIN_API_KEY="change-me"
+  # export ACAPY_NGROK_TUNNEL_HOST="http://aca-py-ngrok:4040"
+  # export AGENT_ADMIN_PORT="8077"
 
   # ACA-py url constructions
   export AGENT_HTTP_PORT="8030"
