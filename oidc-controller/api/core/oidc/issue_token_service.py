@@ -47,9 +47,7 @@ class Token(BaseModel):
             Claim(type="nonce", value=auth_session.request_parameters["nonce"])
         )
 
-        presentation_claims: Dict[str, Claim] = {
-            "given_name": Claim("email", "email1@net.com")
-        }
+        presentation_claims: Dict[str, Claim] = {}
         logger.info(
             auth_session.presentation_exchange["presentation_request"][
                 "requested_attributes"
