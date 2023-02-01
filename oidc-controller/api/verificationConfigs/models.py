@@ -1,10 +1,9 @@
 from typing import Optional, List
 from pydantic import BaseModel, Field
 
-5
-from .examples import ex_ver_config_read, ex_ver_config_create, ex_ver_config_patch
+from .examples import ex_ver_config_read, ex_ver_config_create
 
-
+## Slightly modified from ACAPY models.
 class AttributeFilter(BaseModel):
     schema_id: Optional[str]
     cred_def_id: Optional[str]
@@ -76,5 +75,4 @@ class VerificationConfigCreate(VerificationConfigBase):
 
 
 class VerificationConfigPatch(VerificationConfigBase):
-    class Config:
-        schema_extra = {"example": ex_ver_config_patch}
+    pass

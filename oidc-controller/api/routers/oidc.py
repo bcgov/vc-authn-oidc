@@ -3,7 +3,7 @@ import io
 import logging
 
 import qrcode
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from oic.oic.message import (
     AccessTokenRequest,
@@ -11,13 +11,11 @@ from oic.oic.message import (
     AuthorizationRequest,
     IdToken,
 )
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..authSessions.crud import AuthSessionCreate, AuthSessionCRUD
 from ..core.acapy.client import AcapyClient
 from ..core.config import settings
 from ..core.oidc.issue_token_service import Token
-from ..db.session import get_async_session
 from ..verificationConfigs.crud import VerificationConfigCRUD
 
 ChallengePollUri = "/poll"

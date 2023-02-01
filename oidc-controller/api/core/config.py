@@ -6,7 +6,7 @@ from functools import lru_cache
 from typing import Optional
 
 import requests
-from pydantic import BaseSettings, PostgresDsn
+from pydantic import BaseSettings
 
 logger = logging.getLogger(__name__)
 

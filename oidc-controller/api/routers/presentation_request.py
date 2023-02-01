@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 from ..authSessions.crud import AuthSessionCRUD
@@ -11,7 +11,6 @@ from ..core.aries import (
     PresentProofv10Attachment,
     ServiceDecorator,
 )
-from ..db.session import get_async_session
 
 logger = logging.getLogger(__name__)
 
