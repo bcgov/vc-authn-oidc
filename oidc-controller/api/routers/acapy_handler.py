@@ -33,8 +33,7 @@ async def post_topic(
             logger.info(
                 f">>>> pres_exch_id: {webhook_body['presentation_exchange_id']}"
             )
-            auth_sessions = AuthSessionCRUD(session)
-            auth_session: AuthSession = await auth_sessions.get_by_pres_exch_id(
+            auth_session: AuthSession = await AuthSessionCRUD.get_by_pres_exch_id(
                 webhook_body["presentation_exchange_id"]
             )
             if webhook_body["state"] == "presentation_received":
@@ -44,7 +43,7 @@ async def post_topic(
                 logger.info("VERIFIED")
                 # update presentation_exchange record
                 auth_session.verified = True
-                await auth_sessions.patch(
+                await AuthSessionCRUD.patch(
                     auth_session.uuid, AuthSessionPatch(**auth_session.dict())
                 )
 

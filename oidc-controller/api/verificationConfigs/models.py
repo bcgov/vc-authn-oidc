@@ -17,6 +17,7 @@ class AttributeFilter(BaseModel):
 class ReqAttr(BaseModel):
     name: str
     names: Optional[List[str]]
+    label: Optional[str]
     restrictions: List[AttributeFilter]
 
 
@@ -48,12 +49,12 @@ class VerificationConfigBase(BaseModel):
             "requested_attributes": {},
             "requested_predicates": {},
         }
-        for i, req_attr in enumerate(self.proof_request["requested_attributes"]):
-            label = req_attr.get("label") or "req_attr_" + str(i)
-            result["requested_attributes"][label] = req_attr
-        for req_pred in self.proof_request["requested_predicates"]:
-            label = req_pred.get("label") or "req_pred_" + str(i)
-            result["requested_predicates"][label] = req_pred
+        for i, req_attr in enumerate(self.proof_request.requested_attributes):
+            label = req_attr.label or "req_attr_" + str(i)
+            result["requested_attributes"][label] = req_attr.dict(exclude_none=True)
+        for req_pred in self.proof_request.requested_predicates:
+            label = req_pred.label or "req_pred_" + str(i)
+            result["requested_predicates"][label] = req_pred.dict(exclude_none=True)
         return result
 
     class Config:

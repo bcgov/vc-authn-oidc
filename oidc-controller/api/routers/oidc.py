@@ -5,8 +5,12 @@ import logging
 import qrcode
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
-from oic.oic.message import (AccessTokenRequest, AccessTokenResponse,
-                             AuthorizationRequest, IdToken)
+from oic.oic.message import (
+    AccessTokenRequest,
+    AccessTokenResponse,
+    AuthorizationRequest,
+    IdToken,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..authSessions.crud import AuthSessionCreate, AuthSessionCRUD
@@ -26,24 +30,10 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.post(VerifiedCredentialAuthorizeUri, response_model=dict)
-async def post_authorize(request: Request):
-    """Called by oidc platform."""
-    logger.debug(f">>> post_authorize")
-    logger.debug(f"payload ={request}")
-
-    return {}
-
-
 @router.get(f"{ChallengePollUri}/{{pid}}")
-async def poll_pres_exch_complete(
-    pid: str, session: AsyncSession = Depends(get_async_session)
-):
+async def poll_pres_exch_complete(pid: str):
     """Called by authorize webpage to see if request is verified and token issuance can proceed."""
-
-    auth_sessions = AuthSessionCRUD(session)
-    auth_session = await auth_sessions.get_by_pres_exch_id(pid)
-
+    auth_session = await AuthSessionCRUD.get(pid)
     return {"verified": auth_session.verified}
 
 
@@ -51,7 +41,6 @@ async def poll_pres_exch_complete(
 async def get_authorize(
     request: Request,
     state: str,
-    session: AsyncSession = Depends(get_async_session),
 ):
     """Called by oidc platform."""
     logger.debug(f">>> get_authorize")
@@ -63,10 +52,7 @@ async def get_authorize(
     client = AcapyClient()
     ver_config_id = model.get("pres_req_conf_id")
 
-    auth_sessions = AuthSessionCRUD(session)
-    ver_configs = VerificationConfigCRUD(session)
-    ver_config = await ver_configs.get(ver_config_id)
-    logger.warn(ver_config)
+    ver_config = await VerificationConfigCRUD.get(ver_config_id)
 
     # Create presentation_request to show on screen
     response = client.create_presentation_request(ver_config.generate_proof_request())
@@ -79,8 +65,7 @@ async def get_authorize(
     )
 
     # save OIDC AuthSession
-    auth_session = await auth_sessions.create(new_auth_session)
-
+    auth_session = await AuthSessionCRUD.create(new_auth_session)
     # QR CONTENTS
     controller_host = settings.CONTROLLER_URL
     url_to_message = (
@@ -128,7 +113,6 @@ async def get_authorize(
 async def get_authorize_callback(
     request: Request,
     pid: str,
-    session: AsyncSession = Depends(get_async_session),
 ):
     """Called by Authorize page when verification is complete"""
     logger.debug(f">>> get_authorize_callback")
@@ -136,8 +120,7 @@ async def get_authorize_callback(
 
     redirect_uri = "http://localhost:8880/auth/realms/vc-authn/broker/vc-authn/endpoint"
 
-    auth_sessions = AuthSessionCRUD(session)
-    auth_session = await auth_sessions.get(pid)
+    auth_session = await AuthSessionCRUD.get(pid)
 
     url = (
         redirect_uri
@@ -152,7 +135,6 @@ async def get_authorize_callback(
 @router.post(VerifiedCredentialTokenUri)
 async def post_token(
     request: Request,
-    session: AsyncSession = Depends(get_async_session),
 ):
     """Called by oidc platform to retreive token contents"""
     logger.info(f">>> post_token")
@@ -161,11 +143,8 @@ async def post_token(
 
     client = AcapyClient()
 
-    auth_sessions = AuthSessionCRUD(session)
-    auth_session = await auth_sessions.get(model.get("code"))
-
-    ver_configs = VerificationConfigCRUD(session)
-    ver_config = await ver_configs.get(auth_session.ver_config_id)
+    auth_session = await AuthSessionCRUD.get(model.get("code"))
+    ver_config = await VerificationConfigCRUD.get(auth_session.ver_config_id)
 
     presentation = client.get_presentation_request(auth_session.pres_exch_id)
 
