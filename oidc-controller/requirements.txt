@@ -23,6 +23,7 @@ Jinja2==3.0.3
 Mako==1.1.6
 MarkupSafe==2.0.1
 mbstrdecoder==1.1.1
+motor==3.1.1
 oic==1.4.0
 oidcmsg==1.5.4
 paramiko==2.9.2

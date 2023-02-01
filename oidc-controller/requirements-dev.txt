@@ -41,6 +41,7 @@ jsonschema==3.2.0
 Mako==1.1.6
 MarkupSafe==2.0.1
 mbstrdecoder==1.1.1
+motor==3.1.1
 multidict==6.0.2
 mypy-extensions==0.4.3
 oic==1.4.0

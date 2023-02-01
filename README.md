@@ -34,3 +34,6 @@ run `python wallet_init.py` from `/docker`
 ### Prepare example wallet
 
 You will need a digital wallet app with a credential that contains two attributes `first_name` and `last_name`
+
+# MongoDB
+Use `Block Storage` as pvc type for mongo when deployed on openshift.

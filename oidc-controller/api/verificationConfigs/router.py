@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Body
 from fastapi import status as http_status
-
 from ..core.models import StatusMessage
 
 from .crud import VerificationConfigCRUD
@@ -9,21 +8,19 @@ from .models import (
     VerificationConfigCreate,
     VerificationConfigPatch,
     VerificationConfigRead,
+    VerificationConfig,
 )
 
 router = APIRouter()
 
 
 @router.post(
-    "", response_model=VerificationConfigRead, status_code=http_status.HTTP_201_CREATED
+    "/",
+    response_description="Add new verification configuration",
+    response_model=VerificationConfig,
 )
-async def create_ver_conf(
-    data: VerificationConfigCreate,
-    ver_conf: VerificationConfigCRUD = Depends(get_verification_configs_crud),
-):
-    ver_conf = await ver_conf.create(data=data)
-
-    return ver_conf
+async def create_ver_config(ver_config: VerificationConfig):
+    return await VerificationConfigCRUD.create(ver_config)
 
 
 @router.get(
@@ -31,13 +28,10 @@ async def create_ver_conf(
     response_model=VerificationConfigRead,
     status_code=http_status.HTTP_200_OK,
 )
-async def get_ver_conf_by_uuid(
+async def get_ver_conf(
     ver_config_id: str,
-    ver_configs: VerificationConfigCRUD = Depends(get_verification_configs_crud),
 ):
-    ver_config = await ver_configs.get(ver_config_id=ver_config_id)
-
-    return ver_config
+    return await VerificationConfigCRUD.get(ver_config_id)
 
 
 @router.patch(

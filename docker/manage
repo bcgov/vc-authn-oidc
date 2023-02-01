@@ -192,10 +192,11 @@ configureEnvironment() {
 
   # controller-db
   export POSTGRESQL_HOST="controller-db"
-  export POSTGRESQL_PORT=5432
+  export POSTGRESQL_PORT="27017"
   export POSTGRESQL_DB="oidccontroller"
-  export POSTGRESQL_USER="postgres"
-  export POSTGRESQL_PASSWORD="postgresPass"
+  export OIDC_CONTROLLER_DB_USER="oidccontrolleruser"
+  export OIDC_CONTROLLER_DB_USER_PWD="oidccontrollerpass"
+
 
   # controller
   export CONTROLLER_SERVICE_PORT=5201

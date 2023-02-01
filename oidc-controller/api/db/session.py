@@ -1,22 +1,17 @@
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import QueuePool
+from pymongo import MongoClient, ASCENDING
 from api.core.config import settings
-
-from sqlmodel.ext.asyncio.session import AsyncSession
-
-async_engine = create_async_engine(
-    settings.SQLALCHEMY_DATABASE_URI,
-    echo=settings.DB_ECHO_LOG,
-    echo_pool=settings.DB_ECHO_LOG,
-    pool_size=20,
-    poolclass=QueuePool,
-)
+from .collections import COLLECTIONS
 
 
 async def get_async_session():
-    async_session = sessionmaker(
-        bind=async_engine, class_=AsyncSession, expire_on_commit=False
-    )
-    async with async_session() as session:
-        yield session
+    yield None
+
+
+client = MongoClient(settings.DB_URL)
+db = client[settings.PSQL_DB]
+
+
+ver_configs = db.get_collection(COLLECTIONS.VER_CONFIGS)
+
+# idempotent
+ver_configs.create_index([("ver_config_id", ASCENDING)], unique=True)
