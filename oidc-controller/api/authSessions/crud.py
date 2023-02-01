@@ -32,10 +32,10 @@ class AuthSessionCRUD:
         if auth_sess is None:
             raise HTTPException(
                 status_code=http_status.HTTP_404_NOT_FOUND,
-                detail="The verification_config hasn't been found!",
+                detail="The auth_session hasn't been found!",
             )
 
-        return auth_sess
+        return AuthSession(**auth_sess)
 
     @classmethod
     async def patch(cls, auth_session_id: str, data: AuthSessionPatch) -> AuthSession:
@@ -62,7 +62,7 @@ class AuthSessionCRUD:
         if auth_sess is None:
             raise HTTPException(
                 status_code=http_status.HTTP_404_NOT_FOUND,
-                detail="The verification_config hasn't been found!",
+                detail="The auth_session hasn't been found with that pres_exch_id!",
             )
 
-        return auth_sess
+        return AuthSession(**auth_sess)

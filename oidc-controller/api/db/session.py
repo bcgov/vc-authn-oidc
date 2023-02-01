@@ -7,9 +7,8 @@ async def get_async_session():
     yield None
 
 
-client = MongoClient(settings.DB_URL)
+client = MongoClient(settings.DB_URL, uuidRepresentation="pythonLegacy")
 db = client[settings.PSQL_DB]
-
 
 ver_configs = db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
 

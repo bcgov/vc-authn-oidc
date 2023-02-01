@@ -84,7 +84,7 @@ async def get_authorize(
             fetch('{controller_host}/vc/connect{ChallengePollUri}/{auth_session.pres_exch_id}')
                 .then(response => response.json())
                 .then(data => {{if (data.verified) {{
-                        window.location.replace('{controller_host}/vc/connect{AuthorizeCallbackUri}?pid={auth_session.uuid}', {{method: 'POST'}});
+                        window.location.replace('{controller_host}/vc/connect{AuthorizeCallbackUri}?pid={auth_session.id}', {{method: 'POST'}});
                     }}
                 }})
         }}, 2000);
@@ -102,7 +102,7 @@ async def get_authorize(
             <p><img src="data:image/jpeg;base64,{image_contents}" alt="{image_contents}" width="300px" height="300px" /></p>
 
             <p> User waits on this screen until Proof has been presented to the vcauth service agent, then is redirected to</p>
-            <a href="http://localhost:5201/vc/connect{AuthorizeCallbackUri}?pid={auth_session.uuid}">callback url (redirect to kc)</a>
+            <a href="http://localhost:5201/vc/connect{AuthorizeCallbackUri}?pid={auth_session.id}">callback url (redirect to kc)</a>
         </body>
     </html>
 
@@ -125,7 +125,7 @@ async def get_authorize_callback(
     url = (
         redirect_uri
         + "?code="
-        + str(auth_session.uuid)
+        + str(auth_session.id)
         + "&state="
         + str(auth_session.request_parameters["state"])
     )
