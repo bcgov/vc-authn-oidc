@@ -1,8 +1,8 @@
 import base64
 import io
 import logging
-
 import qrcode
+
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from oic.oic.message import (

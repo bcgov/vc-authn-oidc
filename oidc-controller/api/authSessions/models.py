@@ -1,4 +1,3 @@
-import uuid
 from typing import Dict
 from datetime import datetime, timedelta
 from pydantic import BaseModel, Field
@@ -8,7 +7,7 @@ from api.core.acapy.client import AcapyClient
 
 
 class AuthSessionBase(BaseModel):
-    pres_exch_id: uuid.UUID
+    pres_exch_id: str
     expired_timestamp: datetime = Field(default=datetime.now() + timedelta(seconds=600))
     ver_config_id: str
     request_parameters: dict

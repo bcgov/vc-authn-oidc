@@ -1,11 +1,11 @@
 import logging
-from uuid import UUID
-from pymongo import ReturnDocument
 
+from pymongo import ReturnDocument
 from fastapi import HTTPException
 from fastapi import status as http_status
 from fastapi.encoders import jsonable_encoder
 
+from ..core.models import PyObjectId
 from .models import (
     AuthSession,
     AuthSessionCreate,
@@ -26,8 +26,12 @@ class AuthSessionCRUD:
 
     @classmethod
     async def get(cls, auth_session_id: str) -> AuthSession:
+        if not PyObjectId.is_valid(auth_session_id):
+            raise HTTPException(
+                status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
+            )
         col = db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
-        auth_sess = col.find_one({"_id": auth_session_id})
+        auth_sess = col.find_one({"_id": PyObjectId(auth_session_id)})
 
         if auth_sess is None:
             raise HTTPException(
