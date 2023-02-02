@@ -191,9 +191,9 @@ configureEnvironment() {
   IDENTITY_SERVER_URL=${IDENTITY_SERVER_URL:-$NGROK_CONTROLLER_URL}
 
   # controller-db
-  export POSTGRESQL_HOST="controller-db"
-  export POSTGRESQL_PORT="27017"
-  export POSTGRESQL_DB="oidccontroller"
+  export MONGODB_HOST="controller-db"
+  export MONGODB_PORT="27017"
+  export MONGODB_NAME="oidccontroller"
   export OIDC_CONTROLLER_DB_USER="oidccontrolleruser"
   export OIDC_CONTROLLER_DB_USER_PWD="oidccontrollerpass"
 

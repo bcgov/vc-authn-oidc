@@ -9,9 +9,9 @@ services:
       controller-ngrok:
         condition: service_started
     environment:
-      - POSTGRESQL_HOST=${POSTGRESQL_HOST}
-      - POSTGRESQL_PORT=${POSTGRESQL_PORT}
-      - POSTGRESQL_DB=${POSTGRESQL_DB}
+      - DB_HOST=${MONGODB_HOST}
+      - DB_PORT=${MONGODB_PORT}
+      - DB_NAME=${MONGODB_NAME}
       - OIDC_CONTROLLER_DB_USER=${OIDC_CONTROLLER_DB_USER}
       - OIDC_CONTROLLER_DB_USER_PWD=${OIDC_CONTROLLER_DB_USER_PWD}
       - ACAPY_ADMIN_URL=${ACAPY_ADMIN_URL}
@@ -34,12 +34,12 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${OIDC_CONTROLLER_DB_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${OIDC_CONTROLLER_DB_USER_PWD}
-      - MONGO_INITDB_DATABASE=${POSTGRESQL_DB}
+      - MONGO_INITDB_DATABASE=${MONGODB_NAME}
     volumes:
       - controller-db-data:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     ports:
-      - 27017:27017
+      - ${MONGODB_PORT}:27017
     restart: unless-stopped
     networks:
       - vc_auth

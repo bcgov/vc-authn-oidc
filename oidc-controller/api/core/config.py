@@ -30,20 +30,13 @@ class GlobalConfig(BaseSettings):
 
     # the following defaults match up with default values in scripts/.env.example
     # these MUST be all set in non-local environments.
-    PSQL_HOST: str = os.environ.get("POSTGRESQL_HOST", "localhost")
-    PSQL_PORT: int = os.environ.get("POSTGRESQL_PORT", "5432")
-    PSQL_DB: str = os.environ.get("POSTGRESQL_DB", "oidc-controller")
-    PSQL_USER: str = os.environ.get("OIDC_CONTROLLER_DB_USER", "oidccontrolleruser")
-    PSQL_PASS: str = os.environ.get("OIDC_CONTROLLER_DB_USER_PWD", "oidccontrollerpass")
+    DB_HOST: str = os.environ.get("DB_HOST", "localhost")
+    DB_PORT: int = os.environ.get("DB_PORT", "27017")
+    DB_NAME: str = os.environ.get("DB_NAME", "oidc-controller")
+    DB_USER: str = os.environ.get("OIDC_CONTROLLER_DB_USER", "oidccontrolleruser")
+    DB_PASS: str = os.environ.get("OIDC_CONTROLLER_DB_USER_PWD", "oidccontrollerpass")
 
-    PSQL_ADMIN_USER: str = os.environ.get(
-        "OIDC_CONTROLLER_DB_ADMIN", "oidccontrolleradminuser"
-    )
-    PSQL_ADMIN_PASS: str = os.environ.get(
-        "OIDC_CONTROLLER_DB_ADMIN_PWD", "oidccontrolleradminpass"
-    )
-
-    DB_URL: str = f"mongodb://{PSQL_USER}:{PSQL_PASS}@{PSQL_HOST}:{PSQL_PORT}/{PSQL_DB}?retryWrites=true&w=majority"
+    MONGODB_URL: str = f"mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}?retryWrites=true&w=majority"
 
     CONTROLLER_URL: str = os.environ.get("CONTROLLER_URL")
     # # Get CONTROLLER_URL from env or NGROK.
