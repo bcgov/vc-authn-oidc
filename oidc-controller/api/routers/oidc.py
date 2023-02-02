@@ -18,24 +18,20 @@ from ..core.config import settings
 from ..core.oidc.issue_token_service import Token
 from ..verificationConfigs.crud import VerificationConfigCRUD
 
-ChallengePollUri = "/poll"
-AuthorizeCallbackUri = "/callback"
-VerifiedCredentialAuthorizeUri = "/authorize"
-VerifiedCredentialTokenUri = "/token"
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 
-@router.get(f"{ChallengePollUri}/{{pid}}")
+@router.get("/poll/{pid}")
 async def poll_pres_exch_complete(pid: str):
     """Called by authorize webpage to see if request is verified and token issuance can proceed."""
     auth_session = await AuthSessionCRUD.get(pid)
     return {"verified": auth_session.verified}
 
 
-@router.get(VerifiedCredentialAuthorizeUri, response_class=HTMLResponse)
+@router.get("/authorize", response_class=HTMLResponse)
 async def get_authorize(
     request: Request,
     state: str,
@@ -107,7 +103,7 @@ async def get_authorize(
     """
 
 
-@router.get(AuthorizeCallbackUri, response_class=RedirectResponse)
+@router.get("/callback", response_class=RedirectResponse)
 async def get_authorize_callback(
     request: Request,
     pid: str,
@@ -130,7 +126,7 @@ async def get_authorize_callback(
     return RedirectResponse(url)
 
 
-@router.post(VerifiedCredentialTokenUri)
+@router.post("/token")
 async def post_token(
     request: Request,
 ):
