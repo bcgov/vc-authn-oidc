@@ -12,6 +12,7 @@ from oic.oic.message import (
     IdToken,
 )
 
+from ..core.logger_util import log_debug
 from ..authSessions.crud import AuthSessionCreate, AuthSessionCRUD
 from ..core.acapy.client import AcapyClient
 from ..core.config import settings
@@ -28,6 +29,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+@log_debug
 @router.get(f"{ChallengePollUri}/{{pid}}")
 async def poll_pres_exch_complete(pid: str):
     """Called by authorize webpage to see if request is verified and token issuance can proceed."""
@@ -35,11 +37,9 @@ async def poll_pres_exch_complete(pid: str):
     return {"verified": auth_session.verified}
 
 
+@log_debug
 @router.get(VerifiedCredentialAuthorizeUri, response_class=HTMLResponse)
-async def get_authorize(
-    request: Request,
-    state: str,
-):
+async def get_authorize(request: Request):
     """Called by oidc platform."""
     logger.debug(f">>> get_authorize")
 
@@ -107,17 +107,12 @@ async def get_authorize(
     """
 
 
+@log_debug
 @router.get("/callback", response_class=RedirectResponse)
-async def get_authorize_callback(
-    request: Request,
-    pid: str,
-):
+async def get_authorize_callback(pid: str):
     """Called by Authorize page when verification is complete"""
-    logger.debug(f">>> get_authorize_callback")
-    logger.debug(f"payload ={request}")
 
     redirect_uri = "http://localhost:8880/auth/realms/vc-authn/broker/vc-authn/endpoint"
-
     auth_session = await AuthSessionCRUD.get(pid)
 
     url = (
@@ -130,12 +125,10 @@ async def get_authorize_callback(
     return RedirectResponse(url)
 
 
+@log_debug
 @router.post(VerifiedCredentialTokenUri)
-async def post_token(
-    request: Request,
-):
+async def post_token(request: Request):
     """Called by oidc platform to retreive token contents"""
-    logger.info(f">>> post_token")
     form = await request.form()
     model = AccessTokenRequest().from_dict(form._dict)
 
@@ -164,5 +157,4 @@ async def post_token(
     }
 
     response = AccessTokenResponse().from_dict(values)
-    logger.info(response)
     return response
