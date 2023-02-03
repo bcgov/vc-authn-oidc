@@ -1,12 +1,11 @@
 import json
 import logging
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Request
 
 from ..authSessions.crud import AuthSessionCRUD
 from ..authSessions.models import AuthSession, AuthSessionPatch
 from ..core.acapy.client import AcapyClient
-from ..db.session import get_async_session
 
 logger = logging.getLogger(__name__)
 
