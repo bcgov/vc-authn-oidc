@@ -2,18 +2,18 @@ version: "3"
 services:
   controller:
     image: vc-authn-oidc-controller
-    entrypoint: bash -c "alembic upgrade head && uvicorn api.main:app --reload --host 0.0.0.0 --port 5000 --log-level info"
+    entrypoint: bash -c "uvicorn api.main:app --reload --host 0.0.0.0 --port 5000 --log-level info"
     depends_on:
       controller-db:
-        condition: service_healthy
+        condition: service_started
       controller-ngrok:
         condition: service_started
     environment:
-      - POSTGRESQL_HOST=${POSTGRESQL_HOST}
-      - POSTGRESQL_PORT=${POSTGRESQL_PORT}
-      - POSTGRESQL_DB=${POSTGRESQL_DB}
-      - POSTGRESQL_USER=${POSTGRESQL_USER}
-      - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
+      - DB_HOST=${MONGODB_HOST}
+      - DB_PORT=${MONGODB_PORT}
+      - DB_NAME=${MONGODB_NAME}
+      - OIDC_CONTROLLER_DB_USER=${OIDC_CONTROLLER_DB_USER}
+      - OIDC_CONTROLLER_DB_USER_PWD=${OIDC_CONTROLLER_DB_USER_PWD}
       - ACAPY_ADMIN_URL=${ACAPY_ADMIN_URL}
       - ACAPY_TENANCY=${ACAPY_TENANCY}
       - MT_ACAPY_WALLET_ID=${MT_ACAPY_WALLET_ID}
@@ -30,19 +30,17 @@ services:
       - vc_auth
 
   controller-db:
-    image: postgres:12
+    image: mongo:6.0
     environment:
-      - POSTGRES_PASSWORD=${POSTGRESQL_PASSWORD}
-    extra_hosts:
-      - host.docker.internal:host-gateway
+      - MONGO_INITDB_ROOT_USERNAME=${OIDC_CONTROLLER_DB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${OIDC_CONTROLLER_DB_USER_PWD}
+      - MONGO_INITDB_DATABASE=${MONGODB_NAME}
     volumes:
-      - controller-db-data:/var/lib/postgresql/data
-      - ./db_init.sql:/docker-entrypoint-initdb.d/1-init.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - controller-db-data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    ports:
+      - ${MONGODB_PORT}:27017
+    restart: unless-stopped
     networks:
       - vc_auth
 

@@ -25,5 +25,3 @@ ex_ver_config_create = {
         "requested_predicates": [],
     },
 }
-
-ex_ver_config_patch = {"nickname": "TheLastManStands!", "role": "warrior"}

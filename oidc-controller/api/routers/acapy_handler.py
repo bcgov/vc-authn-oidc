@@ -1,13 +1,11 @@
 import json
 import logging
 
-from fastapi import APIRouter, Depends, Request
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Request
 
 from ..authSessions.crud import AuthSessionCRUD
 from ..authSessions.models import AuthSession, AuthSessionPatch
 from ..core.acapy.client import AcapyClient
-from ..db.session import get_async_session
 
 logger = logging.getLogger(__name__)
 
@@ -18,11 +16,10 @@ async def _parse_webhook_body(request: Request):
     return json.loads((await request.body()).decode("ascii"))
 
 
-@router.post("/topic/{topic}")
+@router.post("/topic/{topic}/")
 async def post_topic(
     request: Request,
     topic: str,
-    session: AsyncSession = Depends(get_async_session),
 ):
     """Called by aca-py agent."""
     logger.info(f">>> post_topic : topic={topic}")
@@ -33,8 +30,7 @@ async def post_topic(
             logger.info(
                 f">>>> pres_exch_id: {webhook_body['presentation_exchange_id']}"
             )
-            auth_sessions = AuthSessionCRUD(session)
-            auth_session: AuthSession = await auth_sessions.get_by_pres_exch_id(
+            auth_session: AuthSession = await AuthSessionCRUD.get_by_pres_exch_id(
                 webhook_body["presentation_exchange_id"]
             )
             if webhook_body["state"] == "presentation_received":
@@ -44,8 +40,8 @@ async def post_topic(
                 logger.info("VERIFIED")
                 # update presentation_exchange record
                 auth_session.verified = True
-                await auth_sessions.patch(
-                    auth_session.uuid, AuthSessionPatch(**auth_session.dict())
+                await AuthSessionCRUD.patch(
+                    auth_session.id, AuthSessionPatch(**auth_session.dict())
                 )
 
             pass

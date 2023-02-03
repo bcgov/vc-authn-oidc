@@ -6,7 +6,7 @@ from functools import lru_cache
 from typing import Optional
 
 import requests
-from pydantic import BaseSettings, PostgresDsn
+from pydantic import BaseSettings
 
 logger = logging.getLogger(__name__)
 
@@ -30,18 +30,13 @@ class GlobalConfig(BaseSettings):
 
     # the following defaults match up with default values in scripts/.env.example
     # these MUST be all set in non-local environments.
-    PSQL_HOST: str = os.environ.get("POSTGRESQL_HOST", "localhost")
-    PSQL_PORT: int = os.environ.get("POSTGRESQL_PORT", "5432")
-    PSQL_DB: str = os.environ.get("POSTGRESQL_DB", "traction")
-    PSQL_USER: str = os.environ.get("OIDC_CONTROLLER_DB_USER", "oidccontrolleruser")
-    PSQL_PASS: str = os.environ.get("OIDC_CONTROLLER_DB_USER_PWD", "oidccontrollerpass")
+    DB_HOST: str = os.environ.get("DB_HOST", "localhost")
+    DB_PORT: int = os.environ.get("DB_PORT", "27017")
+    DB_NAME: str = os.environ.get("DB_NAME", "oidc-controller")
+    DB_USER: str = os.environ.get("OIDC_CONTROLLER_DB_USER", "oidccontrolleruser")
+    DB_PASS: str = os.environ.get("OIDC_CONTROLLER_DB_USER_PWD", "oidccontrollerpass")
 
-    PSQL_ADMIN_USER: str = os.environ.get(
-        "OIDC_CONTROLLER_DB_ADMIN", "oidccontrolleradminuser"
-    )
-    PSQL_ADMIN_PASS: str = os.environ.get(
-        "OIDC_CONTROLLER_DB_ADMIN_PWD", "oidccontrolleradminpass"
-    )
+    MONGODB_URL: str = f"mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}?retryWrites=true&w=majority"
 
     CONTROLLER_URL: str = os.environ.get("CONTROLLER_URL")
     # # Get CONTROLLER_URL from env or NGROK.
@@ -69,18 +64,9 @@ class GlobalConfig(BaseSettings):
         print("loaded ACAPY_AGENT_URL from ACAPY_NGROK_TUNNEL_HOST")
     print("ACAPY_AGENT_URL: " + str(ACAPY_AGENT_URL))
 
-    # application connection is async
-    # fmt: off
-    SQLALCHEMY_DATABASE_URI: PostgresDsn = (
-        f"postgresql+asyncpg://{PSQL_USER}:{PSQL_PASS}@{PSQL_HOST}:{PSQL_PORT}/{PSQL_DB}"  # noqa: E501
-    )
-
-    # migrations connection uses owner role and is synchronous
-    SQLALCHEMY_DATABASE_ADMIN_URI: PostgresDsn = (
-        f"postgresql://{PSQL_ADMIN_USER}:{PSQL_ADMIN_PASS}@{PSQL_HOST}:{PSQL_PORT}/{PSQL_DB}"  # noqa: E501
-    )
-
-    ACAPY_TENANCY: str = os.environ.get("ACAPY_TENANCY", "single") # other option is "multi"
+    ACAPY_TENANCY: str = os.environ.get(
+        "ACAPY_TENANCY", "single"
+    )  # other option is "multi"
 
     ACAPY_ADMIN_URL: str = os.environ.get("ACAPY_ADMIN_URL", "http://localhost:8031")
 

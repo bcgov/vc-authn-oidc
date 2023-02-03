@@ -5,7 +5,7 @@ import time
 from typing import Callable, Any
 
 
-def debug_info(func: Callable[..., Any]) -> Callable[..., Any]:
+def log_debug(func: Callable[..., Any]) -> Callable[..., Any]:
     def wrapper(*args, **kwargs):
         logger = logging.getLogger(func.__name__)
         logger.setLevel(logging.DEBUG)
