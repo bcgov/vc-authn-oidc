@@ -15,6 +15,7 @@ router = APIRouter()
 @router.post(
     "/",
     response_description="Add new verification configuration",
+    status_code=http_status.HTTP_201_CREATED,
     response_model=VerificationConfig,
     response_model_exclude_unset=True,
 )
