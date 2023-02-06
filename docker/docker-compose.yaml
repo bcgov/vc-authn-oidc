@@ -14,13 +14,13 @@ services:
       - DB_NAME=${MONGODB_NAME}
       - OIDC_CONTROLLER_DB_USER=${OIDC_CONTROLLER_DB_USER}
       - OIDC_CONTROLLER_DB_USER_PWD=${OIDC_CONTROLLER_DB_USER_PWD}
-      - ACAPY_ADMIN_URL=${ACAPY_ADMIN_URL}
-      - ACAPY_TENANCY=${ACAPY_TENANCY}
+      - ACAPY_ADMIN_URL=${AGENT_ADMIN_URL}
+      - ACAPY_TENANCY=${AGENT_TENANT_MODE}
       - MT_ACAPY_WALLET_ID=${MT_ACAPY_WALLET_ID}
       - MT_ACAPY_WALLET_KEY=${MT_ACAPY_WALLET_KEY}
-      - ST_ACAPY_ADMIN_API_KEY=${ST_ACAPY_ADMIN_API_KEY}
+      - ST_ACAPY_ADMIN_API_KEY=${AGENT_ADMIN_API_KEY}
       - ST_ACAPY_ADMIN_API_KEY_NAME=${ST_ACAPY_ADMIN_API_KEY_NAME}
-      - ACAPY_NGROK_TUNNEL_HOST=${ACAPY_NGROK_TUNNEL_HOST}
+      - ACAPY_NGROK_TUNNEL_HOST=${AGENT_NGROK_TUNNEL_HOST}
       - CONTROLLER_NGROK=${CONTROLLER_NGROK}
     ports:
       - ${CONTROLLER_SERVICE_PORT}:5000
@@ -98,7 +98,7 @@ services:
       - vc_auth
 
   aca-py:
-    image: bcgovimages/aries-cloudagent:py36-1.16-1_0.7.5
+    image: bcgovimages/aries-cloudagent:py36-1.16-1_1.0.0-rc1
     environment:
       - ACAPY_LABEL=${AGENT_NAME}
       - ACAPY_ENDPOINT=${AGENT_ENDPOINT}
@@ -137,17 +137,18 @@ services:
         --wallet-storage-config '{\"url\":\"${POSTGRESQL_WALLET_HOST}:${POSTGRESQL_WALLET_PORT}\",\"max_connections\":5}' \
         --wallet-storage-creds '{\"account\":\"${POSTGRESQL_WALLET_USER}\",\"password\":\"${POSTGRESQL_WALLET_PASSWORD}\",\"admin_account\":\"${POSTGRESQL_WALLET_ADMIN_USER}\",\"admin_password\":\"${POSTGRESQL_WALLET_ADMIN_PASSWORD}\"}' \ 
         --admin '0.0.0.0' ${AGENT_ADMIN_PORT} \
-        --${ACAPY_ADMIN_MODE} 
+        --${AGENT_ADMIN_MODE} 
       "
       ]
 
   wallet-db:
-    image: registry.access.redhat.com/rhscl/postgresql-10-rhel7:latest
+    image: postgres:15.1-alpine
     environment:
-      - POSTGRESQL_USER=${POSTGRESQL_WALLET_USER}
-      - POSTGRESQL_PASSWORD=${POSTGRESQL_WALLET_PASSWORD}
-      - POSTGRESQL_DATABASE=${POSTGRESQL_WALLET_DATABASE}
-      - POSTGRESQL_ADMIN_PASSWORD=${POSTGRESQL_WALLET_ADMIN_PASSWORD}
+      - POSTGRES_USER=${POSTGRESQL_WALLET_USER}
+      - POSTGRES_PASSWORD=${POSTGRESQL_WALLET_PASSWORD}
+      - POSTGRES_DB=${POSTGRESQL_WALLET_DATABASE}
+      - POSTGRES_ADMIN_USER=${POSTGRESQL_WALLET_ADMIN_USER}
+      - POSTGRES_ADMIN_PASSWORD=${POSTGRESQL_WALLET_ADMIN_PASSWORD}
     networks:
       - vc_auth
     ports:
