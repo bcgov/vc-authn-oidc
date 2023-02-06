@@ -82,10 +82,9 @@ EOF
 # -----------------------------------------------------------------------------------------------------------------
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
-DEFAULT_CONTAINERS="keycloak controller-db"
-ACAPY_CONTAINERS="aca-py"
-PROD_CONTAINERS="controller"
-DEV_CONTAINERS=""
+DEFAULT_CONTAINERS="keycloak keycloak-db controller-db"
+ACAPY_CONTAINERS="aca-py wallet-db aca-py-ngrok"
+PROD_CONTAINERS="controller controller-ngrok"
 
 # -----------------------------------------------------------------------------------------------------------------
 # Functions:
@@ -158,8 +157,8 @@ configureEnvironment() {
 
   # agent
   export AGENT_TENANT_MODE="${AGENT_TENANT_MODE:-single}"
-  export AGENT_HOST=${AGENT_HOST:-http://aca-py}
-  export AGENT_NGROK_TUNNEL_HOST="${AGENT_HOST}:4040"
+  export AGENT_HOST="http://aca-py"
+  export AGENT_NGROK_TUNNEL="http://aca-py-ngrok:4040"
   export AGENT_NAME="VC-AuthN Agent"
   export AGENT_HTTP_PORT="8030"
   export AGENT_ADMIN_PORT=${AGENT_ADMIN_PORT:-"8077"}
@@ -170,6 +169,9 @@ configureEnvironment() {
   if [ ! -z "${AGENT_ADMIN_API_KEY}" ]; then
     AGENT_ADMIN_MODE="admin-api-key ${AGENT_ADMIN_API_KEY}"
   fi
+  export AGENT_WALLET_SEED=${AGENT_WALLET_SEED}
+  export MT_ACAPY_WALLET_ID=${MT_ACAPY_WALLET_ID}
+  export MT_ACAPY_WALLET_KEY=${MT_ACAPY_WALLET_KEY}
 
   # keycloak-db
   export KEYCLOAK_DB_NAME="keycloak"
@@ -193,8 +195,6 @@ configureEnvironment() {
   export POSTGRESQL_WALLET_DATABASE="wallet_db"
   export POSTGRESQL_WALLET_USER="walletuser"
   export POSTGRESQL_WALLET_PASSWORD="walletpassword"
-  export POSTGRESQL_WALLET_ADMIN_USER="postgres"
-  export POSTGRESQL_WALLET_ADMIN_PASSWORD="mysecretpassword"
 }
 
 getStartupParams() {
@@ -244,16 +244,13 @@ toLower() {
 }
 
 initializeUserPrompts() {
-  PS3="Is your agent single or multi tenant? "
-
+  PS3="Is your agent single-tenant or multi-tenant? "
   select opt in "Single-Tenant" "Multi-Tenant/Traction" "Quit"; do
-
     case $REPLY in
       1)
         echo "AGENT_TENANT_MODE=single" > .env
-        echo AGENT_WALLET_SEED=$(generateSeed vc-authn-oidc) >> .env
+        echo "AGENT_WALLET_SEED=$(generateSeed vc-authn-oidc)" >> .env
         echo "ACAPY_HOST=http://aca-py" >> .env
-        echo 
         break
         ;;
       2)
@@ -275,6 +272,11 @@ initializeUserPrompts() {
     esac
   done
 }
+
+setDefaultProofConfig() {
+  # post default proof-request configuration to controller
+  docker run --network=vc-authn_vc_auth --rm curlimages/curl:latest -X POST "http://controller:5000/api/vc-configs" -H "accept: application/json" -H "X-Api-Key: controller-api-key" -H "Content-Type: application/json-patch+json" -d "{ \"id\": \"test-request-config\", \"subject_identifier\": \"email\", \"configuration\": { \"name\": \"Basic Proof\", \"version\": \"1.0\", \"requested_attributes\": [ { \"name\": \"email\", \"restrictions\": [] }, { \"name\": \"first_name\", \"restrictions\": [] }, { \"name\": \"last_name\", \"restrictions\": [] } ], \"requested_predicates\": [] }}" 
+}
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
@@ -288,10 +290,24 @@ start|up)
   if [[ ! -f ".env" ]]; then
     # first/clean run, prompt user selections
     initializeUserPrompts
+    echoWarning "User preferences were saved in docker/.env for future use"
   fi
 
   configureEnvironment $@
+
+  # if [[ "$AGENT_TENANT_MODE" != "single" ]]; then
+  #   # do not start agent services when using external multi-tenant instance
+  #   unset ACAPY_CONTAINERS
+  # fi
+
   docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${ACAPY_CONTAINERS} ${PROD_CONTAINERS}
+
+  # if [[ ! -f ".env" ]]; then
+  #   # first/clean run, set default proof-configuration
+  #   sleep 10
+  #   setDefaultProofConfig
+  # fi
+
   docker-compose logs -f
  ;;
 logs)
