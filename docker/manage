@@ -171,7 +171,7 @@ configureEnvironment() {
 
   # agent
   export AGENT_TENANT_MODE="${AGENT_TENANT_MODE:-single}"
-  export AGENT_HOST="http://aca-py"
+  export AGENT_HOST=${AGENT_HOST:-aca-py}
   export AGENT_NAME="VC-AuthN Agent"
   export AGENT_HTTP_PORT=${AGENT_HTTP_PORT:-8030}
   export AGENT_ADMIN_PORT=${AGENT_ADMIN_PORT:-"8077"}
@@ -263,7 +263,6 @@ initializeUserPrompts() {
       1)
         echo "AGENT_TENANT_MODE=single" > .env
         echo "AGENT_WALLET_SEED=$(generateSeed vc-authn-oidc)" >> .env
-        echo "ACAPY_HOST=http://aca-py" >> .env
         break
         ;;
       2)
@@ -272,12 +271,13 @@ initializeUserPrompts() {
         echo "AGENT_TENANT_MODE=multi" > .env
         echo "MT_ACAPY_WALLET_ID=${MT_ACAPY_WALLET_ID}" >> .env
         echo "MT_ACAPY_WALLET_KEY=${MT_ACAPY_WALLET_KEY}" >> .env
-        echo "ACAPY_HOST=http://ngrok-traction-agent" >> .env
-        echo "AGENT_ADMIN_PORT=8080" >> .env
+        echo "AGENT_HOST=host.docker.internal" >> .env
+        echo "AGENT_HTTP_PORT=8030" >> .env
+        echo "AGENT_ADMIN_PORT=8031" >> .env
 
         # do not start agent services when using external multi-tenant instance
         unset ACAPY_CONTAINERS
-        
+
         break
         ;;
       3)
