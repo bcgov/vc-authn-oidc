@@ -50,7 +50,8 @@ A list of all available commands is visible by executing `./manage -h`.
 
 ## Configuring a proof-request
 
-The project will start-up with a default proof-request configured and ready to be used:
+To configure the default pre-built proof request, once the controller service is running execute `./manage configure-proof default` in a shell.
+This will create the following configuration:
 
 ```json
 {

@@ -79,7 +79,7 @@ usage() {
 
       start - Same as up.
 
-      set-proof-config <default> - Submits a proof-configuration to the controller.
+      configure-proof <default> - Submits a proof-configuration to the controller.
                                    'default' uses a pre-defined proof-configuration.
 
       logs - Display the logs from the docker compose run (ctrl-c to exit).
@@ -372,7 +372,7 @@ build)
   configureEnvironment $@
   buildImages
   ;;
-set-proof-config)
+configure-proof)
   if [ -z $1 ] ; then
     echoError "Please provide a proof configuration payload"
     exit 1
