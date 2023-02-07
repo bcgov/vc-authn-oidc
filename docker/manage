@@ -274,6 +274,10 @@ initializeUserPrompts() {
         echo "MT_ACAPY_WALLET_KEY=${MT_ACAPY_WALLET_KEY}" >> .env
         echo "ACAPY_HOST=http://ngrok-traction-agent" >> .env
         echo "AGENT_ADMIN_PORT=8080" >> .env
+
+        # do not start agent services when using external multi-tenant instance
+        unset ACAPY_CONTAINERS
+        
         break
         ;;
       3)
@@ -335,11 +339,6 @@ start|up)
   fi
 
   configureEnvironment $@
-
-  if [[ "$AGENT_TENANT_MODE" != "single" ]]; then
-    # do not start agent services when using external multi-tenant instance
-    unset ACAPY_CONTAINERS
-  fi
 
   docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${ACAPY_CONTAINERS} ${PROD_CONTAINERS}
 
