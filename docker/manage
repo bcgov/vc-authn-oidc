@@ -163,7 +163,6 @@ configureEnvironment() {
   # controller
   export CONTROLLER_SERVICE_PORT=5201
   export CONTROLLER_URL="${CONTROLLER_URL:-http://controller:5000}"
-  export CONTROLLER_NGROK="http://controller-ngrok:4040"
   export CONTROLLER_WEB_HOOK_URL=${CONTROLLER_WEB_HOOK_URL:-${CONTROLLER_URL}/webhooks}
   if [ ! -z "${CONTROLLER_API_KEY}" ]; then
     CONTROLLER_WEB_HOOK_URL="${CONTROLLER_WEB_HOOK_URL}#${CONTROLLER_API_KEY}"
@@ -173,7 +172,6 @@ configureEnvironment() {
   # agent
   export AGENT_TENANT_MODE="${AGENT_TENANT_MODE:-single}"
   export AGENT_HOST="http://aca-py"
-  export AGENT_NGROK_TUNNEL="http://aca-py-ngrok:4040"
   export AGENT_NAME="VC-AuthN Agent"
   export AGENT_HTTP_PORT=${AGENT_HTTP_PORT:-8030}
   export AGENT_ADMIN_PORT=${AGENT_ADMIN_PORT:-"8077"}
@@ -238,10 +236,10 @@ getStartupParams() {
 }
 
 deleteVolumes() {
-  _projectName=${COMPOSE_PROJECT_NAME:-docker}
+  _projectName=${COMPOSE_PROJECT_NAME:-vc-authn}
 
   echo "Stopping and removing any running containers ..."
-  docker-compose down -v
+  docker-compose -f docker-compose.yaml -f docker-compose-ngrok.yaml down -v
 
   _pattern="^${_projectName}_\|^docker_"
   _volumes=$(docker volume ls -q | grep ${_pattern})
@@ -355,10 +353,7 @@ stop)
   configureEnvironment
   docker-compose stop 
   ;;
-rm|down)
-  # stop ngrok services, if running
-  COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn}" docker compose -f docker-compose-ngrok.yaml down
-  
+rm|down)  
   # delete previously saved settings
   if [ -f ".env" ] ; then
     rm ".env"
