@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from oic.oic.message import OpenIDSchema
 from ...authSessions.models import AuthSession
 from ...verificationConfigs.models import VerificationConfig
-from ...core.logger_util import debug_info
+from ...core.logger_util import log_debug
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,6 @@ class Token(BaseModel):
     claims: Dict[str, Any]
 
     @classmethod
-    @debug_info
     def get_claims(
         cls, pres_exch: Dict, auth_session: AuthSession, ver_config: VerificationConfig
     ) -> List["Claim"]:
@@ -89,7 +88,6 @@ class Token(BaseModel):
     # renames and calculates dict members appropriate to https://openid.net/specs/openid-connect-core-1_0.html#IDToken
     # and
     # https://github.com/OpenIDC/pyoidc/blob/26ea5121239dad03c5c5551cca149cb984df1ec9/src/oic/oic/message.py#L720
-    @debug_info
     def idtoken_dict(self, nonce: str) -> Dict:
         """Converts oidc claims to IdToken attribute names"""
 

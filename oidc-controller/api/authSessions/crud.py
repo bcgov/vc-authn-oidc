@@ -1,76 +1,72 @@
 import logging
-from uuid import UUID
 
+from pymongo import ReturnDocument
 from fastapi import HTTPException
 from fastapi import status as http_status
-from sqlalchemy import delete, select
-from sqlmodel.ext.asyncio.session import AsyncSession
+from fastapi.encoders import jsonable_encoder
 
+from ..core.models import PyObjectId
 from .models import (
     AuthSession,
     AuthSessionCreate,
     AuthSessionPatch,
 )
+from ..db.session import db, COLLECTION_NAMES
+
 
 logger = logging.getLogger(__name__)
 
 
 class AuthSessionCRUD:
-    def __init__(self, session: AsyncSession):
-        self.session = session
+    @classmethod
+    async def create(cls, auth_session: AuthSessionCreate) -> AuthSession:
+        col = db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
+        result = col.insert_one(jsonable_encoder(auth_session))
+        return AuthSession(**col.find_one({"_id": result.inserted_id}))
 
-    async def create(self, data: AuthSessionCreate) -> AuthSession:
-        values = data.dict()
+    @classmethod
+    async def get(cls, auth_session_id: str) -> AuthSession:
+        if not PyObjectId.is_valid(auth_session_id):
+            raise HTTPException(
+                status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
+            )
+        col = db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
+        auth_sess = col.find_one({"_id": PyObjectId(auth_session_id)})
 
-        auth_session = AuthSession(**values)
-        self.session.add(auth_session)
-        await self.session.commit()
-        await self.session.refresh(auth_session)
-
-        return auth_session
-
-    async def get(self, auth_session_id: str) -> AuthSession:
-        statement = select(AuthSession).where(AuthSession.uuid == auth_session_id)
-        results = await self.session.execute(statement=statement)
-        ver_conf = results.scalar_one_or_none()  # type: AuthSession | None
-
-        if ver_conf is None:
+        if auth_sess is None:
             raise HTTPException(
                 status_code=http_status.HTTP_404_NOT_FOUND,
                 detail="The auth_session hasn't been found!",
             )
 
-        return ver_conf
+        return AuthSession(**auth_sess)
 
-    async def patch(self, auth_session_id: str, data: AuthSessionPatch) -> AuthSession:
-        auth_session = await self.get(auth_session_id=auth_session_id)
-        values = data.dict(exclude_unset=True)
+    @classmethod
+    async def patch(cls, auth_session_id: str, data: AuthSessionPatch) -> AuthSession:
+        col = db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
+        auth_sess = col.find_one_and_update(
+            {"_id": auth_session_id},
+            {"$set": data.dict(exclude_unset=True)},
+            return_document=ReturnDocument.AFTER,
+        )
 
-        for k, v in values.items():
-            setattr(auth_session, k, v)
+        return auth_sess
 
-        self.session.add(auth_session)
-        await self.session.commit()
-        await self.session.refresh(auth_session)
+    @classmethod
+    async def delete(cls, auth_session_id: str) -> bool:
+        col = db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
+        auth_sess = col.find_one_and_delete({"_id": auth_session_id})
+        return bool(auth_sess)
 
-        return auth_session
+    @classmethod
+    async def get_by_pres_exch_id(cls, pres_exch_id: str) -> AuthSession:
+        col = db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
+        auth_sess = col.find_one({"pres_exch_id": pres_exch_id})
 
-    async def delete(self, auth_session_id: str) -> bool:
-        statement = delete(AuthSession).where(AuthSession.uuid == auth_session_id)
-
-        await self.session.execute(statement=statement)
-        await self.session.commit()
-
-        return True
-
-    async def get_by_pres_exch_id(self, pres_exch_id: str) -> AuthSession:
-        statement = select(AuthSession).where(AuthSession.pres_exch_id == pres_exch_id)
-        results = await self.session.execute(statement=statement)
-        auth_session = results.scalar_one_or_none()  # type: AuthSession | None
-        if auth_session is None:
+        if auth_sess is None:
             raise HTTPException(
                 status_code=http_status.HTTP_404_NOT_FOUND,
-                detail="The auth_session hasn't been found!",
+                detail="The auth_session hasn't been found with that pres_exch_id!",
             )
 
-        return auth_session
+        return AuthSession(**auth_sess)

@@ -4,6 +4,7 @@ import time
 from pathlib import Path
 
 import uvicorn
+from motor.motor_asyncio import AsyncIOMotorClient
 from api.core.config import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -65,7 +66,6 @@ async def on_tenant_startup():
 def on_tenant_shutdown():
     """TODO no-op for now."""
     logger.warning(">>> Shutting down app ...")
-    pass
 
 
 @app.get("/", tags=["liveness"])
