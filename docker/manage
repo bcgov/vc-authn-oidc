@@ -19,6 +19,20 @@ function echoWarning (){
   echo -e "${_yellow}${_msg}${_nc}"
 }
 
+function echoSuccess (){
+  _msg=${1}
+  _green='\e[32m'
+  _nc='\e[0m' # No Color
+  echo -e "${_green}${_msg}${_nc}"
+}
+
+function echoInfo (){
+  _msg=${1}
+  _gray='\e[36m'
+  _nc='\e[0m' # No Color
+  echo -e "${_gray}${_msg}${_nc}"
+}
+
 function generateKey(){
   (
     _length=${1:-48}
@@ -83,8 +97,8 @@ EOF
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
 DEFAULT_CONTAINERS="keycloak keycloak-db controller-db"
-ACAPY_CONTAINERS="aca-py wallet-db aca-py-ngrok"
-PROD_CONTAINERS="controller controller-ngrok"
+ACAPY_CONTAINERS="aca-py wallet-db"
+PROD_CONTAINERS="controller"
 
 # -----------------------------------------------------------------------------------------------------------------
 # Functions:
@@ -160,7 +174,7 @@ configureEnvironment() {
   export AGENT_HOST="http://aca-py"
   export AGENT_NGROK_TUNNEL="http://aca-py-ngrok:4040"
   export AGENT_NAME="VC-AuthN Agent"
-  export AGENT_HTTP_PORT="8030"
+  export AGENT_HTTP_PORT=${AGENT_HTTP_PORT:-8030}
   export AGENT_ADMIN_PORT=${AGENT_ADMIN_PORT:-"8077"}
   export AGENT_ADMIN_URL=${AGENT_ADMIN_URL:-http://$AGENT_HOST:$AGENT_ADMIN_PORT}
   export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$AGENT_HOST:$AGENT_HTTP_PORT}
@@ -271,11 +285,34 @@ initializeUserPrompts() {
         ;;
     esac
   done
+
+  read -p "Do you want to use ngrok for your agent and controller [y/n]? " -n 1 -r
+  echo    # (optional) move to a new line
+  if [[ $REPLY =~ ^[Yy]$ ]]
+  then
+      echo "AGENT_HTTP_PORT=8030" >> .env
+      #  start ngrok containers first so we can grab the URLs
+      COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn}" docker compose -f docker-compose-ngrok.yaml up -d --force-recreate
+      
+      echoInfo "Determining ngrok url for controller service..."
+      docker run --rm curlimages/curl -L -s http://host.docker.internal:4056/api/tunnels > controller-ngrok.json
+      NGROK_CONTROLLER_URL=$(docker run --rm -i stedolan/jq < controller-ngrok.json --raw-output '.tunnels | map(select(.name | contains("command_line"))) | .[0] | .public_url')
+      echo "CONTROLLER_URL=${NGROK_CONTROLLER_URL}" >> .env
+      echoSuccess "The controller url is: ${NGROK_CONTROLLER_URL}"
+
+      echoInfo "Determining ngrok url for agent service..."
+      docker run --rm curlimages/curl -L -s http://host.docker.internal:4059/api/tunnels > agent-ngrok.json
+      NGROK_AGENT_URL=$(docker run --rm -i stedolan/jq < agent-ngrok.json --raw-output '.tunnels | map(select(.name | contains("command_line"))) | .[0] | .public_url')
+      echo "AGENT_ENDPOINT=${NGROK_AGENT_URL}" >> .env
+      echoSuccess "The agent url is: ${NGROK_AGENT_URL}"
+
+      rm *-ngrok.json
+  fi
 }
 
 setDefaultProofConfig() {
   # post default proof-request configuration to controller
-  docker run --network=vc-authn_vc_auth --rm curlimages/curl:latest -X POST "http://controller:5000/api/vc-configs" -H "accept: application/json" -H "X-Api-Key: controller-api-key" -H "Content-Type: application/json-patch+json" -d "{ \"id\": \"test-request-config\", \"subject_identifier\": \"email\", \"configuration\": { \"name\": \"Basic Proof\", \"version\": \"1.0\", \"requested_attributes\": [ { \"name\": \"email\", \"restrictions\": [] }, { \"name\": \"first_name\", \"restrictions\": [] }, { \"name\": \"last_name\", \"restrictions\": [] } ], \"requested_predicates\": [] }}" 
+  docker run --network=vc-authn_vc_auth --rm curlimages/curl -X POST "http://controller:5000/api/vc-configs" -H "accept: application/json" -H "X-Api-Key: controller-api-key" -H "Content-Type: application/json-patch+json" -d "{ \"id\": \"test-request-config\", \"subject_identifier\": \"email\", \"configuration\": { \"name\": \"Basic Proof\", \"version\": \"1.0\", \"requested_attributes\": [ { \"name\": \"email\", \"restrictions\": [] }, { \"name\": \"first_name\", \"restrictions\": [] }, { \"name\": \"last_name\", \"restrictions\": [] } ], \"requested_predicates\": [] }}" 
 }
 # =================================================================================================================
 
@@ -319,6 +356,9 @@ stop)
   docker-compose stop 
   ;;
 rm|down)
+  # stop ngrok services, if running
+  docker compose -f docker-compose-ngrok.yaml down
+  
   # delete previously saved settings
   if [ -f ".env" ] ; then
     rm ".env"
