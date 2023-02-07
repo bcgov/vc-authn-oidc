@@ -271,7 +271,7 @@ initializeUserPrompts() {
         echo "AGENT_TENANT_MODE=multi" > .env
         echo "MT_ACAPY_WALLET_ID=${MT_ACAPY_WALLET_ID}" >> .env
         echo "MT_ACAPY_WALLET_KEY=${MT_ACAPY_WALLET_KEY}" >> .env
-        echo "AGENT_HOST=host.docker.internal" >> .env
+        echo "AGENT_HOST=${DOCKERHOST}" >> .env
         echo "AGENT_HTTP_PORT=8030" >> .env
         echo "AGENT_ADMIN_PORT=8031" >> .env
 
@@ -298,13 +298,13 @@ initializeUserPrompts() {
       COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn}" docker compose -f docker-compose-ngrok.yaml up -d --force-recreate
       
       echoInfo "Determining ngrok url for controller service..."
-      docker run --rm curlimages/curl -L -s http://host.docker.internal:4056/api/tunnels > controller-ngrok.json
+      docker run --rm curlimages/curl -L -s http://${DOCKERHOST}:4056/api/tunnels > controller-ngrok.json
       NGROK_CONTROLLER_URL=$(docker run --rm -i stedolan/jq < controller-ngrok.json --raw-output '.tunnels | map(select(.name | contains("command_line"))) | .[0] | .public_url')
       echo "CONTROLLER_URL=${NGROK_CONTROLLER_URL}" >> .env
       echoSuccess "The controller url is: ${NGROK_CONTROLLER_URL}"
 
       echoInfo "Determining ngrok url for agent service..."
-      docker run --rm curlimages/curl -L -s http://host.docker.internal:4059/api/tunnels > agent-ngrok.json
+      docker run --rm curlimages/curl -L -s http://${DOCKERHOST}:4059/api/tunnels > agent-ngrok.json
       NGROK_AGENT_URL=$(docker run --rm -i stedolan/jq < agent-ngrok.json --raw-output '.tunnels | map(select(.name | contains("command_line"))) | .[0] | .public_url')
       echo "AGENT_ENDPOINT=${NGROK_AGENT_URL}" >> .env
       echoSuccess "The agent url is: ${NGROK_AGENT_URL}"
