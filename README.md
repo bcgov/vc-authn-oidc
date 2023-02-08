@@ -55,16 +55,12 @@ This will create the following configuration:
 
 ```json
 {
-  "id": "test-request-config",
-  "subject_identifier": "email",
-  "configuration": {
+  "ver_config_id": "test-request-config",
+  "subject_identifier": "first_name",
+  "proof_request": {
     "name": "Basic Proof",
     "version": "1.0",
     "requested_attributes": [
-      {
-        "name": "email",
-        "restrictions": []
-      },
       {
         "name": "first_name",
         "restrictions": []
@@ -79,4 +75,4 @@ This will create the following configuration:
 }
 ```
 
-To add more proof-request configurations, use the following controller endpoint `http://localhost:5201/docs#/ver_configs/create_ver_conf_ver_configs_post` or the helper script `./manage configure-proof <proof-payload>`.
+To add more proof-request configurations, use the following controller endpoint `http://localhost:5201/docs#/ver_configs/create_ver_conf_ver_configs_post`.

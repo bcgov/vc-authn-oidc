@@ -79,9 +79,6 @@ usage() {
 
       start - Same as up.
 
-      configure-proof <default> - Submits a proof-configuration to the controller.
-                                   'default' uses a pre-defined proof-configuration.
-
       logs - Display the logs from the docker compose run (ctrl-c to exit).
 
       stop - Stops the services.  This is a non-destructive process.  The volumes and containers
@@ -341,16 +338,6 @@ function setNgrokEndpoints() {
 
   rm *-ngrok.json
 }
-
-setProofConfig() {
-  # post proof-request configuration to controller
-  docker run --network=vc-authn_vc_auth --rm curlimages/curl -X POST "http://controller:5000/api/vc-configs" -H "accept: application/json" -H "X-Api-Key: controller-api-key" -H "Content-Type: application/json-patch+json" -d @1 
-}
-
-setDefaultProofConfig() {
-  # post default proof-request configuration to controller
-  setProofConfig "{ \"id\": \"test-request-config\", \"subject_identifier\": \"email\", \"configuration\": { \"name\": \"Basic Proof\", \"version\": \"1.0\", \"requested_attributes\": [ { \"name\": \"email\", \"restrictions\": [] }, { \"name\": \"first_name\", \"restrictions\": [] }, { \"name\": \"last_name\", \"restrictions\": [] } ], \"requested_predicates\": [] }}" 
-}
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
@@ -403,17 +390,6 @@ build)
   _startupParams=$(getStartupParams $@)
   configureEnvironment $@
   buildImages
-  ;;
-configure-proof)
-  if [ -z $1 ] ; then
-    echoError "Please provide a proof configuration payload"
-    exit 1
-  fi
-  if [ $1 == "default" ] ; then
-    setDefaultProofConfig
-  else
-    setProofConfig $1
-  fi
   ;;
 *)
   usage
