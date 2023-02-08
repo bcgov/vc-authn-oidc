@@ -19,53 +19,18 @@ function echoWarning (){
   echo -e "${_yellow}${_msg}${_nc}"
 }
 
-function isInstalled () {
-  rtnVal=$(type "$1" >/dev/null 2>&1)
-  rtnCd=$?
-  if [ ${rtnCd} -ne 0 ]; then
-    return 1
-  else
-    return 0
-  fi
+function echoSuccess (){
+  _msg=${1}
+  _green='\e[32m'
+  _nc='\e[0m' # No Color
+  echo -e "${_green}${_msg}${_nc}"
 }
 
-function isS2iInstalled () {
-  S2I_EXE=s2i
-  if ! isInstalled ${S2I_EXE}; then
-    echoError "The ${S2I_EXE} executable is needed and not on your path."
-    echoError "It can be downloaded from here: https://github.com/openshift/source-to-image/releases"
-    echoError "Make sure you extract the binary and place it in a directory on your path."
-    exit 1
-  fi
-}
-
-function isCurlInstalled () {
-  CURL_EXE=curl
-  if ! isInstalled ${CURL_EXE}; then
-    echoError "The ${CURL_EXE} executable is required and was not found on your path."
-    echoError "If your shell of choice doesn't come with curl preinstalled, try installing it using either [Homebrew](https://brew.sh/) (MAC) or [Chocolatey](https://chocolatey.org/) (Windows)."
-    exit 1
-  fi
-}
-
-function isJQInstalled () {
-  JQ_EXE=jq
-  if ! isInstalled ${JQ_EXE}; then
-    echoError "The ${JQ_EXE} executable is required and was not found on your path."
-    echoError "Installation instructions can be found here: https://stedolan.github.io/jq/download"
-    echoError "Alternatively, a package manager such as Chocolatey (Windows) or Brew (Mac) can be used to install this dependecy."
-    exit 1
-  fi
-}
-
-function isNgrokInstalled () {
-  NGROK_EXE=ngrok
-  if ! isInstalled ${NGROK_EXE}; then
-    echoError "The ${NGROK_EXE} executable is needed and not on your path."
-    echoError "It can be downloaded from here: https://ngrok.com/download"
-    echoError "Alternatively, a package manager such as Chocolatey (Windows) or Brew (Mac) can be used to install this dependecy."
-    exit 1
-  fi
+function echoInfo (){
+  _msg=${1}
+  _gray='\e[36m'
+  _nc='\e[0m' # No Color
+  echo -e "${_gray}${_msg}${_nc}"
 }
 
 function generateKey(){
@@ -114,10 +79,6 @@ usage() {
 
       start - Same as up.
 
-      start-dev - Starts in development mode, with hot-reloading enabled for the controller.
-
-      start-demo - Starts in demo mode.
-
       logs - Display the logs from the docker compose run (ctrl-c to exit).
 
       stop - Stops the services.  This is a non-destructive process.  The volumes and containers
@@ -129,17 +90,17 @@ usage() {
 EOF
   exit 1
 }
+
 # -----------------------------------------------------------------------------------------------------------------
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
-DEFAULT_CONTAINERS="keycloak controller-db"
-ACAPY_CONTAINERS="aca-py"
+DEFAULT_CONTAINERS="keycloak keycloak-db controller-db"
+ACAPY_CONTAINERS="aca-py wallet-db"
 PROD_CONTAINERS="controller"
-DEV_CONTAINERS="controller-dev"
+
 # -----------------------------------------------------------------------------------------------------------------
 # Functions:
 # -----------------------------------------------------------------------------------------------------------------
-
 build-oidc-controller() {
   #
   # oidc-controller
@@ -148,16 +109,6 @@ build-oidc-controller() {
   docker build \
     -t 'vc-authn-oidc-controller' \
     -f './oidc-controller/Dockerfile' '..'
-}
-
-build-oidc-controller-dev() {
-  #
-  # oidc-controller
-  #
-  echo -e "\nBuilding oidc-controller development image..."
-  docker build \
-    -t 'vc-authn-oidc-controller-dev' \
-    -f './oidc-controller/Dockerfile.dev' '..'
 }
 
 buildImages() {
@@ -174,21 +125,29 @@ configureEnvironment() {
     done <.env
   fi
 
-  for arg in $@; do
+   for arg in "$@"; do
+    # Remove recognized arguments from the list after processing.
+    shift
+
+    # echo "arg: ${arg}"
+    # echo "Remaining: ${@}"
+
     case "$arg" in
       *=*)
-        export ${arg}
+        # echo "Exporting ..."
+        export "${arg}"
+        ;;
+      *)
+        # echo "Saving for later ..."
+        # If not recognized, save it for later procesing ...
+        set -- "$@" "$arg"
         ;;
     esac
   done
 
-  export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-oidc}"
-
-  # export STI_SCRIPTS_PATH=${STI_SCRIPTS_PATH:-/usr/libexec/s2i}
-
-  # re-map ngrok endpoints to internal environment variables
-  AGENT_ENDPOINT=${AGENT_ENDPOINT:-$NGROK_AGENT_URL}
-  IDENTITY_SERVER_URL=${IDENTITY_SERVER_URL:-$NGROK_CONTROLLER_URL}
+  ## global
+  export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn}"
+  export GENESIS_URL="${GENESIS_URL:-http://$DOCKERHOST:9000/genesis}"
 
   # controller-db
   export MONGODB_HOST="controller-db"
@@ -201,33 +160,28 @@ configureEnvironment() {
   # controller
   export CONTROLLER_SERVICE_PORT=5201
   export CONTROLLER_URL="${CONTROLLER_URL:-http://controller:5000}"
-  export CONTROLLER_NGROK="http://controller-ngrok:4040"
   export CONTROLLER_WEB_HOOK_URL=${CONTROLLER_WEB_HOOK_URL:-${CONTROLLER_URL}/webhooks}
   if [ ! -z "${CONTROLLER_API_KEY}" ]; then
-    CONTROLLER_WEB_HOOK_URL="${CONTROLLER_WEB_HOOK_URL}/${CONTROLLER_API_KEY}"
+    CONTROLLER_WEB_HOOK_URL="${CONTROLLER_WEB_HOOK_URL}#${CONTROLLER_API_KEY}"
   fi
+  export ST_ACAPY_ADMIN_API_KEY_NAME="x-api-key"
 
-  # Multi-Tenant ACA-Py config
-  export ACAPY_HOST="http://tenant-proxy"
-  export ACAPY_TENANCY="multi"
-  export MT_ACAPY_WALLET_ID="ece83a72-81df-40b0-b770-9a55d92b254d"
-  export ACAPY_NGROK_TUNNEL_HOST="http://ngrok-traction-agent:4040"
-  export AGENT_ADMIN_PORT="8080"
-
-
-  # # # Single-Tenant ACA-Py config
-  # export ACAPY_HOST="http://aca-py"
-  # export ACAPY_TENANCY="single"
-  # export ST_ACAPY_ADMIN_API_KEY_NAME="x-api-key"
-  # export ST_ACAPY_ADMIN_API_KEY="change-me"
-  # export ACAPY_NGROK_TUNNEL_HOST="http://aca-py-ngrok:4040"
-  # export AGENT_ADMIN_PORT="8077"
-
-  # ACA-py url constructions
-  export AGENT_HTTP_PORT="8030"
-  export ACAPY_ADMIN_URL="${ACAPY_HOST}:${AGENT_ADMIN_PORT}"
-  export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$DOCKERHOST:$AGENT_HTTP_PORT}
-  export ACAPY_AGENT_URL="${AGENT_ENDPOINT:-${ACAPY_HOST}:$AGENT_HTTP_PORT}"
+  # agent
+  export AGENT_TENANT_MODE="${AGENT_TENANT_MODE:-single}"
+  export AGENT_HOST=${AGENT_HOST:-aca-py}
+  export AGENT_NAME="VC-AuthN Agent"
+  export AGENT_HTTP_PORT=${AGENT_HTTP_PORT:-8030}
+  export AGENT_ADMIN_PORT=${AGENT_ADMIN_PORT:-"8077"}
+  export AGENT_ADMIN_URL=${AGENT_ADMIN_URL:-http://$AGENT_HOST:$AGENT_ADMIN_PORT}
+  export AGENT_ENDPOINT=${AGENT_ENDPOINT:-http://$AGENT_HOST:$AGENT_HTTP_PORT}
+  export AGENT_ADMIN_API_KEY=${AGENT_ADMIN_API_KEY}
+  export AGENT_ADMIN_MODE="admin-insecure-mode"
+  if [ ! -z "${AGENT_ADMIN_API_KEY}" ]; then
+    AGENT_ADMIN_MODE="admin-api-key ${AGENT_ADMIN_API_KEY}"
+  fi
+  export AGENT_WALLET_SEED=${AGENT_WALLET_SEED}
+  export MT_ACAPY_WALLET_ID=${MT_ACAPY_WALLET_ID}
+  export MT_ACAPY_WALLET_KEY=${MT_ACAPY_WALLET_KEY}
 
   # keycloak-db
   export KEYCLOAK_DB_NAME="keycloak"
@@ -243,7 +197,6 @@ configureEnvironment() {
   export KEYCLOAK_LOGLEVEL="WARN"
   export KEYCLOAK_ROOT_LOGLEVEL="WARN"
 
-
   # wallet-db
   export WALLET_TYPE="postgres_storage"
   export WALLET_ENCRYPTION_KEY="key"
@@ -252,27 +205,7 @@ configureEnvironment() {
   export POSTGRESQL_WALLET_DATABASE="wallet_db"
   export POSTGRESQL_WALLET_USER="walletuser"
   export POSTGRESQL_WALLET_PASSWORD="walletpassword"
-  export POSTGRESQL_WALLET_ADMIN_USER="postgres"
-  export POSTGRESQL_WALLET_ADMIN_PASSWORD="mysecretpassword"
-
-  # ACA-py Dev
-  export AGENT_NAME="vc-oidc-controller-agent"
-  export GENESIS_URL="${GENESIS_URL:-http://test.bcovrin.vonx.io/genesis}"
-
-  if [[ ! -f ".env" ]]; then
-    AGENT_WALLET_SEED=$(generateSeed vc-authn-oidc)
-    echo "Generated AGENT_WALLET_SEED=${AGENT_WALLET_SEED}"
-    echo "AGENT_WALLET_SEED=${AGENT_WALLET_SEED}" > .env
-  fi
-  export ACAPY_ADMIN_URL_API_KEY=${ACAPY_ADMIN_URL_API_KEY}
-  export ACAPY_ADMIN_MODE="admin-insecure-mode"
-  if [ ! -z "${ACAPY_ADMIN_URL_API_KEY}" ]; then
-    ACAPY_ADMIN_MODE="admin-api-key ${ACAPY_ADMIN_URL_API_KEY}"
-  fi
-
 }
-
-
 
 getStartupParams() {
   CONTAINERS=""
@@ -300,10 +233,10 @@ getStartupParams() {
 }
 
 deleteVolumes() {
-  _projectName=${COMPOSE_PROJECT_NAME:-docker}
+  _projectName=${COMPOSE_PROJECT_NAME:-vc-authn}
 
   echo "Stopping and removing any running containers ..."
-  docker-compose down -v
+  docker-compose -f docker-compose.yaml -f docker-compose-ngrok.yaml down -v
 
   _pattern="^${_projectName}_\|^docker_"
   _volumes=$(docker volume ls -q | grep ${_pattern})
@@ -319,6 +252,92 @@ deleteVolumes() {
 toLower() {
   echo $(echo ${@} | tr '[:upper:]' '[:lower:]')
 }
+
+initializeUserPrompts() {
+  PS3="Is your agent single-tenant or multi-tenant? "
+  select opt in "Single-Tenant" "Multi-Tenant/Traction" "Quit"; do
+    case $REPLY in
+      1)
+        echo "AGENT_TENANT_MODE=single" > .env
+        export AGENT_TENANT_MODE=single
+        echo "AGENT_WALLET_SEED=$(generateSeed vc-authn-oidc)" >> .env
+        break
+        ;;
+      2)
+        read  -p "Please provide your tenant's Wallet ID:" MT_ACAPY_WALLET_ID
+        read  -p "Please provide your tenant's Wallet Key:" MT_ACAPY_WALLET_KEY
+        echo "AGENT_TENANT_MODE=multi" > .env
+        export AGENT_TENANT_MODE=multi
+        echo "MT_ACAPY_WALLET_ID=${MT_ACAPY_WALLET_ID}" >> .env
+        echo "MT_ACAPY_WALLET_KEY=${MT_ACAPY_WALLET_KEY}" >> .env
+        echo "AGENT_HOST=${DOCKERHOST}" >> .env
+        echo "AGENT_HTTP_PORT=8030" >> .env
+        echo "AGENT_ADMIN_PORT=8031" >> .env
+
+        # do not start agent services when using external multi-tenant instance
+        unset ACAPY_CONTAINERS
+        break
+        ;;
+      3)
+        exit 0
+        ;;
+      *) 
+        echo "Invalid option $REPLY"
+        ;;
+    esac
+  done
+
+  read -p "Do you want to use ngrok for your agent and controller [y/n]? " -n 1 -r
+  echo    # (optional) move to a new line
+  if [[ $REPLY =~ ^[Yy]$ ]]
+  then
+      echo "USE_NGROK=true" >> .env
+      echo "AGENT_HTTP_PORT=8030" >> .env
+      
+      startNgrokContainers $AGENT_TENANT_MODE
+      
+      setNgrokEndpoints
+  fi
+}
+
+# starts ngrok proxies for controller and, when in single-tenant mode, for the agent
+function startNgrokContainers() {
+  CONTROLLER_NGROK_CONTAINER=controller-ngrok
+  AGENT_NGROK_CONTAINER=aca-py-ngrok
+
+  if [[ $AGENT_TENANT_MODE == "multi" ]]
+  then
+      #  will be using traction's ngrok proxy for the agent
+      unset AGENT_NGROK_CONTAINER
+  fi
+
+  #  start ngrok containers first so we can grab the URLs
+  COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn}" docker compose -f docker-compose-ngrok.yaml up -d --force-recreate ${CONTROLLER_NGROK_CONTAINER} ${AGENT_NGROK_CONTAINER}
+}
+
+# fetches and sets the ngrok endpoints for controlelr and agent for the current session
+function setNgrokEndpoints() {
+  if [[ $AGENT_TENANT_MODE == "multi" ]]; then
+    # use traction agent ngrok
+    NGROK_AGENT_PORT=4052
+  else
+    NGROK_AGENT_PORT=4059
+  fi
+
+  echoInfo "Determining ngrok url for controller service..."
+  docker run --rm curlimages/curl -L -s http://${DOCKERHOST}:4056/api/tunnels > controller-ngrok.json
+  NGROK_CONTROLLER_URL=$(docker run --rm -i stedolan/jq < controller-ngrok.json --raw-output '.tunnels | map(select(.name=="command_line")) | .[0] | .public_url')
+  export CONTROLLER_URL=${NGROK_CONTROLLER_URL}
+  echoSuccess "The controller url is: ${NGROK_CONTROLLER_URL}"
+
+  echoInfo "Determining ngrok url for agent service..."
+  docker run --rm curlimages/curl -L -s http://${DOCKERHOST}:${NGROK_AGENT_PORT}/api/tunnels > agent-ngrok.json
+  NGROK_AGENT_URL=$(docker run --rm -i stedolan/jq < agent-ngrok.json --raw-output '.tunnels | map(select(.name=="command_line")) | .[0] | .public_url')
+  export AGENT_ENDPOINT=${NGROK_AGENT_URL}
+  echoSuccess "The agent url is: ${NGROK_AGENT_URL}"
+
+  rm *-ngrok.json
+}
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
@@ -327,68 +346,28 @@ shift || COMMAND=usage
 
 case "${COMMAND}" in
 start|up)
-  unset NGROK_AGENT_URL
-  unset NGROK_CONTROLLER_URL
-  unset GENESIS_URL
-
   _startupParams=$(getStartupParams $@)
+  
+  if [[ ! -f ".env" ]]; then
+    # first/clean run, prompt user selections
+    initializeUserPrompts
+    echoWarning "User preferences were saved in docker/.env for future use"
+  else
+    export USE_NGROK=$(grep USE_NGROK ./.env | cut -d'=' -f 2-)
+    export AGENT_TENANT_MODE=$(grep AGENT_TENANT_MODE ./.env | cut -d'=' -f 2-)
+    if [[ $USE_NGROK == "true" ]]; then
+      # ngrok was already chosen, refresh containers/endpoints
+      echoInfo "Refreshing ngrok containers..."
+      startNgrokContainers $AGENT_TENANT_MODE
+      setNgrokEndpoints 
+    fi
+  fi
+
   configureEnvironment $@
+
   docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${ACAPY_CONTAINERS} ${PROD_CONTAINERS}
+
   docker-compose logs -f
- ;;
-
-start-no-acapy)
-  unset NGROK_AGENT_URL
-  unset NGROK_CONTROLLER_URL
-  unset GENESIS_URL
-
-  _startupParams=$(getStartupParams $@)
-  configureEnvironment $@
-  docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${PROD_CONTAINERS}
-  docker-compose logs -f
- ;;
-start-dev)
-  echo "start-dev command is not configured yet"
-  # unset NGROK_AGENT_URL
-  # unset NGROK_CONTROLLER_URL
-  # unset GENESIS_URL
-
-  # # build development image 
-  # build-oidc-controller-dev
-
-  # _startupParams=$(getStartupParams $@)
-  # configureEnvironment $@
-  # docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${DEV_CONTAINERS}
-  # docker-compose logs -f
- ;;
-start-demo)
-  echo "start-demo command is not configured yet"
-
-  # isJQInstalled
-
-  # # Set environment variables
-  # if [ -z "$NGROK_AGENT_URL" ]; then
-  #   isCurlInstalled
-  #   isNgrokInstalled
-  #   export NGROK_AGENT_URL=$(${CURL_EXE} ${ACAPY_NGROK_TUNNEL_HOST}/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-agent"))) | .[0] | .public_url')
-  # fi
-  # if [ -z "$NGROK_CONTROLLER_URL" ]; then
-  #   isCurlInstalled
-  #   isNgrokInstalled
-  #   export NGROK_CONTROLLER_URL=$(${CURL_EXE} http://controller-ngrok:4040/api/tunnels | ${JQ_EXE} --raw-output '.tunnels | map(select(.name | contains("vc-authn-controller"))) | .[0] | .public_url')
-  # fi
-  # export GENESIS_URL="https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_sandbox_genesis"
-
-  # if [ -z "$NGROK_AGENT_URL" ] || [ -z "$NGROK_CONTROLLER_URL" ]; then
-  #   echoError "The NGROK_AGENT_URL or NGROK_CONTROLLER_URL have not been set."
-  #   exit 1
-  # fi
-
-  # echo "Running in demo mode, will use ${GENESIS_URL} to fetch the genesis transaction, ${NGROK_AGENT_URL} for the agent and ${NGROK_CONTROLLER_URL} for the controller."
-
-  # _startupParams=$(getStartupParams $@)
-  # configureEnvironment $@
-  # docker-compose up -d ${_startupParams} ${DEFAULT_CONTAINERS} ${PROD_CONTAINERS}
  ;;
 logs)
   configureEnvironment $@
@@ -398,7 +377,12 @@ stop)
   configureEnvironment
   docker-compose stop 
   ;;
-rm|down)
+rm|down)  
+  # delete previously saved settings
+  if [ -f ".env" ] ; then
+    rm ".env"
+  fi
+
   configureEnvironment
   deleteVolumes
   ;;

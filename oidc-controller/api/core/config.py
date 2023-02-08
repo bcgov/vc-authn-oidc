@@ -39,30 +39,13 @@ class GlobalConfig(BaseSettings):
     MONGODB_URL: str = f"mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}?retryWrites=true&w=majority"
 
     CONTROLLER_URL: str = os.environ.get("CONTROLLER_URL")
-    # # Get CONTROLLER_URL from env or NGROK.
-    CONTROLLER_NGROK: str = os.environ.get("CONTROLLER_NGROK")
-    if not CONTROLLER_URL and CONTROLLER_NGROK:
-        raw_resp = requests.get(CONTROLLER_NGROK + "/api/tunnels")
-        resp = json.loads(raw_resp.content)
-        CONTROLLER_URL = resp["tunnels"][0]["public_url"]
-        print("loaded CONTROLLER_URL from NGROK_TUNNEL_HOST")
-    print("CONTROLLER_URL: " + CONTROLLER_URL)
 
-    #
     ACAPY_AGENT_URL: str = os.environ.get("ACAPY_AGENT_URL")
-    ACAPY_NGROK_TUNNEL_HOST: str = os.environ.get("ACAPY_NGROK_TUNNEL_HOST")
-    if not ACAPY_AGENT_URL and not ACAPY_NGROK_TUNNEL_HOST:
+    # ACAPY_NGROK_TUNNEL_HOST: str = os.environ.get("ACAPY_NGROK_TUNNEL_HOST")
+    if not ACAPY_AGENT_URL:
         print(
-            "WARNING: neither ACAPY_AGENT_URL or ACAPY_NGROK_TUNNEL_HOST provided, agent will not be accessible"
+            "WARNING: ACAPY_AGENT_URL was not provided, agent will not be accessible"
         )
-
-    if not ACAPY_AGENT_URL and ACAPY_NGROK_TUNNEL_HOST:
-        raw_resp = requests.get(ACAPY_NGROK_TUNNEL_HOST + "/api/tunnels")
-        resp = json.loads(raw_resp.content)
-        https_tunnels = [t for t in resp["tunnels"] if t["proto"] == "https"]
-        ACAPY_AGENT_URL = https_tunnels[0]["public_url"]
-        print("loaded ACAPY_AGENT_URL from ACAPY_NGROK_TUNNEL_HOST")
-    print("ACAPY_AGENT_URL: " + str(ACAPY_AGENT_URL))
 
     ACAPY_TENANCY: str = os.environ.get(
         "ACAPY_TENANCY", "single"

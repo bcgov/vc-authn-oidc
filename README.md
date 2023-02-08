@@ -1,39 +1,78 @@
-# vc-authn-oidc
+[![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-clone [traction](https://github.com/bcgov/traction)
-connect those services to the network defined in by
+# Verifiable Credential Authentication with OpenID Connect (VC-AuthN OIDC)
 
-adding the following to `<traction_folder>/scripts/docker-compose.yaml`
+Verifiable Credential Identity Provider for OpenID Connect.
 
-```
+See [here](/docs/README.md) for background into how this integration is defined.
+
+For configuration instructions, refer to the [configuration guide](/docs/ConfigurationGuide.md).
+
+Make sure to read the [best practices](/docs/BestPractices.md) to be used when protecting a web application using `vc-authn-oidc`.
+
+# Pre-requisites
+
+## Tooling
+
+- A bash-compatible shell such as [Git Bash](https://git-scm.com/downloads)
+- [Docker](https://docs.docker.com/get-docker/)
+
+## Project Dependencies
+
+To run `vc-authn` locally, you will need an instance of [von-network](https://github.com/bcgov/von-network) running in Docker. A different ledger can be targeted by setting the `LEDGER_URL` environment variable before starting the project.
+
+It is possible to run the project targeting a multi-tenant ACA-Py instance managed by [traction](https://github.com/bcgov/traction). To use this option, prepare a `traction` instance by cloning the repository and performing these tasks:
+
+- add the following to `<traction_folder>/scripts/docker-compose.yaml`
+
+```yaml
 networks:
   default:
     external:
       name: oidc_vc_auth
 ```
 
-`docker-compose up` from `<traction_folder>/scripts`
+- start `traction` by executing `docker-compose up` from `<traction_folder>/scripts`
 
-run `docker-compose up` from `demo/vue` of this project
-run `./manage build` from `/docker` of this project to create and tag the image
+# Running VC-AuthN
 
-*inspect `./manage` file for environment variables, commenting/un-commenting configuration for an external multi-tenanted acapy, or using the single-tenant acapy defined in `../docker/docker-compose.yaml`
+Once the pre-requisites are met, open a shell in the [docker](./docker/) folder and run the following commands:
 
-run `./manage start-no-acapy` from `/docker` of this project
+- `./manage build` to build the required service images
+- `./manage start` to run the services
 
-### Prepare Acapy wallet for use
+Follow the script prompts to select the appropriate runtime options: they will be saved in an `env` for the next execution.
 
-have python installed. TODO, replace with this with BASH script.
-run `pip install requests` if needed.
-run `python wallet_init.py` from `/docker`
+To reset everything (including removing container data) execute `./manage rm`.
 
-### Prepare controller for use
+A list of all available commands is visible by executing `./manage -h`.
 
-1. create default verification_configuration @`http://localhost:5201/docs#/ver_configs/create_ver_conf_ver_configs_post` execute that endpoint with default payload
+## Configuring a proof-request
 
-### Prepare example wallet
+To configure the default pre-built proof request, once the controller service is running execute `./manage configure-proof default` in a shell.
+This will create the following configuration:
 
-You will need a digital wallet app with a credential that contains two attributes `first_name` and `last_name`
+```json
+{
+  "ver_config_id": "test-request-config",
+  "subject_identifier": "first_name",
+  "proof_request": {
+    "name": "Basic Proof",
+    "version": "1.0",
+    "requested_attributes": [
+      {
+        "name": "first_name",
+        "restrictions": []
+      },
+      {
+        "name": "last_name",
+        "restrictions": []
+      }
+    ],
+    "requested_predicates": []
+  }
+}
+```
 
-# MongoDB
-Use `Block Storage` as pvc type for mongo when deployed on openshift.
+To add more proof-request configurations, use the following controller endpoint `http://localhost:5201/docs#/ver_configs/create_ver_conf_ver_configs_post`.
