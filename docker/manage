@@ -365,18 +365,16 @@ start|up)
     # first/clean run, prompt user selections
     initializeUserPrompts
     echoWarning "User preferences were saved in docker/.env for future use"
+  else
+    export USE_NGROK=$(grep USE_NGROK ./.env | cut -d'=' -f 2-)
+    export AGENT_TENANT_MODE=$(grep AGENT_TENANT_MODE ./.env | cut -d'=' -f 2-)
+    if [[ $USE_NGROK == "true" ]]; then
+      # ngrok was already chosen, refresh containers/endpoints
+      echoInfo "Refreshing ngrok containers..."
+      startNgrokContainers $AGENT_TENANT_MODE
+      setNgrokEndpoints 
+    fi
   fi
-
-  export USE_NGROK=$(grep USE_NGROK ./.env | cut -d'=' -f 2-)
-  export AGENT_TENANT_MODE=$(grep AGENT_TENANT_MODE ./.env | cut -d'=' -f 2-)
-  if [[ $USE_NGROK == "true" ]]; then
-    # ngrok was already chosen, refresh containers/endpoints
-    echoInfo "Refreshing ngrok containers..."
-    startNgrokContainers $AGENT_TENANT_MODE
-    setNgrokEndpoints 
-  fi
-
-  exit 1
 
   configureEnvironment $@
 
