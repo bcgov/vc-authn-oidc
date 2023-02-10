@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi import status as http_status
+
 from ..core.models import StatusMessage
 
 from .crud import VerificationConfigCRUD
@@ -8,6 +9,7 @@ from .models import (
     VerificationConfigRead,
     VerificationConfig,
 )
+from ..core.auth import get_api_key
 
 router = APIRouter()
 
@@ -18,6 +20,7 @@ router = APIRouter()
     status_code=http_status.HTTP_201_CREATED,
     response_model=VerificationConfig,
     response_model_exclude_unset=True,
+    dependencies=[Depends(get_api_key)],
 )
 async def create_ver_config(ver_config: VerificationConfig):
     return await VerificationConfigCRUD.create(ver_config)
@@ -28,6 +31,7 @@ async def create_ver_config(ver_config: VerificationConfig):
     status_code=http_status.HTTP_200_OK,
     response_model=VerificationConfigRead,
     response_model_exclude_unset=True,
+    dependencies=[Depends(get_api_key)],
 )
 async def get_ver_conf(
     ver_config_id: str,
@@ -40,6 +44,7 @@ async def get_ver_conf(
     status_code=http_status.HTTP_200_OK,
     response_model=VerificationConfigRead,
     response_model_exclude_unset=True,
+    dependencies=[Depends(get_api_key)],
 )
 async def patch_ver_conf(
     ver_config_id: str,
@@ -52,6 +57,7 @@ async def patch_ver_conf(
     "/{ver_config_id}",
     status_code=http_status.HTTP_200_OK,
     response_model=StatusMessage,
+    dependencies=[Depends(get_api_key)],
 )
 async def delete_ver_conf_by_uuid(
     ver_config_id: str,

@@ -4,7 +4,6 @@ import time
 from pathlib import Path
 
 import uvicorn
-from motor.motor_asyncio import AsyncIOMotorClient
 from api.core.config import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
