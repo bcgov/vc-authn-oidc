@@ -67,7 +67,7 @@ class GlobalConfig(BaseSettings):
     JWT_ALGORITHM = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES = 300
 
-    CONTROLLER_API_KEY: str = os.environ.get("CONTROLLER_API_KEY", "change-me")
+    CONTROLLER_API_KEY: str = os.environ.get("CONTROLLER_API_KEY", "")
 
     class Config:
         case_sensitive = True
