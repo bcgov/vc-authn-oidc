@@ -43,9 +43,7 @@ class GlobalConfig(BaseSettings):
     ACAPY_AGENT_URL: str = os.environ.get("ACAPY_AGENT_URL")
     # ACAPY_NGROK_TUNNEL_HOST: str = os.environ.get("ACAPY_NGROK_TUNNEL_HOST")
     if not ACAPY_AGENT_URL:
-        print(
-            "WARNING: ACAPY_AGENT_URL was not provided, agent will not be accessible"
-        )
+        print("WARNING: ACAPY_AGENT_URL was not provided, agent will not be accessible")
 
     ACAPY_TENANCY: str = os.environ.get(
         "ACAPY_TENANCY", "single"
@@ -68,6 +66,8 @@ class GlobalConfig(BaseSettings):
     # openssl rand -hex 32
     JWT_ALGORITHM = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES = 300
+
+    CONTROLLER_API_KEY: str = os.environ.get("CONTROLLER_API_KEY", "")
 
     class Config:
         case_sensitive = True
