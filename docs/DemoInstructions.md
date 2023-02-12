@@ -6,9 +6,9 @@ The premise of the demo is that you first get a verifiable credential from an ap
 
 ## Get a compatible mobile agent
 
-The demo supports the [BC Gov Wallet](https://www2.gov.bc.ca/gov/content/governments/government-id/bc-wallet) for iOS and Android, and other compatible Aries Wallets, such as the Lissi and esatus wallets. Please follow the instructions [here](https://github.com/bcgov/identity-kit-poc/blob/main/docs/GettingApp.md) to setup the wallets and then return back here for the rest of the instructions.
+The demo supports the [BC Wallet](https://www2.gov.bc.ca/gov/content/governments/government-id/bc-wallet) for iOS and Android, and other compatible Aries Wallets, such as the Lissi and esatus wallets. Please follow the instructions [here](https://github.com/bcgov/identity-kit-poc/blob/main/docs/GettingApp.md) to setup the wallets and then return back here for the rest of the instructions.
 
-**Are you a mobile agent builder?** We'd love to work with you to get your implementation working with the [vc-authn-oidc](https://github.com/bcgov/vc-authn-oidc) identity provider. If you are testing with our deployed service and have questions, please contact us on the #aries channel on [Hyperledger Discord](https://chat.hyperledger.org), or email us [here](mailto:swcurran@cloudcompass.ca).
+**Are you a mobile agent builder?** We'd love to work with you to get your implementation working with the [vc-authn-oidc](https://github.com/bcgov/vc-authn-oidc) identity provider. If you are testing with our deployed service and have questions, please contact us on the #aries channel on [Hyperledger Discord](https://chat.hyperledger.org), or email us at [DITrust@gov.bc.ca](mailto:DITrust@gov.bc.ca).
 
 ## Get a verifiable email credential
 
