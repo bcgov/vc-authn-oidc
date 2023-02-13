@@ -544,6 +544,21 @@
             "claim.name": "clientId",
             "jsonType.label": "String"
           }
+        },
+        {
+          "id": "995bab2e-cce5-4000-9158-eb71300b5787",
+          "name": "vc_presented_attributes",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "vc_presented_attributes",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "vc_presented_attributes",
+            "jsonType.label": "JSON"
+          }
         }
       ],
       "defaultClientScopes": ["web-origins", "profile", "roles", "email"],
