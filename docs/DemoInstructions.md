@@ -2,23 +2,17 @@
 
 If you are interested in trying out using a verifiable credential in an Open ID Connect (OIDC) interaction to receive authorization to access a service, follow the steps below. Following the instructions is a link to a presentation that provides some insight into the authorization flow.
 
-The premise of the demo is that you first get a verifiable credential from an appropriate authority, and then you use that credential to get access to a protected resource. In this case, a sufficient authority is a service that makes you prove control over your email address, while the protected service is a mock BC Government website.
+The premise of the demo is that you first get a verifiable credential from an appropriate authority, and then you use that credential to get access to a protected resource. In this case, a sufficient authority is a service that makes you prove control over your email address, while the protected service is a demonstration BC Government website.
 
 ## Get a compatible mobile agent
 
-The demo supports the identity agent app from [trinsic.id](https://trinsic.id) for iOS and Android. There is some setup special setup needed for the Trinsic agent. Please follow the instructions [here](https://github.com/bcgov/identity-kit-poc/blob/main/docs/GettingApp.md) to setup the agent and then return back here for the rest of the instructions.
+The demo supports the [BC Wallet](https://www2.gov.bc.ca/gov/content/governments/government-id/bc-wallet) for iOS and Android, and other compatible Aries Wallets, such as the Lissi and esatus wallets. Please follow the instructions [here](https://github.com/bcgov/identity-kit-poc/blob/main/docs/GettingApp.md) to setup the wallets and then return back here for the rest of the instructions.
 
-**Are you a mobile agent builder?** We'd love to work with you to get your implementation working with the [vc-authn-oidc](https://github.com/bcgov/vc-authn-oidc) identity provider. If you are testing with our deployed service and have questions, please contact us on the #aries channel on [Hyperledger Rocketchat](https://chat.hyperledger.org) (you will need a free [Linux Foundation account](https://identity.linuxfoundation.org/user) to access that channel), or email us [here](mailto:swcurran@cloudcompass.ca).
-
-## Configure your mobile agent
-
-Set Network under settings to `Sovrin Staging`.
+**Are you a mobile agent builder?** We'd love to work with you to get your implementation working with the [vc-authn-oidc](https://github.com/bcgov/vc-authn-oidc) identity provider. If you are testing with our deployed service and have questions, please contact us on the #aries channel on [Hyperledger Discord](https://chat.hyperledger.org), or email us at [DITrust@gov.bc.ca](mailto:DITrust@gov.bc.ca).
 
 ## Get a verifiable email credential
 
 To get your verified email credential, go to this [email verification service](https://email-verification.vonx.io/) run by the Province of BC. Enter your email address, check your email for an message from the service, and follow the instructions to get your verified email address credential.
-
-If you want, you can use your verified email credential to get an IIWBook credential that can also be used for authorization in the next step. Interested? Follow the instructions [here](https://iiwbook.vonx.io).
 
 ## Use the Verifiable Credential Identity Provider
 
