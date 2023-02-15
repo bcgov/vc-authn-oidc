@@ -7,9 +7,11 @@ import uvicorn
 from api.core.config import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from oidcop.server import Server
 
 from .routers import acapy_handler, oidc, presentation_request, well_known_oid_config
 from .verificationConfigs.router import router as ver_configs_router
+from .core.oidc.provider import init_server
 
 # setup loggers
 # TODO: set config via env parameters...
@@ -59,6 +61,7 @@ if origins:
 async def on_tenant_startup():
     """Register any events we need to respond to."""
     logger.warning(">>> Starting up app ...")
+    app.server: Server = init_server()
 
 
 @app.on_event("shutdown")
