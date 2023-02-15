@@ -322,3 +322,5 @@ $RECYCLE.BIN/
 
 # Docs build
 _build/
+
+oidc-controller/private/
