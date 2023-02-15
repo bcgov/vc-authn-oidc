@@ -1,4 +1,7 @@
 {
+    "claims_interface":{
+      "class": "oidcop.session.claims.OAuth2ClaimsInterface"
+    },
     "add_on": {
       "pkce": {
         "function": "oidcop.oidc.add_on.pkce.add_pkce_support",
