@@ -1,11 +1,9 @@
-import json
 import logging
 import os
 from enum import Enum
 from functools import lru_cache
 from typing import Optional
 
-import requests
 from pydantic import BaseSettings
 
 logger = logging.getLogger(__name__)

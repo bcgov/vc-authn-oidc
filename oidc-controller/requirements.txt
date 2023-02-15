@@ -31,6 +31,8 @@ pyasn1==0.4.8
 pycparser==2.21
 pydantic==1.9.0
 pydantic-factories==1.2.3
+pyjwkest==1.4.2
+pyop==3.4.0
 pyparsing==3.0.7
 pyrsistent==0.18.1
 pytablewriter==0.64.2
