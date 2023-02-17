@@ -27,6 +27,18 @@ services:
     networks:
       - vc_auth
 
+
+  controller-cache:
+    image: 'bitnami/redis:7.0'
+    volumes:
+      - ./redis-volume:/data
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "6379:6379"
+    networks:
+      - vc_auth
+
   controller-db:
     image: mongo:6.0
     environment:
