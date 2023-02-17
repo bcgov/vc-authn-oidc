@@ -49,7 +49,7 @@ async def get_authorize(request: Request):
     model = AuthorizationRequest().from_dict(request.query_params._dict)
     model.verify()
 
-    provider.provider.authorize(model, "krall")
+    # provider.provider.authorize(model, "krall")
 
     client = AcapyClient()
     ver_config_id = model.get("pres_req_conf_id")
@@ -152,7 +152,7 @@ async def post_token(request: Request):
     id_token = IdToken().from_dict(
         token.idtoken_dict(auth_session.request_parameters["nonce"])
     )
-    id_token_jwt = id_token.to_jwt(key=provider.signing_keys)
+    id_token_jwt = id_token.to_jwt()
     values = {
         "token_type": "bearer",
         "id_token": id_token_jwt,
