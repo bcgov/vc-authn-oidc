@@ -11,6 +11,7 @@ from oic.oic.message import (
     AuthorizationRequest,
     IdToken,
 )
+from ..core.oidc import provider
 
 from ..core.logger_util import log_debug
 from ..authSessions.crud import AuthSessionCreate, AuthSessionCRUD
@@ -18,6 +19,7 @@ from ..core.acapy.client import AcapyClient
 from ..core.config import settings
 from ..core.oidc.issue_token_service import Token
 from ..verificationConfigs.crud import VerificationConfigCRUD
+
 
 ChallengePollUri = "/poll"
 AuthorizeCallbackUri = "/callback"
@@ -46,6 +48,8 @@ async def get_authorize(request: Request):
     # Verify OIDC forward payload
     model = AuthorizationRequest().from_dict(request.query_params._dict)
     model.verify()
+
+    provider.provider.authorize(model, "krall")
 
     client = AcapyClient()
     ver_config_id = model.get("pres_req_conf_id")
@@ -148,7 +152,7 @@ async def post_token(request: Request):
     id_token = IdToken().from_dict(
         token.idtoken_dict(auth_session.request_parameters["nonce"])
     )
-    id_token_jwt = id_token.to_jwt()
+    id_token_jwt = id_token.to_jwt(key=provider.signing_keys)
     values = {
         "token_type": "bearer",
         "id_token": id_token_jwt,

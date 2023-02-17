@@ -1,4 +1,4 @@
-from jwkest.jwk import rsa_load, RSAKey
+from jwkest.jwk import rsa_load, RSAKey, KEYS
 
 from pyop.authz_state import AuthorizationState
 from pyop.provider import Provider
@@ -12,6 +12,7 @@ db_uri = settings.REDISDB_URL
 
 
 signing_key = RSAKey(key=rsa_load("signing_key.pem"), use="sig", alg="RS256")
+signing_keys = KEYS().append(signing_key)
 
 configuration_information = {
     "issuer": "https://controller:5201",

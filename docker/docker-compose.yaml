@@ -27,7 +27,6 @@ services:
     networks:
       - vc_auth
 
-
   controller-cache:
     image: 'bitnami/redis:7.0'
     volumes:

@@ -94,7 +94,7 @@ EOF
 # -----------------------------------------------------------------------------------------------------------------
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
-DEFAULT_CONTAINERS="keycloak keycloak-db controller-db"
+DEFAULT_CONTAINERS="keycloak keycloak-db controller-db controller-cache"
 ACAPY_CONTAINERS="aca-py wallet-db"
 PROD_CONTAINERS="controller"
 

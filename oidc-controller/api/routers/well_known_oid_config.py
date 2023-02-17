@@ -11,10 +11,6 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-key = RSAKey().load("signing_key.pem")
-jwks = KEYS()
-jwks.append(key)
-
 
 @router.get("/.well-known/openid-configuration", response_class=JSONResponse)
 async def get_well_known_oid_config(request: Request):

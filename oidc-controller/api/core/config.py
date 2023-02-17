@@ -35,7 +35,7 @@ class GlobalConfig(BaseSettings):
     DB_PASS: str = os.environ.get("OIDC_CONTROLLER_DB_USER_PWD", "oidccontrollerpass")
 
     MONGODB_URL: str = f"mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}?retryWrites=true&w=majority"
-    REDISDB_URL: str = f"redis://controller-redis:6379"
+    REDISDB_URL: str = f"redis://controller-cache:6379/provider"
     CONTROLLER_URL: str = os.environ.get("CONTROLLER_URL")
 
     ACAPY_AGENT_URL: str = os.environ.get("ACAPY_AGENT_URL")
