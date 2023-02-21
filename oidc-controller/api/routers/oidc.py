@@ -152,7 +152,8 @@ async def post_token(request: Request):
     id_token = IdToken().from_dict(
         token.idtoken_dict(auth_session.request_parameters["nonce"])
     )
-    id_token_jwt = id_token.to_jwt()
+    print(provider.provider.signing_key.encryption_key())
+    id_token_jwt = id_token.to_jwt(key=provider.provider.signing_key.encryption_key())
     values = {
         "token_type": "bearer",
         "id_token": id_token_jwt,

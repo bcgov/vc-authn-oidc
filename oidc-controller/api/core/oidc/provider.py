@@ -15,12 +15,10 @@ signing_key = RSAKey(key=rsa_load("signing_key.pem"), use="sig", alg="RS256")
 signing_keys = KEYS().append(signing_key)
 
 configuration_information = {
-    "issuer": "https://controller:5201",
-    "authorization_endpoint": "https://controller:5201/authorization",
-    "token_endpoint": "https://controller:5201/token",
-    "userinfo_endpoint": "https://controller:5201/userinfo",
-    "registration_endpoint": "https://controller:5201/registration",
-    "jwks_uri": "https://controller:5201/.well-known/openid-configuration/jwks",
+    "issuer": "https://host.docker.internal:5201",
+    "authorization_endpoint": "https://host.docker.internal:5201/authorization",
+    "token_endpoint": "https://host.docker.internal:5201/token",
+    "jwks_uri": "https://host.docker.internal:5201/.well-known/openid-configuration/jwks",
     "response_types_supported": ["code", "id_token token"],
     "id_token_signing_alg_values_supported": [signing_key.alg],
     "response_modes_supported": ["fragment", "query"],
@@ -29,7 +27,7 @@ configuration_information = {
     "claim_types_supported": ["normal"],
     "claims_parameter_supported": True,
     "claims_supported": ["sub", "name", "given_name", "family_name"],
-    "request_parameter_supported": False,
+    "request_parameter_supported": True,
     "request_uri_parameter_supported": False,
     "scopes_supported": ["openid", "profile"],
 }
