@@ -49,8 +49,6 @@ async def get_authorize(request: Request):
     model = AuthorizationRequest().from_dict(request.query_params._dict)
     model.verify()
 
-    # provider.provider.authorize(model, "krall")
-
     client = AcapyClient()
     ver_config_id = model.get("pres_req_conf_id")
 
