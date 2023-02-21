@@ -86,7 +86,7 @@ async def get_authorize(request: Request):
             fetch('{controller_host}/vc/connect{ChallengePollUri}/{auth_session.pres_exch_id}')
                 .then(response => response.json())
                 .then(data => {{if (data.verified) {{
-                        window.location.replace('{controller_host}/vc/connect{AuthorizeCallbackUri}?pid={auth_session.id}', {{method: 'POST'}});
+                        window.location.replace('{controller_host}{AuthorizeCallbackUri}?pid={auth_session.id}', {{method: 'POST'}});
                     }}
                 }})
         }}, 2000);
@@ -104,7 +104,7 @@ async def get_authorize(request: Request):
             <p><img src="data:image/jpeg;base64,{image_contents}" alt="{image_contents}" width="300px" height="300px" /></p>
 
             <p> User waits on this screen until Proof has been presented to the vcauth service agent, then is redirected to</p>
-            <a href="http://localhost:5201/vc/connect{AuthorizeCallbackUri}?pid={auth_session.id}">callback url (redirect to kc)</a>
+            <a href="http://localhost:5201{AuthorizeCallbackUri}?pid={auth_session.id}">callback url (redirect to kc)</a>
         </body>
     </html>
 
@@ -148,18 +148,19 @@ async def post_token(request: Request):
     token = Token(
         issuer="placeholder", audiences=["keycloak"], lifetime=10000, claims=claims
     )
+    # generate actual claims from Token instance
+    token_dict = token.idtoken_dict(auth_session.request_parameters["nonce"])
+    # load claims into standard lib IdToken instance
+    id_token = IdToken().from_dict(token_dict)
 
-    id_token = IdToken().from_dict(
-        token.idtoken_dict(auth_session.request_parameters["nonce"])
-    )
-    print(provider.provider.signing_key.encryption_key())
-    id_token_jwt = id_token.to_jwt(key=provider.provider.signing_key.encryption_key())
+    # produce signed jwt from provider key
+    id_token_jwt = id_token.to_jwt([provider.provider.signing_key], algorithm="RS256")
+
     values = {
         "token_type": "bearer",
         "id_token": id_token_jwt,
         "access_token": "invalid",
         "aud": "keycloak",
     }
-
     response = AccessTokenResponse().from_dict(values)
     return response
