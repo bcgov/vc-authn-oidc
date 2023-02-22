@@ -151,7 +151,7 @@ configureEnvironment() {
 
   ## global
   export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn}"
-  export GENESIS_URL="${GENESIS_URL:-http://$DOCKERHOST:9001/genesis}"
+  export GENESIS_URL="${GENESIS_URL:-http://$DOCKERHOST:9000/genesis}"
 
   # controller-db
   export MONGODB_HOST="controller-db"
