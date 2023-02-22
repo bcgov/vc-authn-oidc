@@ -324,3 +324,5 @@ $RECYCLE.BIN/
 _build/
 
 oidc-controller/private/
+
+oidc-controller/static/
