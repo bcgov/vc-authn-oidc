@@ -25,6 +25,7 @@ if urlparse(issuer_url).scheme != "https":
 signing_key = RSAKey(key=rsa_load("signing_key.pem"), use="sig", alg="RS256")
 signing_keys = KEYS().append(signing_key)
 
+# TO BE REVIEWED
 configuration_information = {
     "issuer": issuer_url,
     "authorization_endpoint": f"{issuer_url}/authorization",
@@ -37,7 +38,7 @@ configuration_information = {
     "grant_types_supported": ["authorization_code", "implicit"],
     "claim_types_supported": ["normal"],
     "claims_parameter_supported": True,
-    "claims_supported": ["sub", "name", "given_name", "family_name"],
+    "claims_supported": ["sub"],
     "request_parameter_supported": True,
     "request_uri_parameter_supported": False,
     "scopes_supported": ["openid", "profile"],
