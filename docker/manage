@@ -94,7 +94,7 @@ EOF
 # -----------------------------------------------------------------------------------------------------------------
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
-DEFAULT_CONTAINERS="keycloak keycloak-db controller-db"
+DEFAULT_CONTAINERS="keycloak keycloak-db controller-db controller-cache"
 ACAPY_CONTAINERS="aca-py wallet-db"
 PROD_CONTAINERS="controller"
 
@@ -145,6 +145,10 @@ configureEnvironment() {
     esac
   done
 
+  if [ ! -f ../oidc-controller/signing_key.pem ]; then
+    openssl genrsa -out ../oidc-controller/signing_key.pem 2048
+  fi
+
   ## global
   export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn}"
   export GENESIS_URL="${GENESIS_URL:-http://$DOCKERHOST:9000/genesis}"
@@ -165,6 +169,11 @@ configureEnvironment() {
     CONTROLLER_WEB_HOOK_URL="${CONTROLLER_WEB_HOOK_URL}#${CONTROLLER_API_KEY}"
   fi
   export ST_ACAPY_ADMIN_API_KEY_NAME="x-api-key"
+
+  # controller-cache
+  export REDIS_HOST="controller-cache"
+  export REDIS_PORT=6379
+  export REDIS_NAME="provider"
 
   # agent
   export AGENT_TENANT_MODE="${AGENT_TENANT_MODE:-single}"

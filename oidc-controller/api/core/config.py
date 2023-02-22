@@ -1,11 +1,9 @@
-import json
 import logging
 import os
 from enum import Enum
 from functools import lru_cache
 from typing import Optional
 
-import requests
 from pydantic import BaseSettings
 
 logger = logging.getLogger(__name__)
@@ -37,6 +35,11 @@ class GlobalConfig(BaseSettings):
     DB_PASS: str = os.environ.get("OIDC_CONTROLLER_DB_USER_PWD", "oidccontrollerpass")
 
     MONGODB_URL: str = f"mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}?retryWrites=true&w=majority"
+
+    REDIS_HOST: str = os.environ.get("REDIS_HOST", "controller-cache")
+    REDIS_PORT: str = os.environ.get("REDIS_PORT", "6379")
+    REDIS_NAME: str = os.environ.get("REDIS_NAME", "provider")
+    REDISDB_URL: str = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_NAME}"
 
     CONTROLLER_URL: str = os.environ.get("CONTROLLER_URL")
 

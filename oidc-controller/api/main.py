@@ -36,9 +36,7 @@ app = get_application()
 app.include_router(ver_configs_router, prefix="/ver_configs", tags=["ver_configs"])
 
 app.include_router(well_known_oid_config.router, include_in_schema=True)
-app.include_router(
-    oidc.router, prefix="/vc/connect", tags=["oidc"], include_in_schema=False
-)
+app.include_router(oidc.router, tags=["oidc"], include_in_schema=False)
 
 app.include_router(acapy_handler.router, prefix="/webhooks", include_in_schema=False)
 app.include_router(presentation_request.router, include_in_schema=False)

@@ -23,6 +23,7 @@ mbstrdecoder==1.1.1
 motor==3.1.1
 oic==1.4.0
 oidcmsg==1.5.4
+oidcop==2.4.3
 paramiko==2.9.2
 pathvalidate==2.5.2
 Pillow==9.3.0
@@ -31,6 +32,8 @@ pyasn1==0.4.8
 pycparser==2.21
 pydantic==1.9.0
 pydantic-factories==1.2.3
+pyjwkest==1.4.2
+pyop==3.4.0
 pyparsing==3.0.7
 pyrsistent==0.18.1
 pytablewriter==0.64.2
@@ -39,6 +42,7 @@ python-multipart==0.0.5
 PyYAML==6.0
 qrcode==7.3.1
 readerwriterlock==1.0.9
+redis==4.5.1
 requests==2.27.1
 responses==0.22.0
 rsa==4.8

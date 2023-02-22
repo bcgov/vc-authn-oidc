@@ -8,7 +8,6 @@ from pydantic import BaseModel
 from oic.oic.message import OpenIDSchema
 from ...authSessions.models import AuthSession
 from ...verificationConfigs.models import VerificationConfig
-from ...core.logger_util import log_debug
 
 logger = logging.getLogger(__name__)
 
