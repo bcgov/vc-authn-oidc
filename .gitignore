@@ -326,3 +326,5 @@ _build/
 oidc-controller/private/
 
 oidc-controller/static/
+
+oidc-controller/signing_key.pem
