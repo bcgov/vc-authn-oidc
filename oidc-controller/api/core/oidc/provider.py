@@ -1,3 +1,6 @@
+import logging
+
+from urllib.parse import urlparse
 from jwkest.jwk import rsa_load, RSAKey, KEYS
 
 from pyop.authz_state import AuthorizationState
@@ -8,17 +11,25 @@ from pyop.userinfo import Userinfo
 
 from ..config import settings
 
-db_uri = settings.REDISDB_URL
+logger = logging.getLogger(__name__)
 
+db_uri = settings.REDISDB_URL
+issuer_url = settings.CONTROLLER_URL
+
+if urlparse(issuer_url).scheme != "https":
+    logger.warning(
+        "WARNING CONTROLLER_URL is not HTTPS... MALFORMING openid-configuration for local development"
+    )
+    issuer_url = issuer_url[3:] + "s" + issuer_url[:3]
 
 signing_key = RSAKey(key=rsa_load("signing_key.pem"), use="sig", alg="RS256")
 signing_keys = KEYS().append(signing_key)
 
 configuration_information = {
-    "issuer": "https://host.docker.internal:5201",
-    "authorization_endpoint": "https://host.docker.internal:5201/authorization",
-    "token_endpoint": "https://host.docker.internal:5201/token",
-    "jwks_uri": "https://host.docker.internal:5201/.well-known/openid-configuration/jwks",
+    "issuer": issuer_url,
+    "authorization_endpoint": f"{issuer_url}/authorization",
+    "token_endpoint": f"{issuer_url}/token",
+    "jwks_uri": f"{issuer_url}/.well-known/openid-configuration/jwks",
     "response_types_supported": ["code", "id_token token"],
     "id_token_signing_alg_values_supported": [signing_key.alg],
     "response_modes_supported": ["fragment", "query"],

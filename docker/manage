@@ -169,7 +169,7 @@ configureEnvironment() {
   # controller-cache
   export REDIS_HOST="controller-cache"
   export REDIS_PORT=6379
-  export REDIS_DB="provider"
+  export REDIS_NAME="provider"
 
   # agent
   export AGENT_TENANT_MODE="${AGENT_TENANT_MODE:-single}"
