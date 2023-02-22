@@ -147,7 +147,7 @@ configureEnvironment() {
 
   ## global
   export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn}"
-  export GENESIS_URL="${GENESIS_URL:-http://$DOCKERHOST:9000/genesis}"
+  export GENESIS_URL="${GENESIS_URL:-http://$DOCKERHOST:9001/genesis}"
 
   # controller-db
   export MONGODB_HOST="controller-db"
@@ -165,6 +165,11 @@ configureEnvironment() {
     CONTROLLER_WEB_HOOK_URL="${CONTROLLER_WEB_HOOK_URL}#${CONTROLLER_API_KEY}"
   fi
   export ST_ACAPY_ADMIN_API_KEY_NAME="x-api-key"
+
+  # controller-cache
+  export REDIS_HOST="controller-cache"
+  export REDIS_PORT=6379
+  export REDIS_DB="provider"
 
   # agent
   export AGENT_TENANT_MODE="${AGENT_TENANT_MODE:-single}"
