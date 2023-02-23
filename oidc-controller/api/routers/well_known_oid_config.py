@@ -13,11 +13,11 @@ router = APIRouter()
 
 
 @router.get("/.well-known/openid-configuration", response_class=JSONResponse)
-async def get_well_known_oid_config(request: Request):
+async def get_well_known_oid_config():
     """returns configuration response compliant with https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse"""
     return provider.configuration_information
 
 
 @router.get("/.well-known/openid-configuration/jwks", response_class=JSONResponse)
-async def get_well_known_oid_config():
+async def get_well_known_jwks():
     return {"keys": [provider.signing_key.to_dict()]}
