@@ -50,20 +50,18 @@ async def get_authorize(request: Request):
     model = AuthorizationRequest().from_dict(request.query_params._dict)
     model.verify()
 
-    print(request.query_params._dict)
-    print(request.headers)
-    print(provider.provider.clients)
+    # pyop provider
     auth_req = provider.provider.parse_authentication_request(
         urlencode(request.query_params._dict), request.headers
     )
-    print(auth_req)
     authn_response = provider.provider.authorize(model, "Jason")
     print(authn_response)
-
     response_url = authn_response.request(
         auth_req["redirect_uri"], should_fragment_encode
     )
     print(response_url)
+    # pyop provider END
+
     client = AcapyClient()
     ver_config_id = model.get("pres_req_conf_id")
 
@@ -139,6 +137,7 @@ async def get_authorize_callback(pid: str):
         + "&state="
         + str(auth_session.request_parameters["state"])
     )
+    print(url)
     return RedirectResponse(url)
 
 

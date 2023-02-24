@@ -81,5 +81,3 @@ provider = Provider(
     {"keycloak": kc_client},
     Userinfo({"Jason": {"sub": "Jason"}}),
 )
-
-# r = redis.from_url(db_uri)
