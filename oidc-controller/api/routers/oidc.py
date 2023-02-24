@@ -2,6 +2,7 @@ import base64
 import io
 import logging
 import qrcode
+from urllib.parse import urlencode
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -19,7 +20,7 @@ from ..core.acapy.client import AcapyClient
 from ..core.config import settings
 from ..core.oidc.issue_token_service import Token
 from ..verificationConfigs.crud import VerificationConfigCRUD
-
+from pyop.util import should_fragment_encode
 
 ChallengePollUri = "/poll"
 AuthorizeCallbackUri = "/callback"
@@ -49,6 +50,20 @@ async def get_authorize(request: Request):
     model = AuthorizationRequest().from_dict(request.query_params._dict)
     model.verify()
 
+    print(request.query_params._dict)
+    print(request.headers)
+    print(provider.provider.clients)
+    auth_req = provider.provider.parse_authentication_request(
+        urlencode(request.query_params._dict), request.headers
+    )
+    print(auth_req)
+    authn_response = provider.provider.authorize(model, "Jason")
+    print(authn_response)
+
+    response_url = authn_response.request(
+        auth_req["redirect_uri"], should_fragment_encode
+    )
+    print(response_url)
     client = AcapyClient()
     ver_config_id = model.get("pres_req_conf_id")
 

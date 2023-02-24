@@ -1,13 +1,16 @@
 import logging
+import redis
+import json
 
 from urllib.parse import urlparse
 from jwkest.jwk import rsa_load, RSAKey, KEYS
 
 from pyop.authz_state import AuthorizationState
 from pyop.provider import Provider
-from pyop.storage import RedisWrapper
+from pyop.storage import RedisWrapper, StatelessWrapper
 from pyop.subject_identifier import HashBasedSubjectIdentifierFactory
 from pyop.userinfo import Userinfo
+
 
 from ..config import settings
 
@@ -31,7 +34,7 @@ configuration_information = {
     "authorization_endpoint": f"{issuer_url}/authorization",
     "token_endpoint": f"{issuer_url}/token",
     "jwks_uri": f"{issuer_url}/.well-known/openid-configuration/jwks",
-    "response_types_supported": ["id_token", "token"],
+    "response_types_supported": ["code", "id_token", "token"],
     "id_token_signing_alg_values_supported": [signing_key.alg],
     "response_modes_supported": ["fragment", "query"],
     "subject_types_supported": ["public", "pairwise"],
@@ -45,15 +48,38 @@ configuration_information = {
 }
 
 subject_id_factory = HashBasedSubjectIdentifierFactory("asdwadwa")
-authz_state = AuthorizationState(
-    subject_id_factory,
-    RedisWrapper(db_uri, db_name="provider", collection="authz_codes"),
-    RedisWrapper(db_uri, db_name="provider", collection="access_tokens"),
-    RedisWrapper(db_uri, db_name="provider", collection="refresh_tokens"),
-    RedisWrapper(db_uri, db_name="provider", collection="subject_identifiers"),
-)
-client_db = RedisWrapper(db_uri, db_name="provider", collection="clients")
-user_db = RedisWrapper(db_uri, db_name="provider", collection="users")
+# authz_state = AuthorizationState(
+#     subject_id_factory,
+#     RedisWrapper(db_uri, db_name="provider", collection="authz_codes"),
+#     RedisWrapper(db_uri, db_name="provider", collection="access_tokens"),
+#     RedisWrapper(db_uri, db_name="provider", collection="refresh_tokens"),
+#     RedisWrapper(db_uri, db_name="provider", collection="subject_identifiers"),
+# )
+# client_db = RedisWrapper(db_uri, db_name="provider", collection="clients")
+# user_db = RedisWrapper(db_uri, db_name="provider", collection="users")
+
+
+kc_client = {
+    "enabled": True,
+    "client_id": "keycloak",
+    "client_name": "keycloak",
+    "allowed_grant_types": ["implicit", "code"],
+    "allowed_scopes": ["openid", "profile", "vc_authn"],
+    "response_types": ["code", "id_token", "token"],
+    "redirect_uris": [
+        "http://localhost:8880/auth/realms/vc-authn/broker/vc-authn/endpoint"
+    ],
+    "require_client_secret": False,
+    "require_consent": False,
+}
+
+
 provider = Provider(
-    signing_key, configuration_information, authz_state, client_db, Userinfo(user_db)
+    signing_key,
+    configuration_information,
+    AuthorizationState(subject_id_factory),
+    {"keycloak": kc_client},
+    Userinfo({"Jason": {"sub": "Jason"}}),
 )
+
+# r = redis.from_url(db_uri)
