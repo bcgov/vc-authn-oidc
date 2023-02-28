@@ -9,7 +9,7 @@
         Download BC Wallet to a mobile device
         <a
           href="https://www2.gov.bc.ca/gov/content/governments/government-id/bc-wallet"
-          >https://www2.gov.bc.ca/gov/content/governments/government-id/bc-wallet</a
+        >https://www2.gov.bc.ca/gov/content/governments/government-id/bc-wallet</a
         >
       </li>
       <li>
@@ -38,7 +38,7 @@
         Navigate to the
         <a
           href="http://localhost:8880/auth/admin/master/console/#/realms/vc-authn/identity-provider-settings/provider/oidc/vc-authn"
-          >keycloak idp config</a
+        >keycloak idp config</a
         >
         and set the client secret to "12345678"
       </li>
