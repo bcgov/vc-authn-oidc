@@ -5,7 +5,7 @@ import qrcode
 from urllib.parse import urlencode
 
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from oic.oic.message import (
     AccessTokenRequest,
     AccessTokenResponse,
@@ -54,8 +54,8 @@ async def get_authorize(request: Request):
         urlencode(request.query_params._dict), request.headers
     )
     authn_response = provider.provider.authorize(model, "Jason")
+    print(authn_response)
     response_url = authn_response.request(auth_req["redirect_uri"])
-    print(response_url)
     # pyop provider END
 
     client = AcapyClient()
@@ -67,6 +67,7 @@ async def get_authorize(request: Request):
     response = client.create_presentation_request(ver_config.generate_proof_request())
 
     new_auth_session = AuthSessionCreate(
+        pyop_auth_code=authn_response["code"],
         request_parameters=model.to_dict(),
         ver_config_id=ver_config_id,
         pres_exch_id=response.presentation_exchange_id,
@@ -129,7 +130,7 @@ async def get_authorize_callback(pid: str):
     url = (
         redirect_uri
         + "?code="
-        + str(auth_session.id)
+        + str(auth_session.pyop_auth_code)
         + "&state="
         + str(auth_session.request_parameters["state"])
     )
@@ -138,20 +139,24 @@ async def get_authorize_callback(pid: str):
 
 
 @log_debug
-@router.post(VerifiedCredentialTokenUri)
+@router.post(VerifiedCredentialTokenUri, response_class=JSONResponse)
 async def post_token(request: Request):
     """Called by oidc platform to retreive token contents"""
     form = await request.form()
     model = AccessTokenRequest().from_dict(form._dict)
     client = AcapyClient()
-
+    print(model)
     # Pyop Token begin
     data = urlencode(form._dict)
+    print(data)
+    print(request.headers)
     token_response = provider.provider.handle_token_request(data, request.headers)
     print(token_response)
-    return token_response.to_dict()
     # pyop token end
-    auth_session = await AuthSessionCRUD.get(model.get("code"))
+
+    # this is failing cause this isn't the code... so how do I get the auth_session pres_exch_id....
+
+    auth_session = await AuthSessionCRUD.get_by_pyop_auth_code(model.get("code"))
     ver_config = await VerificationConfigCRUD.get(auth_session.ver_config_id)
 
     presentation = client.get_presentation_request(auth_session.pres_exch_id)
@@ -161,6 +166,10 @@ async def post_token(request: Request):
     token = Token(
         issuer="placeholder", audiences=["keycloak"], lifetime=10000, claims=claims
     )
+    print(token)
+
+    return token_response.to_dict()
+
     # generate actual claims from Token instance
     token_dict = token.idtoken_dict(auth_session.request_parameters["nonce"])
     # load claims into standard lib IdToken instance
@@ -176,4 +185,3 @@ async def post_token(request: Request):
         "aud": "keycloak",
     }
     response = AccessTokenResponse().from_dict(values)
-    return response

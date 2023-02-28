@@ -70,3 +70,16 @@ class AuthSessionCRUD:
             )
 
         return AuthSession(**auth_sess)
+
+    @classmethod
+    async def get_by_pyop_auth_code(cls, code: str) -> AuthSession:
+        col = db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
+        auth_sess = col.find_one({"pyop_auth_code": code})
+
+        if auth_sess is None:
+            raise HTTPException(
+                status_code=http_status.HTTP_404_NOT_FOUND,
+                detail="The auth_session hasn't been found with that pyop_auth_code!",
+            )
+
+        return AuthSession(**auth_sess)

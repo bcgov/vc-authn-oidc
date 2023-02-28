@@ -11,6 +11,7 @@ class AuthSessionBase(BaseModel):
     expired_timestamp: datetime = Field(default=datetime.now() + timedelta(seconds=600))
     ver_config_id: str
     request_parameters: dict
+    pyop_auth_code: str
 
     class Config:
         allow_population_by_field_name = True
