@@ -56,9 +56,9 @@ async def get_authorize(request: Request):
     authn_response = provider.provider.authorize(model, "Jason")
     # pyop provider END
 
+    # retrieve presentation_request config.
     client = AcapyClient()
     ver_config_id = model.get("pres_req_conf_id")
-
     ver_config = await VerificationConfigCRUD.get(ver_config_id)
 
     # Create presentation_request to show on screen
@@ -74,13 +74,13 @@ async def get_authorize(request: Request):
 
     # save OIDC AuthSession
     auth_session = await AuthSessionCRUD.create(new_auth_session)
+
     # QR CONTENTS
     controller_host = settings.CONTROLLER_URL
     url_to_message = (
         controller_host + "/url/pres_exch/" + str(auth_session.pres_exch_id)
     )
-
-    # CREATE an image
+    # CREATE the image
     buff = io.BytesIO()
     qrcode.make(url_to_message).save(buff, format="PNG")
     image_contents = base64.b64encode(buff.getvalue()).decode("utf-8")
@@ -145,8 +145,6 @@ async def post_token(request: Request):
     form = await request.form()
     model = AccessTokenRequest().from_dict(form._dict)
     client = AcapyClient()
-    # need to inject custom fields still
-    data = urlencode(form._dict)
 
     auth_session = await AuthSessionCRUD.get_by_pyop_auth_code(model.get("code"))
     ver_config = await VerificationConfigCRUD.get(auth_session.ver_config_id)
@@ -156,12 +154,14 @@ async def post_token(request: Request):
         issuer="placeholder", audiences=["keycloak"], lifetime=10000, claims=claims
     )
 
-    # modify sub to use vc-attribute
+    # modify sub to use vc-attribute as configured
     new_sub = token.claims.pop("sub")
     provider.provider.authz_state.authorization_codes[model.get("code")][
         "sub"
     ] = new_sub
 
+    # convert form data to what library expects, was designed for Flask.app.request.get_data()
+    data = urlencode(form._dict)
     token_response = provider.provider.handle_token_request(
         data, request.headers, token.claims
     )
