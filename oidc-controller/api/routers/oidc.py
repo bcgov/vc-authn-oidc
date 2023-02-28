@@ -8,9 +8,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from oic.oic.message import (
     AccessTokenRequest,
-    AccessTokenResponse,
     AuthorizationRequest,
-    IdToken,
 )
 from ..core.oidc import provider
 
