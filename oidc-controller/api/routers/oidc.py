@@ -20,7 +20,6 @@ from ..core.acapy.client import AcapyClient
 from ..core.config import settings
 from ..core.oidc.issue_token_service import Token
 from ..verificationConfigs.crud import VerificationConfigCRUD
-from pyop.util import should_fragment_encode
 
 ChallengePollUri = "/poll"
 AuthorizeCallbackUri = "/callback"
@@ -148,8 +147,9 @@ async def post_token(request: Request):
 
     # Pyop Token begin
     data = urlencode(form._dict)
-    provider.provider.handle_token_request(data, request.headers)
-
+    token_response = provider.provider.handle_token_request(data, request.headers)
+    print(token_response)
+    return token_response.to_dict()
     # pyop token end
     auth_session = await AuthSessionCRUD.get(model.get("code"))
     ver_config = await VerificationConfigCRUD.get(auth_session.ver_config_id)
