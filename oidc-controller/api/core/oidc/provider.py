@@ -1,13 +1,10 @@
 import logging
-import redis
-import json
 
 from urllib.parse import urlparse
 from jwkest.jwk import rsa_load, RSAKey, KEYS
 
 from pyop.authz_state import AuthorizationState
 from pyop.provider import Provider
-from pyop.storage import RedisWrapper, StatelessWrapper
 from pyop.subject_identifier import HashBasedSubjectIdentifierFactory
 from pyop.userinfo import Userinfo
 
