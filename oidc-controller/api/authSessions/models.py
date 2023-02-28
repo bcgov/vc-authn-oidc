@@ -12,6 +12,7 @@ class AuthSessionBase(BaseModel):
     ver_config_id: str
     request_parameters: dict
     pyop_auth_code: str
+    response_url:str
 
     class Config:
         allow_population_by_field_name = True

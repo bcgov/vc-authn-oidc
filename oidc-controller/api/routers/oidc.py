@@ -50,7 +50,7 @@ async def get_authorize(request: Request):
     model.verify()
 
     # pyop provider
-    provider.provider.parse_authentication_request(
+    auth_req = provider.provider.parse_authentication_request(
         urlencode(request.query_params._dict), request.headers
     )
     authn_response = provider.provider.authorize(model, "Jason")
@@ -65,6 +65,7 @@ async def get_authorize(request: Request):
     response = client.create_presentation_request(ver_config.generate_proof_request())
 
     new_auth_session = AuthSessionCreate(
+        response_url=authn_response.request(auth_req["redirect_uri"]),
         pyop_auth_code=authn_response["code"],
         request_parameters=model.to_dict(),
         ver_config_id=ver_config_id,
@@ -121,19 +122,9 @@ async def get_authorize(request: Request):
 @router.get("/callback", response_class=RedirectResponse)
 async def get_authorize_callback(pid: str):
     """Called by Authorize page when verification is complete"""
-
-    redirect_uri = "http://localhost:8880/auth/realms/vc-authn/broker/vc-authn/endpoint"
     auth_session = await AuthSessionCRUD.get(pid)
-    # should be getting made from the lib like this.
-    # response_url = authn_response.request(auth_req["redirect_uri"])
 
-    url = (
-        redirect_uri
-        + "?code="
-        + str(auth_session.pyop_auth_code)
-        + "&state="
-        + str(auth_session.request_parameters["state"])
-    )
+    url = auth_session.response_url
     print(url)
     return RedirectResponse(url)
 
