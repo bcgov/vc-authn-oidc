@@ -25,7 +25,7 @@ if urlparse(issuer_url).scheme != "https":
 signing_key = RSAKey(key=rsa_load("signing_key.pem"), use="sig", alg="RS256")
 signing_keys = KEYS().append(signing_key)
 
-# config from vc-authn-oidc 1.0 https://toip-vc-authn-controller-dev.apps.silver.devops.gov.bc.ca/.well-known/openid-configuration
+# config from vc-authn-oidc 1.0 can be found here https://toip-vc-authn-controller-dev.apps.silver.devops.gov.bc.ca/.well-known/openid-configuration
 
 configuration_information = {
     "issuer": issuer_url,
