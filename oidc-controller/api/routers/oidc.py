@@ -158,10 +158,18 @@ async def post_token(request: Request):
     token = Token(
         issuer="placeholder", audiences=["keycloak"], lifetime=10000, claims=claims
     )
-    # print(provider.provider.authz_state.authorization_codes)
-    # print(data)
-    # print(request.headers)
-    # print(token.claims)
-    token_response = provider.provider.handle_token_request(data, request.headers)
+
+    print(data)
+    print(request.headers)
+    print(token.claims)
+
+    new_sub = token.claims.pop("sub")
+    provider.provider.authz_state.authorization_codes[model.get("code")][
+        "sub"
+    ] = new_sub
+
+    token_response = provider.provider.handle_token_request(
+        data, request.headers, token.claims
+    )
     print(token_response)
     return token_response.to_dict()
