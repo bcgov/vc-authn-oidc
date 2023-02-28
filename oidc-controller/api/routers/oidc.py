@@ -55,10 +55,7 @@ async def get_authorize(request: Request):
         urlencode(request.query_params._dict), request.headers
     )
     authn_response = provider.provider.authorize(model, "Jason")
-    print(authn_response)
-    response_url = authn_response.request(
-        auth_req["redirect_uri"], should_fragment_encode
-    )
+    response_url = authn_response.request(auth_req["redirect_uri"])
     print(response_url)
     # pyop provider END
 
@@ -147,9 +144,13 @@ async def post_token(request: Request):
     """Called by oidc platform to retreive token contents"""
     form = await request.form()
     model = AccessTokenRequest().from_dict(form._dict)
-
     client = AcapyClient()
 
+    # Pyop Token begin
+    data = urlencode(form._dict)
+    provider.provider.handle_token_request(data, request.headers)
+
+    # pyop token end
     auth_session = await AuthSessionCRUD.get(model.get("code"))
     ver_config = await VerificationConfigCRUD.get(auth_session.ver_config_id)
 
