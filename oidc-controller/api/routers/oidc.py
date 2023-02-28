@@ -145,16 +145,8 @@ async def post_token(request: Request):
     form = await request.form()
     model = AccessTokenRequest().from_dict(form._dict)
     client = AcapyClient()
-    print(model)
-    # Pyop Token begin
+    # need to inject custom fields still
     data = urlencode(form._dict)
-    print(data)
-    print(request.headers)
-    token_response = provider.provider.handle_token_request(data, request.headers)
-    print(token_response)
-    # pyop token end
-
-    # this is failing cause this isn't the code... so how do I get the auth_session pres_exch_id....
 
     auth_session = await AuthSessionCRUD.get_by_pyop_auth_code(model.get("code"))
     ver_config = await VerificationConfigCRUD.get(auth_session.ver_config_id)
@@ -166,22 +158,10 @@ async def post_token(request: Request):
     token = Token(
         issuer="placeholder", audiences=["keycloak"], lifetime=10000, claims=claims
     )
-    print(token)
-
+    # print(provider.provider.authz_state.authorization_codes)
+    # print(data)
+    # print(request.headers)
+    # print(token.claims)
+    token_response = provider.provider.handle_token_request(data, request.headers)
+    print(token_response)
     return token_response.to_dict()
-
-    # generate actual claims from Token instance
-    token_dict = token.idtoken_dict(auth_session.request_parameters["nonce"])
-    # load claims into standard lib IdToken instance
-    id_token = IdToken().from_dict(token_dict)
-
-    # produce signed jwt from provider key
-    id_token_jwt = id_token.to_jwt([provider.provider.signing_key], algorithm="RS256")
-
-    values = {
-        "token_type": "bearer",
-        "id_token": id_token_jwt,
-        "access_token": "invalid",
-        "aud": "keycloak",
-    }
-    response = AccessTokenResponse().from_dict(values)
