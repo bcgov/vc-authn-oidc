@@ -50,12 +50,10 @@ async def get_authorize(request: Request):
     model.verify()
 
     # pyop provider
-    auth_req = provider.provider.parse_authentication_request(
+    provider.provider.parse_authentication_request(
         urlencode(request.query_params._dict), request.headers
     )
     authn_response = provider.provider.authorize(model, "Jason")
-    print(authn_response)
-    response_url = authn_response.request(auth_req["redirect_uri"])
     # pyop provider END
 
     client = AcapyClient()
@@ -126,6 +124,8 @@ async def get_authorize_callback(pid: str):
 
     redirect_uri = "http://localhost:8880/auth/realms/vc-authn/broker/vc-authn/endpoint"
     auth_session = await AuthSessionCRUD.get(pid)
+    # should be getting made from the lib like this.
+    # response_url = authn_response.request(auth_req["redirect_uri"])
 
     url = (
         redirect_uri
@@ -150,19 +150,13 @@ async def post_token(request: Request):
 
     auth_session = await AuthSessionCRUD.get_by_pyop_auth_code(model.get("code"))
     ver_config = await VerificationConfigCRUD.get(auth_session.ver_config_id)
-
     presentation = client.get_presentation_request(auth_session.pres_exch_id)
-
     claims = Token.get_claims(presentation, auth_session, ver_config)
-
     token = Token(
         issuer="placeholder", audiences=["keycloak"], lifetime=10000, claims=claims
     )
 
-    print(data)
-    print(request.headers)
-    print(token.claims)
-
+    # modify sub to use vc-attribute
     new_sub = token.claims.pop("sub")
     provider.provider.authz_state.authorization_codes[model.get("code")][
         "sub"
@@ -171,5 +165,4 @@ async def post_token(request: Request):
     token_response = provider.provider.handle_token_request(
         data, request.headers, token.claims
     )
-    print(token_response)
     return token_response.to_dict()
