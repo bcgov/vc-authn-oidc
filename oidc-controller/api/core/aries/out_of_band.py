@@ -7,7 +7,7 @@ from .service_decorator import ServiceDecorator
 
 
 class OutOfBandPresentProofAttachment(BaseModel):
-    id: str = Field(alias="@id", default="Asdasdad")
+    id: str = Field(alias="@id")
     mime_type: str = Field(default="application/json", alias="mime-type")
     data: Dict
 
