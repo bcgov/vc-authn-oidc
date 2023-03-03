@@ -44,7 +44,7 @@ async def send_connectionless_proof_req(
     msg = PresentationRequestMessage(
         id=auth_session.presentation_exchange["thread_id"],
         request=[byo_attachment],
-        service=s_d,
+        # service=s_d,
     )
 
     oob_msg = OutOfBandMessage(
