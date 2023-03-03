@@ -69,6 +69,7 @@ class GlobalConfig(BaseSettings):
     # openssl rand -hex 32
     JWT_ALGORITHM = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES = 300
+    SUBJECT_ID_HASH_SALT = os.environ.get("SUBJECT_ID_HASH_SALT", "test_hash_salt")
 
     CONTROLLER_API_KEY: str = os.environ.get("CONTROLLER_API_KEY", "")
 

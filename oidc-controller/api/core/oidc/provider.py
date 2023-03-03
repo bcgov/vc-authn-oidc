@@ -34,8 +34,8 @@ configuration_information = {
     "jwks_uri": f"{issuer_url}/.well-known/openid-configuration/jwks",
     "response_types_supported": ["code", "id_token", "token"],
     "id_token_signing_alg_values_supported": [signing_key.alg],
-    "response_modes_supported": ["fragment", "query"],
-    "subject_types_supported": ["public", "pairwise"],
+    "response_modes_supported": ["fragment", "query", "form_post"],
+    "subject_types_supported": ["public"],
     "grant_types_supported": ["hybrid"],
     "claim_types_supported": ["normal"],
     "claims_parameter_supported": True,
@@ -44,9 +44,13 @@ configuration_information = {
     "request_uri_parameter_supported": False,
     "scopes_supported": ["openid", "profile"],
     "token_endpoint_auth_methods_supported": ["client_secret_basic"],
+    "frontchannel_logout_supported": True,
+    "frontchannel_logout_session_supported": True,
+    "backchannel_logout_supported": True,
+    "backchannel_logout_session_supported": True,
 }
 
-subject_id_factory = HashBasedSubjectIdentifierFactory("asdwadwa")
+subject_id_factory = HashBasedSubjectIdentifierFactory(settings.SUBJECT_ID_HASH_SALT)
 
 
 kc_client = {
