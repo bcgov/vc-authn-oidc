@@ -23,6 +23,7 @@ async def post_topic(
 ):
     """Called by aca-py agent."""
     logger.info(f">>> post_topic : topic={topic}")
+    logger.info(f">>>{await _parse_webhook_body(request)}")
     client = AcapyClient()
     match topic:
         case "present_proof":
