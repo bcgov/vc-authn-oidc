@@ -50,7 +50,7 @@ class GlobalConfig(BaseSettings):
 
     ACAPY_TENANCY: str = os.environ.get(
         "ACAPY_TENANCY", "single"
-    )  # other option is "multi"
+    )  # other option is "multi"USE_OOB_PRESENT_PROOF
 
     ACAPY_ADMIN_URL: str = os.environ.get("ACAPY_ADMIN_URL", "http://localhost:8031")
 
@@ -72,6 +72,8 @@ class GlobalConfig(BaseSettings):
     SUBJECT_ID_HASH_SALT = os.environ.get("SUBJECT_ID_HASH_SALT", "test_hash_salt")
 
     CONTROLLER_API_KEY: str = os.environ.get("CONTROLLER_API_KEY", "")
+
+    USE_OOB_PRESENT_PROOF: bool = os.environ.get("USE_OOB_PRESENT_PROOF", False)
 
     class Config:
         case_sensitive = True
