@@ -34,12 +34,18 @@ def get_application() -> FastAPI:
 
 app = get_application()
 app.include_router(ver_configs_router, prefix="/ver_configs", tags=["ver_configs"])
-
-app.include_router(well_known_oid_config.router, include_in_schema=True)
-app.include_router(oidc.router, tags=["oidc"], include_in_schema=False)
-
+app.include_router(well_known_oid_config.router, tags=[".well-known"])
+app.include_router(
+    oidc.router, tags=["OpenID Connect Provider"], include_in_schema=False
+)
 app.include_router(acapy_handler.router, prefix="/webhooks", include_in_schema=False)
 app.include_router(presentation_request.router, include_in_schema=False)
+
+# DEPRECATED PATHS - For backwards compatibility with vc-authn-oidc 1.0
+app.include_router(
+    oidc.router, prefix="/vc/connect", tags=["oidc-deprecated"], include_in_schema=False
+)
+
 
 origins = ["*"]
 
