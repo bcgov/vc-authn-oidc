@@ -50,7 +50,7 @@ class GlobalConfig(BaseSettings):
 
     ACAPY_TENANCY: str = os.environ.get(
         "ACAPY_TENANCY", "single"
-    )  # other option is "multi"USE_OOB_PRESENT_PROOF
+    )  # valid options are "multi" and "single"
 
     ACAPY_ADMIN_URL: str = os.environ.get("ACAPY_ADMIN_URL", "http://localhost:8031")
 

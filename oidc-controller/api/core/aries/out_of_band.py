@@ -1,9 +1,5 @@
-import json, base64
-from typing import Dict, List, Optional
+from typing import Dict, List
 from pydantic import BaseModel, Field
-from .present_proof_attachment import PresentProofv10Attachment
-from .present_proof_presentation import PresentationRequestMessage
-from .service_decorator import ServiceDecorator
 
 
 class OutOfBandPresentProofAttachment(BaseModel):
@@ -23,23 +19,13 @@ class OutOfBandMessage(BaseModel):
         alias="@type",
     )
     goal_code: str = Field(default="request-proof")
-    # label: str = Field(
-    #     default="vc-authn Out-of-Band present-proof authorization request"
-    # )
+    label: str = Field(
+        default="vc-authn Out-of-Band present-proof authorization request"
+    )
     request_attachments: List[OutOfBandPresentProofAttachment] = Field(
         alias="requests~attach"
     )
     services: List[str] = Field(alias="services")
-    # handshake_protocols: List[str] = Field(
-    #     default=[
-    #         "https://didcomm.org/didexchange/1.0",
-    #         "https://didcomm.org/connections/1.0",
-    #     ],
-    #     alias="handshake_protocols",
-    # )
-    # accepted_responses: List[str] = Field(
-    #     default=["didcomm/aip2;env=rfc587", "didcomm/aip2;env=rfc19"], alias="accept"
-    # )
 
     class Config:
         allow_population_by_field_name = True
