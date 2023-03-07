@@ -16,7 +16,7 @@ class PresentationRequestMessage(BaseModel):
         alias="request_presentations~attach"
     )
     comment: str = None
-    service: ServiceDecorator = Field(alias="~service")
+    service: Optional[ServiceDecorator] = Field(alias="~service")
 
     class Config:
         allow_population_by_field_name = True
