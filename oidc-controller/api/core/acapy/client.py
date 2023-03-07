@@ -2,14 +2,15 @@ import requests
 import json
 import logging
 from uuid import UUID
-from .models import WalletPublicDid, CreatePresentationResponse
+from .models import WalletDid, CreatePresentationResponse
 from ..config import settings
 from .config import AgentConfig, MultiTenantAcapy, SingleTenantAcapy
 
 _client = None
 logger = logging.getLogger(__name__)
 
-WALLET_DID_URI = "/wallet/did/public"
+WALLET_DID_URI = "/wallet/did"
+PUBLIC_WALLET_DID_URI = "/wallet/did/public"
 CREATE_PRESENTATION_REQUEST_URL = "/present-proof/create-request"
 PRESENT_PROOF_RECORDS = "/present-proof/records"
 
@@ -85,18 +86,28 @@ class AcapyClient:
         logger.debug(f"<<< verify_presentation -> {resp}")
         return resp
 
-    def get_wallet_public_did(self) -> WalletPublicDid:
-        logger.debug(f">>> get_wallet_public_did")
+    def get_wallet_did(self, public=False) -> WalletDid:
+        logger.debug(f">>> get_wallet_did")
+        url = None
+        if public:
+            url = self.acapy_host + PUBLIC_WALLET_DID_URI
+        else:
+            url = self.acapy_host + WALLET_DID_URI
 
         resp_raw = requests.get(
-            self.acapy_host + WALLET_DID_URI,
+            url,
             headers=self.agent_config.get_headers(),
         )
         assert (
             resp_raw.status_code == 200
         ), f"{resp_raw.status_code}::{resp_raw.content}"
         resp = json.loads(resp_raw.content)
-        public_did = WalletPublicDid.parse_obj(resp["result"])
 
-        logger.debug(f"<<< get_wallet_public_did -> {public_did}")
-        return public_did
+        if public:
+            resp_payload = resp["result"]
+        else:
+            resp_payload = resp["results"][0]
+        did = WalletDid.parse_obj(resp_payload)
+
+        logger.debug(f"<<< get_wallet_did -> {did}")
+        return did
