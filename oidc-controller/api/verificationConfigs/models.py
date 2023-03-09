@@ -1,7 +1,10 @@
+import time
 from typing import Optional, List
 from pydantic import BaseModel, Field
 
 from .examples import ex_ver_config_read, ex_ver_config_create
+from ..core.config import settings
+
 
 ## Slightly modified from ACAPY models.
 class AttributeFilter(BaseModel):
@@ -51,9 +54,19 @@ class VerificationConfigBase(BaseModel):
         for i, req_attr in enumerate(self.proof_request.requested_attributes):
             label = req_attr.label or "req_attr_" + str(i)
             result["requested_attributes"][label] = req_attr.dict(exclude_none=True)
+            if settings.SET_NON_REVOKED:
+                result["requested_attributes"][label]["non_revoked"] = {
+                    "from": int(time.time()),
+                    "to": int(time.time()),
+                }
         for req_pred in self.proof_request.requested_predicates:
             label = req_pred.label or "req_pred_" + str(i)
             result["requested_predicates"][label] = req_pred.dict(exclude_none=True)
+            if settings.SET_NON_REVOKED:
+                result["requested_attributes"][label]["non_revoked"] = {
+                    "from": int(time.time()),
+                    "to": int(time.time()),
+                }
         return result
 
     class Config:
