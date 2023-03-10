@@ -1,22 +1,21 @@
 import base64
 import io
 import logging
-import qrcode
 from urllib.parse import urlencode
 
-from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
-from oic.oic.message import (
-    AccessTokenRequest,
-    AuthorizationRequest,
-)
-from ..core.oidc import provider
+import qrcode
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from oic.oic.message import AccessTokenRequest, AuthorizationRequest
+from pymongo.database import Database
 
-from ..core.logger_util import log_debug
 from ..authSessions.crud import AuthSessionCreate, AuthSessionCRUD
 from ..core.acapy.client import AcapyClient
 from ..core.config import settings
+from ..core.logger_util import log_debug
+from ..core.oidc import provider
 from ..core.oidc.issue_token_service import Token
+from ..db.session import get_db
 from ..verificationConfigs.crud import VerificationConfigCRUD
 
 ChallengePollUri = "/poll"
@@ -31,15 +30,15 @@ router = APIRouter()
 
 @log_debug
 @router.get(f"{ChallengePollUri}/{{pid}}")
-async def poll_pres_exch_complete(pid: str):
+async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
     """Called by authorize webpage to see if request is verified and token issuance can proceed."""
-    auth_session = await AuthSessionCRUD.get(pid)
+    auth_session = await AuthSessionCRUD(db).get(pid)
     return {"verified": auth_session.verified}
 
 
 @log_debug
 @router.get(VerifiedCredentialAuthorizeUri, response_class=HTMLResponse)
-async def get_authorize(request: Request):
+async def get_authorize(request: Request, db: Database = Depends(get_db)):
     """Called by oidc platform."""
     logger.debug(f">>> get_authorize")
 
@@ -57,7 +56,7 @@ async def get_authorize(request: Request):
     # retrieve presentation_request config.
     client = AcapyClient()
     ver_config_id = model.get("pres_req_conf_id")
-    ver_config = await VerificationConfigCRUD.get(ver_config_id)
+    ver_config = await VerificationConfigCRUD(db).get(ver_config_id)
 
     # Create presentation_request to show on screen
     response = client.create_presentation_request(ver_config.generate_proof_request())
@@ -72,7 +71,7 @@ async def get_authorize(request: Request):
     )
 
     # save OIDC AuthSession
-    auth_session = await AuthSessionCRUD.create(new_auth_session)
+    auth_session = await AuthSessionCRUD(db).create(new_auth_session)
 
     # QR CONTENTS
     controller_host = settings.CONTROLLER_URL
@@ -118,9 +117,9 @@ async def get_authorize(request: Request):
 
 @log_debug
 @router.get("/callback", response_class=RedirectResponse)
-async def get_authorize_callback(pid: str):
+async def get_authorize_callback(pid: str, db: Database = Depends(get_db)):
     """Called by Authorize page when verification is complete"""
-    auth_session = await AuthSessionCRUD.get(pid)
+    auth_session = await AuthSessionCRUD(db).get(pid)
 
     url = auth_session.response_url
     print(url)
@@ -129,14 +128,14 @@ async def get_authorize_callback(pid: str):
 
 @log_debug
 @router.post(VerifiedCredentialTokenUri, response_class=JSONResponse)
-async def post_token(request: Request):
+async def post_token(request: Request, db: Database = Depends(get_db)):
     """Called by oidc platform to retreive token contents"""
     form = await request.form()
     model = AccessTokenRequest().from_dict(form._dict)
     client = AcapyClient()
 
-    auth_session = await AuthSessionCRUD.get_by_pyop_auth_code(model.get("code"))
-    ver_config = await VerificationConfigCRUD.get(auth_session.ver_config_id)
+    auth_session = await AuthSessionCRUD(db).get_by_pyop_auth_code(model.get("code"))
+    ver_config = await VerificationConfigCRUD(db).get(auth_session.ver_config_id)
     presentation = client.get_presentation_request(auth_session.pres_exch_id)
     claims = Token.get_claims(presentation, auth_session, ver_config)
     token = Token(

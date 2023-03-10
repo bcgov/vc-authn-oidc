@@ -1,8 +1,9 @@
 import logging
 import json
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
 from fastapi.responses import JSONResponse
+from pymongo.database import Database
 
 from ..authSessions.crud import AuthSessionCRUD
 from ..authSessions.models import AuthSession
@@ -15,6 +16,7 @@ from ..core.aries import (
     OutOfBandPresentProofAttachment,
 )
 from ..core.config import settings
+from ..db.session import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +24,15 @@ router = APIRouter()
 
 
 @router.get("/url/pres_exch/{pres_exch_id}")
-async def send_connectionless_proof_req(pres_exch_id: str, req: Request):
+async def send_connectionless_proof_req(
+    pres_exch_id: str, req: Request, db: Database = Depends(get_db)
+):
     """QR code that is generated should a url to this endpoint, which responds with the
     specific payload for that given agent/wallet"""
     logger.info("Scanning Application headers:: " + str(req.headers))
-    auth_session: AuthSession = await AuthSessionCRUD.get_by_pres_exch_id(pres_exch_id)
+    auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
+        pres_exch_id
+    )
     client = AcapyClient()
 
     public_did = client.get_wallet_public_did()

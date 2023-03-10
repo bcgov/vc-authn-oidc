@@ -1,11 +1,13 @@
 import json
 import logging
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
+from pymongo.database import Database
 
 from ..authSessions.crud import AuthSessionCRUD
 from ..authSessions.models import AuthSession, AuthSessionPatch
 from ..core.acapy.client import AcapyClient
+from ..db.session import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -17,10 +19,7 @@ async def _parse_webhook_body(request: Request):
 
 
 @router.post("/topic/{topic}/")
-async def post_topic(
-    request: Request,
-    topic: str,
-):
+async def post_topic(request: Request, topic: str, db: Database = Depends(get_db)):
     """Called by aca-py agent."""
     logger.info(f">>> post_topic : topic={topic}")
     client = AcapyClient()
@@ -30,7 +29,7 @@ async def post_topic(
             logger.info(
                 f">>>> pres_exch_id: {webhook_body['presentation_exchange_id']}"
             )
-            auth_session: AuthSession = await AuthSessionCRUD.get_by_pres_exch_id(
+            auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
                 webhook_body["presentation_exchange_id"]
             )
             if webhook_body["state"] == "presentation_received":
@@ -40,7 +39,7 @@ async def post_topic(
                 logger.info("VERIFIED")
                 # update presentation_exchange record
                 auth_session.verified = True
-                await AuthSessionCRUD.patch(
+                await AuthSessionCRUD(db).patch(
                     auth_session.id, AuthSessionPatch(**auth_session.dict())
                 )
 
