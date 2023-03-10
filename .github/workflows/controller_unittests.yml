@@ -4,6 +4,8 @@ on:
   pull_request:
     branches:
       - 2.0-development
+    paths:
+      - "oidc-controller/**"
 
 jobs:
   build:
