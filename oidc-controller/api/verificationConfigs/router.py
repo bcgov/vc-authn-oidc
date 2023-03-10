@@ -1,3 +1,5 @@
+from pymongo.database import Database
+
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi import status as http_status
 
@@ -23,8 +25,10 @@ router = APIRouter()
     response_model_exclude_unset=True,
     dependencies=[Depends(get_api_key)],
 )
-async def create_ver_config(ver_config: VerificationConfig):
-    return await VerificationConfigCRUD().create(ver_config)
+async def create_ver_config(
+    ver_config: VerificationConfig, db: Database = Depends(get_db)
+):
+    return await VerificationConfigCRUD(db).create(ver_config)
 
 
 @router.get(

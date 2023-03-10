@@ -18,11 +18,8 @@ from .models import (
 class VerificationConfigCRUD:
     _db: Database = None
 
-    def __init__(self, db: Union[Database, Callable[[], Database]] = get_db):
-        if isinstance(db, Callable):
-            self._db = db().db
-        else:
-            self._db = db
+    def __init__(self, db: Database):
+        self._db = db
 
     async def create(self, ver_config: VerificationConfig) -> VerificationConfig:
         print(self._db)
