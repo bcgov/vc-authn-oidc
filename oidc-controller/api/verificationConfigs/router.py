@@ -10,6 +10,7 @@ from .models import (
     VerificationConfig,
 )
 from ..core.auth import get_api_key
+from ..db.session import get_db
 
 router = APIRouter()
 
@@ -23,7 +24,7 @@ router = APIRouter()
     dependencies=[Depends(get_api_key)],
 )
 async def create_ver_config(ver_config: VerificationConfig):
-    return await VerificationConfigCRUD.create(ver_config)
+    return await VerificationConfigCRUD().create(ver_config)
 
 
 @router.get(
@@ -33,10 +34,8 @@ async def create_ver_config(ver_config: VerificationConfig):
     response_model_exclude_unset=True,
     dependencies=[Depends(get_api_key)],
 )
-async def get_ver_conf(
-    ver_config_id: str,
-):
-    return await VerificationConfigCRUD.get(ver_config_id)
+async def get_ver_conf(ver_config_id: str):
+    return await VerificationConfigCRUD().get(ver_config_id)
 
 
 @router.patch(
@@ -50,7 +49,7 @@ async def patch_ver_conf(
     ver_config_id: str,
     data: VerificationConfigPatch,
 ):
-    return await VerificationConfigCRUD.patch(ver_config_id=ver_config_id, data=data)
+    return await VerificationConfigCRUD().patch(ver_config_id=ver_config_id, data=data)
 
 
 @router.delete(
@@ -62,7 +61,7 @@ async def patch_ver_conf(
 async def delete_ver_conf_by_uuid(
     ver_config_id: str,
 ):
-    status = await VerificationConfigCRUD.delete(ver_config_id=ver_config_id)
+    status = await VerificationConfigCRUD().delete(ver_config_id=ver_config_id)
 
     if not status:
         raise HTTPException(

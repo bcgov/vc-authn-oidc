@@ -1,11 +1,13 @@
+from typing import Union, Callable
+
 from fastapi import HTTPException
 from fastapi import status as http_status
 from fastapi.encoders import jsonable_encoder
 
 from pymongo import ReturnDocument, MongoClient
+from pymongo.database import Database
 
-from ..db.session import COLLECTION_NAMES
-from ..db.session import get_db
+from ..db.session import get_db, COLLECTION_NAMES
 
 from .models import (
     VerificationConfig,
@@ -14,12 +16,16 @@ from .models import (
 
 
 class VerificationConfigCRUD:
-    _db: MongoClient = None
+    _db: Database = None
 
-    def __init__(self, get_db=get_db):
-        self._db = get_db()
+    def __init__(self, db: Union[Database, Callable[[], Database]] = get_db):
+        if isinstance(db, Callable):
+            self._db = db().db
+        else:
+            self._db = db
 
     async def create(self, ver_config: VerificationConfig) -> VerificationConfig:
+        print(self._db)
         ver_confs = self._db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
         ver_confs.insert_one(jsonable_encoder(ver_config))
         return ver_confs.find_one({"ver_config_id": ver_config.ver_config_id})

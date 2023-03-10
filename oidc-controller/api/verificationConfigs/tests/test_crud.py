@@ -2,6 +2,8 @@ import pytest
 
 from api.verificationConfigs.crud import VerificationConfigCRUD
 from api.verificationConfigs.models import VerificationConfig, VerificationProofRequest
+from api.db.session import COLLECTION_NAMES
+
 from mongomock import MongoClient
 from typing import Callable
 
@@ -19,7 +21,11 @@ async def test_ver_config_get(db_client: Callable[[], MongoClient]):
             version="0.0.1", requested_attributes=[], requested_predicates=[]
         ),
     )
+    client = db_client()
+    client.db.get_collection(COLLECTION_NAMES.VER_CONFIGS).insert_one(
+        test_ver_config.dict()
+    )
 
-    db_client().db.ver_configs.insert_one(test_ver_config.dict())
-    result = await VerificationConfigCRUD(db_client).get("test_ver_config")
+    crud = VerificationConfigCRUD(client.db)
+    result = await crud.get("test_ver_config")
     assert result

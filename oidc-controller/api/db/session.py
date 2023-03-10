@@ -7,7 +7,11 @@ async def get_async_session():
     yield None
 
 
-def get_db(client: MongoClient = MongoClient(settings.MONGODB_URL, uuidRepresentation="standard")) -> database.Database:
+def get_db(
+    client: MongoClient = MongoClient(
+        settings.MONGODB_URL, uuidRepresentation="standard"
+    )
+) -> database.Database:
     db = client[settings.DB_NAME]
 
     ver_configs = db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
