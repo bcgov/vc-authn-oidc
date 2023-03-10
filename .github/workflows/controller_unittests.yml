@@ -1,11 +1,7 @@
 name: Python package
 
 on:
-  pull_request:
-    branches:
-      - 2.0-development
-    paths:
-      - "oidc-controller/**"
+  workflow_dispatch:
 
 jobs:
   build:
