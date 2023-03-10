@@ -2,9 +2,10 @@ from fastapi import HTTPException
 from fastapi import status as http_status
 from fastapi.encoders import jsonable_encoder
 
-from pymongo import ReturnDocument
+from pymongo import ReturnDocument, MongoClient
 
-from ..db.session import db, COLLECTION_NAMES
+from ..db.session import COLLECTION_NAMES
+from ..db.session import get_db
 
 from .models import (
     VerificationConfig,
@@ -13,15 +14,18 @@ from .models import (
 
 
 class VerificationConfigCRUD:
-    @classmethod
-    async def create(cls, ver_config: VerificationConfig) -> VerificationConfig:
-        ver_confs = db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
+    _db: MongoClient = None
+
+    def __init__(self, get_db=get_db):
+        self._db = get_db()
+
+    async def create(self, ver_config: VerificationConfig) -> VerificationConfig:
+        ver_confs = self._db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
         ver_confs.insert_one(jsonable_encoder(ver_config))
         return ver_confs.find_one({"ver_config_id": ver_config.ver_config_id})
 
-    @classmethod
-    async def get(cls, ver_config_id: str) -> VerificationConfig:
-        ver_confs = db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
+    async def get(self, ver_config_id: str) -> VerificationConfig:
+        ver_confs = self._db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
         ver_conf = ver_confs.find_one({"ver_config_id": ver_config_id})
 
         if ver_conf is None:
@@ -32,11 +36,10 @@ class VerificationConfigCRUD:
 
         return VerificationConfig(**ver_conf)
 
-    @classmethod
     async def patch(
-        cls, ver_config_id: str, data: VerificationConfigPatch
+        self, ver_config_id: str, data: VerificationConfigPatch
     ) -> VerificationConfig:
-        ver_confs = db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
+        ver_confs = self._db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
         ver_conf = ver_confs.find_one_and_update(
             {"ver_config_id": ver_config_id},
             {"$set": data.dict(exclude_unset=True)},
@@ -45,8 +48,7 @@ class VerificationConfigCRUD:
 
         return ver_conf
 
-    @classmethod
-    async def delete(cls, ver_config_id: str) -> bool:
-        ver_confs = db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
+    async def delete(self, ver_config_id: str) -> bool:
+        ver_confs = self._db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
         ver_conf = ver_confs.find_one_and_delete({"ver_config_id": ver_config_id})
         return bool(ver_conf)

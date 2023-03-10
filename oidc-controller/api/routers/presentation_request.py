@@ -1,7 +1,7 @@
 import logging
 import json
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from ..authSessions.crud import AuthSessionCRUD
@@ -22,11 +22,10 @@ router = APIRouter()
 
 
 @router.get("/url/pres_exch/{pres_exch_id}")
-async def send_connectionless_proof_req(
-    pres_exch_id: str,
-):
+async def send_connectionless_proof_req(pres_exch_id: str, req: Request):
     """QR code that is generated should a url to this endpoint, which responds with the
     specific payload for that given agent/wallet"""
+    logger.info("Scanning Application headers:: " + str(req.headers))
     auth_session: AuthSession = await AuthSessionCRUD.get_by_pres_exch_id(pres_exch_id)
     client = AcapyClient()
 
