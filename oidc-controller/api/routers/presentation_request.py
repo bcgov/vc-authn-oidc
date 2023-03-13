@@ -13,6 +13,7 @@ from ..core.aries import (
     ServiceDecorator,
     OutOfBandMessage,
     OutOfBandPresentProofAttachment,
+    OOBServiceDecorator,
 )
 from ..core.config import settings
 from ..db.session import get_db
@@ -34,7 +35,7 @@ async def send_connectionless_proof_req(
     )
     client = AcapyClient()
 
-    public_did = client.get_wallet_public_did()
+    wallet_did = client.get_wallet_did()
 
     byo_attachment = PresentProofv10Attachment.build(
         auth_session.presentation_exchange["presentation_request"]
@@ -42,10 +43,12 @@ async def send_connectionless_proof_req(
 
     msg = None
     if settings.USE_OOB_PRESENT_PROOF:
+        oob_s_d = OOBServiceDecorator(
+            service_endpoint=client.service_endpoint, recipient_keys=[wallet_did.verkey]
+        )
         msg = PresentationRequestMessage(
             id=auth_session.presentation_exchange["thread_id"],
             request=[byo_attachment],
-            # service=s_d,
         )
         oob_msg = OutOfBandMessage(
             request_attachments=[
@@ -55,12 +58,12 @@ async def send_connectionless_proof_req(
                 )
             ],
             id=auth_session.presentation_exchange["thread_id"],
-            services=["did:sov:" + public_did.did],
+            services=[oob_s_d.dict()],
         )
         msg_contents = oob_msg
     else:
         s_d = ServiceDecorator(
-            service_endpoint=client.service_endpoint, recipient_keys=[public_did.verkey]
+            service_endpoint=client.service_endpoint, recipient_keys=[wallet_did.verkey]
         )
         msg = PresentationRequestMessage(
             id=auth_session.presentation_exchange["thread_id"],
@@ -68,5 +71,5 @@ async def send_connectionless_proof_req(
             service=s_d,
         )
         msg_contents = msg
-    print(msg_contents)
+    print(msg_contents.dict(by_alias=True))
     return JSONResponse(msg_contents.dict(by_alias=True))
