@@ -1,4 +1,5 @@
-import json, base64
+import json
+import base64
 from typing import Optional, List
 
 from pydantic import BaseModel, Field

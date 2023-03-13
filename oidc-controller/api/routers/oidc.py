@@ -30,9 +30,10 @@ router = APIRouter()
 
 @log_debug
 @router.get(f"{ChallengePollUri}/{{pid}}")
-async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
-    """Called by authorize webpage to see if request is verified and token issuance can proceed."""
-    auth_session = await AuthSessionCRUD(db).get(pid)
+async def poll_pres_exch_complete(pid: str):
+    """Called by authorize webpage to see if request
+    is verified and token issuance can proceed."""
+    auth_session = await AuthSessionCRUD.get(pid)
     return {"verified": auth_session.verified}
 
 
@@ -40,7 +41,7 @@ async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
 @router.get(VerifiedCredentialAuthorizeUri, response_class=HTMLResponse)
 async def get_authorize(request: Request, db: Database = Depends(get_db)):
     """Called by oidc platform."""
-    logger.debug(f">>> get_authorize")
+    logger.debug(">>> get_authorize")
 
     # Verify OIDC forward payload
     model = AuthorizationRequest().from_dict(request.query_params._dict)
@@ -90,7 +91,8 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
             fetch('{controller_host}/vc/connect{ChallengePollUri}/{auth_session.pres_exch_id}')
                 .then(response => response.json())
                 .then(data => {{if (data.verified) {{
-                        window.location.replace('{controller_host}{AuthorizeCallbackUri}?pid={auth_session.id}', {{method: 'POST'}});
+                        window.location.replace('{controller_host}{AuthorizeCallbackUri}
+                        ?pid={auth_session.id}', {{method: 'POST'}});
                     }}
                 }})
         }}, 2000);
@@ -100,15 +102,18 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
             <title>Some HTML in here</title>
         </head>
         <body>
-            <h1>AUTHORIZATION REQUEST</h1> 
+            <h1>AUTHORIZATION REQUEST</h1>
 
             <p>{url_to_message}</p>
 
             <p>Scan this QR code for a connectionless present-proof request</p>
-            <p><img src="data:image/jpeg;base64,{image_contents}" alt="{image_contents}" width="300px" height="300px" /></p>
+            <p><img src="data:image/jpeg;base64,{image_contents}"
+            alt="{image_contents}" width="300px" height="300px" /></p>
 
-            <p> User waits on this screen until Proof has been presented to the vcauth service agent, then is redirected to</p>
-            <a href="http://localhost:5201{AuthorizeCallbackUri}?pid={auth_session.id}">callback url (redirect to kc)</a>
+            <p>User waits on this screen until Proof has been presented to
+            the vcauth service agent, then is redirected to</p>
+            <a href="http://localhost:5201{AuthorizeCallbackUri}
+            ?pid={auth_session.id}">callback url (redirect to kc)</a>
         </body>
     </html>
 
@@ -148,7 +153,7 @@ async def post_token(request: Request, db: Database = Depends(get_db)):
         "sub"
     ] = new_sub
 
-    # convert form data to what library expects, was designed for Flask.app.request.get_data()
+    # convert form data to what library expects, Flask.app.request.get_data()
     data = urlencode(form._dict)
     token_response = provider.provider.handle_token_request(
         data, request.headers, token.claims

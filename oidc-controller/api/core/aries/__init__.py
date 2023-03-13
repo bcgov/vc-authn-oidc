@@ -1,3 +1,5 @@
+# flake8: noqa
+
 from .present_proof_attachment import PresentProofv10Attachment
 from .service_decorator import ServiceDecorator
 

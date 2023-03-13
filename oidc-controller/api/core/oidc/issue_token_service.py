@@ -63,13 +63,15 @@ class Token(BaseModel):
                 type=requested_attr["name"], value=revealed_attrs[referent]["raw"]
             )
 
-        # look at all presentation_claims and one should match the configured subject_identifier
+        # look at all presentation_claims and one should
+        #   match the configured subject_identifier
         sub_id_value = None
         sub_id_claim = presentation_claims.get(ver_config.subject_identifier)
 
         if not sub_id_claim:
             logger.warning(
-                "subject_identifer not found in presentation values, generating random subject_identifier"
+                """subject_identifer not found in presentation values,
+                  generating random subject_identifier"""
             )
             sub_id_value = uuid.uuid4()
         else:
@@ -84,7 +86,8 @@ class Token(BaseModel):
         )
         return result
 
-    # renames and calculates dict members appropriate to https://openid.net/specs/openid-connect-core-1_0.html#IDToken
+    # renames and calculates dict members appropriate to
+    # https://openid.net/specs/openid-connect-core-1_0.html#IDToken
     # and
     # https://github.com/OpenIDC/pyoidc/blob/26ea5121239dad03c5c5551cca149cb984df1ec9/src/oic/oic/message.py#L720
     def idtoken_dict(self, nonce: str) -> Dict:
@@ -101,8 +104,10 @@ class Token(BaseModel):
 
         result.update(self.claims)
 
-        # identify if any standardclaims were provided in the proof and return them at the top level.
+        # identify if any standardclaims were provided in the proof and return
+        # them at the top level.
         # https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
+
         # make copy of dict
         r2 = result.copy()
         # add nested values to top level
