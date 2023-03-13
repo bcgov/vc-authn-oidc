@@ -112,8 +112,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
 
             <p>User waits on this screen until Proof has been presented to
             the vcauth service agent, then is redirected to</p>
-            <a href="http://localhost:5201{AuthorizeCallbackUri}
-            ?pid={auth_session.id}">callback url (redirect to kc)</a>
+            <a href="http://localhost:5201{AuthorizeCallbackUri}?pid={auth_session.id}">callback url (redirect to kc)</a>
         </body>
     </html>
 

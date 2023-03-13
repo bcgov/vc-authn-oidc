@@ -169,7 +169,7 @@ configureEnvironment() {
     CONTROLLER_WEB_HOOK_URL="${CONTROLLER_WEB_HOOK_URL}#${CONTROLLER_API_KEY}"
   fi
   export ST_ACAPY_ADMIN_API_KEY_NAME="x-api-key"
-  export USE_OOB_PRESENT_PROOF="True"
+  export USE_OOB_PRESENT_PROOF="False"
 
   # controller-cache
   export REDIS_HOST="controller-cache"
