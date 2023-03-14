@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .routers import acapy_handler, oidc, presentation_request, well_known_oid_config
 from .verificationConfigs.router import router as ver_configs_router
+from .db.session import init_db
 
 # setup loggers
 # TODO: set config via env parameters...
@@ -62,6 +63,7 @@ if origins:
 @app.on_event("startup")
 async def on_tenant_startup():
     """Register any events we need to respond to."""
+    await init_db()
     logger.warning(">>> Starting up app ...")
 
 

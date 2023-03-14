@@ -6,7 +6,7 @@ from .examples import ex_ver_config_read, ex_ver_config_create
 from ..core.config import settings
 
 
-## Slightly modified from ACAPY models.
+# Slightly modified from ACAPY models.
 class AttributeFilter(BaseModel):
     schema_id: Optional[str]
     cred_def_id: Optional[str]

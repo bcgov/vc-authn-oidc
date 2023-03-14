@@ -169,7 +169,11 @@ configureEnvironment() {
     CONTROLLER_WEB_HOOK_URL="${CONTROLLER_WEB_HOOK_URL}#${CONTROLLER_API_KEY}"
   fi
   export ST_ACAPY_ADMIN_API_KEY_NAME="x-api-key"
-  export USE_OOB_PRESENT_PROOF="True"
+
+  #controller app settings
+  export SET_NON_REVOKED="True" # both work
+  export USE_OOB_PRESENT_PROOF="False" #BC wallet kinda supports true.
+  export USE_OOB_LOCAL_DID_SERVICE="False" #bc wallet does not support true
 
   # controller-cache
   export REDIS_HOST="controller-cache"

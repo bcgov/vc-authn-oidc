@@ -1,5 +1,6 @@
-from typing import Dict, List
+from typing import Dict, List, Union
 from pydantic import BaseModel, Field
+from .service_decorator import OOBServiceDecorator
 
 
 class OutOfBandPresentProofAttachment(BaseModel):
@@ -25,7 +26,7 @@ class OutOfBandMessage(BaseModel):
     request_attachments: List[OutOfBandPresentProofAttachment] = Field(
         alias="requests~attach"
     )
-    services: List[str] = Field(alias="services")
+    services: List[Union[OOBServiceDecorator, str]] = Field(alias="services")
 
     class Config:
         allow_population_by_field_name = True

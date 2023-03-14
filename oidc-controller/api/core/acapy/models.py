@@ -1,15 +1,16 @@
 from typing import Optional, Dict
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
-class WalletPublicDid(BaseModel):
+class WalletDid(BaseModel):
     did: str
     verkey: str
     posture: str
 
+
 class WalletDidPublicResponse(BaseModel):
-    result: Optional[WalletPublicDid]
+    result: Optional[WalletDid]
 
 
 class CreatePresentationResponse(BaseModel):

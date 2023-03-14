@@ -1,8 +1,8 @@
 import logging
-import json
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request, Depends
 from fastapi.responses import JSONResponse
+from pymongo.database import Database
 
 from ..authSessions.crud import AuthSessionCRUD
 from ..authSessions.models import AuthSession
@@ -13,8 +13,10 @@ from ..core.aries import (
     ServiceDecorator,
     OutOfBandMessage,
     OutOfBandPresentProofAttachment,
+    OOBServiceDecorator,
 )
 from ..core.config import settings
+from ..db.session import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -23,14 +25,17 @@ router = APIRouter()
 
 @router.get("/url/pres_exch/{pres_exch_id}")
 async def send_connectionless_proof_req(
-    pres_exch_id: str,
+    pres_exch_id: str, req: Request, db: Database = Depends(get_db)
 ):
     """QR code that is generated should a url to this endpoint, which responds with the
     specific payload for that given agent/wallet"""
-    auth_session: AuthSession = await AuthSessionCRUD.get_by_pres_exch_id(pres_exch_id)
+    logger.info("Scanning Application headers:: " + str(req.headers))
+    auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
+        pres_exch_id
+    )
     client = AcapyClient()
-
-    public_did = client.get_wallet_public_did()
+    use_public_did = not settings.USE_OOB_LOCAL_DID_SERVICE
+    wallet_did = client.get_wallet_did(public=use_public_did)
 
     byo_attachment = PresentProofv10Attachment.build(
         auth_session.presentation_exchange["presentation_request"]
@@ -38,10 +43,18 @@ async def send_connectionless_proof_req(
 
     msg = None
     if settings.USE_OOB_PRESENT_PROOF:
+        if settings.USE_OOB_LOCAL_DID_SERVICE:
+            oob_s_d = OOBServiceDecorator(
+                service_endpoint=client.service_endpoint,
+                recipient_keys=[wallet_did.verkey],
+            ).dict()
+        else:
+            wallet_did = client.get_wallet_did(public=True)
+            oob_s_d = wallet_did.verkey
+
         msg = PresentationRequestMessage(
             id=auth_session.presentation_exchange["thread_id"],
             request=[byo_attachment],
-            # service=s_d,
         )
         oob_msg = OutOfBandMessage(
             request_attachments=[
@@ -51,12 +64,12 @@ async def send_connectionless_proof_req(
                 )
             ],
             id=auth_session.presentation_exchange["thread_id"],
-            services=["did:sov:" + public_did.did],
+            services=[oob_s_d],
         )
         msg_contents = oob_msg
     else:
         s_d = ServiceDecorator(
-            service_endpoint=client.service_endpoint, recipient_keys=[public_did.verkey]
+            service_endpoint=client.service_endpoint, recipient_keys=[wallet_did.verkey]
         )
         msg = PresentationRequestMessage(
             id=auth_session.presentation_exchange["thread_id"],
@@ -64,5 +77,5 @@ async def send_connectionless_proof_req(
             service=s_d,
         )
         msg_contents = msg
-    print(msg_contents)
+    print(msg_contents.dict(by_alias=True))
     return JSONResponse(msg_contents.dict(by_alias=True))
