@@ -1,4 +1,4 @@
-from pymongo import MongoClient, ASCENDING, database
+from pymongo import MongoClient, ASCENDING
 from api.core.config import settings
 from .collections import COLLECTION_NAMES
 
