@@ -17,15 +17,13 @@ db_uri = settings.REDISDB_URL
 issuer_url = settings.CONTROLLER_URL
 
 if urlparse(issuer_url).scheme != "https":
-    logger.warning(
-        "WARNING CONTROLLER_URL is not HTTPS... MALFORMING openid-configuration for local development"
-    )
-    issuer_url = issuer_url[3:] + "s" + issuer_url[:3]
-
+    logger.error("CONTROLLER_URL is not HTTPS. changing openid-config for development")
+    issuer_url = issuer_url[:4] + "s" + issuer_url[4:]
 signing_key = RSAKey(key=rsa_load("signing_key.pem"), use="sig", alg="RS256")
 signing_keys = KEYS().append(signing_key)
 
-# config from vc-authn-oidc 1.0 can be found here https://toip-vc-authn-controller-dev.apps.silver.devops.gov.bc.ca/.well-known/openid-configuration
+# config from vc-authn-oidc 1.0 can be found here
+# https://toip-vc-authn-controller-dev.apps.silver.devops.gov.bc.ca/.well-known/openid-configuration
 
 # TODO Make this configurable through env vars
 configuration_information = {

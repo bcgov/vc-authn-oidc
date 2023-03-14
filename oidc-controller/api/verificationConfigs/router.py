@@ -1,3 +1,5 @@
+from pymongo.database import Database
+
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi import status as http_status
 
@@ -10,6 +12,7 @@ from .models import (
     VerificationConfig,
 )
 from ..core.auth import get_api_key
+from ..db.session import get_db
 
 router = APIRouter()
 
@@ -22,8 +25,10 @@ router = APIRouter()
     response_model_exclude_unset=True,
     dependencies=[Depends(get_api_key)],
 )
-async def create_ver_config(ver_config: VerificationConfig):
-    return await VerificationConfigCRUD.create(ver_config)
+async def create_ver_config(
+    ver_config: VerificationConfig, db: Database = Depends(get_db)
+):
+    return await VerificationConfigCRUD(db).create(ver_config)
 
 
 @router.get(
@@ -33,10 +38,8 @@ async def create_ver_config(ver_config: VerificationConfig):
     response_model_exclude_unset=True,
     dependencies=[Depends(get_api_key)],
 )
-async def get_ver_conf(
-    ver_config_id: str,
-):
-    return await VerificationConfigCRUD.get(ver_config_id)
+async def get_ver_conf(ver_config_id: str, db: Database = Depends(get_db)):
+    return await VerificationConfigCRUD(db).get(ver_config_id)
 
 
 @router.patch(
@@ -47,10 +50,11 @@ async def get_ver_conf(
     dependencies=[Depends(get_api_key)],
 )
 async def patch_ver_conf(
-    ver_config_id: str,
-    data: VerificationConfigPatch,
+    ver_config_id: str, data: VerificationConfigPatch, db: Database = Depends(get_db)
 ):
-    return await VerificationConfigCRUD.patch(ver_config_id=ver_config_id, data=data)
+    return await VerificationConfigCRUD(db).patch(
+        ver_config_id=ver_config_id, data=data
+    )
 
 
 @router.delete(
@@ -59,14 +63,12 @@ async def patch_ver_conf(
     response_model=StatusMessage,
     dependencies=[Depends(get_api_key)],
 )
-async def delete_ver_conf_by_uuid(
-    ver_config_id: str,
-):
-    status = await VerificationConfigCRUD.delete(ver_config_id=ver_config_id)
+async def delete_ver_conf_by_uuid(ver_config_id: str, db: Database = Depends(get_db)):
+    status = await VerificationConfigCRUD(db).delete(ver_config_id=ver_config_id)
 
     if not status:
         raise HTTPException(
             status_code=http_status.HTTP_404_NOT_FOUND,
             detail="ver_config does not exist",
         )
-    return StatusMessage(status, "The ver_config was deleted")
+    return StatusMessage(status=status, message="The ver_config was deleted")

@@ -38,7 +38,7 @@ class AcapyClient:
     def create_presentation_request(
         self, presentation_request_configuration: dict
     ) -> CreatePresentationResponse:
-        logger.debug(f">>> create_presentation_request")
+        logger.debug(">>> create_presentation_request")
         present_proof_payload = {"proof_request": presentation_request_configuration}
 
         resp_raw = requests.post(
@@ -50,11 +50,11 @@ class AcapyClient:
         resp = json.loads(resp_raw.content)
         result = CreatePresentationResponse.parse_obj(resp)
 
-        logger.debug(f"<<< create_presenation_request")
+        logger.debug("<<< create_presenation_request")
         return result
 
     def get_presentation_request(self, presentation_exchange_id: UUID):
-        logger.debug(f">>> get_presentation_request")
+        logger.debug(">>> get_presentation_request")
 
         resp_raw = requests.get(
             self.acapy_host
@@ -66,11 +66,11 @@ class AcapyClient:
         assert resp_raw.status_code == 200, resp_raw.content
         resp = json.loads(resp_raw.content)
 
-        logger.debug(f"<<< get_presentation_request -> {resp}")
+        logger.debug("<<< get_presentation_request -> {resp}")
         return resp
 
     def verify_presentation(self, presentation_exchange_id: UUID):
-        logger.debug(f">>> verify_presentation")
+        logger.debug(">>> verify_presentation")
 
         resp_raw = requests.post(
             self.acapy_host
@@ -87,7 +87,7 @@ class AcapyClient:
         return resp
 
     def get_wallet_did(self, public=False) -> WalletDid:
-        logger.debug(f">>> get_wallet_did")
+        logger.debug(">>> get_wallet_did")
         url = None
         if public:
             url = self.acapy_host + PUBLIC_WALLET_DID_URI
@@ -107,6 +107,7 @@ class AcapyClient:
             resp_payload = resp["result"]
         else:
             resp_payload = resp["results"][0]
+
         did = WalletDid.parse_obj(resp_payload)
 
         logger.debug(f"<<< get_wallet_did -> {did}")
