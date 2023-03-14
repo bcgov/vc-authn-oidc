@@ -84,9 +84,10 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     qrcode.make(url_to_message).save(buff, format="PNG")
     image_contents = base64.b64encode(buff.getvalue()).decode("utf-8")
 
-    callback_url = (
-        f"http://{controller_host}{AuthorizeCallbackUri}?pid={auth_session.id}"
-    )
+    # same as controller host unless overriden
+    cb_host = settings.CONTROLLER_URL_LOCAL
+    callback_url = f"""http://{cb_host}{AuthorizeCallbackUri}?pid={auth_session.id}"""
+
     return f"""
     <html>
         <script>
@@ -94,8 +95,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
             fetch('{controller_host}{ChallengePollUri}/{auth_session.pres_exch_id}')
                 .then(response => response.json())
                 .then(data => {{if (data.verified) {{
-                        window.location.replace('{controller_host}{AuthorizeCallbackUri}
-                        ?pid={auth_session.id}', {{method: 'POST'}});
+                        window.location.replace('{callback_url}', {{method: 'POST'}});
                     }}
                 }})
         }}, 2000);

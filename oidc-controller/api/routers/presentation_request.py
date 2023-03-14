@@ -34,7 +34,9 @@ async def send_connectionless_proof_req(
         pres_exch_id
     )
     client = AcapyClient()
-    use_public_did = not settings.USE_OOB_LOCAL_DID_SERVICE
+    use_public_did = (
+        not settings.USE_OOB_PRESENT_PROOF
+    ) and settings.USE_OOB_LOCAL_DID_SERVICE
     wallet_did = client.get_wallet_did(public=use_public_did)
 
     byo_attachment = PresentProofv10Attachment.build(
