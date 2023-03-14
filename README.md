@@ -1,4 +1,6 @@
 [![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
+[![unit-tests](https://github.com/bcgov/vc-authn-oidc/actions/workflows/controller_unittests.yml/badge.svg?branch=2.0-development&event=push)](https://github.com/bcgov/vc-authn-oidc/actions/workflows/controller_unittests.yml)
+
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 # Verifiable Credential Authentication with OpenID Connect (VC-AuthN OIDC)
