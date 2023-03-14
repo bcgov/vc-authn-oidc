@@ -1,7 +1,8 @@
-name: Python package
+name: Controller Unit Tests
 
 on:
-  workflow_dispatch:
+  push:
+    branches: 2.0-development
 
 jobs:
   build:
