@@ -84,6 +84,8 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     qrcode.make(url_to_message).save(buff, format="PNG")
     image_contents = base64.b64encode(buff.getvalue()).decode("utf-8")
 
+    callback_url = f"http://localhost:5201{AuthorizeCallbackUri}?pid={auth_session.id}"
+
     return f"""
     <html>
         <script>
@@ -112,7 +114,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
 
             <p>User waits on this screen until Proof has been presented to
             the vcauth service agent, then is redirected to</p>
-            <a href="http://localhost:5201{AuthorizeCallbackUri}?pid={auth_session.id}">callback url (redirect to kc)</a>
+            <a href="{callback_url}">callback url (redirect to kc)</a>
         </body>
     </html>
 
