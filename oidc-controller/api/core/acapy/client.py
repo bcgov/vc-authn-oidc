@@ -107,6 +107,7 @@ class AcapyClient:
             resp_payload = resp["result"]
         else:
             resp_payload = resp["results"][0]
+
         did = WalletDid.parse_obj(resp_payload)
 
         logger.debug(f"<<< get_wallet_did -> {did}")

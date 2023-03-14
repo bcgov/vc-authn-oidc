@@ -74,6 +74,7 @@ class GlobalConfig(BaseSettings):
     CONTROLLER_API_KEY: str = os.environ.get("CONTROLLER_API_KEY", "")
 
     USE_OOB_PRESENT_PROOF: bool = os.environ.get("USE_OOB_PRESENT_PROOF", False)
+    USE_OOB_LOCAL_DID_SERVICE: bool = os.environ.get("USE_OOB_LOCAL_DID_SERVICE", False)
     SET_NON_REVOKED: bool = os.environ.get("SET_NON_REVOKED", True)
 
     class Config:

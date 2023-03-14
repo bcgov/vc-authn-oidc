@@ -34,8 +34,8 @@ async def send_connectionless_proof_req(
         pres_exch_id
     )
     client = AcapyClient()
-
-    wallet_did = client.get_wallet_did()
+    use_public_did = not settings.USE_OOB_LOCAL_DID_SERVICE
+    wallet_did = client.get_wallet_did(public=use_public_did)
 
     byo_attachment = PresentProofv10Attachment.build(
         auth_session.presentation_exchange["presentation_request"]
@@ -43,9 +43,15 @@ async def send_connectionless_proof_req(
 
     msg = None
     if settings.USE_OOB_PRESENT_PROOF:
-        oob_s_d = OOBServiceDecorator(
-            service_endpoint=client.service_endpoint, recipient_keys=[wallet_did.verkey]
-        )
+        if settings.USE_OOB_LOCAL_DID_SERVICE:
+            oob_s_d = OOBServiceDecorator(
+                service_endpoint=client.service_endpoint,
+                recipient_keys=[wallet_did.verkey],
+            ).dict()
+        else:
+            wallet_did = client.get_wallet_did(public=True)
+            oob_s_d = wallet_did.verkey
+
         msg = PresentationRequestMessage(
             id=auth_session.presentation_exchange["thread_id"],
             request=[byo_attachment],
@@ -58,7 +64,7 @@ async def send_connectionless_proof_req(
                 )
             ],
             id=auth_session.presentation_exchange["thread_id"],
-            services=[oob_s_d.dict()],
+            services=[oob_s_d],
         )
         msg_contents = oob_msg
     else:
