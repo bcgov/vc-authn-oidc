@@ -21,6 +21,7 @@ Jinja2==3.1.2
 MarkupSafe==2.1.2
 mbstrdecoder==1.1.2
 motor==3.1.1
+mongomock==4.1.2
 oic==1.5.0
 oidcop==2.4.3
 paramiko==2.9.2
