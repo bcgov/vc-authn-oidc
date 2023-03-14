@@ -63,8 +63,8 @@ kc_client = {
         "http://localhost:8880/auth/realms/vc-authn/broker/vc-authn/endpoint"
     ],
     "token_endpoint_auth_method": "client_secret_basic",
-    "require_client_secret": True,
-    "client_secret": "12345678",
+    "require_client_secret": bool(settings.KEYCLOAK_CLIENT_SECRET),
+    "client_secret": settings.KEYCLOAK_CLIENT_SECRET,
     "require_consent": False,
 }
 

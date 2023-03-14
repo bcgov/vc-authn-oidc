@@ -74,6 +74,7 @@ class GlobalConfig(BaseSettings):
     SUBJECT_ID_HASH_SALT = os.environ.get("SUBJECT_ID_HASH_SALT", "test_hash_salt")
 
     CONTROLLER_API_KEY: str = os.environ.get("CONTROLLER_API_KEY", "")
+    KEYCLOAK_CLIENT_SECRET: str = os.environ.get("KEYCLOAK_CLIENT_SECRET", "")
 
     USE_OOB_PRESENT_PROOF: bool = os.environ.get("USE_OOB_PRESENT_PROOF", False)
     USE_OOB_LOCAL_DID_SERVICE: bool = os.environ.get("USE_OOB_LOCAL_DID_SERVICE", False)
