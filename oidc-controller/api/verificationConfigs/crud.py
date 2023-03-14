@@ -1,5 +1,3 @@
-from typing import Union, Callable
-
 from fastapi import HTTPException
 from fastapi import status as http_status
 from fastapi.encoders import jsonable_encoder
