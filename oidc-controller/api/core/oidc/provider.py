@@ -54,21 +54,24 @@ subject_id_factory = HashBasedSubjectIdentifierFactory(settings.SUBJECT_ID_HASH_
 # TODO Make this configurable through env vars
 kc_client = {
     "enabled": True,
-    "client_id": "keycloak",
-    "client_name": "keycloak",
+    "client_id": settings.KEYCLOAK_CLIENT_ID,
+    "client_name": settings.KEYCLOAK_CLIENT_NAME,
     "allowed_grant_types": ["implicit", "code"],
     "allowed_scopes": ["openid", "profile", "vc_authn"],
     "response_types": ["code", "id_token", "token"],
-    "redirect_uris": [
-        "http://localhost:8880/auth/realms/vc-authn/broker/vc-authn/endpoint"
-    ],
-    "token_endpoint_auth_method": "client_secret_basic",
-    "require_client_secret": bool(settings.KEYCLOAK_CLIENT_SECRET),
-    "client_secret": settings.KEYCLOAK_CLIENT_SECRET,
+    "redirect_uris": [settings.KEYCLOAK_REDIRECT_URI],
     "require_consent": False,
 }
+if bool(settings.KEYCLOAK_CLIENT_SECRET):
+    kc_client.update(
+        {
+            "token_endpoint_auth_method": "client_secret_basic",
+            "require_client_secret": True,
+            "client_secret": settings.KEYCLOAK_CLIENT_SECRET,
+        }
+    )
 
-
+print(kc_client)
 provider = Provider(
     signing_key,
     configuration_information,
