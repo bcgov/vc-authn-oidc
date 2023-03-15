@@ -60,15 +60,10 @@ kc_client = {
     "response_types": ["code", "id_token", "token"],
     "redirect_uris": [settings.KEYCLOAK_REDIRECT_URI],
     "require_consent": False,
+    "token_endpoint_auth_method": "client_secret_basic",
+    "require_client_secret": True,
+    "client_secret": settings.KEYCLOAK_CLIENT_SECRET,
 }
-if bool(settings.KEYCLOAK_CLIENT_SECRET):
-    kc_client.update(
-        {
-            "token_endpoint_auth_method": "client_secret_basic",
-            "require_client_secret": True,
-            "client_secret": settings.KEYCLOAK_CLIENT_SECRET,
-        }
-    )
 
 print(kc_client)
 provider = Provider(

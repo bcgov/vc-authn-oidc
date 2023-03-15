@@ -81,7 +81,7 @@ class GlobalConfig(BaseSettings):
         "KEYCLOAK_REDIRECT_URI",
         "http://localhost:8880/auth/realms/vc-authn/broker/vc-authn/endpoint",
     )
-    KEYCLOAK_CLIENT_SECRET: str = os.environ.get("KEYCLOAK_CLIENT_SECRET", None)
+    KEYCLOAK_CLIENT_SECRET: str = os.environ.get("KEYCLOAK_CLIENT_SECRET", "**********")
 
     USE_OOB_PRESENT_PROOF: bool = os.environ.get("USE_OOB_PRESENT_PROOF", False)
     USE_OOB_LOCAL_DID_SERVICE: bool = os.environ.get("USE_OOB_LOCAL_DID_SERVICE", False)
