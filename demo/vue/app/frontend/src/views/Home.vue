@@ -35,14 +35,6 @@
         '/ver_configs' with the default payload
       </li>
       <li>
-        Navigate to the
-        <a
-          href="http://localhost:8880/auth/admin/master/console/#/realms/vc-authn/identity-provider-settings/provider/oidc/vc-authn"
-        >keycloak idp config</a
-        >
-        and set the client secret to "12345678"
-      </li>
-      <li>
         Click "Login" in the top right, then click "Verifiable Credential
         Access"
       </li>
