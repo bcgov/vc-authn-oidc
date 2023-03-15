@@ -25,7 +25,7 @@ signing_keys = KEYS().append(signing_key)
 # config from vc-authn-oidc 1.0 can be found here
 # https://toip-vc-authn-controller-dev.apps.silver.devops.gov.bc.ca/.well-known/openid-configuration
 
-# TODO Make this configurable through env vars
+# TODO validate the correctness of this? either change config or add capabilities
 configuration_information = {
     "issuer": issuer_url,
     "authorization_endpoint": f"{issuer_url}/authorization",
@@ -51,7 +51,6 @@ configuration_information = {
 
 subject_id_factory = HashBasedSubjectIdentifierFactory(settings.SUBJECT_ID_HASH_SALT)
 
-# TODO Make this configurable through env vars
 kc_client = {
     "enabled": True,
     "client_id": settings.KEYCLOAK_CLIENT_ID,
