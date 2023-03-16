@@ -27,8 +27,6 @@ jobs:
   publish-image:
     strategy:
       fail-fast: false
-      matrix:
-        python-version: ['3.11']
 
     name: Publish VC-AuthN Image
     runs-on: ubuntu-latest
