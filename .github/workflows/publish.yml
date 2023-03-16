@@ -21,7 +21,7 @@ on:
         type: string
 
 env:
-  PLATFORMS: ${{ inputs.platforms || 'linux/amd64,linux/arm64,linux/386' }}
+  PLATFORMS: ${{ inputs.platforms || 'linux/amd64,linux/arm64' }}
 
 jobs:
   publish-image:
