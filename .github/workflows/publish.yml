@@ -66,7 +66,7 @@ jobs:
           images: |
             ghcr.io/${{ steps.info.outputs.repo-owner }}/vc-authn-oidc
           tags: |
-            type=raw,value=py${{ matrix.python-version }}-${{ inputs.tag || github.event.release.tag_name }}
+            type=raw,value=${{ inputs.tag || github.event.release.tag_name }}
 
       - name: Build and Push Image to ghcr.io
         uses: docker/build-push-action@v3
@@ -77,8 +77,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           target: main
-          build-args: |
-            python_version=${{ matrix.python-version }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           platforms: ${{ env.PLATFORMS }}
