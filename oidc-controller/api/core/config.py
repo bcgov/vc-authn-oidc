@@ -42,6 +42,8 @@ class GlobalConfig(BaseSettings):
     REDISDB_URL: str = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_NAME}"
 
     CONTROLLER_URL: str = os.environ.get("CONTROLLER_URL")
+    # if ngrok is blocked by your local network, set this to your localhost for testing.
+    CONTROLLER_URL_LOCAL: str = os.environ.get("CONTROLLER_URL_LOCAL", CONTROLLER_URL)
 
     ACAPY_AGENT_URL: str = os.environ.get("ACAPY_AGENT_URL")
     # ACAPY_NGROK_TUNNEL_HOST: str = os.environ.get("ACAPY_NGROK_TUNNEL_HOST")
@@ -72,6 +74,14 @@ class GlobalConfig(BaseSettings):
     SUBJECT_ID_HASH_SALT = os.environ.get("SUBJECT_ID_HASH_SALT", "test_hash_salt")
 
     CONTROLLER_API_KEY: str = os.environ.get("CONTROLLER_API_KEY", "")
+    #
+    KEYCLOAK_CLIENT_ID: str = os.environ.get("KEYCLOAK_CLIENT_ID", "keycloak")
+    KEYCLOAK_CLIENT_NAME: str = os.environ.get("KEYCLOAK_CLIENT_NAME", "keycloak")
+    KEYCLOAK_REDIRECT_URI: str = os.environ.get(
+        "KEYCLOAK_REDIRECT_URI",
+        "http://localhost:8880/auth/realms/vc-authn/broker/vc-authn/endpoint",
+    )
+    KEYCLOAK_CLIENT_SECRET: str = os.environ.get("KEYCLOAK_CLIENT_SECRET", "**********")
 
     USE_OOB_PRESENT_PROOF: bool = os.environ.get("USE_OOB_PRESENT_PROOF", False)
     USE_OOB_LOCAL_DID_SERVICE: bool = os.environ.get("USE_OOB_LOCAL_DID_SERVICE", False)
