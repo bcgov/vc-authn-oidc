@@ -8,8 +8,6 @@ from pyop.provider import Provider
 from pyop.subject_identifier import HashBasedSubjectIdentifierFactory
 from pyop.userinfo import Userinfo
 
-from api.clientConfigurations.models import ClientConfiguration
-from api.clientConfigurations.crud import ClientConfigurationCRUD
 
 from api.core.config import settings
 from api.db.session import get_db
@@ -52,18 +50,16 @@ configuration_information = {
 
 subject_id_factory = HashBasedSubjectIdentifierFactory(settings.SUBJECT_ID_HASH_SALT)
 
-# unclear what is required for clients without using handle_client_registration_request
-# JSyro best guess at minimum required fields
-default_kc_client = ClientConfiguration(redirect_uris=[settings.KEYCLOAK_REDIRECT_URI])
-
+# placeholder that gets set on app_start and write operations to ClientConfigurationCRUD
 provider = None
 
 
 async def init_provider():
+    global provider
+    from api.clientConfigurations.crud import ClientConfigurationCRUD
+
     all_kc_configs = await ClientConfigurationCRUD(await get_db()).get_all()
     client_configs = {d.client_name: d.dict() for d in all_kc_configs}
-
-    global provider
 
     provider = Provider(
         signing_key,

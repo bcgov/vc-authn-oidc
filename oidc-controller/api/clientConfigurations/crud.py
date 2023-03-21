@@ -15,6 +15,7 @@ from .models import (
     ClientConfigurationRead,
 )
 from ..db.session import COLLECTION_NAMES
+from api.core.oidc.provider import init_provider
 
 
 logger = logging.getLogger(__name__)
@@ -29,6 +30,9 @@ class ClientConfigurationCRUD:
     ) -> ClientConfiguration:
         col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
         result = col.insert_one(jsonable_encoder(client_config))
+
+        # remake provider instance to refresh provider client
+        await init_provider()
         return ClientConfiguration(**col.find_one({"_id": result.inserted_id}))
 
     async def get(self, id: str) -> ClientConfigurationRead:
@@ -64,7 +68,8 @@ class ClientConfigurationCRUD:
             {"$set": data.dict(exclude_unset=True)},
             return_document=ReturnDocument.AFTER,
         )
-
+        # remake provider instance to refresh provider client
+        await init_provider()
         return obj
 
     async def delete(self, id: str) -> bool:
@@ -74,4 +79,8 @@ class ClientConfigurationCRUD:
             )
         col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
         obj = col.find_one_and_delete({"_id": PyObjectId(id)})
+
+        # remake provider instance to refresh provider client
+        await init_provider()
+
         return bool(obj)
