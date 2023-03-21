@@ -5,14 +5,14 @@ from jwkest.jwk import rsa_load, RSAKey, KEYS
 
 from pyop.authz_state import AuthorizationState
 from pyop.provider import Provider
-from pyop.storage import RedisWrapper
 from pyop.subject_identifier import HashBasedSubjectIdentifierFactory
 from pyop.userinfo import Userinfo
 
 from api.clientConfigurations.models import ClientConfiguration
 from api.clientConfigurations.crud import ClientConfigurationCRUD
 
-from ..config import settings
+from api.core.config import settings
+from api.db.session import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -54,21 +54,21 @@ subject_id_factory = HashBasedSubjectIdentifierFactory(settings.SUBJECT_ID_HASH_
 
 # unclear what is required for clients without using handle_client_registration_request
 # JSyro best guess at minimum required fields
-default_kc_client = ClientConfiguration()
+default_kc_client = ClientConfiguration(redirect_uris=[settings.KEYCLOAK_REDIRECT_URI])
 
-print(default_kc_client.dict())
+provider = None
 
 
-def init_provider():
-    # all_kc_configs = ClientConfigurationCRUD(db).get_all()
-    # client_configs = {d.name : d for d in all_kc_configs}
-    return Provider(
+async def init_provider():
+    all_kc_configs = await ClientConfigurationCRUD(await get_db()).get_all()
+    client_configs = {d.client_name: d.dict() for d in all_kc_configs}
+
+    global provider
+
+    provider = Provider(
         signing_key,
         configuration_information,
         AuthorizationState(subject_id_factory),
-        {"keycloak": default_kc_client.dict()},
+        client_configs,
         Userinfo({"Jason": {"sub": "Jason"}}),
     )
-
-
-provider = init_provider()

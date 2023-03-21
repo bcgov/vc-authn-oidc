@@ -1,5 +1,6 @@
 import logging
 
+from typing import List
 from pymongo import ReturnDocument
 from pymongo.database import Database
 from fastapi import HTTPException
@@ -11,6 +12,7 @@ from .models import (
     ClientConfiguration,
     ClientConfigurationCreate,
     ClientConfigurationPatch,
+    ClientConfigurationRead,
 )
 from ..db.session import COLLECTION_NAMES
 
@@ -29,35 +31,47 @@ class ClientConfigurationCRUD:
         result = col.insert_one(jsonable_encoder(client_config))
         return ClientConfiguration(**col.find_one({"_id": result.inserted_id}))
 
-    async def get(self, id: str) -> ClientConfiguration:
+    async def get(self, id: str) -> ClientConfigurationRead:
         if not PyObjectId.is_valid(id):
             raise HTTPException(
                 status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
             )
         col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
-        auth_sess = col.find_one({"_id": PyObjectId(id)})
+        obj = col.find_one({"_id": PyObjectId(id)})
 
-        if auth_sess is None:
+        if obj is None:
             raise HTTPException(
                 status_code=http_status.HTTP_404_NOT_FOUND,
                 detail="The auth_session hasn't been found!",
             )
 
-        return ClientConfiguration(**auth_sess)
+        return ClientConfiguration(**obj)
+
+    async def get_all(self) -> List[ClientConfigurationRead]:
+        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
+        return [ClientConfigurationRead(**cc) for cc in col.find()]
 
     async def patch(
         self, id: str, data: ClientConfigurationPatch
     ) -> ClientConfiguration:
+        if not PyObjectId.is_valid(id):
+            raise HTTPException(
+                status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
+            )
         col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
-        auth_sess = col.find_one_and_update(
-            {"_id": id},
+        obj = col.find_one_and_update(
+            {"_id": PyObjectId(id)},
             {"$set": data.dict(exclude_unset=True)},
             return_document=ReturnDocument.AFTER,
         )
 
-        return auth_sess
+        return obj
 
-    async def delete(self, auth_session_id: str) -> bool:
+    async def delete(self, id: str) -> bool:
+        if not PyObjectId.is_valid(id):
+            raise HTTPException(
+                status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
+            )
         col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
-        auth_sess = col.find_one_and_delete({"_id": auth_session_id})
-        return bool(auth_sess)
+        obj = col.find_one_and_delete({"_id": PyObjectId(id)})
+        return bool(obj)

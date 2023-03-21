@@ -10,7 +10,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .routers import acapy_handler, oidc, presentation_request, well_known_oid_config
 from .verificationConfigs.router import router as ver_configs_router
+from .clientConfigurations.router import router as client_config_router
 from .db.session import init_db
+from api.core.oidc.provider import init_provider
 
 # setup loggers
 # TODO: set config via env parameters...
@@ -35,6 +37,7 @@ def get_application() -> FastAPI:
 
 app = get_application()
 app.include_router(ver_configs_router, prefix="/ver_configs", tags=["ver_configs"])
+app.include_router(client_config_router, prefix="/clients", tags=["oidc_clients"])
 app.include_router(well_known_oid_config.router, tags=[".well-known"])
 app.include_router(
     oidc.router, tags=["OpenID Connect Provider"], include_in_schema=False
@@ -64,6 +67,7 @@ if origins:
 async def on_tenant_startup():
     """Register any events we need to respond to."""
     await init_db()
+    await init_provider()
     logger.warning(">>> Starting up app ...")
 
 
