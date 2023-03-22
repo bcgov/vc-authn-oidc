@@ -30,7 +30,7 @@ class AuthSessionCRUD:
 
     async def get(self, auth_session_id: str) -> AuthSession:
         col = self._db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
-        auth_sess = col.find_one({"_id": auth_session_id})
+        auth_sess = col.find_one({"_id": PyObjectId(auth_session_id)})
 
         if auth_sess is None:
             raise HTTPException(
