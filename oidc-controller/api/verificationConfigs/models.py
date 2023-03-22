@@ -40,7 +40,6 @@ class VerificationProofRequest(BaseModel):
 
 
 class VerificationConfigBase(BaseModel):
-    ver_config_id: str = Field()
     subject_identifier: str = Field()
     proof_request: VerificationProofRequest = Field()
 
@@ -74,18 +73,25 @@ class VerificationConfigBase(BaseModel):
 
 
 class VerificationConfig(VerificationConfigBase):
-    pass
+    ver_config_id: str = Field()
 
 
 class VerificationConfigRead(VerificationConfigBase):
+    ver_config_id: str = Field()
+
     class Config:
         schema_extra = {"example": ex_ver_config_read}
 
 
 class VerificationConfigCreate(VerificationConfigBase):
+    ver_config_id: str = Field()
+
     class Config:
         schema_extra = {"example": ex_ver_config_create}
 
 
 class VerificationConfigPatch(VerificationConfigBase):
+    subject_identifier: Optional[str] = Field()
+    proof_request: Optional[VerificationProofRequest] = Field()
+
     pass

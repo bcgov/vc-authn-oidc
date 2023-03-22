@@ -9,13 +9,12 @@ from pyop.subject_identifier import HashBasedSubjectIdentifierFactory
 from pyop.userinfo import Userinfo
 
 
-from ..config import settings
+from api.core.config import settings
+from api.db.session import get_db
 
 logger = logging.getLogger(__name__)
 
-db_uri = settings.REDISDB_URL
 issuer_url = settings.CONTROLLER_URL
-
 if urlparse(issuer_url).scheme != "https":
     logger.error("CONTROLLER_URL is not HTTPS. changing openid-config for development")
     issuer_url = issuer_url[:4] + "s" + issuer_url[4:]
@@ -51,25 +50,21 @@ configuration_information = {
 
 subject_id_factory = HashBasedSubjectIdentifierFactory(settings.SUBJECT_ID_HASH_SALT)
 
-kc_client = {
-    "enabled": True,
-    "client_id": settings.KEYCLOAK_CLIENT_ID,
-    "client_name": settings.KEYCLOAK_CLIENT_NAME,
-    "allowed_grant_types": ["implicit", "code"],
-    "allowed_scopes": ["openid", "profile", "vc_authn"],
-    "response_types": ["code", "id_token", "token"],
-    "redirect_uris": [settings.KEYCLOAK_REDIRECT_URI],
-    "require_consent": False,
-    "token_endpoint_auth_method": "client_secret_basic",
-    "require_client_secret": True,
-    "client_secret": settings.KEYCLOAK_CLIENT_SECRET,
-}
+# placeholder that gets set on app_start and write operations to ClientConfigurationCRUD
+provider = None
 
-print(kc_client)
-provider = Provider(
-    signing_key,
-    configuration_information,
-    AuthorizationState(subject_id_factory),
-    {"keycloak": kc_client},
-    Userinfo({"Jason": {"sub": "Jason"}}),
-)
+
+async def init_provider():
+    global provider
+    from api.clientConfigurations.crud import ClientConfigurationCRUD
+
+    all_kc_configs = await ClientConfigurationCRUD(await get_db()).get_all()
+    client_configs = {d.client_name: d.dict() for d in all_kc_configs}
+
+    provider = Provider(
+        signing_key,
+        configuration_information,
+        AuthorizationState(subject_id_factory),
+        client_configs,
+        Userinfo({"Jason": {"sub": "Jason"}}),
+    )

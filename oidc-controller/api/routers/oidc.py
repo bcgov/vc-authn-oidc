@@ -47,12 +47,10 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     model = AuthorizationRequest().from_dict(request.query_params._dict)
     model.verify()
 
-    # pyop provider
     auth_req = provider.provider.parse_authentication_request(
         urlencode(request.query_params._dict), request.headers
     )
     authn_response = provider.provider.authorize(model, "Jason")
-    # pyop provider END
 
     # retrieve presentation_request config.
     client = AcapyClient()
