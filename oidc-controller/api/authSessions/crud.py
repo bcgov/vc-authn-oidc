@@ -29,6 +29,10 @@ class AuthSessionCRUD:
         return AuthSession(**col.find_one({"_id": result.inserted_id}))
 
     async def get(self, auth_session_id: str) -> AuthSession:
+        if not PyObjectId.is_valid(id):
+            raise HTTPException(
+                status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
+            )
         col = self._db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
         auth_sess = col.find_one({"_id": PyObjectId(auth_session_id)})
 
@@ -51,6 +55,10 @@ class AuthSessionCRUD:
         return auth_sess
 
     async def delete(self, auth_session_id: str) -> bool:
+        if not PyObjectId.is_valid(id):
+            raise HTTPException(
+                status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
+            )
         col = self._db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
         auth_sess = col.find_one_and_delete({"_id": PyObjectId(auth_session_id)})
         return bool(auth_sess)
