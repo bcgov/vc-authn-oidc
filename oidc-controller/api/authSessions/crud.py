@@ -29,7 +29,7 @@ class AuthSessionCRUD:
         return AuthSession(**col.find_one({"_id": result.inserted_id}))
 
     async def get(self, auth_session_id: str) -> AuthSession:
-        if not PyObjectId.is_valid(id):
+        if not PyObjectId.is_valid(auth_session_id):
             raise HTTPException(
                 status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
             )
