@@ -40,7 +40,7 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                 # update presentation_exchange record
                 auth_session.verified = True
                 await AuthSessionCRUD(db).patch(
-                    auth_session.id, AuthSessionPatch(**auth_session.dict())
+                    str(auth_session.id), AuthSessionPatch(**auth_session.dict())
                 )
 
             pass

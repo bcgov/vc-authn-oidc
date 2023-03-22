@@ -44,9 +44,13 @@ class AuthSessionCRUD:
         return AuthSession(**auth_sess)
 
     async def patch(self, id: str, data: AuthSessionPatch) -> AuthSession:
+        if not PyObjectId.is_valid(id):
+            raise HTTPException(
+                status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
+            )
         col = self._db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
         auth_sess = col.find_one_and_update(
-            {"_id": id},
+            {"_id": PyObjectId(id)},
             {"$set": data.dict(exclude_unset=True)},
             return_document=ReturnDocument.AFTER,
         )
