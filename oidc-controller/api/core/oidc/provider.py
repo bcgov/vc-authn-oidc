@@ -1,5 +1,6 @@
 import logging
 
+from pymongo.database import Database
 from urllib.parse import urlparse
 from jwkest.jwk import rsa_load, RSAKey, KEYS
 
@@ -10,7 +11,6 @@ from pyop.userinfo import Userinfo
 
 
 from api.core.config import settings
-from api.db.session import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -54,11 +54,11 @@ subject_id_factory = HashBasedSubjectIdentifierFactory(settings.SUBJECT_ID_HASH_
 provider = None
 
 
-async def init_provider():
+async def init_provider(db: Database):
     global provider
     from api.clientConfigurations.crud import ClientConfigurationCRUD
 
-    all_kc_configs = await ClientConfigurationCRUD(await get_db()).get_all()
+    all_kc_configs = await ClientConfigurationCRUD(db).get_all()
     client_configs = {d.client_name: d.dict() for d in all_kc_configs}
 
     provider = Provider(

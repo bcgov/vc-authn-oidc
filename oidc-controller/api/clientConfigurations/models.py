@@ -1,8 +1,7 @@
 from enum import Enum
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, Field
 
-from api.core.models import UUIDModel
 from api.core.config import settings
 
 from .examples import ex_client_config_create
@@ -27,11 +26,11 @@ class ClientConfigurationBase(BaseModel):
         allow_population_by_field_name = True
 
 
-class ClientConfiguration(ClientConfigurationBase, UUIDModel):
+class ClientConfiguration(ClientConfigurationBase):
     pass
 
 
-class ClientConfigurationRead(ClientConfigurationBase, UUIDModel):
+class ClientConfigurationRead(ClientConfigurationBase):
     pass
 
 
@@ -41,4 +40,10 @@ class ClientConfigurationCreate(ClientConfigurationBase):
 
 
 class ClientConfigurationPatch(ClientConfigurationBase):
-    pass
+    client_id: Optional[str]
+    client_name: Optional[str]
+    response_types: Optional[List[str]]
+    redirect_uris: Optional[List[str]]
+    token_endpoint_auth_method: Optional[TOKENENDPOINTAUTHMETHODS]
+
+    client_secret: Optional[str]
