@@ -27,7 +27,7 @@ class ClientConfigurationCRUD:
     async def create(
         self, client_config: ClientConfigurationCreate
     ) -> ClientConfiguration:
-        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
+        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
         col.insert_one(jsonable_encoder(client_config))
 
         # remake provider instance to refresh provider client
@@ -37,7 +37,7 @@ class ClientConfigurationCRUD:
         )
 
     async def get(self, client_id: str) -> ClientConfigurationRead:
-        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
+        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
         obj = col.find_one({"client_id": client_id})
 
         if obj is None:
@@ -49,13 +49,13 @@ class ClientConfigurationCRUD:
         return ClientConfiguration(**obj)
 
     async def get_all(self) -> List[ClientConfigurationRead]:
-        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
+        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
         return [ClientConfigurationRead(**cc) for cc in col.find()]
 
     async def patch(
         self, client_id: str, data: ClientConfigurationPatch
     ) -> ClientConfiguration:
-        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
+        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
         obj = col.find_one_and_update(
             {"client_id": client_id},
             {"$set": data.dict(exclude_unset=True)},
@@ -66,7 +66,7 @@ class ClientConfigurationCRUD:
         return obj
 
     async def delete(self, client_id: str) -> bool:
-        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
+        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
         obj = col.find_one_and_delete({"client_id": client_id})
 
         # remake provider instance to refresh provider client

@@ -29,7 +29,7 @@ async def test_client_config_get(db_client: Callable[[], MongoClient]):
     client = db_client()
     crud = ClientConfigurationCRUD(client.db)
 
-    client.db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS).insert_one(
+    client.db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS).insert_one(
         test_client_config.dict()
     )
 
@@ -44,7 +44,7 @@ async def test_client_config_create(db_client: Callable[[], MongoClient]):
 
     await crud.create(test_client_config)
     document = client.db.get_collection(
-        COLLECTION_NAMES.CLIENT_CONFiGURATIONS
+        COLLECTION_NAMES.CLIENT_CONFIGURATIONS
     ).find_one({"client_id": test_client_config.client_id})
     assert document
 
@@ -54,7 +54,7 @@ async def test_client_config_delete(db_client: Callable[[], MongoClient]):
     client = db_client()
     crud = ClientConfigurationCRUD(client.db)
 
-    client.db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS).insert_one(
+    client.db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS).insert_one(
         test_client_config.dict()
     )
 
@@ -62,7 +62,7 @@ async def test_client_config_delete(db_client: Callable[[], MongoClient]):
     assert result
 
     document = client.db.get_collection(
-        COLLECTION_NAMES.CLIENT_CONFiGURATIONS
+        COLLECTION_NAMES.CLIENT_CONFIGURATIONS
     ).find_one({"client_id": test_client_config.client_id})
     assert not document
 
@@ -72,7 +72,7 @@ async def test_client_config_patch(db_client: Callable[[], MongoClient]):
     client = db_client()
     crud = ClientConfigurationCRUD(client.db)
 
-    client.db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS).insert_one(
+    client.db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS).insert_one(
         test_client_config.dict()
     )
 
@@ -83,6 +83,6 @@ async def test_client_config_patch(db_client: Callable[[], MongoClient]):
     assert result
 
     document = client.db.get_collection(
-        COLLECTION_NAMES.CLIENT_CONFiGURATIONS
+        COLLECTION_NAMES.CLIENT_CONFIGURATIONS
     ).find_one({"client_id": test_client_config.client_id})
     assert document["client_secret"] == "patched_client_secret"
