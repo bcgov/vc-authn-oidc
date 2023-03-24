@@ -16,6 +16,9 @@ async def init_db():
     ver_configs = db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
     ver_configs.create_index([("ver_config_id", ASCENDING)], unique=True)
 
+    client_configs = db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
+    client_configs.create_index([("client_id", ASCENDING)], unique=True)
+
 
 async def get_db():
     return client[settings.DB_NAME]

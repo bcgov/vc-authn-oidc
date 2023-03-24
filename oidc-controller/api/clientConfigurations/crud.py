@@ -7,7 +7,6 @@ from fastapi import HTTPException
 from fastapi import status as http_status
 from fastapi.encoders import jsonable_encoder
 
-from ..core.models import PyObjectId
 from .models import (
     ClientConfiguration,
     ClientConfigurationCreate,
@@ -28,59 +27,49 @@ class ClientConfigurationCRUD:
     async def create(
         self, client_config: ClientConfigurationCreate
     ) -> ClientConfiguration:
-        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
-        result = col.insert_one(jsonable_encoder(client_config))
+        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
+        col.insert_one(jsonable_encoder(client_config))
 
         # remake provider instance to refresh provider client
-        await init_provider()
-        return ClientConfiguration(**col.find_one({"_id": result.inserted_id}))
+        await init_provider(self._db)
+        return ClientConfiguration(
+            **col.find_one({"client_id": client_config.client_id})
+        )
 
-    async def get(self, id: str) -> ClientConfigurationRead:
-        if not PyObjectId.is_valid(id):
-            raise HTTPException(
-                status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
-            )
-        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
-        obj = col.find_one({"_id": PyObjectId(id)})
+    async def get(self, client_id: str) -> ClientConfigurationRead:
+        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
+        obj = col.find_one({"client_id": client_id})
 
         if obj is None:
             raise HTTPException(
                 status_code=http_status.HTTP_404_NOT_FOUND,
-                detail="The auth_session hasn't been found!",
+                detail="The client_config hasn't been found!",
             )
 
         return ClientConfiguration(**obj)
 
     async def get_all(self) -> List[ClientConfigurationRead]:
-        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
+        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
         return [ClientConfigurationRead(**cc) for cc in col.find()]
 
     async def patch(
-        self, id: str, data: ClientConfigurationPatch
+        self, client_id: str, data: ClientConfigurationPatch
     ) -> ClientConfiguration:
-        if not PyObjectId.is_valid(id):
-            raise HTTPException(
-                status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
-            )
-        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
+        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
         obj = col.find_one_and_update(
-            {"_id": PyObjectId(id)},
+            {"client_id": client_id},
             {"$set": data.dict(exclude_unset=True)},
             return_document=ReturnDocument.AFTER,
         )
         # remake provider instance to refresh provider client
-        await init_provider()
+        await init_provider(self._db)
         return obj
 
-    async def delete(self, id: str) -> bool:
-        if not PyObjectId.is_valid(id):
-            raise HTTPException(
-                status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
-            )
-        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFiGURATIONS)
-        obj = col.find_one_and_delete({"_id": PyObjectId(id)})
+    async def delete(self, client_id: str) -> bool:
+        col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
+        obj = col.find_one_and_delete({"client_id": client_id})
 
         # remake provider instance to refresh provider client
-        await init_provider()
+        await init_provider(self._db)
 
         return bool(obj)

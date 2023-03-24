@@ -1,3 +1,5 @@
+from api.core.config import settings
+
 import pytest
 import mongomock
 
@@ -13,3 +15,7 @@ def db_client():
 @pytest.fixture()
 def db(db_client):
     return db_client().db
+
+
+settings.CONTROLLER_URL = "https://controller"
+settings.SIGNING_KEY_FILENAME = "tests/test_signing_key.pem"

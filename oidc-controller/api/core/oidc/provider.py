@@ -1,5 +1,6 @@
 import logging
 
+from pymongo.database import Database
 from urllib.parse import urlparse
 from jwkest.jwk import rsa_load, RSAKey, KEYS
 
@@ -10,7 +11,6 @@ from pyop.userinfo import Userinfo
 
 
 from api.core.config import settings
-from api.db.session import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,9 @@ issuer_url = settings.CONTROLLER_URL
 if urlparse(issuer_url).scheme != "https":
     logger.error("CONTROLLER_URL is not HTTPS. changing openid-config for development")
     issuer_url = issuer_url[:4] + "s" + issuer_url[4:]
-signing_key = RSAKey(key=rsa_load("signing_key.pem"), use="sig", alg="RS256")
+signing_key = RSAKey(
+    key=rsa_load(settings.SIGNING_KEY_FILENAME), use="sig", alg="RS256"
+)
 signing_keys = KEYS().append(signing_key)
 
 # config from vc-authn-oidc 1.0 can be found here
@@ -54,11 +56,11 @@ subject_id_factory = HashBasedSubjectIdentifierFactory(settings.SUBJECT_ID_HASH_
 provider = None
 
 
-async def init_provider():
+async def init_provider(db: Database):
     global provider
     from api.clientConfigurations.crud import ClientConfigurationCRUD
 
-    all_kc_configs = await ClientConfigurationCRUD(await get_db()).get_all()
+    all_kc_configs = await ClientConfigurationCRUD(db).get_all()
     client_configs = {d.client_name: d.dict() for d in all_kc_configs}
 
     provider = Provider(

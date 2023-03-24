@@ -39,6 +39,8 @@ class VerificationConfigCRUD:
     async def patch(
         self, ver_config_id: str, data: VerificationConfigPatch
     ) -> VerificationConfig:
+        if not isinstance(data, VerificationConfigPatch):
+            raise Exception("please provide an instance of the <document> PATCH class")
         ver_confs = self._db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
         ver_conf = ver_confs.find_one_and_update(
             {"ver_config_id": ver_config_id},
