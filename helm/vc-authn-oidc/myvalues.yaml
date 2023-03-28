@@ -1,0 +1,49 @@
+global:
+  targetPlatform: openshift
+
+# Overrides for aca-py chart - https://github.com/hyperledger/aries-cloudagent-python/tree/main/helm
+acaPy:
+  fullnameOverride: vc-authn-agent
+  servicePort: 8024
+
+#  Overrides for bitnami/mongodb chart - https://github.com/bitnami/charts/tree/main/bitnami/mongodb
+mongodb:
+  fullnameOverride: vc-authn-db
+  commonLabels:
+    app: vc-authn-oidc
+    role: database
+  image:
+    registry: artifacts.developer.gov.bc.ca/docker-remote
+  architecture: replicaset
+  containerSecurityContext:
+    enabled: false
+  podSecurityContext:
+    enabled: false
+  persistence:
+    storageClass: netapp-block-standard
+  serviceAccount:
+    create: false
+  arbiter:
+    enabled: false
+  hidden:
+    enabled: false
+  metrics:
+    enabled: false
+
+# Overrides for bitnami/redis-cluster chart - https://github.com/bitnami/charts/tree/main/bitnami/redis-cluster
+redisCluster:
+  fullnameOverride: vc-authn-cache
+  commonLabels:
+    app: vc-authn-oidc
+    role: cache
+  image:
+    registry: artifacts.developer.gov.bc.ca/docker-remote
+  containerSecurityContext:
+      enabled: false
+  podSecurityContext:
+    enabled: false
+  volumePermissions:
+    containerSecurityContext:
+      enabled: false
+  metrics:
+    enabled: false

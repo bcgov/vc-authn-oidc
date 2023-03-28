@@ -1,0 +1,22 @@
+{{- if eq .Values.global.targetPlatform "openshift" -}}
+{{- $fullName := include "vc-authn-oidc.fullname" . -}}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "vc-authn-oidc.fullname" . }}
+  annotations:
+    haproxy.router.openshift.io/timeout: {{ .Values.route.timeout }}
+  labels:
+    {{- include "vc-authn-oidc.labels" . | nindent 4 }}
+spec:
+  host: {{ include "vc-authn-oidc.host" . | quote }}
+  path: /
+  to:
+    kind: Service
+    name: {{ $fullName }}
+    weight: 100
+  port:
+    targetPort: http
+  wildcardPolicy: None
+  {{ include "vc-authn-oidc.openshift.route.tls" . | nindent 2}}
+{{- end }}
