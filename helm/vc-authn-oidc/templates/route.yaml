@@ -18,5 +18,5 @@ spec:
   port:
     targetPort: http
   wildcardPolicy: None
-  {{ include "vc-authn-oidc.openshift.route.tls" . | nindent 2}}
+  {{ include "vc-authn-oidc.openshift.route.tls" . | indent 2}}
 {{- end }}
