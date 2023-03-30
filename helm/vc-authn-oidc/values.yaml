@@ -5,7 +5,7 @@
 global:
   # It can be either k8s or openshift. Some components (e.g.: ingress) will be 
   # deployed differently depending on the selected platform.
-  targetPlatform: k8s
+  targetPlatform: openshift
   # Default suffix to be used for ingress creation
   ingressSuffix: .apps.silver.devops.gov.bc.ca
 
@@ -96,3 +96,55 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# Overrides for aca-py chart
+acaPy:
+  fullnameOverride: vc-authn-agent
+  servicePort: 8024
+  tenantMode: single
+  agentUrl: https://vc-authn-agent.apps.silver.devops.gov.bc.ca
+  adminUrl: https://vc-authn-agent-admin.apps.silver.devops.gov.bc.ca
+  useOob: false
+  tenantWalletSecretName: vc-authn-tenant
+
+#  Overrides for bitnami/mongodb chart - https://github.com/bitnami/charts/tree/main/bitnami/mongodb
+mongodb:
+  fullnameOverride: vc-authn-db
+  commonLabels:
+    app: vc-authn-oidc
+    role: database
+  image:
+    registry: artifacts.developer.gov.bc.ca/docker-remote
+  architecture: replicaset
+  containerSecurityContext:
+    enabled: false
+  podSecurityContext:
+    enabled: false
+  persistence:
+    storageClass: netapp-block-standard
+  serviceAccount:
+    create: false
+  arbiter:
+    enabled: false
+  hidden:
+    enabled: false
+  metrics:
+    enabled: false
+
+# Overrides for bitnami/redis-cluster chart - https://github.com/bitnami/charts/tree/main/bitnami/redis-cluster
+redisCluster:
+  fullnameOverride: vc-authn-cache
+  commonLabels:
+    app: vc-authn-oidc
+    role: cache
+  image:
+    registry: artifacts.developer.gov.bc.ca/docker-remote
+  containerSecurityContext:
+      enabled: false
+  podSecurityContext:
+    enabled: false
+  volumePermissions:
+    containerSecurityContext:
+      enabled: false
+  metrics:
+    enabled: false
