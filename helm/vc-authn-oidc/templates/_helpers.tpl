@@ -79,3 +79,14 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create URL based on hostname and TLS status
+*/}}
+{{- define "vc-authn-oidc.url" -}}
+{{- if or (eq .Values.route.tls.enabled true) (.Values.ingress.tls) }}
+{{- printf "https://%s" (include "vc-authn-oidc.host" .) | quote }}
+{{- else }}
+{{- printf "http://%s" (include "vc-authn-oidc.host" .) | quote }}
+{{- end }}
+{{- end }}

@@ -33,6 +33,56 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DB_HOST
+              value: {{ .Values.mongodb.fullnameOverride }}
+            - name: DB_PORT
+              value: {{ .Values.mongodb.service.ports.mongodb }}
+            - name: DB_NAME
+              value: {{ include "vc-authn-oidc.fullname" . }}
+            - name: REDIS_HOST
+              value: {{ .Values.redisCluster.fullnameOverride }}
+            - name: REDIS_PORT
+              value: {{ .Values.redisCluster.service.ports.redis }}
+            - name: REDIS_NAME
+              value: {{ include "vc-authn-oidc.fullname" . }}
+            - name: OIDC_CONTROLLER_DB_USER
+              value: root
+            - name: OIDC_CONTROLLER_DB_USER_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mongodb.fullnameOverride }}
+                  key: mongodb-root-password
+            - name: CONTROLLER_URL
+              value: {{ include "vc-authn-oidc.url" . }}
+            - name: ACAPY_AGENT_URL
+              value: {{ .Values.acaPy.agentUrl }}
+            - name: ACAPY_ADMIN_URL
+              value: {{ .Values.acaPy.adminUrl }}
+            - name: USE_OOB_PRESENT_PROOF
+              value: {{ .Values.acaPy.useOob }}
+            - name: ACAPY_TENANCY
+              value: {{ .Values.acaPy.tenantMode }}
+            {{- if eq .Values.acaPy.tenantMode "single" }}
+            - name: ST_ACAPY_ADMIN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.acaPy.fullnameOverride }}
+                  key: admin-api-key
+            - name: ST_ACAPY_ADMIN_API_KEY_NAME
+              value: "x-api-key"
+            {{- else }}
+            - name: MT_ACAPY_WALLET_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.acaPy.tenantWalletSecretName }}
+                  key: wallet-id
+            - MT_ACAPY_WALLET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.acaPy.tenantWalletSecretName }}
+                  key: wallet-key
+            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

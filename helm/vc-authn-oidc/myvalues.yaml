@@ -1,10 +1,16 @@
 global:
   targetPlatform: openshift
 
-# Overrides for aca-py chart - https://github.com/hyperledger/aries-cloudagent-python/tree/main/helm
+# Overrides for aca-py chart
 acaPy:
   fullnameOverride: vc-authn-agent
   servicePort: 8024
+  tenantMode: single
+  agentUrl: https://vc-authn-agent.apps.silver.devops.gov.bc.ca
+  adminUrl: https://vc-authn-agent-admin.apps.silver.devops.gov.bc.ca
+  useOob: false
+  tenantWalletSecretName: vc-authn-tenant
+  
 
 #  Overrides for bitnami/mongodb chart - https://github.com/bitnami/charts/tree/main/bitnami/mongodb
 mongodb:
