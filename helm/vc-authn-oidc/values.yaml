@@ -71,7 +71,7 @@ route:
   timeout: 2m
   tls:
     enabled: true
-    insecureEdgeTerminationPolicy: None
+    insecureEdgeTerminationPolicy: Redirect
     termination: edge
 
 resources: 
