@@ -140,6 +140,16 @@ build-oidc-controller-dev() {
     -f './oidc-controller/Dockerfile.dev' '..'
 }
 
+create-signing-key() {
+  #
+  # oidc-controller
+  # refer branch 2.0-development docker/manage
+  #
+  if [ ! -f ../oidc-controller/signing_key.pem ]; then
+    openssl genrsa -out ../oidc-controller/signing_key.pem 2048
+  fi
+}
+
 buildImages() {
   build-oidc-controller
 }
@@ -162,6 +172,7 @@ configureEnvironment() {
     esac
   done
 
+  create-signing-key
   export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn-oidc}"
 
   # export STI_SCRIPTS_PATH=${STI_SCRIPTS_PATH:-/usr/libexec/s2i}
