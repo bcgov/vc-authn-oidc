@@ -8,4 +8,7 @@ RUN pip3 install -r requirements.txt
 COPY oidc-controller ./
 
 EXPOSE 5000
+
+RUN ["chmod", "+x", "./docker-entrypoint.sh"]
+
 ENTRYPOINT ["./docker-entrypoint.sh"]
