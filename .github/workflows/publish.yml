@@ -40,6 +40,13 @@ jobs:
         id: info
         run: |
           echo "repo-owner=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_OUTPUT
+      
+      # Store the version, stripping any v-prefix
+      - name: Compile image tag version
+        run: |
+          IMAGE_TAG=${github.event.release.tag_name#v}
+          echo Image tag: $IMAGE_TAG
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: Cache Docker layers
         uses: actions/cache@v3
@@ -66,7 +73,7 @@ jobs:
           images: |
             ghcr.io/${{ steps.info.outputs.repo-owner }}/vc-authn-oidc
           tags: |
-            type=raw,value=${{ inputs.tag || github.event.release.tag_name }}
+            type=raw,value=${{ inputs.tag || IMAGE_TAG }}
 
       - name: Build and Push Image to ghcr.io
         uses: docker/build-push-action@v3
