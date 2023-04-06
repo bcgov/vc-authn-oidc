@@ -19,7 +19,7 @@ image:
   repository: ghcr.io/bcgov/vc-authn-oidc
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "2.0.0-beta"
+  tag: "2.0.0-alpha1"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -89,7 +89,7 @@ autoscaling:
   minReplicas: 1
   maxReplicas: 2
   targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
   stabilizationWindowSeconds: 300
 
 nodeSelector: {}
