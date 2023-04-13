@@ -2,7 +2,12 @@ name: Controller Unit Tests
 
 on:
   push:
-    branches: 2.0-development
+    branches:
+      - '2.0-development'
+  pull_request:
+    branches:
+      - '2.0-development'
+    
 
 jobs:
   build:
