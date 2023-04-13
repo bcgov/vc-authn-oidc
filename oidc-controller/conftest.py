@@ -18,5 +18,4 @@ def db(db_client):
 
 
 settings.CONTROLLER_URL = "https://controller"
-settings.SIGNING_KEY_FILENAME = "test_signing_key.pem"
-# settings.SIGNING_KEY_FILEPATH = ""
+settings.TESTING = True

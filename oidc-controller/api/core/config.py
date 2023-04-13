@@ -69,7 +69,6 @@ class GlobalConfig(BaseSettings):
     TRACTION_CORS_URLS: str = os.environ.get("TRACTION_CORS_URLS", "")
 
     # openssl rand -hex 32
-    SIGNING_KEY_FILENAME = os.environ.get("SIGNING_KEY_FILENAME", "signing_key.pem")
     SIGNING_KEY_SIZE = os.environ.get("SIGNING_KEY_SIZE", 2048)
     # SIGNING_KEY_FILEPATH expects complete path including filename and extension.
     SIGNING_KEY_FILEPATH: str = os.environ.get("SIGNING_KEY_FILEPATH")

@@ -14,19 +14,15 @@ from urllib.parse import urlparse
 from jwkest.jwk import rsa_load, RSAKey, KEYS
 
 logger = logging.getLogger(__name__)
-if not settings.SIGNING_KEY_FILEPATH:
-    # Default pem file location in signing-keys dir outside code dir.
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    if "/oidc-controller/api/core/oidc" in dir_path:
-        FILE_PATH = dir_path.replace("/oidc-controller/api/core/oidc", "/signing-keys")
-    else:
-        FILE_PATH = dir_path.replace("/api/core/oidc", "/signing-keys")
-    if not os.path.exists(FILE_PATH):
-        os.makedirs(FILE_PATH)
-    SIGNING_KEY_FILEPATH = os.path.join(FILE_PATH, settings.SIGNING_KEY_FILENAME)
-else:
-    SIGNING_KEY_FILEPATH = settings.SIGNING_KEY_FILEPATH
-    logger.info(f"SIGNING_KEY_FILEPATH {SIGNING_KEY_FILEPATH} env variable provided.")
+DIR_PATH = os.path.dirname(os.path.realpath(__file__))
+
+
+def get_signing_key_dir_path(to_replace_str, replacement_str, filename_str) -> str:
+    """Get signing key directory."""
+    file_path = DIR_PATH.replace(to_replace_str, replacement_str)
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
+    return os.path.join(file_path, filename_str)
 
 
 def save_pem_file(filename, content):
@@ -36,12 +32,33 @@ def save_pem_file(filename, content):
     f.close()
 
 
-def pem_file_exists() -> bool:
+def pem_file_exists(filepath) -> bool:
     """Check if pem file exists."""
-    return os.path.isfile(SIGNING_KEY_FILEPATH)
+    return os.path.isfile(filepath)
 
 
-if not pem_file_exists():
+if settings.TESTING:
+    # Test pem file location /vc-authn-oidc/test-signing-keys.
+    SIGNING_KEY_FILEPATH = get_signing_key_dir_path(
+        to_replace_str="/oidc-controller/api/core/oidc",
+        replacement_str="/test-signing-keys",
+        filename_str="test_signing_key.pem",
+    )
+else:
+    if not settings.SIGNING_KEY_FILEPATH:
+        # Default pem file location /app/signing-keys.
+        SIGNING_KEY_FILEPATH = get_signing_key_dir_path(
+            to_replace_str="/api/core/oidc",
+            replacement_str="/signing-keys",
+            filename_str="signing_key.pem",
+        )
+    else:
+        SIGNING_KEY_FILEPATH = settings.SIGNING_KEY_FILEPATH
+        logger.info(
+            f"SIGNING_KEY_FILEPATH {SIGNING_KEY_FILEPATH} env variable provided."
+        )
+
+if not pem_file_exists(SIGNING_KEY_FILEPATH):
     logger.info("creating new pem file")
     private_key = rsa.generate_private_key(
         public_exponent=65537,
