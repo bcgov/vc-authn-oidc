@@ -15,10 +15,14 @@ from jwkest.jwk import rsa_load, RSAKey, KEYS
 
 logger = logging.getLogger(__name__)
 if not settings.SIGNING_KEY_FILEPATH:
-    # Default pem file location in oidc-controller directory
-    FILE_PATH = os.path.dirname(os.path.realpath(__file__)).replace(
-        "/api/core/oidc", ""
-    )
+    # Default pem file location in signing-keys dir outside code dir.
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    if "/oidc-controller/api/core/oidc" in dir_path:
+        FILE_PATH = dir_path.replace("/oidc-controller/api/core/oidc", "/signing-keys")
+    else:
+        FILE_PATH = dir_path.replace("/api/core/oidc", "/signing-keys")
+    if not os.path.exists(FILE_PATH):
+        os.makedirs(FILE_PATH)
     SIGNING_KEY_FILEPATH = os.path.join(FILE_PATH, settings.SIGNING_KEY_FILENAME)
 else:
     SIGNING_KEY_FILEPATH = settings.SIGNING_KEY_FILEPATH
