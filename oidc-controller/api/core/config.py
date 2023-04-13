@@ -70,6 +70,7 @@ class GlobalConfig(BaseSettings):
 
     # openssl rand -hex 32
     SIGNING_KEY_FILENAME = os.environ.get("SIGNING_KEY_FILENAME", "signing_key.pem")
+    SIGNING_KEY_SIZE = os.environ.get("SIGNING_KEY_SIZE", 2048)
     JWT_ALGORITHM = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES = 300
     SUBJECT_ID_HASH_SALT = os.environ.get("SUBJECT_ID_HASH_SALT", "test_hash_salt")

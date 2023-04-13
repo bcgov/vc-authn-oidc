@@ -1,26 +1,56 @@
 import logging
+import os
 
+from api.core.config import settings
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from pymongo.database import Database
-from urllib.parse import urlparse
-from jwkest.jwk import rsa_load, RSAKey, KEYS
-
 from pyop.authz_state import AuthorizationState
 from pyop.provider import Provider
 from pyop.subject_identifier import HashBasedSubjectIdentifierFactory
 from pyop.userinfo import Userinfo
-
-
-from api.core.config import settings
+from urllib.parse import urlparse
+from jwkest.jwk import rsa_load, RSAKey, KEYS
 
 logger = logging.getLogger(__name__)
+FILE_PATH = os.path.dirname(os.path.realpath(__file__)).replace("/api/core/oidc", "")
+SIGNING_KEY_FILEPATH = os.path.join(FILE_PATH, settings.SIGNING_KEY_FILENAME)
+
+
+def save_pem_file(filename, content):
+    """Save the pem file in oidc-controller dir."""
+    f = open(filename, "wb")
+    f.write(content)
+    f.close()
+
+
+def pem_file_exists() -> bool:
+    """Check if pem file exists."""
+    return os.path.isfile(SIGNING_KEY_FILEPATH)
+
+
+if not pem_file_exists():
+    logger.info("creating new pem file in oidc-controller directory.")
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=int(settings.SIGNING_KEY_SIZE),
+        backend=default_backend(),
+    )
+    pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    )
+    save_pem_file(SIGNING_KEY_FILEPATH, pem)
+else:
+    logger.info("pem file alrady exists in oidc-controller directory.")
 
 issuer_url = settings.CONTROLLER_URL
 if urlparse(issuer_url).scheme != "https":
     logger.error("CONTROLLER_URL is not HTTPS. changing openid-config for development")
     issuer_url = issuer_url[:4] + "s" + issuer_url[4:]
-signing_key = RSAKey(
-    key=rsa_load(settings.SIGNING_KEY_FILENAME), use="sig", alg="RS256"
-)
+signing_key = RSAKey(key=rsa_load(SIGNING_KEY_FILEPATH), use="sig", alg="RS256")
 signing_keys = KEYS().append(signing_key)
 
 # config from vc-authn-oidc 1.0 can be found here

@@ -145,9 +145,9 @@ configureEnvironment() {
     esac
   done
 
-  if [ ! -f ../oidc-controller/signing_key.pem ]; then
-    openssl genrsa -out ../oidc-controller/signing_key.pem 2048
-  fi
+  # if [ ! -f ../oidc-controller/signing_key.pem ]; then
+  #   openssl genrsa -out ../oidc-controller/signing_key.pem 2048
+  # fi
 
   ## global
   export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn}"
