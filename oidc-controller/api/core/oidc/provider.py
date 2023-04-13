@@ -14,8 +14,15 @@ from urllib.parse import urlparse
 from jwkest.jwk import rsa_load, RSAKey, KEYS
 
 logger = logging.getLogger(__name__)
-FILE_PATH = os.path.dirname(os.path.realpath(__file__)).replace("/api/core/oidc", "")
-SIGNING_KEY_FILEPATH = os.path.join(FILE_PATH, settings.SIGNING_KEY_FILENAME)
+if not settings.SIGNING_KEY_FILEPATH:
+    # Default pem file location in oidc-controller directory
+    FILE_PATH = os.path.dirname(os.path.realpath(__file__)).replace(
+        "/api/core/oidc", ""
+    )
+    SIGNING_KEY_FILEPATH = os.path.join(FILE_PATH, settings.SIGNING_KEY_FILENAME)
+else:
+    SIGNING_KEY_FILEPATH = settings.SIGNING_KEY_FILEPATH
+    logger.info(f"SIGNING_KEY_FILEPATH {SIGNING_KEY_FILEPATH} env variable provided.")
 
 
 def save_pem_file(filename, content):
@@ -31,7 +38,7 @@ def pem_file_exists() -> bool:
 
 
 if not pem_file_exists():
-    logger.info("creating new pem file in oidc-controller directory.")
+    logger.info("creating new pem file")
     private_key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=int(settings.SIGNING_KEY_SIZE),
@@ -44,7 +51,8 @@ if not pem_file_exists():
     )
     save_pem_file(SIGNING_KEY_FILEPATH, pem)
 else:
-    logger.info("pem file alrady exists in oidc-controller directory.")
+    logger.info("pem file alrady exists")
+logger.info(f"pem file located at {SIGNING_KEY_FILEPATH}.")
 
 issuer_url = settings.CONTROLLER_URL
 if urlparse(issuer_url).scheme != "https":
