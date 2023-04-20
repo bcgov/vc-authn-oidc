@@ -88,32 +88,41 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
 
     return f"""
     <html>
-        <script>
-        setInterval(function() {{
-            fetch('{controller_host}{ChallengePollUri}/{auth_session.pres_exch_id}')
-                .then(response => response.json())
-                .then(data => {{if (data.verified) {{
-                        window.location.replace('{callback_url}', {{method: 'POST'}});
-                    }}
-                }})
-        }}, 2000);
-
-        </script>
+        <script> </script>
         <head>
-            <title>Some HTML in here</title>
+            <title>Scan QR Code</title>
+            <style>
+                body {{
+                    height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0;
+                    padding: 0;
+                }}
+                .container {{
+                    text-align: center;
+                }}
+                div {{
+                    margin: 10px;
+                }}
+            </style>
         </head>
         <body>
-            <h1>AUTHORIZATION REQUEST</h1>
+            <div class="container">
+                <h1>AUTHORIZATION REQUEST</h1>
 
-            <p>{url_to_message}</p>
 
-            <p>Scan this QR code for a connectionless present-proof request</p>
-            <p><img src="data:image/jpeg;base64,{image_contents}"
-            alt="{image_contents}" width="300px" height="300px" /></p>
+                <div>Scan this QR code for a connectionless present-proof request</div>
+                <div><img src="data:image/jpeg;base64,{image_contents}"
+                alt="{image_contents}" width="300px" height="300px" /></div>
 
-            <p>User waits on this screen until Proof has been presented to
-            the vcauth service agent, then is redirected to</p>
-            <a href="{callback_url}">callback url (redirect to kc)</a>
+                <div><a href="{url_to_message}">Or click this link</a></div>
+
+                <div>User waits on this screen until Proof has been presented to
+                the vcauth service agent, then is redirected to</div>
+                <a href="{callback_url}">callback url (redirect to kc)</a>
+            </div>
         </body>
     </html>
 

@@ -3,9 +3,10 @@ services:
   controller:
     image: vc-authn-oidc-controller
     entrypoint: bash -c "uvicorn api.main:app --reload --host 0.0.0.0 --port 5000 --log-level info"
-    depends_on:
-      controller-db:
-        condition: service_started
+    # Docker support for this seems patchy
+    # depends_on:
+    #   controller-db:
+    #     condition: service_started
     environment:
       - DB_HOST=${MONGODB_HOST}
       - DB_PORT=${MONGODB_PORT}
@@ -33,7 +34,7 @@ services:
       - vc_auth
 
   controller-cache:
-    image: 'bitnami/redis:7.0'
+    image: "bitnami/redis:7.0"
     volumes:
       - ./redis-volume:/data
     environment:
@@ -126,10 +127,10 @@ services:
         --inbound-transport http '0.0.0.0' ${AGENT_HTTP_PORT} \
         --outbound-transport http \
         --wallet-storage-config '{\"url\":\"${POSTGRESQL_WALLET_HOST}:${POSTGRESQL_WALLET_PORT}\",\"max_connections\":5}' \
-        --wallet-storage-creds '{\"account\":\"${POSTGRESQL_WALLET_USER}\",\"password\":\"${POSTGRESQL_WALLET_PASSWORD}\",\"admin_account\":\"${POSTGRESQL_WALLET_USER}\",\"admin_password\":\"${POSTGRESQL_WALLET_PASSWORD}\"}' \ 
+        --wallet-storage-creds '{\"account\":\"${POSTGRESQL_WALLET_USER}\",\"password\":\"${POSTGRESQL_WALLET_PASSWORD}\",\"admin_account\":\"${POSTGRESQL_WALLET_USER}\",\"admin_password\":\"${POSTGRESQL_WALLET_PASSWORD}\"}' \
         --admin '0.0.0.0' ${AGENT_ADMIN_PORT} \
-        --${AGENT_ADMIN_MODE} 
-      "
+        --${AGENT_ADMIN_MODE}
+        ",
       ]
 
   wallet-db:
@@ -145,14 +146,11 @@ services:
     volumes:
       - agent-wallet-db:/var/lib/pgsql/data
 
-
 networks:
   vc_auth:
     driver: bridge
-
 
 volumes:
   controller-db-data:
   keycloak-db-data:
   agent-wallet-db:
-  
