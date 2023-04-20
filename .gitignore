@@ -4,6 +4,7 @@
 *.jwk
 *.rsa
 data/
+docker/keycloak/config/hsperfdata_jboss
 
 ######################
 # Intellij
