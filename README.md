@@ -52,8 +52,7 @@ A list of all available commands is visible by executing `./manage -h`.
 
 ## Configuring a proof-request
 
-To configure the default pre-built proof request, once the controller service is running execute `./manage configure-proof default` in a shell.
-This will create the following configuration:
+Send a POST request to `http://localhost:5201/ver-configs` with the following body:
 
 ```json
 {
