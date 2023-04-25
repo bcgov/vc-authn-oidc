@@ -87,76 +87,19 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     cb_host = settings.CONTROLLER_URL_LOCAL
     callback_url = f"""http://{cb_host}{AuthorizeCallbackUri}?pid={auth_session.id}"""
 
+    # This is the payload to send to the template
     data = {
         "image_contents": image_contents,
         "url_to_message": url_to_message,
         "callback_url": callback_url,
     }
 
+    # Prepare the template
     template_file = open("api/templates/verified_credentials.html", "r").read()
     template = Template(template_file)
-    print(template.render(data))
-    
 
-    # templates = Jinja2Templates(directory="api/templates")
-
-    # print ('blah blah blah')
-    # print (templates.TemplateResponse("verified_credentials.html", {"request": request, "data": data}))
-    # # async def homepage(request):
-
-    # return f"""
-    # <html>
-    # testing
-    # </html>
-    # """
-
-    # async def read_item(request: Request, id: str):
-    #     return 'yo'
-        # return templates.TemplateResponse("verified_credentials.html", data)
-
-    # print (templates.TemplateResponse("verified_credentials.html", data))
-
-    return f"""
-    <html>
-        <script> </script>
-        <head>
-            <title>Scan QR Code</title>
-            <style>
-                body {{
-                    height: 100vh;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin: 0;
-                    padding: 0;
-                }}
-                .container {{
-                    text-align: center;
-                }}
-                div {{
-                    margin: 10px;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>AUTHORIZATION REQUEST</h1>
-
-
-                <div>Scan this QR code for a connectionless present-proof request</div>
-                <div><img src="data:image/jpeg;base64,{image_contents}"
-                alt="{image_contents}" width="300px" height="300px" /></div>
-
-                <div><a href="{url_to_message}">Or click this link</a></div>
-
-                <div>User waits on this screen until Proof has been presented to
-                the vcauth service agent, then is redirected to</div>
-                <a href="{callback_url}">callback url (redirect to kc)</a>
-            </div>
-        </body>
-    </html>
-
-    """
+    # Render and return the template
+    return template.render(data)
 
 
 @log_debug
