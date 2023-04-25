@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 import qrcode
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from jinja2 import Template
 from oic.oic.message import AccessTokenRequest, AuthorizationRequest
 from pymongo.database import Database
 
@@ -85,6 +86,35 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     # same as controller host unless overriden
     cb_host = settings.CONTROLLER_URL_LOCAL
     callback_url = f"""http://{cb_host}{AuthorizeCallbackUri}?pid={auth_session.id}"""
+
+    data = {
+        "image_contents": image_contents,
+        "url_to_message": url_to_message,
+        "callback_url": callback_url,
+    }
+
+    template_file = open("api/templates/verified_credentials.html", "r").read()
+    template = Template(template_file)
+    print(template.render(data))
+    
+
+    # templates = Jinja2Templates(directory="api/templates")
+
+    # print ('blah blah blah')
+    # print (templates.TemplateResponse("verified_credentials.html", {"request": request, "data": data}))
+    # # async def homepage(request):
+
+    # return f"""
+    # <html>
+    # testing
+    # </html>
+    # """
+
+    # async def read_item(request: Request, id: str):
+    #     return 'yo'
+        # return templates.TemplateResponse("verified_credentials.html", data)
+
+    # print (templates.TemplateResponse("verified_credentials.html", data))
 
     return f"""
     <html>
