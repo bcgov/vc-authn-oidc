@@ -28,6 +28,10 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+# Add assets to templates, like css, js or svg.
+def add_asset(name):
+    return open(f"api/templates/assets/{name}", "r").read()
+
 
 @log_debug
 @router.get(f"{ChallengePollUri}/{{pid}}")
@@ -92,6 +96,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         "image_contents": image_contents,
         "url_to_message": url_to_message,
         "callback_url": callback_url,
+        "add_asset": add_asset,
     }
 
     # Prepare the template
