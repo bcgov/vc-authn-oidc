@@ -35,7 +35,7 @@ services:
   controller-cache:
     image: 'bitnami/redis:7.0'
     volumes:
-      - ./redis-volume:/data
+      - redis-data:/data
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
     ports:
@@ -51,7 +51,7 @@ services:
       - MONGO_INITDB_DATABASE=${MONGODB_NAME}
     volumes:
       - controller-db-data:/data/db
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     ports:
       - ${MONGODB_PORT}:27017
     restart: unless-stopped
@@ -157,4 +157,5 @@ volumes:
   controller-db-data:
   keycloak-db-data:
   agent-wallet-db:
+  redis-data:
   
