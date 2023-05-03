@@ -323,10 +323,9 @@ $RECYCLE.BIN/
 # Docs build
 _build/
 
+#  OIDC Controller
 oidc-controller/private/
-
 oidc-controller/static/
-
-oidc-controller/signing_key.pem
+oidc-controller/signing-keys/
 
 wallet.txt
