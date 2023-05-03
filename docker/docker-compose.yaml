@@ -96,7 +96,6 @@ services:
     environment:
       - ACAPY_LABEL=${AGENT_NAME}
       - ACAPY_ENDPOINT=${AGENT_ENDPOINT}
-      - ACAPY_GENESIS_URL=${GENESIS_URL}
       - ACAPY_WALLET_NAME=oidc_agent_wallet
       - ACAPY_WALLET_TYPE=askar
       - ACAPY_WALLET_KEY=${WALLET_ENCRYPTION_KEY}
@@ -104,6 +103,7 @@ services:
       - ACAPY_AUTO_VERIFY_PRESENTATION=true
       - ACAPY_WALLET_STORAGE_TYPE=${WALLET_TYPE}
       - ACAPY_READ_ONLY_LEDGER=true
+      - ACAPY_GENESIS_TRANSACTIONS_LIST=/tmp/ledgers.yaml
       - ACAPY_LOG_LEVEL=debug
       - ACAPY_WEBHOOK_URL=${CONTROLLER_WEB_HOOK_URL}
       - ACAPY_AUTO_PROVISION=true
@@ -116,6 +116,8 @@ services:
       - ${AGENT_HTTP_PORT}:${AGENT_HTTP_PORT}
     networks:
       - vc_auth
+    volumes:
+      - ./agent/config/ledgers.yaml:/tmp/ledgers.yaml
     depends_on:
       - wallet-db
     entrypoint: /bin/bash
