@@ -342,7 +342,6 @@ function setNgrokEndpoints() {
   echoInfo "Determining ngrok url for controller service..."
   docker run --rm curlimages/curl -L -s http://${DOCKERHOST}:4056/api/tunnels > controller-ngrok.json
   NGROK_CONTROLLER_URL=$(docker run --rm -i stedolan/jq < controller-ngrok.json --raw-output '.tunnels | map(select(.name=="command_line")) | .[0] | .public_url')
-  sleep 5
   export CONTROLLER_URL=${NGROK_CONTROLLER_URL}
   echoSuccess "The controller url is: ${NGROK_CONTROLLER_URL}"
 
