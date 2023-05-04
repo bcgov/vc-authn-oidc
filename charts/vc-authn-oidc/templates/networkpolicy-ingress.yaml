@@ -22,10 +22,6 @@ spec:
               {{- include "common.tplvalues.render" (dict "value" .Values.networkPolicy.ingress.podSelector "context" $) | nindent 14 }}
         {{- end }}
     {{- end }}
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              network.openshift.io/policy-group: ingress
   podSelector:
     matchLabels:
       {{- include "vc-authn-oidc.selectorLabels" . | nindent 6 }}
