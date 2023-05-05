@@ -1,7 +1,7 @@
 [![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
-[![unit-tests](https://github.com/bcgov/vc-authn-oidc/actions/workflows/controller_unittests.yml/badge.svg?branch=2.0-development&event=push)](https://github.com/bcgov/vc-authn-oidc/actions/workflows/controller_unittests.yml)
-
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
+[![unit-tests](https://github.com/bcgov/vc-authn-oidc/actions/workflows/controller_unittests.yml/badge.svg?branch=2.0-development&event=push)](https://github.com/bcgov/vc-authn-oidc/actions/workflows/controller_unittests.yml)
 
 # Verifiable Credential Authentication with OpenID Connect (VC-AuthN OIDC)
 
@@ -13,67 +13,96 @@ For configuration instructions, refer to the [configuration guide](/docs/Configu
 
 Make sure to read the [best practices](/docs/BestPractices.md) to be used when protecting a web application using `vc-authn-oidc`.
 
-# Pre-requisites
-
-## Tooling
+## Pre-requisites
 
 - A bash-compatible shell such as [Git Bash](https://git-scm.com/downloads)
 - [Docker](https://docs.docker.com/get-docker/)
 
-## Project Dependencies
+## Running VC-AuthN
 
-To run `vc-authn` locally, you will need an instance of [von-network](https://github.com/bcgov/von-network) running in Docker. A different ledger can be targeted by setting the `LEDGER_URL` environment variable before starting the project.
+Open a shell in the [docker](docker/) folder and run the following commands:
 
-It is possible to run the project targeting a multi-tenant ACA-Py instance managed by [traction](https://github.com/bcgov/traction). To use this option, prepare a `traction` instance by cloning the repository and performing these tasks:
-
-- add the following to `<traction_folder>/scripts/docker-compose.yaml`
-
-```yaml
-networks:
-  default:
-    external:
-      name: oidc_vc_auth
-```
-
-- start `traction` by executing `docker-compose up` from `<traction_folder>/scripts`
-
-# Running VC-AuthN
-
-Once the pre-requisites are met, open a shell in the [docker](./docker/) folder and run the following commands:
-
-- `./manage build` to build the required service images
-- `./manage start` to run the services
-
-Follow the script prompts to select the appropriate runtime options: they will be saved in an `env` for the next execution.
-
-To reset everything (including removing container data) execute `./manage rm`.
+- `./manage build`: this command will build the controller image. This step is required the first time the project is run, and when dependencies in change in the requirements file(s).
+- `./manage start`: this will start the project. The user will be prompted to select whether to target the default standalone ACA-Py agent, or a tenant on a pre-provisioned instance of [Traction](https://github.com/bcgov/traction). Follow the script prompts to select the appropriate runtime options: they will be saved in an `env` file for the next execution.
+- To reset everything (including removing container data and selected options in the `env` file) execute `./manage rm`.
 
 A list of all available commands is visible by executing `./manage -h`.
 
-## Configuring a proof-request
+The project is set-up to run without needing any external dependencies by default, using a standalone agent in read-only that will target the ledgers specified in [ledgers.yaml](docker/agent/config/ledgers.yaml).
 
-Send a POST request to `http://localhost:5201/ver-configs` with the following body:
+If a [Traction](https://github.com/bcgov/traction) tenant is selected via user prompts for the agent, some pre-requisite steps are required for the project to start-up successfully:
 
-```json
-{
-  "ver_config_id": "test-request-config",
-  "subject_identifier": "first_name",
+- clone the [Traction](https://github.com/bcgov/traction) repository.
+- add the following to `<traction_folder>/scripts/docker-compose.yaml`
+  
+  ```yaml
+  networks:
+    default:
+      external:
+        name: oidc_vc_auth
+  ```
+
+- start `traction` by executing `docker-compose up` from `<traction_folder>/scripts`
+- provision yourself a tenant and record the wallet Id/Key: they will be required to connect the controller with the agent.
+
+## Using VC-AuthN
+
+To use VC-AuthN for development and/or demo purposes, a pre-configured demo app is provided in the [demo/vue](demo/vue/) folder. To start it, execute `docker compose up` from within the `demo/vue` folder.
+
+In order to use the VC OIDC authentication, a couple of extra steps are required:
+- A proof-request configuration needs to be registered with VC-AuthN. To do 
+so, the following command can be used to post a configuration requesting a BCGov Verified Email credential:
+
+```bash
+curl -X 'POST' \
+  'http://localhost:5000/ver_configs/' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "ver_config_id": "verified-email",
+  "subject_identifier": "email",
   "proof_request": {
-    "name": "Basic Proof",
+    "name": "BCGov Verified Email",
     "version": "1.0",
     "requested_attributes": [
       {
-        "name": "first_name",
-        "restrictions": []
-      },
-      {
-        "name": "last_name",
-        "restrictions": []
+        "name": "email",
+        "restrictions": [
+          {
+            "schema_name": "verified-email",
+            "issuer_did": "MTYqmTBoLT7KLP5RNfgK3b"
+          }
+        ]
       }
     ],
     "requested_predicates": []
   }
-}
+}'
 ```
 
-To add more proof-request configurations, use the following controller endpoint `http://localhost:5201/docs#/ver_configs/create_ver_conf_ver_configs_post`.
+- The demo application is configured to use Keycloak as AIM system. To register keycloak as a client for VC-AuthN, execute the following command in a shell:
+
+```bash
+curl -X 'POST' \
+  'http://localhost:5000/clients/' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "client_id": "keycloak",
+  "client_name": "keycloak",
+  "client_secret": "**********",
+  "response_types": [
+    "code",
+    "id_token",
+    "token"
+  ],
+  "token_endpoint_auth_method": "client_secret_basic",
+  "redirect_uris": [
+    "http://localhost:8880/auth/realms/vc-authn/broker/vc-authn/endpoint"
+  ]
+}'
+```
+
+- Lastly, obtain a valid BCGov Verified Email credential from the [BCGov Email Verification Service](https://email-verification.vonx.io)
+
+After all these steps have been completed, you should be able to authenticate with the demo application using the "Verified Credential Access" option.

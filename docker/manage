@@ -145,10 +145,6 @@ configureEnvironment() {
     esac
   done
 
-  if [ ! -f ../oidc-controller/signing_key.pem ]; then
-    openssl genrsa -out ../oidc-controller/signing_key.pem 2048
-  fi
-
   ## global
   export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn}"
   export GENESIS_URL="${GENESIS_URL:-http://$DOCKERHOST:9000/genesis}"
@@ -339,15 +335,27 @@ function setNgrokEndpoints() {
     NGROK_AGENT_PORT=4059
   fi
 
+  sleep 60
+
   echoInfo "Determining ngrok url for controller service..."
   docker run --rm curlimages/curl -L -s http://${DOCKERHOST}:4056/api/tunnels > controller-ngrok.json
   NGROK_CONTROLLER_URL=$(docker run --rm -i stedolan/jq < controller-ngrok.json --raw-output '.tunnels | map(select(.name=="command_line")) | .[0] | .public_url')
+  if [ -z "$NGROK_CONTROLLER_URL" ]; then
+    echoError "It was not possible to establish a connection with ngrok, please check the ngrok container logs for errors."
+    exit 1
+  fi
   export CONTROLLER_URL=${NGROK_CONTROLLER_URL}
   echoSuccess "The controller url is: ${NGROK_CONTROLLER_URL}"
+
+  sleep 60
 
   echoInfo "Determining ngrok url for agent service..."
   docker run --rm curlimages/curl -L -s http://${DOCKERHOST}:${NGROK_AGENT_PORT}/api/tunnels > agent-ngrok.json
   NGROK_AGENT_URL=$(docker run --rm -i stedolan/jq < agent-ngrok.json --raw-output '.tunnels | map(select(.name=="command_line")) | .[0] | .public_url')
+  if [ -z "$NGROK_AGENT_URL" ]; then
+    echoError "It was not possible to establish a connection with ngrok, please check the ngrok container logs for errors."
+    exit 1
+  fi
   export AGENT_ENDPOINT=${NGROK_AGENT_URL}
   echoSuccess "The agent url is: ${NGROK_AGENT_URL}"
 
