@@ -60,12 +60,13 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "ver_config_id": "verified-email",
+  "ver_config_id": "test-request-config",
   "subject_identifier": "email",
   "proof_request": {
     "name": "BCGov Verified Email",
     "version": "1.0",
-    "requested_attributes": [
+    "requested_attributes": [:w
+
       {
         "name": "email",
         "restrictions": [
