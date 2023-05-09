@@ -35,11 +35,10 @@ def add_asset(name):
 
 @log_debug
 @router.get(f"{ChallengePollUri}/{{pid}}")
-async def poll_pres_exch_complete(pid: str):
-    print('here is the pid', pid)
+async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
     """Called by authorize webpage to see if request
     is verified and token issuance can proceed."""
-    auth_session = await AuthSessionCRUD.get(pid)
+    auth_session = await AuthSessionCRUD(db).get(pid)
     return {"verified": auth_session.verified}
 
 
