@@ -1,5 +1,5 @@
 ex_ver_config_read = {
-    "ver_config_id": "test-request-config",
+    "ver_config_id": "verified-email",
     "subject_identifier": "first_name",
     "proof_request": {
         "name": "Basic Proof",
@@ -13,7 +13,7 @@ ex_ver_config_read = {
 }
 
 ex_ver_config_create = {
-    "ver_config_id": "test-request-config",
+    "ver_config_id": "verified-email",
     "subject_identifier": "first_name",
     "proof_request": {
         "name": "Basic Proof",
