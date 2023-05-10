@@ -1102,12 +1102,13 @@
         "validateSignature": "true",
         "clientId": "keycloak",
         "forwardParameters": "pres_req_conf_id",
-        "tokenUrl": "http://localhost:5000/token",
+        "tokenUrl": "http://controller:5000/token",
         "authorizationUrl": "http://localhost:5000/authorize",
         "clientAuthMethod": "client_secret_basic",
-        "jwksUrl": "http://localhost:5000/.well-known/openid-configuration/jwks",
+        "jwksUrl": "http://controller:5000/.well-known/openid-configuration/jwks",
         "syncMode": "LEGACY",
         "clientSecret": "**********",
+        "disableUserInfo": "",
         "defaultScope": "vc_authn",
         "useJwksUrl": "true"
       }
