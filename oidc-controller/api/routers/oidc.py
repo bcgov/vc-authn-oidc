@@ -55,7 +55,8 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     auth_req = provider.provider.parse_authentication_request(
         urlencode(request.query_params._dict), request.headers
     )
-    authn_response = provider.provider.authorize(model, "Jason")
+    #  fetch placeholder user/model and create proof
+    authn_response = provider.provider.authorize(model, "vc-user")
 
     # retrieve presentation_request config.
     client = AcapyClient()
@@ -125,7 +126,7 @@ async def get_authorize_callback(pid: str, db: Database = Depends(get_db)):
 @log_debug
 @router.post(VerifiedCredentialTokenUri, response_class=JSONResponse)
 async def post_token(request: Request, db: Database = Depends(get_db)):
-    """Called by oidc platform to retreive token contents"""
+    """Called by oidc platform to retrieve token contents"""
     form = await request.form()
     model = AccessTokenRequest().from_dict(form._dict)
     client = AcapyClient()
@@ -134,19 +135,16 @@ async def post_token(request: Request, db: Database = Depends(get_db)):
     ver_config = await VerificationConfigCRUD(db).get(auth_session.ver_config_id)
     presentation = client.get_presentation_request(auth_session.pres_exch_id)
     claims = Token.get_claims(presentation, auth_session, ver_config)
-    token = Token(
-        issuer="placeholder", audiences=["keycloak"], lifetime=10000, claims=claims
-    )
 
-    # modify sub to use vc-attribute as configured
-    new_sub = token.claims.pop("sub")
+    # modify subject identifier value to use vc-attribute as configured
+    new_sub = claims.pop("sub")
     provider.provider.authz_state.authorization_codes[model.get("code")][
-        "sub"
+        "public"
     ] = new_sub
 
     # convert form data to what library expects, Flask.app.request.get_data()
     data = urlencode(form._dict)
     token_response = provider.provider.handle_token_request(
-        data, request.headers, token.claims
+        data, request.headers, claims
     )
     return token_response.to_dict()

@@ -8,6 +8,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from pymongo.database import Database
 from pyop.authz_state import AuthorizationState
 from pyop.provider import Provider
+from pyop.storage import StatelessWrapper
 from pyop.subject_identifier import HashBasedSubjectIdentifierFactory
 from pyop.userinfo import Userinfo
 from urllib.parse import urlparse
@@ -97,11 +98,10 @@ configuration_information = {
     "subject_types_supported": ["public"],
     "grant_types_supported": ["hybrid"],
     "claim_types_supported": ["normal"],
-    "claims_parameter_supported": True,
-    "claims_supported": ["sub"],
+    "claims_parameter_supported": False,
     "request_parameter_supported": True,
     "request_uri_parameter_supported": False,
-    "scopes_supported": ["openid", "profile"],
+    "scopes_supported": ["openid"],
     "token_endpoint_auth_methods_supported": ["client_secret_basic"],
     "frontchannel_logout_supported": True,
     "frontchannel_logout_session_supported": True,
@@ -119,13 +119,14 @@ async def init_provider(db: Database):
     global provider
     from api.clientConfigurations.crud import ClientConfigurationCRUD
 
-    all_kc_configs = await ClientConfigurationCRUD(db).get_all()
-    client_configs = {d.client_name: d.dict() for d in all_kc_configs}
+    all_client_configs = await ClientConfigurationCRUD(db).get_all()
+    client_db = {d.client_name: d.dict() for d in all_client_configs}
+    user_db = {"vc-user": {"sub": None}} # placeholder, this will be replaced by the subject defined in the proof-configuration
 
     provider = Provider(
         signing_key,
         configuration_information,
         AuthorizationState(subject_id_factory),
-        client_configs,
-        Userinfo({"Jason": {"sub": "Jason"}}),
+        client_db,
+        Userinfo(user_db), 
     )
