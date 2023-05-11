@@ -94,7 +94,7 @@ EOF
 # -----------------------------------------------------------------------------------------------------------------
 # Default Settings:
 # -----------------------------------------------------------------------------------------------------------------
-DEFAULT_CONTAINERS="keycloak keycloak-db controller-db controller-cache"
+DEFAULT_CONTAINERS="keycloak keycloak-db controller-db"
 ACAPY_CONTAINERS="aca-py wallet-db"
 PROD_CONTAINERS="controller"
 
@@ -171,11 +171,6 @@ configureEnvironment() {
   export SET_NON_REVOKED="True" # both work
   export USE_OOB_PRESENT_PROOF="False" #BC wallet kinda supports true.
   export USE_OOB_LOCAL_DID_SERVICE="False" #bc wallet does not support true
-
-  # controller-cache
-  export REDIS_HOST="controller-cache"
-  export REDIS_PORT=6379
-  export REDIS_NAME="provider"
 
   # agent
   export AGENT_TENANT_MODE="${AGENT_TENANT_MODE:-single}"

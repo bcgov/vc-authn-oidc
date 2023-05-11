@@ -10,9 +10,6 @@ services:
       - DB_HOST=${MONGODB_HOST}
       - DB_PORT=${MONGODB_PORT}
       - DB_NAME=${MONGODB_NAME}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - REDIS_NAME=${REDIS_NAME}
       - OIDC_CONTROLLER_DB_USER=${OIDC_CONTROLLER_DB_USER}
       - OIDC_CONTROLLER_DB_USER_PWD=${OIDC_CONTROLLER_DB_USER_PWD}
       - CONTROLLER_URL=${CONTROLLER_URL}
@@ -29,17 +26,6 @@ services:
       - ${CONTROLLER_SERVICE_PORT}:5000
     volumes:
       - ../oidc-controller:/app:rw
-    networks:
-      - vc_auth
-
-  controller-cache:
-    image: "bitnami/redis:7.0"
-    volumes:
-      - redis-data:/data
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-    ports:
-      - "6379:6379"
     networks:
       - vc_auth
 
@@ -155,4 +141,3 @@ volumes:
   controller-db-data:
   keycloak-db-data:
   agent-wallet-db:
-  redis-data:
