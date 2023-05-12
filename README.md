@@ -34,7 +34,7 @@ If a [Traction](https://github.com/bcgov/traction) tenant is selected via user p
 
 - clone the [Traction](https://github.com/bcgov/traction) repository.
 - add the following to `<traction_folder>/scripts/docker-compose.yaml`
-  
+
   ```yaml
   networks:
     default:
@@ -50,8 +50,9 @@ If a [Traction](https://github.com/bcgov/traction) tenant is selected via user p
 To use VC-AuthN for development and/or demo purposes, a pre-configured demo app is provided in the [demo/vue](demo/vue/) folder. To start it, execute `docker compose up` from within the `demo/vue` folder.
 
 In order to use the VC OIDC authentication, a couple of extra steps are required:
-- A proof-request configuration needs to be registered with VC-AuthN. To do 
-so, the following command can be used to post a configuration requesting a BCGov Verified Email credential:
+
+- A proof-request configuration needs to be registered with VC-AuthN. To do
+  so, the following command can be used to post a configuration requesting a BCGov Verified Email credential:
 
 ```bash
 curl -X 'POST' \
@@ -65,6 +66,7 @@ curl -X 'POST' \
     "name": "BCGov Verified Email",
     "version": "1.0",
     "requested_attributes": [
+
       {
         "name": "email",
         "restrictions": [

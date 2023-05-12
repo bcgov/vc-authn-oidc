@@ -158,9 +158,9 @@ configureEnvironment() {
 
 
   # controller
-  export CONTROLLER_SERVICE_PORT=5201
+  export CONTROLLER_SERVICE_PORT=5000
   export CONTROLLER_URL="${CONTROLLER_URL:-http://controller:5000}"
-  export CONTROLLER_URL_LOCAL="localhost:5201"
+  export CONTROLLER_URL_LOCAL="localhost:5000"
   export CONTROLLER_WEB_HOOK_URL=${CONTROLLER_WEB_HOOK_URL:-${CONTROLLER_URL}/webhooks}
   if [ ! -z "${CONTROLLER_API_KEY}" ]; then
     CONTROLLER_WEB_HOOK_URL="${CONTROLLER_WEB_HOOK_URL}#${CONTROLLER_API_KEY}"

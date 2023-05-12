@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 import qrcode
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from jinja2 import Template
 from oic.oic.message import AccessTokenRequest, AuthorizationRequest
 from pymongo.database import Database
 
@@ -27,13 +28,17 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+# Add assets to templates, like css, js or svg.
+def add_asset(name):
+    return open(f"api/templates/assets/{name}", "r").read()
+
 
 @log_debug
 @router.get(f"{ChallengePollUri}/{{pid}}")
-async def poll_pres_exch_complete(pid: str):
+async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
     """Called by authorize webpage to see if request
     is verified and token issuance can proceed."""
-    auth_session = await AuthSessionCRUD.get(pid)
+    auth_session = await AuthSessionCRUD(db).get(pid)
     return {"verified": auth_session.verified}
 
 
@@ -86,38 +91,24 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     cb_host = settings.CONTROLLER_URL_LOCAL
     callback_url = f"""http://{cb_host}{AuthorizeCallbackUri}?pid={auth_session.id}"""
 
-    return f"""
-    <html>
-        <script>
-        setInterval(function() {{
-            fetch('{controller_host}{ChallengePollUri}/{auth_session.pres_exch_id}')
-                .then(response => response.json())
-                .then(data => {{if (data.verified) {{
-                        window.location.replace('{callback_url}', {{method: 'POST'}});
-                    }}
-                }})
-        }}, 2000);
+    # This is the payload to send to the template
+    data = {
+        "image_contents": image_contents,
+        "url_to_message": url_to_message,
+        "callback_url": callback_url,
+        "add_asset": add_asset,
+        "pres_exch_id": auth_session.pres_exch_id,
+        "pid": auth_session.id,
+        "controller_host": controller_host,
+        "challenge_poll_uri": ChallengePollUri,
+    }
 
-        </script>
-        <head>
-            <title>Some HTML in here</title>
-        </head>
-        <body>
-            <h1>AUTHORIZATION REQUEST</h1>
+    # Prepare the template
+    template_file = open("api/templates/verified_credentials.html", "r").read()
+    template = Template(template_file)
 
-            <p>{url_to_message}</p>
-
-            <p>Scan this QR code for a connectionless present-proof request</p>
-            <p><img src="data:image/jpeg;base64,{image_contents}"
-            alt="{image_contents}" width="300px" height="300px" /></p>
-
-            <p>User waits on this screen until Proof has been presented to
-            the vcauth service agent, then is redirected to</p>
-            <a href="{callback_url}">callback url (redirect to kc)</a>
-        </body>
-    </html>
-
-    """
+    # Render and return the template
+    return template.render(data)
 
 
 @log_debug

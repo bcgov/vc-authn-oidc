@@ -4,6 +4,8 @@
 *.jwk
 *.rsa
 data/
+docker/keycloak/config/hsperfdata_jboss
+oidc-controller/signing_key.pem
 
 ######################
 # Intellij
