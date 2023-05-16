@@ -166,6 +166,7 @@ configureEnvironment() {
     CONTROLLER_WEB_HOOK_URL="${CONTROLLER_WEB_HOOK_URL}#${CONTROLLER_API_KEY}"
   fi
   export ST_ACAPY_ADMIN_API_KEY_NAME="x-api-key"
+  export CONTROLLER_CAMERA_REDIRECT_URL="https://id.gov.bc.ca/static/selfsetup.html"
 
   #controller app settings
   export SET_NON_REVOKED="True" # both work
