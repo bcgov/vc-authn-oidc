@@ -29,7 +29,18 @@ async def send_connectionless_proof_req(
 ):
     """QR code that is generated should a url to this endpoint, which responds with the
     specific payload for that given agent/wallet"""
+
+    """TODO: Check if this is coming from a browser
+    If so, redirect to here https://id.gov.bc.ca/static/selfsetup.html
+    """
     logger.info("Scanning Application headers:: " + str(req.headers))
+    print("Application headers:: " + str(req.headers))
+    print("Accept string:: " + req.headers.get('accept'))
+    # if req.headers.get('accept') matches application/json then
+    #   business as aways
+    # else
+    #   redirect to instructions page
+
     auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
         pres_exch_id
     )
