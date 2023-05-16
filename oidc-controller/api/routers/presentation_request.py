@@ -27,24 +27,13 @@ router = APIRouter()
 async def send_connectionless_proof_req(
     pres_exch_id: str, req: Request, db: Database = Depends(get_db)
 ):
-    """QR code that is generated should a url to this endpoint, which responds with the
-    specific payload for that given agent/wallet"""
-
-    """TODO: Check if this is coming from a browser
-    If so, redirect to here https://id.gov.bc.ca/static/selfsetup.html
     """
-    logger.info("Scanning Application headers:: " + str(req.headers))
-    print("Application headers:: " + str(req.headers))
-    print("Accept string:: " + req.headers.get('accept'))
+      If the user scanes the QR code with a mobile camera,
+      they will be redirected to a help page.
+    """
     if 'text/html' in req.headers.get('accept'):
         print("Redirecting to instructions page")
         return RedirectResponse(settings.CONTROLLER_CAMERA_REDIRECT_URL)
-    # if req.headers.get('accept') matches application/json then
-    #   business as aways
-    # else
-    #   redirect to instructions page
-    # Or maybe req.headers.get('accept') is text/html redirects
-    #  to instructions page
 
     auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
         pres_exch_id
