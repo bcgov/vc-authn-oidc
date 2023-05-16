@@ -39,6 +39,8 @@ class GlobalConfig(BaseSettings):
     CONTROLLER_URL: str = os.environ.get("CONTROLLER_URL")
     # if ngrok is blocked by your local network, set this to your localhost for testing.
     CONTROLLER_URL_LOCAL: str = os.environ.get("CONTROLLER_URL_LOCAL", CONTROLLER_URL)
+    # Where to send users when trying to scan with their mobile camera (not a wallet)
+    CONTROLLER_CAMERA_REDIRECT_URL: str = os.environ.get("CONTROLLER_CAMERA_REDIRECT_URL")
 
     ACAPY_AGENT_URL: str = os.environ.get("ACAPY_AGENT_URL")
     # ACAPY_NGROK_TUNNEL_HOST: str = os.environ.get("ACAPY_NGROK_TUNNEL_HOST")

@@ -1,7 +1,7 @@
 import logging
 
 from fastapi import APIRouter, Request, Depends
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from pymongo.database import Database
 
 from ..authSessions.crud import AuthSessionCRUD
@@ -36,10 +36,15 @@ async def send_connectionless_proof_req(
     logger.info("Scanning Application headers:: " + str(req.headers))
     print("Application headers:: " + str(req.headers))
     print("Accept string:: " + req.headers.get('accept'))
+    if 'text/html' in req.headers.get('accept'):
+        print("Redirecting to instructions page")
+        return RedirectResponse(settings.CONTROLLER_CAMERA_REDIRECT_URL)
     # if req.headers.get('accept') matches application/json then
     #   business as aways
     # else
     #   redirect to instructions page
+    # Or maybe req.headers.get('accept') is text/html redirects
+    #  to instructions page
 
     auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
         pres_exch_id
