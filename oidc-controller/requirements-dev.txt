@@ -76,7 +76,6 @@ pytz==2022.6
 PyYAML==6.0
 qrcode==7.4.2
 readerwriterlock==1.0.9
-redis==4.5.1
 requests==2.28.2
 responses==0.23.1
 rfc3986==2.0.0
