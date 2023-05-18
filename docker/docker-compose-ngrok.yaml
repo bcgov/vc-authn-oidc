@@ -1,22 +1,22 @@
 version: "3"
 services:
   controller-ngrok:
-    image: wernight/ngrok
+    image: ngrok/ngrok
     environment:
       - CONTROLLER_SERVICE_PORT=5000
     ports:
       - 4056:4040
-    command: ngrok http controller:5000 --log stdout
+    command: http controller:5000 --log stdout
     networks:
       - vc_auth
 
   aca-py-ngrok:
-    image: wernight/ngrok
+    image: ngrok/ngrok
     environment:
       - AGENT_HTTP_PORT=${AGENT_HTTP_PORT}
     ports:
       - 4059:4040
-    command: ngrok http aca-py:${AGENT_HTTP_PORT} --log stdout
+    command: http aca-py:${AGENT_HTTP_PORT} --log stdout
     networks:
       - vc_auth
 
