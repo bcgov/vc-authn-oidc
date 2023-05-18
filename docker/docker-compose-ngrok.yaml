@@ -4,6 +4,7 @@ services:
     image: ngrok/ngrok
     environment:
       - CONTROLLER_SERVICE_PORT=5000
+      - NGROK_AUTHTOKEN=${NGROK_TOKEN}
     ports:
       - 4056:4040
     command: http controller:5000 --log stdout
@@ -14,6 +15,7 @@ services:
     image: ngrok/ngrok
     environment:
       - AGENT_HTTP_PORT=${AGENT_HTTP_PORT}
+      - NGROK_AUTHTOKEN=${NGROK_TOKEN}
     ports:
       - 4059:4040
     command: http aca-py:${AGENT_HTTP_PORT} --log stdout
