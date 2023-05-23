@@ -260,11 +260,21 @@ toLower() {
 }
 
 initializeUserPrompts() {
+  ######
+  #  If .env-dev exists, use it to populate .env
+  #  Otherwise, create an empty .env file
+  if [ -f ".env-dev" ] ; then
+    cat .env-dev > .env
+  else
+    touch .env
+  fi
+  ######
+
   PS3="Is your agent single-tenant or multi-tenant? "
   select opt in "Single-Tenant" "Multi-Tenant/Traction" "Quit"; do
     case $REPLY in
       1)
-        echo "AGENT_TENANT_MODE=single" > .env
+        echo "AGENT_TENANT_MODE=single" >> .env
         export AGENT_TENANT_MODE=single
         echo "AGENT_WALLET_SEED=$(generateSeed vc-authn-oidc)" >> .env
         break
@@ -272,7 +282,7 @@ initializeUserPrompts() {
       2)
         read  -p "Please provide your tenant's Wallet ID:" MT_ACAPY_WALLET_ID
         read  -p "Please provide your tenant's Wallet Key:" MT_ACAPY_WALLET_KEY
-        echo "AGENT_TENANT_MODE=multi" > .env
+        echo "AGENT_TENANT_MODE=multi" >> .env
         export AGENT_TENANT_MODE=multi
         echo "MT_ACAPY_WALLET_ID=${MT_ACAPY_WALLET_ID}" >> .env
         echo "MT_ACAPY_WALLET_KEY=${MT_ACAPY_WALLET_KEY}" >> .env
@@ -330,6 +340,8 @@ function setNgrokEndpoints() {
     NGROK_AGENT_PORT=4059
   fi
 
+  sleep 60
+
   echoInfo "Determining ngrok url for controller service..."
   docker run --rm curlimages/curl -L -s http://${DOCKERHOST}:4056/api/tunnels > controller-ngrok.json
   NGROK_CONTROLLER_URL=$(docker run --rm -i stedolan/jq < controller-ngrok.json --raw-output '.tunnels | map(select(.name=="command_line")) | .[0] | .public_url')
@@ -376,6 +388,7 @@ start|up)
       setNgrokEndpoints 
     fi
   fi
+
 
   configureEnvironment $@
 

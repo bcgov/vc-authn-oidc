@@ -130,9 +130,8 @@ proxy-data/
 
 # General
 .env
+.env-dev
 *ngrok.json
-# Don't use the wild card here or it will ignore the docker-compose-ngrok.yaml file.
-ngrok.yaml
 
 # Visual Studio Code
 .vscode
