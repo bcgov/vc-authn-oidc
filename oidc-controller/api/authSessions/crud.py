@@ -35,6 +35,7 @@ class AuthSessionCRUD:
         col = self._db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
         auth_sess = col.find_one({"_id": PyObjectId(id)})
 
+        # TODO: Check if auth_sess is really passing None.
         if auth_sess is None:
             raise HTTPException(
                 status_code=http_status.HTTP_404_NOT_FOUND,
