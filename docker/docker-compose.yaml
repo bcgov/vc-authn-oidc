@@ -3,9 +3,6 @@ services:
   controller:
     image: vc-authn-oidc-controller
     entrypoint: bash -c "uvicorn api.main:app --reload --host 0.0.0.0 --port 5000 --log-level info"
-    depends_on:
-      controller-db:
-        condition: service_started
     environment:
       - DB_HOST=${MONGODB_HOST}
       - DB_PORT=${MONGODB_PORT}

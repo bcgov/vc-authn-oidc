@@ -130,6 +130,7 @@ proxy-data/
 
 # General
 .env
+.env-dev
 *ngrok.json
 
 # Visual Studio Code

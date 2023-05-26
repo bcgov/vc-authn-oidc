@@ -17,6 +17,15 @@ Make sure to read the [best practices](/docs/BestPractices.md) to be used when p
 
 - A bash-compatible shell such as [Git Bash](https://git-scm.com/downloads)
 - [Docker](https://docs.docker.com/get-docker/)
+- Ngrok token (optional, required for local development)
+
+## Configuring Ngrok
+
+Each developer must apply for an Ngrok token [here](https://dashboard.ngrok.com/get-started/your-authtoken). Then place the token into the .env-dev file within the docker directory.
+
+```
+NGROK_TOKEN=<your token here>
+```
 
 ## Running VC-AuthN
 
