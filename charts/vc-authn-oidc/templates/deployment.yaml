@@ -27,6 +27,19 @@ spec:
       serviceAccountName: {{ include "vc-authn-oidc.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+  {{- if not .Values.persistence.enabled }}
+        - name: signing-keys
+          emptyDir: {}
+  {{- else if .Values.persistence.existingClaim }}
+        - name: signing-keys
+          persistentVolumeClaim:
+            claimName: {{ printf "%s" (tpl .Values.persistence.existingClaim .) }}
+  {{- else }}
+        - name: signing-keys
+          persistentVolumeClaim:
+            claimName: {{ template "vc-authn-oidc.fullname" . }}
+  {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -35,24 +48,18 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: DB_HOST
-              value: {{ .Values.mongodb.fullnameOverride }}
+              value: "{{ .Release.Name }}-mongodb-headless.{{ .Release.Namespace }}.svc.cluster.local"
             - name: DB_PORT
               value: {{ .Values.mongodb.service.ports.mongodb | quote }}
             - name: DB_NAME
-              value: {{ include "vc-authn-oidc.fullname" . }}
-            - name: REDIS_HOST
-              value: {{ .Values.redisCluster.fullnameOverride }}
-            - name: REDIS_PORT
-              value: {{ .Values.redisCluster.service.ports.redis | quote }}
-            - name: REDIS_NAME
-              value: {{ include "vc-authn-oidc.fullname" . }}
+              value: {{ first .Values.mongodb.auth.databases }}
             - name: OIDC_CONTROLLER_DB_USER
-              value: root
+              value: {{ first .Values.mongodb.auth.usernames }}
             - name: OIDC_CONTROLLER_DB_USER_PWD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.mongodb.fullnameOverride }}
-                  key: mongodb-root-password
+                  name: {{ include "vc-authn-oidc.databaseSecretName" . }}
+                  key: mongodb-passwords
             - name: CONTROLLER_URL
               value: {{ include "vc-authn-oidc.url" . }}
             - name: ACAPY_AGENT_URL
@@ -89,14 +96,17 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /health
+              path: /
               port: http
           readinessProbe:
             httpGet:
-              path: /health
+              path: /
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: signing-keys
+              mountPath: /app/signing-keys
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

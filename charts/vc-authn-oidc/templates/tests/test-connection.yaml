@@ -1,4 +1,3 @@
-{{- if .Values.testPod.enabled -}}
 apiVersion: v1
 kind: Pod
 metadata:
@@ -14,4 +13,3 @@ spec:
       command: ['wget']
       args: ['{{ include "vc-authn-oidc.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never
-{{- end }}

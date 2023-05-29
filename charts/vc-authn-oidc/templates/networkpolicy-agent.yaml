@@ -1,4 +1,4 @@
-{{- if eq .Values.global.targetPlatform "openshift" -}}
+{{- if .Values.networkPolicy.enabled -}}
 apiVersion: v1
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
@@ -14,9 +14,6 @@ spec:
             matchLabels:
               role: agent
               name: {{ .Values.acaPy.fullnameOverride }}
-          namespaceSelector:
-            matchLabels:
-              name: {{ .Release.Namespace }}
       ports:
         - protocol: TCP
           port: {{ .Values.service.port }}
@@ -38,9 +35,6 @@ spec:
         - podSelector:
             matchLabels:
               {{- include "vc-authn-oidc.selectorLabels" . | nindent 14 }}
-          namespaceSelector:
-            matchLabels:
-              name: {{ .Release.Namespace }}
       ports:
         - protocol: TCP
           port: {{ .Values.acaPy.servicePort }}
