@@ -168,8 +168,8 @@ configureEnvironment() {
   export ST_ACAPY_ADMIN_API_KEY_NAME="x-api-key"
 
   # The redirect url can be a web link or the name of a template
-  export CONTROLLER_CAMERA_REDIRECT_URL="https://id.gov.bc.ca/static/selfsetup.html"
-  # export CONTROLLER_CAMERA_REDIRECT_URL="simple-wallet-instructions"
+  # export CONTROLLER_CAMERA_REDIRECT_URL="https://id.gov.bc.ca/static/selfsetup.html"
+  export CONTROLLER_CAMERA_REDIRECT_URL="wallet_howto"
 
   #controller app settings
   export SET_NON_REVOKED="True" # both work

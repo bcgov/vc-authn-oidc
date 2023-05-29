@@ -1,8 +1,9 @@
 import logging
 
 from fastapi import APIRouter, Request, Depends
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from pymongo.database import Database
+from jinja2 import Template
 
 from ..authSessions.crud import AuthSessionCRUD
 from ..authSessions.models import AuthSession
@@ -31,9 +32,19 @@ async def send_connectionless_proof_req(
       If the user scanes the QR code with a mobile camera,
       they will be redirected to a help page.
     """
+    # First prepare the response depending on the redirect url
+    if settings.CONTROLLER_CAMERA_REDIRECT_URL is None:
+        response = HTMLResponse("Please scan with a digital wallet")
+    elif '.html' in settings.CONTROLLER_CAMERA_REDIRECT_URL:
+        response = RedirectResponse(settings.CONTROLLER_CAMERA_REDIRECT_URL)
+    else:
+        template_file = open(f'api/templates/{settings.CONTROLLER_CAMERA_REDIRECT_URL}.html', "r").read()
+        template = Template(template_file)
+        response = HTMLResponse(template.render())
+
     if 'text/html' in req.headers.get('accept'):
         print("Redirecting to instructions page")
-        return RedirectResponse(settings.CONTROLLER_CAMERA_REDIRECT_URL)
+        return response
 
     auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
         pres_exch_id
