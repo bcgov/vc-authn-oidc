@@ -1,4 +1,4 @@
-{{- if eq .Values.global.targetPlatform "openshift" -}}
+{{- if .Values.networkPolicy.enabled -}}
 apiVersion: v1
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
@@ -13,14 +13,17 @@ spec:
         - podSelector:
             matchLabels:
               {{- include "vc-authn-oidc.selectorLabels" . | nindent 14 }}
-          namespaceSelector:
+        - podSelector:
+            {{- with .Values.mongodb.commonLabels }}
             matchLabels:
-                name: {{ .Release.Namespace }}
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
       ports:
         - protocol: TCP
           port: {{ .Values.mongodb.service.ports.mongodb }}
   podSelector:
+    {{- with .Values.mongodb.commonLabels }}
     matchLabels:
-      #  TODO: replace common.tplvalues.render with self-contained function
-      {{- include "common.tplvalues.render" ( dict "value" .Values.mongodb.commonLabels "context" $ ) | nindent 6 }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
 {{- end }}

@@ -3,17 +3,8 @@
 # Declare variables to be passed into your templates.
 
 global:
-  # It can be either k8s or openshift. Some components (e.g.: ingress) will be 
-  # deployed differently depending on the selected platform.
-  targetPlatform: openshift
   # Default suffix to be used for ingress creation
   ingressSuffix: .apps.silver.devops.gov.bc.ca
-
-tags:
-  production: true
-
-testPod:
-  enabled: false
 
 image:
   repository: ghcr.io/bcgov/vc-authn-oidc
@@ -23,7 +14,7 @@ image:
 
 imagePullSecrets: []
 nameOverride: ""
-fullnameOverride: vc-authn-controller
+
 role: controller
 
 serviceAccount:
@@ -34,6 +25,19 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
+
+## Enable persistence using Persistent Volume Claims used for key storage
+## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+## If disabled, uses emptyDir
+##
+persistence:
+  enabled: true
+  # existingClaim: ""
+  storageClass: netapp-block-standard
+  accessModes:
+    - ReadWriteOnce
+  size: 100Mi
+  resourcePolicy: keep
 
 podAnnotations: {}
 
@@ -48,33 +52,35 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+## Enable network policies for controller pods, ingress, and mongodb (required on Openshift)
+networkPolicy:
+  enabled: true
+  ingress:
+    enabled: true
+    namespaceSelector:
+      network.openshift.io/policy-group: ingress
+    # podSelector: {}
+  mongodb:
+    enabled: true
+  namespaceSelector: {}
+
 service:
   type: ClusterIP
   port: 5000
 
 ingress:
+  enabled: true
   className: ""
-  annotations: {}
+  annotations:
+    route.openshift.io/termination: edge
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
 
-route:
-  timeout: 2m
-  tls:
-    enabled: true
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
-
-resources: 
+resources:
   limits:
     cpu: 500m
     memory: 512Mi
@@ -85,12 +91,12 @@ resources:
 replicaCount: 1
 
 autoscaling:
-  enabled: true
-  minReplicas: 1
-  maxReplicas: 2
-  targetCPUUtilizationPercentage: 80
-  targetMemoryUtilizationPercentage: 80
-  stabilizationWindowSeconds: 300
+  enabled: false
+  # minReplicas: 1
+  # maxReplicas: 2
+  # targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+  # stabilizationWindowSeconds: 300
 
 nodeSelector: {}
 
@@ -108,9 +114,17 @@ acaPy:
   useOob: false
   tenantWalletSecretName: vc-authn-tenant
 
+database:
+  generateSecret: true
+
 #  Overrides for bitnami/mongodb chart - https://github.com/bitnami/charts/tree/main/bitnami/mongodb
 mongodb:
-  fullnameOverride: vc-authn-db
+  auth:
+    enabled: true
+    # When used with .databaseSecret.generate: true, existingSecret must be set to '{{ printf "%s-%s" .Release.Name "mongodb" | trunc 63 | trimSuffix "-" }}'
+    existingSecret: '{{ printf "%s-%s" .Release.Name "mongodb" | trunc 63 | trimSuffix "-" }}'
+    usernames: ['vcauthn']
+    databases: ['vcauthn']
   commonLabels:
     app: vc-authn-oidc
     role: database
@@ -129,23 +143,5 @@ mongodb:
     enabled: false
   hidden:
     enabled: false
-  metrics:
-    enabled: false
-
-# Overrides for bitnami/redis-cluster chart - https://github.com/bitnami/charts/tree/main/bitnami/redis-cluster
-redisCluster:
-  fullnameOverride: vc-authn-cache
-  commonLabels:
-    app: vc-authn-oidc
-    role: cache
-  image:
-    registry: artifacts.developer.gov.bc.ca/docker-remote
-  containerSecurityContext:
-      enabled: false
-  podSecurityContext:
-    enabled: false
-  volumePermissions:
-    containerSecurityContext:
-      enabled: false
   metrics:
     enabled: false
