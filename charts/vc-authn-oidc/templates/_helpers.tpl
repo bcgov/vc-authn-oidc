@@ -115,12 +115,55 @@ Create the name of the database secret to use
 {{- end }}
 
 {{/*
-Generate certificates for custom-metrics api server 
+Return true if a secret object should be created for the vc-authn-oidc token private key
 */}}
-{{- define "custom-metrics.gen-certs" -}}
-{{- $altNames := list ( printf "%s.%s" (include "custom-metrics.name" .) .Release.Namespace ) ( printf "%s.%s.svc" (include "custom-metrics.name" .) .Release.Namespace ) -}}
-{{- $ca := genCA "custom-metrics-ca" 365 -}}
-{{- $cert := genSignedCert ( include "custom-metrics.name" . ) nil $altNames 365 $ca -}}
-tls.crt: {{ $cert.Cert | b64enc }}
-tls.key: {{ $cert.Key | b64enc }}
+{{- define "vc-authn-oidc.token.createSecret" -}}
+{{- if (empty .Values.auth.token.privateKey.existingSecret) }}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the secret with vc-authn-oidc token private key
+*/}}
+{{- define "vc-authn-oidc.token.secretName" -}}
+    {{- if .Values.auth.token.privateKey.existingSecret -}}
+        {{- printf "%s" .Values.auth.token.privateKey.existingSecret | trunc 63 | trimSuffix "-" -}}
+    {{- else -}}
+        {{- printf "%s-jwt-token" (include "vc-authn-oidc.fullname" .) | trunc 63 | trimSuffix "-" -}}
+    {{- end -}}
+{{- end -}}
+
+{{/*
+Generate token private key
+*/}}
+{{- define "vc-authn-oidc.token.jwtToken" -}}
+{{- if (include "vc-authn-oidc.token.createSecret" .) -}}
+{{- $jwtToken := lookup "v1" "Secret" .Release.Namespace (printf "%s-jwt-token" (include "vc-authn-oidc.fullname" .) | trunc 63 | trimSuffix "-" ) -}}
+{{- if $jwtToken -}}
+{{ index $jwtToken "data" "jwt-token.pem" | b64dec }}
+{{- else -}}
+{{ genPrivateKey "rsa" }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return true if a secret object should be created for the vc-authn-oidc token private key
+*/}}
+{{- define "vc-authn-oidc.acapy.createSecret" -}}
+{{- if (empty .Values.acaPy.tenant.existingSecret) }}
+    {{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the secret with vc-authn-oidc token private key
+*/}}
+{{- define "vc-authn-oidc.acapy.secretName" -}}
+    {{- if .Values.acaPy.tenant.existingSecret -}}
+        {{- printf "%s" .Values.acaPy.tenant.existingSecret | trunc 63 | trimSuffix "-" -}}
+    {{- else -}}
+        {{- printf "%s-acapy-secret" (include "vc-authn-oidc.fullname" .) | trunc 63 | trimSuffix "-" -}}
+    {{- end -}}
 {{- end -}}
