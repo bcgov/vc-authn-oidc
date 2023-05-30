@@ -61,12 +61,12 @@ spec:
             - name: USE_OOB_PRESENT_PROOF
               value: {{ .Values.acaPy.useOob | quote }}
             - name: ACAPY_TENANCY
-              value: {{ .Values.acaPy.tenantMode }}
-            {{- if eq .Values.acaPy.tenantMode "single" }}
+              value: {{ .Values.acaPy.tenancyMode }}
+            {{- if eq .Values.acaPy.tenancyMode "single" }}
             - name: ST_ACAPY_ADMIN_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.acaPy.fullnameOverride }}
+                  name: {{ include "vc-authn-oidc.acapy.secretName" . }}
                   key: admin-api-key
             - name: ST_ACAPY_ADMIN_API_KEY_NAME
               value: "x-api-key"
@@ -74,14 +74,16 @@ spec:
             - name: MT_ACAPY_WALLET_ID
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.acaPy.tenantWalletSecretName }}
+                  name: {{ include "vc-authn-oidc.acapy.secretName" . }}
                   key: wallet-id
-            - MT_ACAPY_WALLET_KEY
+            - name: MT_ACAPY_WALLET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.acaPy.tenantWalletSecretName }}
+                  name: {{ include "vc-authn-oidc.acapy.secretName" . }}
                   key: wallet-key
             {{- end }}
+            - name: SIGNING_KEY_FILEPATH
+              value: {{ printf "/opt/token/%s" .Values.auth.token.privateKey.filename }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
