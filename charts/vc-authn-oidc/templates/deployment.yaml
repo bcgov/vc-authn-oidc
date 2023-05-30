@@ -28,18 +28,10 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
-  {{- if not .Values.persistence.enabled }}
-        - name: signing-keys
-          emptyDir: {}
-  {{- else if .Values.persistence.existingClaim }}
-        - name: signing-keys
-          persistentVolumeClaim:
-            claimName: {{ printf "%s" (tpl .Values.persistence.existingClaim .) }}
-  {{- else }}
-        - name: signing-keys
-          persistentVolumeClaim:
-            claimName: {{ template "vc-authn-oidc.fullname" . }}
-  {{- end }}
+        - name: jwt-token
+          secret:
+            secretName: {{ include "vc-authn-oidc.token.secretName" . }}
+            defaultMode: 256
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -105,8 +97,8 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: signing-keys
-              mountPath: /app/signing-keys
+            - name: jwt-token
+              mountPath: /opt/token
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
