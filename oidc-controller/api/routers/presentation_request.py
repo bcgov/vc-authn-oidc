@@ -23,6 +23,9 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+# Add assets to templates, like css, js or svg.
+def add_asset(name):
+    return open(f"api/templates/assets/{name}", "r").read()
 
 @router.get("/url/pres_exch/{pres_exch_id}")
 async def send_connectionless_proof_req(
@@ -32,15 +35,16 @@ async def send_connectionless_proof_req(
       If the user scanes the QR code with a mobile camera,
       they will be redirected to a help page.
     """
+    data = {
+        "add_asset": add_asset,
+    }
     # First prepare the response depending on the redirect url
-    if settings.CONTROLLER_CAMERA_REDIRECT_URL is None:
-        response = HTMLResponse("Please scan with a digital wallet")
-    elif '.html' in settings.CONTROLLER_CAMERA_REDIRECT_URL:
+    if '.html' in settings.CONTROLLER_CAMERA_REDIRECT_URL:
         response = RedirectResponse(settings.CONTROLLER_CAMERA_REDIRECT_URL)
     else:
         template_file = open(f'api/templates/{settings.CONTROLLER_CAMERA_REDIRECT_URL}.html', "r").read()
         template = Template(template_file)
-        response = HTMLResponse(template.render())
+        response = HTMLResponse(template.render(data))
 
     if 'text/html' in req.headers.get('accept'):
         print("Redirecting to instructions page")
