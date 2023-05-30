@@ -26,18 +26,25 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-## Enable persistence using Persistent Volume Claims used for key storage
-## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
-## If disabled, uses emptyDir
-##
-persistence:
-  enabled: true
-  # existingClaim: ""
-  storageClass: netapp-block-standard
-  accessModes:
-    - ReadWriteOnce
-  size: 100Mi
-  resourcePolicy: keep
+# Aca-Py settings
+acaPy:
+  agentUrl: ""
+  adminUrl: ""
+  useOob: false
+  adminApiKey: ""
+  existingSecret: ""
+  tenancyMode: single # Valid options: multi, single
+  tenant:
+    walletId: ""
+    walletKey: ""
+
+auth:
+  token:
+    # signMethod: RS256
+    # ttl: 10m
+    privateKey:
+      filename: jwt-token.pem
+      existingSecret: ""
 
 podAnnotations: {}
 
@@ -91,28 +98,18 @@ resources:
 replicaCount: 1
 
 autoscaling:
-  enabled: false
-  # minReplicas: 1
-  # maxReplicas: 2
-  # targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-  # stabilizationWindowSeconds: 300
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+  stabilizationWindowSeconds: 300
 
 nodeSelector: {}
 
 tolerations: []
 
 affinity: {}
-
-# Overrides for aca-py chart
-acaPy:
-  fullnameOverride: vc-authn-agent
-  servicePort: 8024
-  tenantMode: single
-  agentUrl: https://vc-authn-agent.apps.silver.devops.gov.bc.ca
-  adminUrl: https://vc-authn-agent-admin.apps.silver.devops.gov.bc.ca
-  useOob: false
-  tenantWalletSecretName: vc-authn-tenant
 
 database:
   generateSecret: true
