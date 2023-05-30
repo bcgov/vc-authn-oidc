@@ -18,14 +18,11 @@ from ..core.aries import (
 )
 from ..core.config import settings
 from ..db.session import get_db
+from ..templates.helpers import add_asset
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-# Add assets to templates, like css, js or svg.
-def add_asset(name):
-    return open(f"api/templates/assets/{name}", "r").read()
 
 @router.get("/url/pres_exch/{pres_exch_id}")
 async def send_connectionless_proof_req(
