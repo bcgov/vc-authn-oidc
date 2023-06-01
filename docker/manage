@@ -167,6 +167,9 @@ configureEnvironment() {
   fi
   export ST_ACAPY_ADMIN_API_KEY_NAME="x-api-key"
 
+  # The redirect url can be a web link or the name of a template
+  export CONTROLLER_CAMERA_REDIRECT_URL="wallet_howto"
+
   #controller app settings
   export SET_NON_REVOKED="True" # both work
   export USE_OOB_PRESENT_PROOF="False" #BC wallet kinda supports true.
@@ -265,6 +268,7 @@ initializeUserPrompts() {
   #  Otherwise, create an empty .env file
   if [ -f ".env-dev" ] ; then
     cat .env-dev > .env
+    echo "" >> .env
   else
     touch .env
   fi
@@ -400,7 +404,8 @@ logs)
   ;;
 stop)
   configureEnvironment
-  docker-compose stop 
+  docker-compose stop
+  docker compose -f docker-compose-ngrok.yaml stop
   ;;
 rm|down)  
   # delete previously saved settings

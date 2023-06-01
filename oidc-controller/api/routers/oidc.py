@@ -19,6 +19,9 @@ from ..core.oidc.issue_token_service import Token
 from ..db.session import get_db
 from ..verificationConfigs.crud import VerificationConfigCRUD
 
+# This allows the templates to insert assets like css, js or svg.
+from ..templates.helpers import add_asset
+
 ChallengePollUri = "/poll"
 AuthorizeCallbackUri = "/callback"
 VerifiedCredentialAuthorizeUri = "/authorize"
@@ -27,11 +30,6 @@ VerifiedCredentialTokenUri = "/token"
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-# Add assets to templates, like css, js or svg.
-def add_asset(name):
-    return open(f"api/templates/assets/{name}", "r").read()
-
 
 @log_debug
 @router.get(f"{ChallengePollUri}/{{pid}}")
