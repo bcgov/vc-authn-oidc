@@ -36,14 +36,11 @@ class GlobalConfig(BaseSettings):
 
     MONGODB_URL: str = f"""mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}?retryWrites=true&w=majority"""  # noqa: E501
 
-    REDIS_HOST: str = os.environ.get("REDIS_HOST", "controller-cache")
-    REDIS_PORT: str = os.environ.get("REDIS_PORT", "6379")
-    REDIS_NAME: str = os.environ.get("REDIS_NAME", "provider")
-    REDISDB_URL: str = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_NAME}"
-
     CONTROLLER_URL: str = os.environ.get("CONTROLLER_URL")
     # if ngrok is blocked by your local network, set this to your localhost for testing.
     CONTROLLER_URL_LOCAL: str = os.environ.get("CONTROLLER_URL_LOCAL", CONTROLLER_URL)
+    # Where to send users when trying to scan with their mobile camera (not a wallet)
+    CONTROLLER_CAMERA_REDIRECT_URL: str = os.environ.get("CONTROLLER_CAMERA_REDIRECT_URL")
 
     ACAPY_AGENT_URL: str = os.environ.get("ACAPY_AGENT_URL")
     # ACAPY_NGROK_TUNNEL_HOST: str = os.environ.get("ACAPY_NGROK_TUNNEL_HOST")

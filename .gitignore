@@ -4,6 +4,8 @@
 *.jwk
 *.rsa
 data/
+docker/keycloak/config/hsperfdata_jboss
+oidc-controller/signing_key.pem
 
 ######################
 # Intellij
@@ -128,6 +130,7 @@ proxy-data/
 
 # General
 .env
+.env-dev
 *ngrok.json
 
 # Visual Studio Code
@@ -323,10 +326,9 @@ $RECYCLE.BIN/
 # Docs build
 _build/
 
+#  OIDC Controller
 oidc-controller/private/
-
 oidc-controller/static/
-
-oidc-controller/signing_key.pem
+oidc-controller/signing-keys/
 
 wallet.txt

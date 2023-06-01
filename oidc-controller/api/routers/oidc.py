@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 import qrcode
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from jinja2 import Template
 from oic.oic.message import AccessTokenRequest, AuthorizationRequest
 from pymongo.database import Database
 
@@ -18,6 +19,9 @@ from ..core.oidc.issue_token_service import Token
 from ..db.session import get_db
 from ..verificationConfigs.crud import VerificationConfigCRUD
 
+# This allows the templates to insert assets like css, js or svg.
+from ..templates.helpers import add_asset
+
 ChallengePollUri = "/poll"
 AuthorizeCallbackUri = "/callback"
 VerifiedCredentialAuthorizeUri = "/authorize"
@@ -27,13 +31,12 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-
 @log_debug
 @router.get(f"{ChallengePollUri}/{{pid}}")
-async def poll_pres_exch_complete(pid: str):
+async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
     """Called by authorize webpage to see if request
     is verified and token issuance can proceed."""
-    auth_session = await AuthSessionCRUD.get(pid)
+    auth_session = await AuthSessionCRUD(db).get(pid)
     return {"verified": auth_session.verified}
 
 
@@ -50,7 +53,8 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     auth_req = provider.provider.parse_authentication_request(
         urlencode(request.query_params._dict), request.headers
     )
-    authn_response = provider.provider.authorize(model, "Jason")
+    #  fetch placeholder user/model and create proof
+    authn_response = provider.provider.authorize(model, "vc-user")
 
     # retrieve presentation_request config.
     client = AcapyClient()
@@ -86,38 +90,24 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     cb_host = settings.CONTROLLER_URL_LOCAL
     callback_url = f"""http://{cb_host}{AuthorizeCallbackUri}?pid={auth_session.id}"""
 
-    return f"""
-    <html>
-        <script>
-        setInterval(function() {{
-            fetch('{controller_host}{ChallengePollUri}/{auth_session.pres_exch_id}')
-                .then(response => response.json())
-                .then(data => {{if (data.verified) {{
-                        window.location.replace('{callback_url}', {{method: 'POST'}});
-                    }}
-                }})
-        }}, 2000);
+    # This is the payload to send to the template
+    data = {
+        "image_contents": image_contents,
+        "url_to_message": url_to_message,
+        "callback_url": callback_url,
+        "add_asset": add_asset,
+        "pres_exch_id": auth_session.pres_exch_id,
+        "pid": auth_session.id,
+        "controller_host": controller_host,
+        "challenge_poll_uri": ChallengePollUri,
+    }
 
-        </script>
-        <head>
-            <title>Some HTML in here</title>
-        </head>
-        <body>
-            <h1>AUTHORIZATION REQUEST</h1>
+    # Prepare the template
+    template_file = open("api/templates/verified_credentials.html", "r").read()
+    template = Template(template_file)
 
-            <p>{url_to_message}</p>
-
-            <p>Scan this QR code for a connectionless present-proof request</p>
-            <p><img src="data:image/jpeg;base64,{image_contents}"
-            alt="{image_contents}" width="300px" height="300px" /></p>
-
-            <p>User waits on this screen until Proof has been presented to
-            the vcauth service agent, then is redirected to</p>
-            <a href="{callback_url}">callback url (redirect to kc)</a>
-        </body>
-    </html>
-
-    """
+    # Render and return the template
+    return template.render(data)
 
 
 @log_debug
@@ -134,7 +124,7 @@ async def get_authorize_callback(pid: str, db: Database = Depends(get_db)):
 @log_debug
 @router.post(VerifiedCredentialTokenUri, response_class=JSONResponse)
 async def post_token(request: Request, db: Database = Depends(get_db)):
-    """Called by oidc platform to retreive token contents"""
+    """Called by oidc platform to retrieve token contents"""
     form = await request.form()
     model = AccessTokenRequest().from_dict(form._dict)
     client = AcapyClient()
@@ -143,19 +133,16 @@ async def post_token(request: Request, db: Database = Depends(get_db)):
     ver_config = await VerificationConfigCRUD(db).get(auth_session.ver_config_id)
     presentation = client.get_presentation_request(auth_session.pres_exch_id)
     claims = Token.get_claims(presentation, auth_session, ver_config)
-    token = Token(
-        issuer="placeholder", audiences=["keycloak"], lifetime=10000, claims=claims
-    )
 
-    # modify sub to use vc-attribute as configured
-    new_sub = token.claims.pop("sub")
+    # modify subject identifier value to use vc-attribute as configured
+    new_sub = claims.pop("sub")
     provider.provider.authz_state.authorization_codes[model.get("code")][
-        "sub"
+        "public"
     ] = new_sub
 
     # convert form data to what library expects, Flask.app.request.get_data()
     data = urlencode(form._dict)
     token_response = provider.provider.handle_token_request(
-        data, request.headers, token.claims
+        data, request.headers, claims
     )
     return token_response.to_dict()

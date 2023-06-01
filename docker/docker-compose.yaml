@@ -9,12 +9,10 @@ services:
       - DB_HOST=${MONGODB_HOST}
       - DB_PORT=${MONGODB_PORT}
       - DB_NAME=${MONGODB_NAME}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - REDIS_NAME=${REDIS_NAME}
       - OIDC_CONTROLLER_DB_USER=${OIDC_CONTROLLER_DB_USER}
       - OIDC_CONTROLLER_DB_USER_PWD=${OIDC_CONTROLLER_DB_USER_PWD}
       - CONTROLLER_URL=${CONTROLLER_URL}
+      - CONTROLLER_CAMERA_REDIRECT_URL=${CONTROLLER_CAMERA_REDIRECT_URL}
       - ACAPY_TENANCY=${AGENT_TENANT_MODE}
       - ACAPY_AGENT_URL=${AGENT_ENDPOINT}
       - ACAPY_ADMIN_URL=${AGENT_ADMIN_URL}
@@ -30,17 +28,6 @@ services:
     networks:
       - vc_auth
 
-  controller-cache:
-    image: 'bitnami/redis:7.0'
-    volumes:
-      - ./redis-volume:/data
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-    ports:
-      - "6379:6379"
-    networks:
-      - vc_auth
-
   controller-db:
     image: mongo:6.0
     environment:
@@ -49,7 +36,7 @@ services:
       - MONGO_INITDB_DATABASE=${MONGODB_NAME}
     volumes:
       - controller-db-data:/data/db
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     ports:
       - ${MONGODB_PORT}:27017
     restart: unless-stopped
@@ -94,7 +81,6 @@ services:
     environment:
       - ACAPY_LABEL=${AGENT_NAME}
       - ACAPY_ENDPOINT=${AGENT_ENDPOINT}
-      - ACAPY_GENESIS_URL=${GENESIS_URL}
       - ACAPY_WALLET_NAME=oidc_agent_wallet
       - ACAPY_WALLET_TYPE=askar
       - ACAPY_WALLET_KEY=${WALLET_ENCRYPTION_KEY}
@@ -102,6 +88,7 @@ services:
       - ACAPY_AUTO_VERIFY_PRESENTATION=true
       - ACAPY_WALLET_STORAGE_TYPE=${WALLET_TYPE}
       - ACAPY_READ_ONLY_LEDGER=true
+      - ACAPY_GENESIS_TRANSACTIONS_LIST=/tmp/ledgers.yaml
       - ACAPY_LOG_LEVEL=debug
       - ACAPY_WEBHOOK_URL=${CONTROLLER_WEB_HOOK_URL}
       - ACAPY_AUTO_PROVISION=true
@@ -114,6 +101,8 @@ services:
       - ${AGENT_HTTP_PORT}:${AGENT_HTTP_PORT}
     networks:
       - vc_auth
+    volumes:
+      - ./agent/config/ledgers.yaml:/tmp/ledgers.yaml
     depends_on:
       - wallet-db
     entrypoint: /bin/bash
@@ -124,10 +113,10 @@ services:
         --inbound-transport http '0.0.0.0' ${AGENT_HTTP_PORT} \
         --outbound-transport http \
         --wallet-storage-config '{\"url\":\"${POSTGRESQL_WALLET_HOST}:${POSTGRESQL_WALLET_PORT}\",\"max_connections\":5}' \
-        --wallet-storage-creds '{\"account\":\"${POSTGRESQL_WALLET_USER}\",\"password\":\"${POSTGRESQL_WALLET_PASSWORD}\",\"admin_account\":\"${POSTGRESQL_WALLET_USER}\",\"admin_password\":\"${POSTGRESQL_WALLET_PASSWORD}\"}' \ 
+        --wallet-storage-creds '{\"account\":\"${POSTGRESQL_WALLET_USER}\",\"password\":\"${POSTGRESQL_WALLET_PASSWORD}\",\"admin_account\":\"${POSTGRESQL_WALLET_USER}\",\"admin_password\":\"${POSTGRESQL_WALLET_PASSWORD}\"}' \
         --admin '0.0.0.0' ${AGENT_ADMIN_PORT} \
-        --${AGENT_ADMIN_MODE} 
-      "
+        --${AGENT_ADMIN_MODE}
+        ",
       ]
 
   wallet-db:
@@ -143,14 +132,11 @@ services:
     volumes:
       - agent-wallet-db:/var/lib/pgsql/data
 
-
 networks:
   vc_auth:
     driver: bridge
-
 
 volumes:
   controller-db-data:
   keycloak-db-data:
   agent-wallet-db:
-  
