@@ -269,6 +269,7 @@ initializeUserPrompts() {
   #  Otherwise, create an empty .env file
   if [ -f ".env-dev" ] ; then
     cat .env-dev > .env
+    echo "" >> .env
   else
     touch .env
   fi
@@ -404,7 +405,8 @@ logs)
   ;;
 stop)
   configureEnvironment
-  docker-compose stop 
+  docker-compose stop
+  docker compose -f docker-compose-ngrok.yaml stop
   ;;
 rm|down)  
   # delete previously saved settings

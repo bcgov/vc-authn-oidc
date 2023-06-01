@@ -24,7 +24,7 @@ Make sure to read the [best practices](/docs/BestPractices.md) to be used when p
 Each developer must apply for an Ngrok token [here](https://dashboard.ngrok.com/get-started/your-authtoken). Then place the token into the .env-dev file within the docker directory.
 
 ```
-NGROK_TOKEN=<your token here>
+NGROK_AUTHTOKEN=<your token here>
 ```
 
 ## Running VC-AuthN
