@@ -37,6 +37,7 @@ async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
     """Called by authorize webpage to see if request
     is verified and token issuance can proceed."""
     auth_session = await AuthSessionCRUD(db).get(pid)
+    print('auth_session in oidc.py: ', auth_session)
     return {"verified": auth_session.verified}
 
 

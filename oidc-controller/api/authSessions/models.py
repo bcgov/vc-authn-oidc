@@ -19,7 +19,8 @@ class AuthSessionBase(BaseModel):
 
 
 class AuthSession(AuthSessionBase, UUIDModel):
-    verified: bool = Field(default=False)
+    verified: str = Field(default='New')
+    # verified: bool = Field(default=False)
 
     @property
     def presentation_exchange(self) -> Dict:
