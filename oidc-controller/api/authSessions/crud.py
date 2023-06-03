@@ -36,16 +36,16 @@ class AuthSessionCRUD:
         auth_sess = col.find_one({"_id": PyObjectId(id)})
 
         # TODO: Check if auth_sess is really passing None.
-        print("**********************************************")
-        print("auth_sess: ", auth_sess)
-        print("id: ", id)
-        print("**********************************************")
+        # print("**********************************************")
+        # print("auth_sess: ", auth_sess)
+        # print("**********************************************")
         if auth_sess is None:
             raise HTTPException(
                 status_code=http_status.HTTP_404_NOT_FOUND,
                 detail="The auth_session hasn't been found!",
             )
 
+        # TODO: The following function changes undefined to false
         return AuthSession(**auth_sess)
 
     async def patch(self, id: str, data: AuthSessionPatch) -> AuthSession:
