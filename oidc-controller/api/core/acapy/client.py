@@ -86,6 +86,9 @@ class AcapyClient:
         # print('resp_raw.content: ', resp_raw.content)
 
         resp = json.loads(resp_raw.content)
+        print("-------------------------------------------")
+        print("resp: ", resp)
+        print("-------------------------------------------")
 
         logger.debug(f"<<< verify_presentation -> {resp}")
         return resp

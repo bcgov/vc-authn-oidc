@@ -23,6 +23,7 @@ class AuthSessionCRUD:
         self._db = db
 
     async def create(self, auth_session: AuthSessionCreate) -> AuthSession:
+        print("auth_session in crud.py create: ", auth_session)
         col = self._db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
         result = col.insert_one(jsonable_encoder(auth_session))
         return AuthSession(**col.find_one({"_id": result.inserted_id}))
@@ -49,6 +50,7 @@ class AuthSessionCRUD:
         return AuthSession(**auth_sess)
 
     async def patch(self, id: str, data: AuthSessionPatch) -> AuthSession:
+        print("id in crud.py patch: ", id)
         if not PyObjectId.is_valid(id):
             raise HTTPException(
                 status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
@@ -63,6 +65,7 @@ class AuthSessionCRUD:
         return auth_sess
 
     async def delete(self, id: str) -> bool:
+        print("id in crud.py delete: ", id)
         if not PyObjectId.is_valid(id):
             raise HTTPException(
                 status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
@@ -87,6 +90,7 @@ class AuthSessionCRUD:
         col = self._db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
         auth_sess = col.find_one({"pyop_auth_code": code})
 
+        print("id in crud.py get_by_pyop: ", id)
         if auth_sess is None:
             raise HTTPException(
                 status_code=http_status.HTTP_404_NOT_FOUND,

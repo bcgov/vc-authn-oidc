@@ -53,8 +53,8 @@ async def send_connectionless_proof_req(
 
     # If the qrcode has been scaned, toggle the verified flag
     # TODO: maybe move this to acapy_handler.py
-    if auth_session.verified is 'New':
-        auth_session.verified = 'Pending'
+    if auth_session.verified is 'new':
+        auth_session.verified = 'pending'
         await AuthSessionCRUD(db).patch(auth_session.id, auth_session)
 
     # print("auth_session in presentation_request: ", auth_session)
