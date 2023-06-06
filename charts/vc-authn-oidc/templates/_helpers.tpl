@@ -161,8 +161,8 @@ Return true if a secret object should be created for the vc-authn-oidc token pri
 Return the secret with vc-authn-oidc token private key
 */}}
 {{- define "vc-authn-oidc.acapy.secretName" -}}
-    {{- if .Values.acaPy.tenant.existingSecret -}}
-        {{- printf "%s" .Values.acaPy.tenant.existingSecret | trunc 63 | trimSuffix "-" -}}
+    {{- if .Values.acaPy.existingSecret -}}
+        {{- printf "%s" .Values.acaPy.existingSecret | trunc 63 | trimSuffix "-" -}}
     {{- else -}}
         {{- printf "%s-acapy-secret" (include "vc-authn-oidc.fullname" .) | trunc 63 | trimSuffix "-" -}}
     {{- end -}}

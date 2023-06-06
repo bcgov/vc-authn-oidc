@@ -10,7 +10,7 @@ image:
   repository: ghcr.io/bcgov/vc-authn-oidc
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "2.0.0-alpha1"
+  tag: "v2.0.0-alpha1"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -30,9 +30,9 @@ serviceAccount:
 acaPy:
   agentUrl: ""
   adminUrl: ""
+  existingSecret: ""
   useOob: false
   adminApiKey: ""
-  existingSecret: ""
   tenancyMode: single # Valid options: multi, single
   tenant:
     walletId: ""
