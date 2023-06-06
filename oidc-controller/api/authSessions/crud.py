@@ -36,21 +36,15 @@ class AuthSessionCRUD:
         col = self._db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
         auth_sess = col.find_one({"_id": PyObjectId(id)})
 
-        # TODO: Check if auth_sess is really passing None.
-        # print("**********************************************")
-        # print("auth_sess: ", auth_sess)
-        # print("**********************************************")
         if auth_sess is None:
             raise HTTPException(
                 status_code=http_status.HTTP_404_NOT_FOUND,
                 detail="The auth_session hasn't been found!",
             )
 
-        # TODO: The following function changes undefined to false
         return AuthSession(**auth_sess)
 
     async def patch(self, id: str, data: AuthSessionPatch) -> AuthSession:
-        print("id in crud.py patch: ", id)
         if not PyObjectId.is_valid(id):
             raise HTTPException(
                 status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
@@ -65,7 +59,6 @@ class AuthSessionCRUD:
         return auth_sess
 
     async def delete(self, id: str) -> bool:
-        print("id in crud.py delete: ", id)
         if not PyObjectId.is_valid(id):
             raise HTTPException(
                 status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
@@ -90,7 +83,6 @@ class AuthSessionCRUD:
         col = self._db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
         auth_sess = col.find_one({"pyop_auth_code": code})
 
-        print("id in crud.py get_by_pyop: ", id)
         if auth_sess is None:
             raise HTTPException(
                 status_code=http_status.HTTP_404_NOT_FOUND,

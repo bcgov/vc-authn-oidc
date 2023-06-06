@@ -81,14 +81,8 @@ class AcapyClient:
             headers=self.agent_config.get_headers(),
         )
         assert resp_raw.status_code == 200, resp_raw.content
-        # TODO: Check what is returned by verify-presentation
-
-        # print('resp_raw.content: ', resp_raw.content)
 
         resp = json.loads(resp_raw.content)
-        print("-------------------------------------------")
-        print("resp: ", resp)
-        print("-------------------------------------------")
 
         logger.debug(f"<<< verify_presentation -> {resp}")
         return resp
