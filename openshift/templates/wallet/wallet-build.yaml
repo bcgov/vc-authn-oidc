@@ -1,0 +1,101 @@
+kind: Template
+apiVersion: template.openshift.io/v1
+metadata:
+  name: ${PREFIX}${NAME}-build-template
+objects:
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      name: ${PREFIX}${NAME}
+      labels:
+        name: ${PREFIX}${NAME}
+        app: ${APP_NAME}
+        app.kubernetes.io/part-of: ${APP_NAME}
+        app-group: ${APP_GROUP}
+  - kind: BuildConfig
+    apiVersion: v1
+    metadata:
+      name: ${PREFIX}${NAME}
+      labels:
+        name: ${PREFIX}${NAME}
+        app: ${APP_NAME}
+        app.kubernetes.io/part-of: ${APP_NAME}
+        app-group: ${APP_GROUP}
+    spec:
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChange: {}
+      runPolicy: Serial
+      source:
+        type: Git
+        git:
+          uri: ${GIT_REPO_URL}
+          ref: ${GIT_REF}
+        contextDir: ${SOURCE_CONTEXT_DIR}
+      strategy:
+        type: Source
+        sourceStrategy:
+          from:
+            kind: ${SOURCE_IMAGE_KIND}
+            name: ${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}
+      output:
+        to:
+          kind: ImageStreamTag
+          name: ${PREFIX}${NAME}:${OUTPUT_IMAGE_TAG}
+parameters:
+  - name: NAME
+    displayName: Name
+    description: The name assigned to all of the resources defined in this template.
+    required: true
+    value: database
+  - name: APP_NAME
+    displayName: App Name
+    description: Used to group components together in the OpenShift console.
+    required: true
+    value: vc-authn-oidc
+  - name: APP_GROUP
+    displayName: App Group
+    description: The name assigned to all of the components in this project.
+    required: true
+    value: vc-authn-oidc
+  - name: PREFIX
+    displayName: Prefix
+    description: A name prefix used for all objects
+    required: false
+    value: vc-authn-
+  - name: GIT_REPO_URL
+    displayName: Git Repo URL
+    description: The URL to your GIT repo.
+    required: true
+    value: https://github.com/bcgov/vc-authn-oidc.git
+  - name: GIT_REF
+    displayName: Git Reference
+    description: The git reference or branch.
+    required: true
+    value: main
+  - name: SOURCE_CONTEXT_DIR
+    displayName: Source Context Directory
+    description: The source context directory.
+    required: false
+    value: database/config
+  - name: SOURCE_IMAGE_KIND
+    displayName: Source Image Kind
+    description: The 'kind' (type) of the  source image; typically ImageStreamTag, or DockerImage.
+    required: true
+    value: DockerImage
+  - name: SOURCE_IMAGE_NAME
+    displayName: Source Image Name
+    required: true
+    description: The name of the source image.
+    value: registry.access.redhat.com/rhscl/postgresql-10-rhel7
+  - name: SOURCE_IMAGE_TAG
+    displayName: Source Image Tag
+    required: true
+    description: The tag of the source image.
+    value: latest
+  - name: OUTPUT_IMAGE_TAG
+    displayName: Output Image Tag
+    description: The tag given to the built image.
+    required: true
+    value: latest

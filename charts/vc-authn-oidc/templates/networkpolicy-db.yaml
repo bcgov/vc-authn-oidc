@@ -1,0 +1,29 @@
+{{- if .Values.networkPolicy.enabled -}}
+apiVersion: v1
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: {{ include "vc-authn-oidc.fullname" . }}-db
+  labels:
+    {{- include "vc-authn-oidc.labels" . | nindent 4 }}
+spec:
+  # Allow traffic to the db from the controller
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "vc-authn-oidc.selectorLabels" . | nindent 14 }}
+        - podSelector:
+            {{- with .Values.mongodb.commonLabels }}
+            matchLabels:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.mongodb.service.ports.mongodb }}
+  podSelector:
+    {{- with .Values.mongodb.commonLabels }}
+    matchLabels:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,144 @@
+# Default values for vc-authn-oidc.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  # Default suffix to be used for ingress creation
+  ingressSuffix: .apps.silver.devops.gov.bc.ca
+
+image:
+  repository: ghcr.io/bcgov/vc-authn-oidc
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "v2.0.0-alpha1"
+
+imagePullSecrets: []
+nameOverride: ""
+
+role: controller
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# Aca-Py settings
+acaPy:
+  agentUrl: ""
+  adminUrl: ""
+  existingSecret: ""
+  useOob: false
+  adminApiKey: ""
+  tenancyMode: single # Valid options: multi, single
+  tenant:
+    walletId: ""
+    walletKey: ""
+
+auth:
+  token:
+    # signMethod: RS256
+    # ttl: 10m
+    privateKey:
+      filename: jwt-token.pem
+      existingSecret: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+## Enable network policies for controller pods, ingress, and mongodb (required on Openshift)
+networkPolicy:
+  enabled: true
+  ingress:
+    enabled: true
+    namespaceSelector:
+      network.openshift.io/policy-group: ingress
+    # podSelector: {}
+  mongodb:
+    enabled: true
+  namespaceSelector: {}
+
+service:
+  type: ClusterIP
+  port: 5000
+
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    route.openshift.io/termination: edge
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 10m
+    memory: 128Mi
+
+replicaCount: 1
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+  stabilizationWindowSeconds: 300
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+database:
+  generateSecret: true
+
+#  Overrides for bitnami/mongodb chart - https://github.com/bitnami/charts/tree/main/bitnami/mongodb
+mongodb:
+  auth:
+    enabled: true
+    # When used with .databaseSecret.generate: true, existingSecret must be set to '{{ printf "%s-%s" .Release.Name "mongodb" | trunc 63 | trimSuffix "-" }}'
+    existingSecret: '{{ printf "%s-%s" .Release.Name "mongodb" | trunc 63 | trimSuffix "-" }}'
+    usernames: ['vcauthn']
+    databases: ['vcauthn']
+  commonLabels:
+    app: vc-authn-oidc
+    role: database
+  image:
+    registry: artifacts.developer.gov.bc.ca/docker-remote
+  architecture: replicaset
+  containerSecurityContext:
+    enabled: false
+  podSecurityContext:
+    enabled: false
+  persistence:
+    storageClass: netapp-block-standard
+  serviceAccount:
+    create: false
+  arbiter:
+    enabled: false
+  hidden:
+    enabled: false
+  metrics:
+    enabled: false

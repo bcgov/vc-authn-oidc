@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vc-authn-oidc.fullname" . }}
+  labels:
+    {{- include "vc-authn-oidc.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "vc-authn-oidc.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "vc-authn-oidc.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "vc-authn-oidc.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: jwt-token
+          secret:
+            secretName: {{ include "vc-authn-oidc.token.secretName" . }}
+            defaultMode: 256
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DB_HOST
+              value: "{{ .Release.Name }}-mongodb-headless.{{ .Release.Namespace }}.svc.cluster.local"
+            - name: DB_PORT
+              value: {{ .Values.mongodb.service.ports.mongodb | quote }}
+            - name: DB_NAME
+              value: {{ first .Values.mongodb.auth.databases }}
+            - name: OIDC_CONTROLLER_DB_USER
+              value: {{ first .Values.mongodb.auth.usernames }}
+            - name: OIDC_CONTROLLER_DB_USER_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "vc-authn-oidc.databaseSecretName" . }}
+                  key: mongodb-passwords
+            - name: CONTROLLER_URL
+              value: {{ include "vc-authn-oidc.url" . }}
+            - name: ACAPY_AGENT_URL
+              value: {{ .Values.acaPy.agentUrl }}
+            - name: ACAPY_ADMIN_URL
+              value: {{ .Values.acaPy.adminUrl }}
+            - name: USE_OOB_PRESENT_PROOF
+              value: {{ .Values.acaPy.useOob | quote }}
+            - name: ACAPY_TENANCY
+              value: {{ .Values.acaPy.tenancyMode }}
+            {{- if eq .Values.acaPy.tenancyMode "single" }}
+            - name: ST_ACAPY_ADMIN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "vc-authn-oidc.acapy.secretName" . }}
+                  key: admin-api-key
+            - name: ST_ACAPY_ADMIN_API_KEY_NAME
+              value: "x-api-key"
+            {{- else }}
+            - name: MT_ACAPY_WALLET_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "vc-authn-oidc.acapy.secretName" . }}
+                  key: wallet-id
+            - name: MT_ACAPY_WALLET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "vc-authn-oidc.acapy.secretName" . }}
+                  key: wallet-key
+            {{- end }}
+            - name: SIGNING_KEY_FILEPATH
+              value: {{ printf "/opt/token/%s" .Values.auth.token.privateKey.filename }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: jwt-token
+              mountPath: /opt/token
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
