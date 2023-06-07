@@ -7,16 +7,16 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Image tag'
+        description: "Image tag"
         required: true
         type: string
       platforms:
-        description: 'Platforms - Comma separated list of the platforms to support.'
+        description: "Platforms - Comma separated list of the platforms to support."
         required: true
         default: linux/amd64
         type: string
       ref:
-        description: 'Optional - The branch, tag or SHA to checkout.'
+        description: "Optional - The branch, tag or SHA to checkout."
         required: false
         type: string
 
@@ -25,6 +25,7 @@ env:
 
 jobs:
   publish-image:
+    if: github.repository_owner == 'bcgov'
     strategy:
       fail-fast: false
 
@@ -66,7 +67,9 @@ jobs:
           images: |
             ghcr.io/${{ steps.info.outputs.repo-owner }}/vc-authn-oidc
           tags: |
-            type=raw,value=${{ inputs.tag || github.event.release.tag_name }}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
 
       - name: Build and Push Image to ghcr.io
         uses: docker/build-push-action@v3
