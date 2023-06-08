@@ -2,9 +2,9 @@ version: "3"
 services:
   controller:
     image: vc-authn-oidc-controller
-    depends_on:
-      controller-db:
-        condition: service_started
+    # depends_on:
+    #   controller-db:
+    #     condition: service_started
     environment:
       - DB_HOST=${MONGODB_HOST}
       - DB_PORT=${MONGODB_PORT}
