@@ -85,7 +85,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     buff = io.BytesIO()
     qrcode.make(url_to_message).save(buff, format="PNG")
     image_contents = base64.b64encode(buff.getvalue()).decode("utf-8")
-    callback_url = f"""http://{controller_host}{AuthorizeCallbackUri}?pid={auth_session.id}"""
+    callback_url = f"""{controller_host}{AuthorizeCallbackUri}?pid={auth_session.id}"""
 
     # This is the payload to send to the template
     data = {
