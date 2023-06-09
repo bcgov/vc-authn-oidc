@@ -74,7 +74,7 @@ services:
       - vc_auth
 
   aca-py:
-    image: bcgovimages/aries-cloudagent:py36-1.16-1_1.0.0-rc1
+    image: bcgovimages/aries-cloudagent:py36-1.16-1_0.8.1
     environment:
       - ACAPY_LABEL=${AGENT_NAME}
       - ACAPY_ENDPOINT=${AGENT_ENDPOINT}
