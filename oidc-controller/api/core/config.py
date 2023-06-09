@@ -37,13 +37,10 @@ class GlobalConfig(BaseSettings):
     MONGODB_URL: str = f"""mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}?retryWrites=true&w=majority"""  # noqa: E501
 
     CONTROLLER_URL: str = os.environ.get("CONTROLLER_URL")
-    # if ngrok is blocked by your local network, set this to your localhost for testing.
-    CONTROLLER_URL_LOCAL: str = os.environ.get("CONTROLLER_URL_LOCAL", CONTROLLER_URL)
     # Where to send users when trying to scan with their mobile camera (not a wallet)
     CONTROLLER_CAMERA_REDIRECT_URL: str = os.environ.get("CONTROLLER_CAMERA_REDIRECT_URL")
 
     ACAPY_AGENT_URL: str = os.environ.get("ACAPY_AGENT_URL")
-    # ACAPY_NGROK_TUNNEL_HOST: str = os.environ.get("ACAPY_NGROK_TUNNEL_HOST")
     if not ACAPY_AGENT_URL:
         print("WARNING: ACAPY_AGENT_URL was not provided, agent will not be accessible")
 
@@ -62,27 +59,24 @@ class GlobalConfig(BaseSettings):
 
     DEFAULT_PAGE_SIZE: int = os.environ.get("DEFAULT_PAGE_SIZE", 10)
 
-    # Allow CORS from a comma-separated list of origins
-    TRACTION_CORS_URLS: str = os.environ.get("TRACTION_CORS_URLS", "")
-
     # openssl rand -hex 32
     SIGNING_KEY_SIZE = os.environ.get("SIGNING_KEY_SIZE", 2048)
     # SIGNING_KEY_FILEPATH expects complete path including filename and extension.
     SIGNING_KEY_FILEPATH: str = os.environ.get("SIGNING_KEY_FILEPATH")
-    JWT_ALGORITHM = "HS256"
-    JWT_ACCESS_TOKEN_EXPIRE_MINUTES = 300
+    SIGNING_KEY_ALGORITHM: str = os.environ.get("SIGNING_KEY_ALGORITHM", "RS256") 
     SUBJECT_ID_HASH_SALT = os.environ.get("SUBJECT_ID_HASH_SALT", "test_hash_salt")
-
-    CONTROLLER_API_KEY: str = os.environ.get("CONTROLLER_API_KEY", "")
-    #
-    KEYCLOAK_CLIENT_ID: str = os.environ.get("KEYCLOAK_CLIENT_ID", "keycloak")
-    KEYCLOAK_CLIENT_NAME: str = os.environ.get("KEYCLOAK_CLIENT_NAME", "keycloak")
-    KEYCLOAK_REDIRECT_URI: str = os.environ.get(
-        "KEYCLOAK_REDIRECT_URI",
+    
+    # OIDC Client Settings
+    OIDC_CLIENT_ID: str = os.environ.get("OIDC_CLIENT_ID", "keycloak")
+    OIDC_CLIENT_NAME: str = os.environ.get("OIDC_CLIENT_NAME", "keycloak")
+    OIDC_CLIENT_REDIRECT_URI: str = os.environ.get(
+        "OIDC_CLIENT_REDIRECT_URI",
         "http://localhost:8880/auth/realms/vc-authn/broker/vc-authn/endpoint",
     )
-    KEYCLOAK_CLIENT_SECRET: str = os.environ.get("KEYCLOAK_CLIENT_SECRET", "**********")
+    OIDC_CLIENT_SECRET: str = os.environ.get("OIDC_CLIENT_SECRET", "**********")
 
+    # OIDC Controller Settings
+    CONTROLLER_API_KEY: str = os.environ.get("CONTROLLER_API_KEY", "")
     USE_OOB_PRESENT_PROOF: bool = os.environ.get("USE_OOB_PRESENT_PROOF", False)
     USE_OOB_LOCAL_DID_SERVICE: bool = os.environ.get("USE_OOB_LOCAL_DID_SERVICE", False)
     SET_NON_REVOKED: bool = os.environ.get("SET_NON_REVOKED", True)

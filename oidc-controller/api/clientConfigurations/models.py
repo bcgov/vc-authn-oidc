@@ -12,15 +12,15 @@ class TOKENENDPOINTAUTHMETHODS(str, Enum):
 
 
 class ClientConfigurationBase(BaseModel):
-    client_id: str = Field(default=settings.KEYCLOAK_CLIENT_ID)
-    client_name: str = Field(default=settings.KEYCLOAK_CLIENT_NAME)
+    client_id: str = Field(default=settings.OIDC_CLIENT_ID)
+    client_name: str = Field(default=settings.OIDC_CLIENT_NAME)
     response_types: List[str] = Field(default=["code", "id_token", "token"])
     redirect_uris: List[str]
     token_endpoint_auth_method: TOKENENDPOINTAUTHMETHODS = Field(
         default=TOKENENDPOINTAUTHMETHODS.client_secret_basic
     )
 
-    client_secret: str = Field(default=settings.KEYCLOAK_CLIENT_SECRET)
+    client_secret: str = Field(default=settings.OIDC_CLIENT_SECRET)
 
     class Config:
         allow_population_by_field_name = True
