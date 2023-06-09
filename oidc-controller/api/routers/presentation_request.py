@@ -50,6 +50,12 @@ async def send_connectionless_proof_req(
     auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
         pres_exch_id
     )
+
+    # If the qrcode has been scaned, toggle the verified flag
+    if auth_session.verified is False:
+        auth_session.verified = None
+        await AuthSessionCRUD(db).patch(auth_session.id, auth_session)
+
     client = AcapyClient()
     use_public_did = (
         not settings.USE_OOB_PRESENT_PROOF

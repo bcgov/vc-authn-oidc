@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union
 from datetime import datetime, timedelta
 from pydantic import BaseModel, Field
 
@@ -19,7 +19,7 @@ class AuthSessionBase(BaseModel):
 
 
 class AuthSession(AuthSessionBase, UUIDModel):
-    verified: bool = Field(default=False)
+    verified: Union[bool, None] = Field(default=False)
 
     @property
     def presentation_exchange(self) -> Dict:
