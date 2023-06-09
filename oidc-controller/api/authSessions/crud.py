@@ -23,7 +23,6 @@ class AuthSessionCRUD:
         self._db = db
 
     async def create(self, auth_session: AuthSessionCreate) -> AuthSession:
-        print("auth_session in crud.py create: ", auth_session)
         col = self._db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
         result = col.insert_one(jsonable_encoder(auth_session))
         return AuthSession(**col.find_one({"_id": result.inserted_id}))
