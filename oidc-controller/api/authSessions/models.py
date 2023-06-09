@@ -1,10 +1,18 @@
-from typing import Dict, Union
 from datetime import datetime, timedelta
+from enum import StrEnum, auto
+from typing import Dict, Union
+
+from api.core.acapy.client import AcapyClient
+from api.core.models import UUIDModel
 from pydantic import BaseModel, Field
 
-from api.core.models import UUIDModel
-from api.core.acapy.client import AcapyClient
 
+class AuthSessionState(StrEnum):
+    NOT_STARTED = auto()
+    PENDING = auto()
+    EXPIRED = auto()
+    VERIFIED = auto()
+    FAILED = auto()
 
 class AuthSessionBase(BaseModel):
     pres_exch_id: str
@@ -19,7 +27,7 @@ class AuthSessionBase(BaseModel):
 
 
 class AuthSession(AuthSessionBase, UUIDModel):
-    verified: Union[bool, None] = Field(default=False)
+    proof_status: AuthSessionState = Field(default=AuthSessionState.NOT_STARTED)
 
     @property
     def presentation_exchange(self) -> Dict:
@@ -32,5 +40,5 @@ class AuthSessionCreate(AuthSessionBase):
 
 
 class AuthSessionPatch(AuthSessionBase):
-    verified: bool = Field(default=False)
+    proof_status: AuthSessionState = Field(default=AuthSessionState.PENDING)
     pass

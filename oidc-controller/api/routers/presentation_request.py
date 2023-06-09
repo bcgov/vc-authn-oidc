@@ -1,21 +1,17 @@
 import logging
 
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
-from pymongo.database import Database
 from jinja2 import Template
+from pymongo.database import Database
 
 from ..authSessions.crud import AuthSessionCRUD
-from ..authSessions.models import AuthSession
+from ..authSessions.models import AuthSession, AuthSessionState
 from ..core.acapy.client import AcapyClient
-from ..core.aries import (
-    PresentationRequestMessage,
-    PresentProofv10Attachment,
-    ServiceDecorator,
-    OutOfBandMessage,
-    OutOfBandPresentProofAttachment,
-    OOBServiceDecorator,
-)
+from ..core.aries import (OOBServiceDecorator, OutOfBandMessage,
+                          OutOfBandPresentProofAttachment,
+                          PresentationRequestMessage,
+                          PresentProofv10Attachment, ServiceDecorator)
 from ..core.config import settings
 from ..db.session import get_db
 from ..templates.helpers import add_asset
@@ -51,9 +47,9 @@ async def send_connectionless_proof_req(
         pres_exch_id
     )
 
-    # If the qrcode has been scaned, toggle the verified flag
-    if auth_session.verified is False:
-        auth_session.verified = None
+    # If the qrcode has been scanned, toggle the verified flag
+    if auth_session.proof_status is AuthSessionState.NOT_STARTED:
+        auth_session.proof_status = AuthSessionState.PENDING
         await AuthSessionCRUD(db).patch(auth_session.id, auth_session)
 
     client = AcapyClient()
