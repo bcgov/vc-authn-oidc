@@ -37,7 +37,7 @@ async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
     """Called by authorize webpage to see if request
     is verified and token issuance can proceed."""
     auth_session = await AuthSessionCRUD(db).get(pid)
-    return {"verified": auth_session.verified}
+    return {"proof_status": auth_session.proof_status}
 
 
 @log_debug
@@ -85,10 +85,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     buff = io.BytesIO()
     qrcode.make(url_to_message).save(buff, format="PNG")
     image_contents = base64.b64encode(buff.getvalue()).decode("utf-8")
-
-    # same as controller host unless overriden
-    cb_host = settings.CONTROLLER_URL_LOCAL
-    callback_url = f"""http://{cb_host}{AuthorizeCallbackUri}?pid={auth_session.id}"""
+    callback_url = f"""{controller_host}{AuthorizeCallbackUri}?pid={auth_session.id}"""
 
     # This is the payload to send to the template
     data = {

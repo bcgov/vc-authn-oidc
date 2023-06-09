@@ -1,11 +1,12 @@
 import json
 import logging
 
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Depends, Request
 from pymongo.database import Database
 
 from ..authSessions.crud import AuthSessionCRUD
-from ..authSessions.models import AuthSession, AuthSessionPatch
+from ..authSessions.models import (AuthSession, AuthSessionPatch,
+                                   AuthSessionState)
 from ..core.acapy.client import AcapyClient
 from ..db.session import get_db
 
@@ -37,8 +38,8 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                 client.verify_presentation(auth_session.pres_exch_id)
             if webhook_body["state"] == "verified":
                 logger.info("VERIFIED")
-                # update presentation_exchange record
-                auth_session.verified = True
+                # update auth session record with verification result
+                auth_session.proof_status = AuthSessionState.VERIFIED if webhook_body["verified"] == "true" else AuthSessionState.FAILED
                 await AuthSessionCRUD(db).patch(
                     str(auth_session.id), AuthSessionPatch(**auth_session.dict())
                 )
