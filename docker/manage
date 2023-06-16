@@ -168,6 +168,9 @@ configureEnvironment() {
   # The redirect url can be a web link or the name of a template
   export CONTROLLER_CAMERA_REDIRECT_URL="wallet_howto"
 
+  # The number of time in seconds a proof request will be valid for
+  export CONTROLLER_PRESENTATION_EXPIRE_TIME=5
+
   #controller app settings
   export SET_NON_REVOKED="True" # both work
   export USE_OOB_PRESENT_PROOF="False" #BC wallet kinda supports true.
