@@ -28,6 +28,7 @@ class AuthSessionBase(BaseModel):
 
 class AuthSession(AuthSessionBase, UUIDModel):
     proof_status: AuthSessionState = Field(default=AuthSessionState.NOT_STARTED)
+    proof_expired_time: Union[datetime, None] = Field(default=None)
 
     @property
     def presentation_exchange(self) -> Dict:
@@ -41,4 +42,5 @@ class AuthSessionCreate(AuthSessionBase):
 
 class AuthSessionPatch(AuthSessionBase):
     proof_status: AuthSessionState = Field(default=AuthSessionState.PENDING)
+    proof_expired_time: Union[datetime, None] = Field(default=None)
     pass

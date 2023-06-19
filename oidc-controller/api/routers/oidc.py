@@ -37,6 +37,16 @@ async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
     """Called by authorize webpage to see if request
     is verified and token issuance can proceed."""
     auth_session = await AuthSessionCRUD(db).get(pid)
+
+    """ TODO: Check if proof is expired
+     NOTE: This should eventually be moved to a background task.
+     Bring in the code from the acapy_handler.py file
+     that checks if the proof is expired and updates the
+     auth_session record.
+    """
+    
+    print('auth_session', auth_session)
+
     return {"proof_status": auth_session.proof_status}
 
 

@@ -33,24 +33,6 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             logger.info(
                 f">>>> pres_exch_id: {webhook_body['presentation_exchange_id']}"
             )
-            created_time = datetime.fromisoformat(webhook_body.get('created_at'))
-
-            expired_time  = created_time + timedelta(seconds=settings.CONTROLLER_PRESENTATION_EXPIRE_TIME)
-            now_time = datetime.now(timezone.utc)
-            print('time difference', expired_time < now_time)
-            # TODO: This logic should also be added to the polling logic
-            # TODO: And possibly add the timeout value to the AuthSession model
-            # print('time difference', expired_time > datetime.now())
-            # calculate the number of seconds between two times
-            # time_delta = datetime.now() - created_time
-            # print('time_diff', time_delta.total_seconds())
-
-            # print('expired_time', expired_time)
-
-            print('timeout value', settings.CONTROLLER_PRESENTATION_EXPIRE_TIME)
-            print('webhook_body', webhook_body)
-            print('created_at', webhook_body.get('created_at'))
-            print('now', datetime.now(timezone.utc))
 
             auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
                 webhook_body["presentation_exchange_id"]
@@ -63,6 +45,26 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                 logger.info("VERIFIED")
                 # update auth session record with verification result
                 auth_session.proof_status = AuthSessionState.VERIFIED if webhook_body["verified"] == "true" else AuthSessionState.FAILED
+                await AuthSessionCRUD(db).patch(
+                    str(auth_session.id), AuthSessionPatch(**auth_session.dict())
+                )
+            
+
+            # Calcuate the expiration time of the proof
+            proof_created_time = datetime.fromisoformat(webhook_body.get('created_at'))
+            expired_time  = proof_created_time + timedelta(seconds=settings.CONTROLLER_PRESENTATION_EXPIRE_TIME)
+            now_time = datetime.now(timezone.utc)
+
+            # Update the expiration time of the proof
+            auth_session.proof_expired_time = expired_time
+            await AuthSessionCRUD(db).patch(
+                str(auth_session.id), AuthSessionPatch(**auth_session.dict())
+            )
+
+            # If the proof is expired, update the status
+            if expired_time < now_time:
+                logger.info("EXPIRED")
+                auth_session.proof_status = AuthSessionState.EXPIRED
                 await AuthSessionCRUD(db).patch(
                     str(auth_session.id), AuthSessionPatch(**auth_session.dict())
                 )
