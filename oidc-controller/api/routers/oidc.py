@@ -39,10 +39,11 @@ async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
     auth_session = await AuthSessionCRUD(db).get(pid)
 
     """ TODO: Check if proof is expired
-     NOTE: This should eventually be moved to a background task.
      Bring in the code from the acapy_handler.py file
      that checks if the proof is expired and updates the
      auth_session record.
+
+     NOTE: This should eventually be moved to a background task.
     """
     
     print('auth_session', auth_session)
