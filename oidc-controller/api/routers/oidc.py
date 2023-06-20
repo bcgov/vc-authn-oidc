@@ -2,6 +2,7 @@ import base64
 import io
 import logging
 from urllib.parse import urlencode
+from datetime import datetime
 
 import qrcode
 from fastapi import APIRouter, Depends, Request
@@ -11,6 +12,7 @@ from oic.oic.message import AccessTokenRequest, AuthorizationRequest
 from pymongo.database import Database
 
 from ..authSessions.crud import AuthSessionCreate, AuthSessionCRUD
+from ..authSessions.models import AuthSessionState, AuthSessionPatch
 from ..core.acapy.client import AcapyClient
 from ..core.config import settings
 from ..core.logger_util import log_debug
@@ -38,15 +40,16 @@ async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
     is verified and token issuance can proceed."""
     auth_session = await AuthSessionCRUD(db).get(pid)
 
-    """ TODO: Check if proof is expired
-     Bring in the code from the acapy_handler.py file
-     that checks if the proof is expired and updates the
-     auth_session record.
-
+    """
+     Check if proof is expired
      NOTE: This should eventually be moved to a background task.
     """
-    
-    print('auth_session', auth_session)
+    if auth_session.proof_expired_time < datetime.now():
+        logger.info("PROOF EXPIRED")
+        auth_session.proof_status = AuthSessionState.EXPIRED
+        await AuthSessionCRUD(db).patch(
+            str(auth_session.id), AuthSessionPatch(**auth_session.dict())
+        )
 
     return {"proof_status": auth_session.proof_status}
 
