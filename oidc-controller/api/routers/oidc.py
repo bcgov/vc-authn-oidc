@@ -128,7 +128,6 @@ async def get_authorize_callback(pid: str, db: Database = Depends(get_db)):
     auth_session = await AuthSessionCRUD(db).get(pid)
 
     url = auth_session.response_url
-    print(url)
     return RedirectResponse(url)
 
 
