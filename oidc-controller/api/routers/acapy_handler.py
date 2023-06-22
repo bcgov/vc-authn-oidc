@@ -61,8 +61,7 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                 str(auth_session.id), AuthSessionPatch(**auth_session.dict())
             )
 
-            # If the proof is expired, update the status
-            if expired_time < now_time:
+            if expired_time < now_time and auth_session.proof_status == AuthSessionState.NOT_STARTED:
                 logger.info("EXPIRED")
                 auth_session.proof_status = AuthSessionState.EXPIRED
                 await AuthSessionCRUD(db).patch(
