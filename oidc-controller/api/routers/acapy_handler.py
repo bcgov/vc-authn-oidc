@@ -16,11 +16,24 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+# TODO: May need to make this accessible to oidc.py
+connections = {}
 
 async def _parse_webhook_body(request: Request):
     return json.loads((await request.body()).decode("ascii"))
 
-# TODO: Add webook handler
+@router.websocket("/ws/{pid}/")
+async def websocket_endpoint (websocket: WebSocket, pid: str, db: Database = Depends(get_db)):
+    await websocket.accept()
+    while True:
+        connections[pid] = websocket
+
+        #########################
+        # TODO: This is just for testing
+        data = await websocket.receive_json()
+        await websocket.send_json(data)
+        logger.info(f"websocket data coming in: {data}")
+        #########################
 
 @router.post("/topic/{topic}/")
 async def post_topic(request: Request, topic: str, db: Database = Depends(get_db)):
@@ -37,6 +50,15 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
                 webhook_body["presentation_exchange_id"]
             )
+            pid = auth_session.id
+            websocket = connections.get(pid)
+            logger.info(f">>>> websocket: {websocket}")
+            
+            #########################
+            # TODO: This is just for testing
+            logger.info(f">>>> auth_session: {auth_session}")
+            logger.info(f">>>> pid: {pid}")
+            #########################
 
             if webhook_body["state"] == "presentation_received":
                 logger.info("GOT A PRESENTATION, TIME TO VERIFY")

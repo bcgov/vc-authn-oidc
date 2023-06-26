@@ -46,7 +46,8 @@ async def send_connectionless_proof_req(
         template = Template(template_file)
         response = HTMLResponse(template.render(data))
 
-    if "text/html" in req.headers.get("accept"):
+    if 'text/html' in req.headers.get('accept'):
+        logger.info("Redirecting to instructions page")
         return response
 
     auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
