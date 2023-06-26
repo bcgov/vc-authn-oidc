@@ -35,8 +35,6 @@ router = APIRouter()
 
 
 @log_debug
-
-# TODO: To be replaced by websocket
 @router.get(f"{ChallengePollUri}/{{pid}}")
 async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
     """Called by authorize webpage to see if request
@@ -120,7 +118,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     }
 
     # Prepare the template
-    template_file = open("api/templates/verified_credentials_websocket.html", "r").read()
+    template_file = open("api/templates/verified_credentials.html", "r").read()
     template = Template(template_file)
 
     # Render and return the template
