@@ -22,17 +22,21 @@ connections = {}
 async def _parse_webhook_body(request: Request):
     return json.loads((await request.body()).decode("ascii"))
 
-@router.websocket("/ws/{pid}/")
-async def websocket_endpoint (websocket: WebSocket, pid: str, db: Database = Depends(get_db)):
+# @router.websocket("/ws/{pid}/")
+# async def websocket_endpoint (websocket: WebSocket, pid: str, db: Database = Depends(get_db)):
+@router.websocket("/ws")
+async def websocket_endpoint (websocket: WebSocket):
     await websocket.accept()
     while True:
-        connections[pid] = websocket
+        # connections[pid] = websocket
+        await websocket.send_text("Connected")
+        logger.info(f">>> websocket connected")
 
         #########################
         # TODO: This is just for testing
-        data = await websocket.receive_json()
-        await websocket.send_json(data)
-        logger.info(f"websocket data coming in: {data}")
+        # data = await websocket.receive_json()
+        # await websocket.send_json(data)
+        # logger.info(f"websocket data coming in: {data}")
         #########################
 
 @router.post("/topic/{topic}/")
@@ -52,7 +56,7 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             )
             pid = auth_session.id
             websocket = connections.get(pid)
-            logger.info(f">>>> websocket: {websocket}")
+            # logger.info(f">>>> websocket: {websocket}")
             
             #########################
             # TODO: This is just for testing
