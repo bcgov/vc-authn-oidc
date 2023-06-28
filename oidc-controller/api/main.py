@@ -64,6 +64,7 @@ if origins:
     )
 
 
+
 @app.on_event("startup")
 async def on_tenant_startup():
     """Register any events we need to respond to."""

@@ -24,13 +24,13 @@ async def _parse_webhook_body(request: Request):
 
 # @router.websocket("/ws/{pid}/")
 # async def websocket_endpoint (websocket: WebSocket, pid: str, db: Database = Depends(get_db)):
-@router.websocket("/ws")
-async def websocket_endpoint (websocket: WebSocket):
-    await websocket.accept()
-    while True:
-        # connections[pid] = websocket
-        await websocket.send_text("Connected")
-        logger.info(f">>> websocket connected")
+# @router.websocket("/ws")
+# async def websocket_endpoint (websocket: WebSocket):
+#     logger.info(f">>> websocket connected")
+#     await websocket.accept()
+#     while True:
+#         # connections[pid] = websocket
+#         await websocket.send_text("Connected")
 
         #########################
         # TODO: This is just for testing
