@@ -62,6 +62,3 @@ sio_app = socketio.ASGIApp(socketio_server=sio)
 app.mount('/ws', sio_app)
 
 uvicorn.run(app, host="localhost", port=5100)
-
-# TODO1: Test with websocat
-# TODO2: Integrate into acapy_handler.py
