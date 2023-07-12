@@ -22,6 +22,7 @@ connections = {}
 async def _parse_webhook_body(request: Request):
     return json.loads((await request.body()).decode("ascii"))
 
+# TODO: Copy the working code from quick-socket/app.py
 # @router.websocket("/ws/{pid}/")
 # async def websocket_endpoint (websocket: WebSocket, pid: str, db: Database = Depends(get_db)):
 # @router.websocket("/ws")
@@ -54,14 +55,14 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
                 webhook_body["presentation_exchange_id"]
             )
-            pid = auth_session.id
-            websocket = connections.get(pid)
+            # pid = auth_session.id
+            # websocket = connections.get(pid)
             # logger.info(f">>>> websocket: {websocket}")
             
             #########################
             # TODO: This is just for testing
-            logger.info(f">>>> auth_session: {auth_session}")
-            logger.info(f">>>> pid: {pid}")
+            # logger.info(f">>>> auth_session: {auth_session}")
+            # logger.info(f">>>> pid: {pid}")
             #########################
 
             if webhook_body["state"] == "presentation_received":
