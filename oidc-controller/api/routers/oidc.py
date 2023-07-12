@@ -2,6 +2,7 @@ import base64
 import io
 import logging
 from urllib.parse import urlencode
+from datetime import datetime
 
 import qrcode
 from fastapi import APIRouter, Depends, Request
@@ -11,6 +12,7 @@ from oic.oic.message import AccessTokenRequest, AuthorizationRequest
 from pymongo.database import Database
 
 from ..authSessions.crud import AuthSessionCreate, AuthSessionCRUD
+from ..authSessions.models import AuthSessionState, AuthSessionPatch
 from ..core.acapy.client import AcapyClient
 from ..core.config import settings
 from ..core.logger_util import log_debug
@@ -37,6 +39,18 @@ async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
     """Called by authorize webpage to see if request
     is verified and token issuance can proceed."""
     auth_session = await AuthSessionCRUD(db).get(pid)
+
+    """
+     Check if proof is expired. But only if the proof has not been started.
+     NOTE: This should eventually be moved to a background task.
+    """
+    if auth_session.expired_timestamp < datetime.now() and auth_session.proof_status == AuthSessionState.NOT_STARTED:
+        logger.info("PROOF EXPIRED")
+        auth_session.proof_status = AuthSessionState.EXPIRED
+        await AuthSessionCRUD(db).patch(
+            str(auth_session.id), AuthSessionPatch(**auth_session.dict())
+        )
+
     return {"proof_status": auth_session.proof_status}
 
 
@@ -114,7 +128,6 @@ async def get_authorize_callback(pid: str, db: Database = Depends(get_db)):
     auth_session = await AuthSessionCRUD(db).get(pid)
 
     url = auth_session.response_url
-    print(url)
     return RedirectResponse(url)
 
 

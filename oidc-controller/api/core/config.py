@@ -39,6 +39,8 @@ class GlobalConfig(BaseSettings):
     CONTROLLER_URL: str = os.environ.get("CONTROLLER_URL")
     # Where to send users when trying to scan with their mobile camera (not a wallet)
     CONTROLLER_CAMERA_REDIRECT_URL: str = os.environ.get("CONTROLLER_CAMERA_REDIRECT_URL")
+    # The number of seconds to wait for a presentation to be verified, Default: 10
+    CONTROLLER_PRESENTATION_EXPIRE_TIME: int = os.environ.get("CONTROLLER_PRESENTATION_EXPIRE_TIME", 10)
 
     ACAPY_AGENT_URL: str = os.environ.get("ACAPY_AGENT_URL")
     if not ACAPY_AGENT_URL:

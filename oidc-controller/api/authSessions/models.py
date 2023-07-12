@@ -6,6 +6,8 @@ from api.core.acapy.client import AcapyClient
 from api.core.models import UUIDModel
 from pydantic import BaseModel, Field
 
+from ..core.config import settings
+
 
 class AuthSessionState(StrEnum):
     NOT_STARTED = auto()
@@ -16,7 +18,8 @@ class AuthSessionState(StrEnum):
 
 class AuthSessionBase(BaseModel):
     pres_exch_id: str
-    expired_timestamp: datetime = Field(default=datetime.now() + timedelta(seconds=600))
+    expired_timestamp: datetime = Field(default=datetime.now() +
+        timedelta(seconds=settings.CONTROLLER_PRESENTATION_EXPIRE_TIME))
     ver_config_id: str
     request_parameters: dict
     pyop_auth_code: str
