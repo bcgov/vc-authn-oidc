@@ -52,7 +52,7 @@ sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 @sio.event
 async def connect(sid, socket):
     print('connected', sid)
-    await sio.emit('message', {'data': "I'm a real boy!'"})
+    await sio.emit('message', {'data': "I'm a real boy!"})
 
 @sio.event
 def disconnected(sid):

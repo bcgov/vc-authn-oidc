@@ -10,6 +10,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 import socketio # For using websockets
 
+print('here is the ws stuff', socketio)
+
 from .routers import acapy_handler, oidc, presentation_request, well_known_oid_config
 from .verificationConfigs.router import router as ver_configs_router
 from .clientConfigurations.router import router as client_config_router
@@ -60,7 +62,7 @@ sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 @sio.event
 async def connect(sid, socket):
     print('connected', sid)
-    await sio.emit('message', {'data', "I'm a real boy!'"})
+    await sio.emit('message', {'data': "I'm a real boy!"})
 
 @sio.event
 def disconnected(sid):
@@ -93,7 +95,7 @@ html = """
     <title>Socket.io Test</title>
     <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
     <script>
-        const socket = io("ws://localhost:5100", {
+        const socket = io("ws://localhost:5000", {
         path: "/ws/socket.io",
         autoConnect: false,
         });

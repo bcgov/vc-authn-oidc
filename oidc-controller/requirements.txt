@@ -5,5 +5,5 @@ pymongo==4.3.3
 pyop==3.4.0
 python-multipart==0.0.6 # required by fastapi to serve/upload files
 qrcode[pil]==7.4.2
-uvicorn==0.22.0
+uvicorn[standard]==0.22.0
 python-socketio==5.8.0 # required to run websockets
