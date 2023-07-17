@@ -81,7 +81,9 @@ issuer_url = settings.CONTROLLER_URL
 if urlparse(issuer_url).scheme != "https":
     logger.error("CONTROLLER_URL is not HTTPS. changing openid-config for development")
     issuer_url = issuer_url[:4] + "s" + issuer_url[4:]
-signing_key = RSAKey(key=rsa_load(SIGNING_KEY_FILEPATH), use="sig", alg=settings.SIGNING_KEY_ALGORITHM)
+signing_key = RSAKey(
+    key=rsa_load(SIGNING_KEY_FILEPATH), use="sig", alg=settings.SIGNING_KEY_ALGORITHM
+)
 signing_keys = KEYS().append(signing_key)
 
 # config from vc-authn-oidc 1.0 can be found here
@@ -122,12 +124,14 @@ async def init_provider(db: Database):
 
     all_client_configs = await ClientConfigurationCRUD(db).get_all()
     client_db = {d.client_name: d.dict() for d in all_client_configs}
-    user_db = {"vc-user": {"sub": None}} # placeholder, this will be replaced by the subject defined in the proof-configuration
+    user_db = {
+        "vc-user": {"sub": None}
+    }  # placeholder, this will be replaced by the subject defined in the proof-configuration
 
     provider = Provider(
         signing_key,
         configuration_information,
         AuthorizationState(subject_id_factory),
         client_db,
-        Userinfo(user_db), 
+        Userinfo(user_db),
     )
