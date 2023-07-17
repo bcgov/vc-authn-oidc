@@ -10,8 +10,6 @@ from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 import socketio # For using websockets
 
-print('here is the ws stuff', socketio)
-
 from .routers import acapy_handler, oidc, presentation_request, well_known_oid_config
 from .verificationConfigs.router import router as ver_configs_router
 from .clientConfigurations.router import router as client_config_router
@@ -63,6 +61,8 @@ sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 @sio.event
 async def connect(sid, socket):
     print('connected', sid)
+    logger.info(f">>> connect : sid={sid}")
+    logger.info(f">>> connect : socket={socket}")
     await sio.emit('message', {'data': "I'm a real boy!"})
     # TODO: Add the sid to the connections dict
 
@@ -114,6 +114,8 @@ html = """
         };
 
         socket.on("message", (e) => console.log("Received", e));
+
+        socket.on("connect", () => console.log("Connected"));
     </script>
 </head>
 <body>
