@@ -7,6 +7,7 @@ import uvicorn
 from api.core.config import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import socketio # For using websockets
 
 from .routers import acapy_handler, oidc, presentation_request, well_known_oid_config
 from .verificationConfigs.router import router as ver_configs_router
@@ -51,6 +52,21 @@ app.include_router(
     oidc.router, prefix="/vc/connect", tags=["oidc-deprecated"], include_in_schema=False
 )
 
+##################################
+# Configure the websocket
+sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
+
+@sio.event
+async def connect(sid, socket):
+    print('connected', sid)
+    await sio.emit('message', {'data', "I'm a real boy!'"})
+
+@sio.event
+def disconnected(sid):
+    print('disconnected', sid)
+
+sio_app = socketio.ASGIApp(socketio_server=sio)
+##################################
 
 origins = ["*"]
 

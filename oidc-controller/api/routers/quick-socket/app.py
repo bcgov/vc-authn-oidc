@@ -46,6 +46,7 @@ async def root():
     return HTMLResponse(html)
 
 # Create a test websocket server
+# TODO: This needs to be shared with oidc.py and acapy_handler.py
 sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 
 @sio.event

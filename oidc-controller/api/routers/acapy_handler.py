@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# TODO: May need to make this accessible to oidc.py
+# TODO: Actually, should probably move this to main.py
 connections = {}
 
 async def _parse_webhook_body(request: Request):
