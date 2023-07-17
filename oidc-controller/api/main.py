@@ -87,6 +87,7 @@ if origins:
 
 ##################################
 # Test the websocket
+# TODO: If we keep this for some reason... Move the html to a template.
 html = """
 <!DOCTYPE html>
 <html lang="en">
@@ -95,7 +96,7 @@ html = """
     <title>Socket.io Test</title>
     <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
     <script>
-        const socket = io("ws://localhost:5000", {
+        const socket = io("ws://" + location.host, {
         path: "/ws/socket.io",
         autoConnect: false,
         });
