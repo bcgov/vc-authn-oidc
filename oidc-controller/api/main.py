@@ -39,6 +39,7 @@ def get_application() -> FastAPI:
     )
     return application
 
+connections = {}
 
 app = get_application()
 app.include_router(ver_configs_router, prefix="/ver_configs", tags=["ver_configs"])
@@ -63,6 +64,7 @@ sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 async def connect(sid, socket):
     print('connected', sid)
     await sio.emit('message', {'data': "I'm a real boy!"})
+    # TODO: Add the sid to the connections dict
 
 @sio.event
 def disconnected(sid):
