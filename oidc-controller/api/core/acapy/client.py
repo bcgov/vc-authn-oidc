@@ -70,7 +70,7 @@ class AcapyClient:
         logger.debug("<<< get_presentation_request -> {resp}")
         return resp
 
-    def verify_presentation(self, presentation_exchange_id: Union[UUID,str]):
+    def verify_presentation(self, presentation_exchange_id: Union[UUID, str]):
         logger.debug(">>> verify_presentation")
 
         resp_raw = requests.post(

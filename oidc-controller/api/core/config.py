@@ -38,9 +38,13 @@ class GlobalConfig(BaseSettings):
 
     CONTROLLER_URL: Optional[str] = os.environ.get("CONTROLLER_URL")
     # Where to send users when trying to scan with their mobile camera (not a wallet)
-    CONTROLLER_CAMERA_REDIRECT_URL: Optional[str] = os.environ.get("CONTROLLER_CAMERA_REDIRECT_URL")
+    CONTROLLER_CAMERA_REDIRECT_URL: Optional[str] = os.environ.get(
+        "CONTROLLER_CAMERA_REDIRECT_URL"
+    )
     # The number of seconds to wait for a presentation to be verified, Default: 10
-    CONTROLLER_PRESENTATION_EXPIRE_TIME: Union[int, str] = os.environ.get("CONTROLLER_PRESENTATION_EXPIRE_TIME", 10)
+    CONTROLLER_PRESENTATION_EXPIRE_TIME: Union[int, str] = os.environ.get(
+        "CONTROLLER_PRESENTATION_EXPIRE_TIME", 10
+    )
 
     ACAPY_AGENT_URL: Optional[str] = os.environ.get("ACAPY_AGENT_URL")
     if not ACAPY_AGENT_URL:
@@ -55,7 +59,9 @@ class GlobalConfig(BaseSettings):
     MT_ACAPY_WALLET_ID: Optional[str] = os.environ.get("MT_ACAPY_WALLET_ID")
     MT_ACAPY_WALLET_KEY: str = os.environ.get("MT_ACAPY_WALLET_KEY", "random-key")
 
-    ST_ACAPY_ADMIN_API_KEY_NAME: Optional[str] = os.environ.get("ST_ACAPY_ADMIN_API_KEY_NAME")
+    ST_ACAPY_ADMIN_API_KEY_NAME: Optional[str] = os.environ.get(
+        "ST_ACAPY_ADMIN_API_KEY_NAME"
+    )
     ST_ACAPY_ADMIN_API_KEY: Optional[str] = os.environ.get("ST_ACAPY_ADMIN_API_KEY")
     DB_ECHO_LOG: bool = False
 
@@ -79,8 +85,12 @@ class GlobalConfig(BaseSettings):
 
     # OIDC Controller Settings
     CONTROLLER_API_KEY: str = os.environ.get("CONTROLLER_API_KEY", "")
-    USE_OOB_PRESENT_PROOF: Union[bool, str] = os.environ.get("USE_OOB_PRESENT_PROOF", False)
-    USE_OOB_LOCAL_DID_SERVICE: Union[bool, str] = os.environ.get("USE_OOB_LOCAL_DID_SERVICE", False)
+    USE_OOB_PRESENT_PROOF: Union[bool, str] = os.environ.get(
+        "USE_OOB_PRESENT_PROOF", False
+    )
+    USE_OOB_LOCAL_DID_SERVICE: Union[bool, str] = os.environ.get(
+        "USE_OOB_LOCAL_DID_SERVICE", False
+    )
     SET_NON_REVOKED: Union[bool, str] = os.environ.get("SET_NON_REVOKED", True)
 
     class Config:

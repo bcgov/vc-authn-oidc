@@ -77,6 +77,7 @@ def on_tenant_shutdown():
     """TODO no-op for now."""
     logger.warning(">>> Shutting down app ...")
 
+
 @app.get("/", tags=["liveness", "readiness"])
 @app.get("/health", tags=["liveness", "readiness"])
 def main():
