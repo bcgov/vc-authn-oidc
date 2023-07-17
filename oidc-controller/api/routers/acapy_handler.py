@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, Request
 from pymongo.database import Database
@@ -48,7 +48,7 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                 await AuthSessionCRUD(db).patch(
                     str(auth_session.id), AuthSessionPatch(**auth_session.dict())
                 )
-            
+
 
             # Calcuate the expiration time of the proof
             now_time = datetime.now()

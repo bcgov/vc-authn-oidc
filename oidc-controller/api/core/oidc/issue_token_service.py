@@ -30,7 +30,7 @@ class Token(BaseModel):
     @classmethod
     def get_claims(
         cls, pres_exch: Dict, auth_session: AuthSession, ver_config: VerificationConfig
-    ) -> List["Claim"]:
+    ) -> dict[str, str]:
         """Converts vc presentation values to oidc claims"""
         oidc_claims: List[Claim] = [
             Claim(
