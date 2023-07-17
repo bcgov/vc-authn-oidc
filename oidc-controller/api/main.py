@@ -6,6 +6,7 @@ from pathlib import Path
 import uvicorn
 from api.core.config import settings
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 import socketio # For using websockets
 
@@ -66,6 +67,8 @@ def disconnected(sid):
     print('disconnected', sid)
 
 sio_app = socketio.ASGIApp(socketio_server=sio)
+
+app.mount('/ws', sio_app)
 ##################################
 
 origins = ["*"]
@@ -80,6 +83,47 @@ if origins:
     )
 
 
+##################################
+# Test the websocket
+html = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Socket.io Test</title>
+    <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+    <script>
+        const socket = io("ws://localhost:5100", {
+        path: "/ws/socket.io",
+        autoConnect: false,
+        });
+
+        const handleConnect = () => {
+            console.log("Button Clicked to Connect");
+            socket.connect();
+        };
+
+        const handleDisconnect = () => {
+            console.log("Button Clicked to Disconnect");
+            socket.disconnect();
+        };
+
+        socket.on("message", (e) => console.log("Received", e));
+    </script>
+</head>
+<body>
+    <div className="App">
+        <button onClick="handleConnect()">Connect</button>
+        <button onClick="handleDisconnect()">Disconnect</button>
+    </div>
+</body>
+</html>
+"""
+
+@app.get("/test-ws")
+async def root():
+    return HTMLResponse(html)
+##################################
 
 @app.on_event("startup")
 async def on_tenant_startup():
