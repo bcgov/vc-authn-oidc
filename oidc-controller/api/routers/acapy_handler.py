@@ -12,7 +12,7 @@ from ..db.session import get_db
 
 from ..core.config import settings
 
-from ..main import connections # Websocket connections
+connections = {} # Keep trap of websocket connections.
 
 logger = logging.getLogger(__name__)
 

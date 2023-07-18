@@ -37,8 +37,6 @@ def get_application() -> FastAPI:
     )
     return application
 
-connections = {}
-
 app = get_application()
 app.include_router(ver_configs_router, prefix="/ver_configs", tags=["ver_configs"])
 app.include_router(client_config_router, prefix="/clients", tags=["oidc_clients"])
@@ -64,11 +62,11 @@ async def connect(sid, socket):
     logger.info(f">>> connect : sid={sid}")
     logger.info(f">>> connect : socket={socket}")
     await sio.emit('message', {'data': "I'm a real boy!"})
-    # TODO: Add the sid to the connections dict
+    # TODO: Add the socket to the acapy_handler.connections dict
 
 @sio.event
-def disconnected(sid):
-    print('disconnected', sid)
+async def disconnect(sid):
+    logger.info(f">>> disconnect : sid={sid}")
 
 sio_app = socketio.ASGIApp(socketio_server=sio)
 
