@@ -16,7 +16,7 @@ class PresentationRequestMessage(BaseModel):
     request: List[PresentProofv10Attachment] = Field(
         alias="request_presentations~attach"
     )
-    comment: str = None
+    comment: Optional[str] = None
     service: Optional[ServiceDecorator] = Field(alias="~service")
 
     class Config:

@@ -1,5 +1,6 @@
 import logging
 
+from typing import Union
 from pymongo import ReturnDocument
 from pymongo.database import Database
 from fastapi import HTTPException
@@ -43,7 +44,9 @@ class AuthSessionCRUD:
 
         return AuthSession(**auth_sess)
 
-    async def patch(self, id: str, data: AuthSessionPatch) -> AuthSession:
+    async def patch(
+        self, id: Union[str, PyObjectId], data: AuthSessionPatch
+    ) -> AuthSession:
         if not PyObjectId.is_valid(id):
             raise HTTPException(
                 status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"

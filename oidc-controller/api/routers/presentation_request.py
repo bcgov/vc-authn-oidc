@@ -8,10 +8,14 @@ from pymongo.database import Database
 from ..authSessions.crud import AuthSessionCRUD
 from ..authSessions.models import AuthSession, AuthSessionState
 from ..core.acapy.client import AcapyClient
-from ..core.aries import (OOBServiceDecorator, OutOfBandMessage,
-                          OutOfBandPresentProofAttachment,
-                          PresentationRequestMessage,
-                          PresentProofv10Attachment, ServiceDecorator)
+from ..core.aries import (
+    OOBServiceDecorator,
+    OutOfBandMessage,
+    OutOfBandPresentProofAttachment,
+    PresentationRequestMessage,
+    PresentProofv10Attachment,
+    ServiceDecorator,
+)
 from ..core.config import settings
 from ..db.session import get_db
 from ..templates.helpers import add_asset
@@ -20,26 +24,29 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+
 @router.get("/url/pres_exch/{pres_exch_id}")
 async def send_connectionless_proof_req(
     pres_exch_id: str, req: Request, db: Database = Depends(get_db)
 ):
     """
-      If the user scanes the QR code with a mobile camera,
-      they will be redirected to a help page.
+    If the user scanes the QR code with a mobile camera,
+    they will be redirected to a help page.
     """
     data = {
         "add_asset": add_asset,
     }
     # First prepare the response depending on the redirect url
-    if '.html' in settings.CONTROLLER_CAMERA_REDIRECT_URL:
+    if ".html" in settings.CONTROLLER_CAMERA_REDIRECT_URL:
         response = RedirectResponse(settings.CONTROLLER_CAMERA_REDIRECT_URL)
     else:
-        template_file = open(f'api/templates/{settings.CONTROLLER_CAMERA_REDIRECT_URL}.html', "r").read()
+        template_file = open(
+            f"api/templates/{settings.CONTROLLER_CAMERA_REDIRECT_URL}.html", "r"
+        ).read()
         template = Template(template_file)
         response = HTMLResponse(template.render(data))
 
-    if 'text/html' in req.headers.get('accept'):
+    if "text/html" in req.headers.get("accept"):
         return response
 
     auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
