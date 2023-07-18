@@ -65,8 +65,15 @@ async def connect(sid, socket):
     # TODO: Add the socket to the acapy_handler.connections dict
 
 @sio.event
+async def initialize(sid, data):
+    logger.info(f">>> initialize : sid={sid}")
+    logger.info(f">>> initialize : pid={data.get('pid')}")
+    # TODO: Add the pid to the acapy_handler.connections dict
+
+@sio.event
 async def disconnect(sid):
     logger.info(f">>> disconnect : sid={sid}")
+    # TODO: Remove the sid,pid & socket from the acapy_handler.connections dict
 
 sio_app = socketio.ASGIApp(socketio_server=sio)
 

@@ -25,6 +25,8 @@ async def _parse_webhook_body(request: Request):
 async def post_topic(request: Request, topic: str, db: Database = Depends(get_db)):
     """Called by aca-py agent."""
     logger.info(f">>> post_topic : topic={topic}")
+    # logger.info(f">>> post_topic : request={request.app.sio}")
+    print('request', request)
     client = AcapyClient()
     match topic:
         case "present_proof":
