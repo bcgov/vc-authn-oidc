@@ -59,8 +59,8 @@ sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 @sio.event
 async def connect(sid, socket):
     print('connected', sid)
-    logger.info(f">>> connect : sid={sid}")
-    logger.info(f">>> connect : socket={socket}")
+    # logger.info(f">>> connect : sid={sid}")
+    # logger.info(f">>> connect : socket={socket}")
     await sio.emit('message', {'data': "I'm a real boy!"})
     # TODO: Add the socket to the acapy_handler.connections dict
 

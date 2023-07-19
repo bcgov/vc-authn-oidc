@@ -26,7 +26,11 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
     """Called by aca-py agent."""
     logger.info(f">>> post_topic : topic={topic}")
     # logger.info(f">>> post_topic : request={request.app.sio}")
-    print('request', request)
+
+    # TODO: Format the request object to look for the IO object
+    logger.info('request >>>>>>', inspect.getmembers(request.app))
+    logger.info('request json >>>>>>', json.dumps(request.app, indent=2))
+
     client = AcapyClient()
     match topic:
         case "present_proof":
