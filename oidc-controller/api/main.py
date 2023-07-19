@@ -54,6 +54,7 @@ app.include_router(
 
 ##################################
 # Configure the websocket
+# TODO: Move this to a separate file
 sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 
 @sio.event
@@ -62,7 +63,7 @@ async def connect(sid, socket):
     # logger.info(f">>> connect : sid={sid}")
     # logger.info(f">>> connect : socket={socket}")
     await sio.emit('message', {'data': "I'm a real boy!"})
-    # TODO: Add the socket to the acapy_handler.connections dict
+    # TODO: Add the sid 
 
 @sio.event
 async def initialize(sid, data):
@@ -75,6 +76,8 @@ async def disconnect(sid):
     logger.info(f">>> disconnect : sid={sid}")
     # TODO: Remove the sid,pid & socket from the acapy_handler.connections dict
 
+##################################
+# TODO: Keep this here and import sio
 sio_app = socketio.ASGIApp(socketio_server=sio)
 
 app.mount('/ws', sio_app)

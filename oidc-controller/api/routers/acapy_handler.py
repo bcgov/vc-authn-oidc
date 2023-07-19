@@ -12,8 +12,6 @@ from ..db.session import get_db
 
 from ..core.config import settings
 
-connections = {} # Keep trap of websocket connections.
-
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
@@ -25,11 +23,6 @@ async def _parse_webhook_body(request: Request):
 async def post_topic(request: Request, topic: str, db: Database = Depends(get_db)):
     """Called by aca-py agent."""
     logger.info(f">>> post_topic : topic={topic}")
-    # logger.info(f">>> post_topic : request={request.app.sio}")
-
-    # TODO: Format the request object to look for the IO object
-    logger.info('request >>>>>>', inspect.getmembers(request.app))
-    logger.info('request json >>>>>>', json.dumps(request.app, indent=2))
 
     client = AcapyClient()
     match topic:
@@ -46,11 +39,6 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             #########################
             # TODO: This will be used when the websocket is implemented
             # pid = auth_session.id
-            # websocket = connections.get(pid)
-            
-            # TODO: This is just for testing
-            # logger.info(f">>>> auth_session: {auth_session}")
-            # logger.info(f">>>> pid: {pid}")
             #########################
 
             if webhook_body["state"] == "presentation_received":
