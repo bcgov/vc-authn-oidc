@@ -3,6 +3,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 connections = {}
 
 sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
@@ -25,4 +26,4 @@ async def initialize(sid, data):
 @sio.event
 async def disconnect(sid):
     logger.info(f">>> disconnect : sid={sid}")
-    # TODO: Remove the sid,pid & socket from the acapy_handler.connections dict
+    # TODO: Remove the sid,pid from the connections dict
