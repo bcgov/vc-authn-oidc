@@ -17,6 +17,13 @@ logging.basicConfig(
     stream=sys.stdout,
     level=logging.INFO,
 )
+use_json_logs = False
+time_stamp_format = "%Y-%m-%d %H:%M.%S"
+with open((Path(__file__).parent.parent / "logconf.json").resolve()) as user_file:
+    file_contents = json.loads(user_file.read())
+    logging.config.dictConfig(file_contents["logger"])
+    use_json_logs = file_contents["structlog"]["use_json_logs"]
+    time_stamp_format = file_contents["structlog"]["time_stamp_format"]
 
 shared_processors = [
     structlog.contextvars.merge_contextvars,
@@ -25,13 +32,8 @@ shared_processors = [
     structlog.stdlib.ExtraAdder(),
     structlog.processors.StackInfoRenderer(),
     structlog.stdlib.add_log_level,
-    structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M.%S"),
+    structlog.processors.TimeStamper(fmt=time_stamp_format),
 ]
-use_json_logs = False
-with open((Path(__file__).parent / "logconf.json").resolve()) as user_file:
-    file_contents = json.loads(user_file.read())
-    logging.config.dictConfig(file_contents["logger"])
-    use_json_logs = file_contents["structlog"]["use_json_logs"]
 
 renderer = (
     structlog.processors.JSONRenderer()
