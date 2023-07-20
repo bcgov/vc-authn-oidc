@@ -6,3 +6,4 @@ pyop==3.4.0
 python-multipart==0.0.6 #required by fastapi to serve/upload files
 qrcode[pil]==7.4.2
 uvicorn==0.22.0
+structlog==23.1.0

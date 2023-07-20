@@ -10,6 +10,8 @@ from api.db.session import COLLECTION_NAMES
 
 from mongomock import MongoClient
 from typing import Callable
+import structlog
+logger = structlog.getLogger(__name__)
 
 
 def test_answer():
@@ -66,9 +68,18 @@ async def test_client_config_delete(db_client: Callable[[], MongoClient]):
     ).find_one({"client_id": test_client_config.client_id})
     assert not document
 
+@pytest.fixture(name="log_output")
+def fixture_log_output():
+    return structlog.testing.LogCapture()
+
+@pytest.fixture(autouse=True)
+def fixture_configure_structlog(log_output):
+    structlog.configure(
+        processors=[log_output]
+    )
 
 @pytest.mark.asyncio
-async def test_client_config_patch(db_client: Callable[[], MongoClient]):
+async def test_client_config_patch(db_client: Callable[[], MongoClient], log_output):
     client = db_client()
     crud = ClientConfigurationCRUD(client.db)
 
@@ -76,12 +87,13 @@ async def test_client_config_patch(db_client: Callable[[], MongoClient]):
         test_client_config.dict()
     )
 
+    assert log_output.entries == []
+
     result = await crud.patch(
         test_client_config.client_id,
         ClientConfigurationPatch(client_secret="patched_client_secret"),
     )
     assert result
-
     document = client.db.get_collection(
         COLLECTION_NAMES.CLIENT_CONFIGURATIONS
     ).find_one({"client_id": test_client_config.client_id})

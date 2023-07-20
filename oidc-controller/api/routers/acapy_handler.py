@@ -1,6 +1,6 @@
 import json
-import logging
 from datetime import datetime, timedelta, timezone
+import structlog
 
 from fastapi import APIRouter, Depends, Request
 from pymongo.database import Database
@@ -13,7 +13,7 @@ from ..db.session import get_db
 
 from ..core.config import settings
 
-logger = logging.getLogger(__name__)
+logger = structlog.getLogger(__name__)
 
 router = APIRouter()
 

@@ -1,4 +1,8 @@
+import json
 import logging
+import sys
+import logging.config
+import structlog
 import os
 from enum import Enum
 from functools import lru_cache
@@ -6,7 +10,76 @@ from typing import Optional
 
 from pydantic import BaseSettings
 
-logger = logging.getLogger(__name__)
+from pathlib import Path
+
+logging.basicConfig(
+    format="%(message)s",
+    stream=sys.stdout,
+    level=logging.INFO,
+)
+
+shared_processors = [
+    structlog.contextvars.merge_contextvars,
+    structlog.stdlib.add_logger_name,
+    structlog.stdlib.PositionalArgumentsFormatter(),
+    structlog.stdlib.ExtraAdder(),
+    structlog.processors.StackInfoRenderer(),
+    structlog.stdlib.add_log_level,
+    structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M.%S"),
+]
+use_json_logs = False
+with open((Path(__file__).parent / "logconf.json").resolve()) as user_file:
+    file_contents = json.loads(user_file.read())
+    logging.config.dictConfig(file_contents["logger"])
+    use_json_logs = file_contents["structlog"]["use_json_logs"]
+
+renderer = (
+    structlog.processors.JSONRenderer()
+    if use_json_logs
+    else structlog.dev.ConsoleRenderer()
+)
+
+# override uvicron logging to use logstruct
+formatter = structlog.stdlib.ProcessorFormatter(
+    # These run ONLY on `logging` entries that do NOT originate within
+    # structlog.
+    foreign_pre_chain=shared_processors,
+    # These run on ALL entries after the pre_chain is done.
+    processors=[
+        # Remove _record & _from_structlog.
+        structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+        renderer,
+    ],
+)
+
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+
+for _log in ["uvicorn", "uvicorn.error"]:
+    # Clear the log handlers for uvicorn loggers, and enable propagation
+    # so the messages are caught by our root logger and formatted correctly
+    # by structlog
+    logging.getLogger(_log).handlers.clear()
+    logging.getLogger(_log).addHandler(handler)
+    logging.getLogger(_log).propagate = False
+
+# This is already handled by our middlewear
+logging.getLogger("uvicorn.access").handlers.clear()
+logging.getLogger("uvicorn.access").propagate = False
+
+# Configure structlog
+structlog.configure(
+    processors=[structlog.stdlib.filter_by_level] + shared_processors + [renderer],
+    context_class=dict,
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.make_filtering_bound_logger(
+        logging.getLogger().getEffectiveLevel()
+    ),
+    cache_logger_on_first_use=True,
+)
+
+# Setup logger for config
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 
 class EnvironmentEnum(str, Enum):
@@ -38,13 +111,19 @@ class GlobalConfig(BaseSettings):
 
     CONTROLLER_URL: str = os.environ.get("CONTROLLER_URL")
     # Where to send users when trying to scan with their mobile camera (not a wallet)
-    CONTROLLER_CAMERA_REDIRECT_URL: str = os.environ.get("CONTROLLER_CAMERA_REDIRECT_URL")
+    CONTROLLER_CAMERA_REDIRECT_URL: str = os.environ.get(
+        "CONTROLLER_CAMERA_REDIRECT_URL"
+    )
     # The number of seconds to wait for a presentation to be verified, Default: 10
-    CONTROLLER_PRESENTATION_EXPIRE_TIME: int = os.environ.get("CONTROLLER_PRESENTATION_EXPIRE_TIME", 10)
+    CONTROLLER_PRESENTATION_EXPIRE_TIME: int = os.environ.get(
+        "CONTROLLER_PRESENTATION_EXPIRE_TIME", 10
+    )
 
     ACAPY_AGENT_URL: str = os.environ.get("ACAPY_AGENT_URL")
     if not ACAPY_AGENT_URL:
-        print("WARNING: ACAPY_AGENT_URL was not provided, agent will not be accessible")
+        logger.info(
+            "WARNING: ACAPY_AGENT_URL was not provided, agent will not be accessible"
+        )
 
     ACAPY_TENANCY: str = os.environ.get(
         "ACAPY_TENANCY", "single"
@@ -65,9 +144,9 @@ class GlobalConfig(BaseSettings):
     SIGNING_KEY_SIZE = os.environ.get("SIGNING_KEY_SIZE", 2048)
     # SIGNING_KEY_FILEPATH expects complete path including filename and extension.
     SIGNING_KEY_FILEPATH: str = os.environ.get("SIGNING_KEY_FILEPATH")
-    SIGNING_KEY_ALGORITHM: str = os.environ.get("SIGNING_KEY_ALGORITHM", "RS256") 
+    SIGNING_KEY_ALGORITHM: str = os.environ.get("SIGNING_KEY_ALGORITHM", "RS256")
     SUBJECT_ID_HASH_SALT = os.environ.get("SUBJECT_ID_HASH_SALT", "test_hash_salt")
-    
+
     # OIDC Client Settings
     OIDC_CLIENT_ID: str = os.environ.get("OIDC_CLIENT_ID", "keycloak")
     OIDC_CLIENT_NAME: str = os.environ.get("OIDC_CLIENT_NAME", "keycloak")

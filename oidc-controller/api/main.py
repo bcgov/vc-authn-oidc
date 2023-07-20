@@ -1,11 +1,17 @@
+# import api.core.logconfig
 import logging
+import logging.config
+import structlog
 import os
 import time
+import uuid
 from pathlib import Path
 
 import uvicorn
 from api.core.config import settings
 from fastapi import FastAPI
+from starlette.requests import Request
+from starlette.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from .routers import acapy_handler, oidc, presentation_request, well_known_oid_config
@@ -15,12 +21,12 @@ from .db.session import init_db, get_db
 
 from api.core.oidc.provider import init_provider
 
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
+
 # setup loggers
 # TODO: set config via env parameters...
 logging_file_path = (Path(__file__).parent / "logging.conf").resolve()
-logging.config.fileConfig(logging_file_path, disable_existing_loggers=False)
-
-logger = logging.getLogger(__name__)
+# structlog.config.fileConfig(logging_file_path, disable_existing_loggers=False)
 
 os.environ["TZ"] = settings.TIMEZONE
 time.tzset()
@@ -64,18 +70,45 @@ if origins:
     )
 
 
+# TODO clean up try catch
+@app.middleware("http")
+async def logging_middleware(request: Request, call_next) -> Response:
+    # clear the threadlocal context
+    structlog.threadlocal.clear_threadlocal()
+    # bind threadlocal
+    structlog.threadlocal.bind_threadlocal(
+        logger="uvicorn.access",
+        request_id=str(uuid.uuid4()),
+        cookies=request.cookies,
+        scope=request.scope,
+        url=str(request.url),
+    )
+    start_time = time.time()
+    try:
+        response: Response = await call_next(request)
+    finally:
+        process_time = time.time() - start_time
+        logger.info(
+            "processed a request",
+            status_code=response.status_code,
+            process_time=process_time,
+        )
+    return response
+
+
 @app.on_event("startup")
 async def on_tenant_startup():
     """Register any events we need to respond to."""
     await init_db()
     await init_provider(await get_db())
-    logger.warning(">>> Starting up app ...")
+    logger.warning(">>> Starting up app new ...")
 
 
 @app.on_event("shutdown")
 def on_tenant_shutdown():
     """TODO no-op for now."""
     logger.warning(">>> Shutting down app ...")
+
 
 @app.get("/", tags=["liveness", "readiness"])
 @app.get("/health", tags=["liveness", "readiness"])
@@ -84,5 +117,5 @@ def main():
 
 
 if __name__ == "__main__":
-    print("main.")
+    logger.info("main.")
     uvicorn.run(app, host="0.0.0.0", port=5100)
