@@ -12,6 +12,8 @@ from ..db.session import get_db
 
 from ..core.config import settings
 
+from ..routers.socketio import (sio_app, connections)
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
@@ -38,7 +40,8 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             
             #########################
             # TODO: This will be used when the websocket is implemented
-            # pid = auth_session.id
+            pid = auth_session.id
+            print("connections within acapy_handler", connections)
             #########################
 
             if webhook_body["state"] == "presentation_received":

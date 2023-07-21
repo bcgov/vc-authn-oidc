@@ -21,6 +21,9 @@ from ..core.oidc.issue_token_service import Token
 from ..db.session import get_db
 from ..verificationConfigs.crud import VerificationConfigCRUD
 
+# Access to the websocket
+from ..routers.socketio import (sio_app, connections)
+
 # This allows the templates to insert assets like css, js or svg.
 from ..templates.helpers import add_asset
 
