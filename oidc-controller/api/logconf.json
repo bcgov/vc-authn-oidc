@@ -31,7 +31,12 @@
         "stream": "ext://sys.stdout"
       }
     },
-    "loggers": {}
+    "loggers": {
+      "sql": {
+        "level": "ERROR",
+        "handler": "consoleHandler"
+      }
+    }
   },
   "structlog": {
     "use_json_logs": true,

@@ -17,12 +17,23 @@ logging.basicConfig(
     stream=sys.stdout,
     level=logging.INFO,
 )
-use_json_logs = False
+
+# Use environment variable to determin logging format
+# fallback to logconf.json
+# finally default to true
+use_json_logs: bool
+
 time_stamp_format = "%Y-%m-%d %H:%M.%S"
 with open((Path(__file__).parent.parent / "logconf.json").resolve()) as user_file:
-    file_contents = json.loads(user_file.read())
+    file_contents: dict = json.loads(user_file.read())
     logging.config.dictConfig(file_contents["logger"])
-    use_json_logs = file_contents["structlog"]["use_json_logs"]
+    structlog_settings: dict = file_contents["structlog"]
+
+    # bool() is needed to coerce the results of the environment variable
+    use_json_logs = bool(
+        os.environ.get("LOG_WITH_JSON", structlog_settings.get("use_json_logs", True))
+    )
+
     time_stamp_format = file_contents["structlog"]["time_stamp_format"]
 
 shared_processors = [
@@ -162,13 +173,11 @@ class GlobalConfig(BaseSettings):
 
     # OIDC Controller Settings
     CONTROLLER_API_KEY: str = os.environ.get("CONTROLLER_API_KEY", "")
-    USE_OOB_PRESENT_PROOF: Union[bool, str] = os.environ.get(
-        "USE_OOB_PRESENT_PROOF", False
+    USE_OOB_PRESENT_PROOF: bool = bool(os.environ.get("USE_OOB_PRESENT_PROOF", False))
+    USE_OOB_LOCAL_DID_SERVICE: bool = bool(
+        os.environ.get("USE_OOB_LOCAL_DID_SERVICE", False)
     )
-    USE_OOB_LOCAL_DID_SERVICE: Union[bool, str] = os.environ.get(
-        "USE_OOB_LOCAL_DID_SERVICE", False
-    )
-    SET_NON_REVOKED: Union[bool, str] = os.environ.get("SET_NON_REVOKED", True)
+    SET_NON_REVOKED: bool = bool(os.environ.get("SET_NON_REVOKED", True))
 
     class Config:
         case_sensitive = True
