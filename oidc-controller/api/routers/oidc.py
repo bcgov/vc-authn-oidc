@@ -40,6 +40,7 @@ router = APIRouter()
 @log_debug
 
 # TODO: To be replaced by a websocket and a python scheduler
+# TODO: This is a hack to get the websocket to expire the proof, if necessary 
 @router.get(f"{ChallengePollUri}/{{pid}}")
 async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
     """Called by authorize webpage to see if request

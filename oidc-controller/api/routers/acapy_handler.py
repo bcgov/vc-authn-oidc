@@ -38,41 +38,18 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                 webhook_body["presentation_exchange_id"]
             )
             
+            # Get the saved websocket session
             pid = str(auth_session.id)
             connections = connections_reload()
             sid = connections.get(pid)
-
-            print('sid', sid)
-
-            # Get the saved websocket session
             
-            if sid:
-                # io = await sio.get_session(sid)
-            #   /*
-            #     Possible states:
-            #     - not_started
-            #     - pending
-            #     - verified
-            #     - failed
-            #     - expired
-            #   */
-                data = {'status': webhook_body["state"]}
-                await sio.emit('status', data, to=sid)
-                logger.info(f">>>> Victory!!! Here is the sid: {sid}")
-
-            # logger.info(f">>>> pid: {pid}")
-            # logger.info(f">>>> pid type: {type(pid)}")
-            # logger.info(f">>>> connections: {connections}")
-            # logger.info(f">>>> connections type: {type(next(iter(connections)))}")
-            # logger.info(f">>>> socket id: {connections.get(pid)}")
-
             if webhook_body["state"] == "presentation_received":
                 logger.info("GOT A PRESENTATION, TIME TO VERIFY")
                 client.verify_presentation(auth_session.pres_exch_id)
+                # This state is the default on the front end.. So don't send a status
+
             if webhook_body["state"] == "verified":
                 logger.info("VERIFIED")
-                # update auth session record with verification result
-                # auth_session.proof_status = AuthSessionState.VERIFIED if webhook_body["verified"] == "true" else AuthSessionState.FAILED
                 if webhook_body["verified"] == "true":
                     auth_session.proof_status = AuthSessionState.VERIFIED
                     await sio.emit('status', {'status': 'verified'}, to=sid)
