@@ -1,13 +1,12 @@
 import json
-from datetime import datetime, timedelta, timezone
 import structlog
+from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, Request
 from pymongo.database import Database
 
 from ..authSessions.crud import AuthSessionCRUD
-from ..authSessions.models import (AuthSession, AuthSessionPatch,
-                                   AuthSessionState)
+from ..authSessions.models import AuthSession, AuthSessionPatch, AuthSessionState
 from ..core.acapy.client import AcapyClient
 from ..db.session import get_db
 
@@ -44,15 +43,20 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             if webhook_body["state"] == "verified":
                 logger.info("VERIFIED")
                 # update auth session record with verification result
-                auth_session.proof_status = AuthSessionState.VERIFIED if webhook_body["verified"] == "true" else AuthSessionState.FAILED
+                auth_session.proof_status = (
+                    AuthSessionState.VERIFIED
+                    if webhook_body["verified"] == "true"
+                    else AuthSessionState.FAILED
+                )
                 await AuthSessionCRUD(db).patch(
                     str(auth_session.id), AuthSessionPatch(**auth_session.dict())
                 )
-            
 
             # Calcuate the expiration time of the proof
             now_time = datetime.now()
-            expired_time  = now_time + timedelta(seconds=settings.CONTROLLER_PRESENTATION_EXPIRE_TIME)
+            expired_time = now_time + timedelta(
+                seconds=settings.CONTROLLER_PRESENTATION_EXPIRE_TIME
+            )
 
             # Update the expiration time of the proof
             auth_session.expired_timestamp = expired_time
@@ -61,7 +65,10 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             )
 
             # Check if expired. But only if the proof has not been started.
-            if expired_time < now_time and auth_session.proof_status == AuthSessionState.NOT_STARTED:
+            if (
+                expired_time < now_time
+                and auth_session.proof_status == AuthSessionState.NOT_STARTED
+            ):
                 logger.info("EXPIRED")
                 auth_session.proof_status = AuthSessionState.EXPIRED
                 await AuthSessionCRUD(db).patch(

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from enum import StrEnum, auto
-from typing import Dict, Union
+from typing import Dict
 
 from api.core.acapy.client import AcapyClient
 from api.core.models import UUIDModel

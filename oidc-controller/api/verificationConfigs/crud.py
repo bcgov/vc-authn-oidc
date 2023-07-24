@@ -14,7 +14,7 @@ from .models import (
 
 
 class VerificationConfigCRUD:
-    _db: Database = None
+    _db: Database
 
     def __init__(self, db: Database):
         self._db = db
