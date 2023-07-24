@@ -9,22 +9,9 @@
           "renderer"
         ],
         "foreign_pre_chain": "shared_processors"
-      },
-      "colored": {
-        "()": "structlog.stdlib.ProcessorFormatter",
-        "processors": [
-          "structlog.stdlib.ProcessorFormatter.remove_processors_meta",
-          "structlog.dev.ConsoleRenderer(colors=True)"
-        ],
-        "foreign_pre_chain": "shared_processors"
       }
     },
     "handlers": {
-      "err": {
-        "formatter": "plain",
-        "class": "logging.StreamHandler",
-        "stream": "ext://sys.stderr"
-      },
       "out": {
         "formatter": "plain",
         "class": "logging.StreamHandler",
@@ -34,7 +21,7 @@
     "loggers": {
       "sql": {
         "level": "ERROR",
-        "handler": "consoleHandler"
+        "handler": "out"
       }
     }
   },

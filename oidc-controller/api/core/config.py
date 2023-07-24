@@ -15,7 +15,7 @@ from pathlib import Path
 logging.basicConfig(
     format="%(message)s",
     stream=sys.stdout,
-    level=logging.INFO,
+    level=logging.DEBUG,
 )
 
 # Use environment variable to determin logging format
