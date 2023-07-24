@@ -17,6 +17,7 @@ from ..core.aries import (
     ServiceDecorator,
 )
 from ..core.config import settings
+from ..routers.socketio import (sio, connections_reload)
 from ..db.session import get_db
 from ..templates.helpers import add_asset
 
@@ -54,10 +55,15 @@ async def send_connectionless_proof_req(
         pres_exch_id
     )
 
+    # Get the websocket session
+    connections = connections_reload()
+    sid = connections.get(str(auth_session.id))
+
     # If the qrcode has been scanned, toggle the verified flag
     if auth_session.proof_status is AuthSessionState.NOT_STARTED:
         auth_session.proof_status = AuthSessionState.PENDING
         await AuthSessionCRUD(db).patch(auth_session.id, auth_session)
+        await sio.emit('status', {'status': 'pending'}, to=sid)
 
     client = AcapyClient()
     use_public_did = (

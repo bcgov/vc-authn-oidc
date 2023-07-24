@@ -22,7 +22,7 @@ from ..db.session import get_db
 from ..verificationConfigs.crud import VerificationConfigCRUD
 
 # Access to the websocket
-from ..routers.socketio import (sio_app, connections)
+from ..routers.socketio import (sio, connections_reload)
 
 # This allows the templates to insert assets like css, js or svg.
 from ..templates.helpers import add_asset
@@ -39,12 +39,16 @@ router = APIRouter()
 
 @log_debug
 
-# TODO: To be replaced by websocket
+# TODO: To be replaced by a websocket and a python scheduler
 @router.get(f"{ChallengePollUri}/{{pid}}")
 async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
     """Called by authorize webpage to see if request
     is verified and token issuance can proceed."""
     auth_session = await AuthSessionCRUD(db).get(pid)
+
+    pid = str(auth_session.id)
+    connections = connections_reload()
+    sid = connections.get(pid)
 
     """
      Check if proof is expired. But only if the proof has not been started.
@@ -59,6 +63,8 @@ async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
         await AuthSessionCRUD(db).patch(
             str(auth_session.id), AuthSessionPatch(**auth_session.dict())
         )
+        # Send message through the websocket.
+        await sio.emit('status', {'status': 'expired'}, to=sid)
 
     return {"proof_status": auth_session.proof_status}
 
