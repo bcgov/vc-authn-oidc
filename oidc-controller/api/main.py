@@ -6,12 +6,14 @@ from pathlib import Path
 import uvicorn
 from api.core.config import settings
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from .routers import acapy_handler, oidc, presentation_request, well_known_oid_config
 from .verificationConfigs.router import router as ver_configs_router
 from .clientConfigurations.router import router as client_config_router
 from .db.session import init_db, get_db
+from .routers.socketio import sio_app
 
 from api.core.oidc.provider import init_provider
 
@@ -35,7 +37,6 @@ def get_application() -> FastAPI:
     )
     return application
 
-
 app = get_application()
 app.include_router(ver_configs_router, prefix="/ver_configs", tags=["ver_configs"])
 app.include_router(client_config_router, prefix="/clients", tags=["oidc_clients"])
@@ -51,6 +52,8 @@ app.include_router(
     oidc.router, prefix="/vc/connect", tags=["oidc-deprecated"], include_in_schema=False
 )
 
+# Connect the websocket server to run within the FastAPI app
+app.mount('/ws', sio_app)
 
 origins = ["*"]
 

@@ -258,6 +258,11 @@ Pipfile.lock
 .vscode/
 
 ###
+### Vim
+###
+.swp
+
+###
 ### MacOS
 ###
 
