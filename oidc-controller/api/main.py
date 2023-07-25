@@ -23,9 +23,11 @@ from api.core.oidc.provider import init_provider
 
 logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
-# setup loggers
-logging_file_path = (Path(__file__).parent / "logging.conf").resolve()
-# structlog.config.fileConfig(logging_file_path, disable_existing_loggers=False)
+# Setup loggers
+logging_file_path = os.environ.get(
+    "LOG_CONFIG_PATH", (Path(__file__).parent / "logging.conf").resolve()
+)
+
 
 os.environ["TZ"] = settings.TIMEZONE
 time.tzset()
