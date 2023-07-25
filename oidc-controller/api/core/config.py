@@ -23,7 +23,7 @@ logging.basicConfig(
 # finally default to true
 use_json_logs: bool
 
-time_stamp_format = "%Y-%m-%d %H:%M.%S"
+time_stamp_format = "iso"
 with open((Path(__file__).parent.parent / "logconf.json").resolve()) as user_file:
     file_contents: dict = json.loads(user_file.read())
     logging.config.dictConfig(file_contents["logger"])
