@@ -134,9 +134,7 @@ class GlobalConfig(BaseSettings):
 
     ACAPY_AGENT_URL: Optional[str] = os.environ.get("ACAPY_AGENT_URL")
     if not ACAPY_AGENT_URL:
-        logger.info(
-            "WARNING: ACAPY_AGENT_URL was not provided, agent will not be accessible"
-        )
+        logger.warning("ACAPY_AGENT_URL was not provided, agent will not be accessible")
 
     ACAPY_TENANCY: str = os.environ.get(
         "ACAPY_TENANCY", "single"

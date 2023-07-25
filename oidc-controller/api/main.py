@@ -101,7 +101,7 @@ async def on_tenant_startup():
     """Register any events we need to respond to."""
     await init_db()
     await init_provider(await get_db())
-    logger.warning(">>> Starting up app new ...")
+    logger.info(">>> Starting up app new ...")
 
 
 @app.on_event("shutdown")

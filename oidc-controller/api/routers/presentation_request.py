@@ -104,5 +104,5 @@ async def send_connectionless_proof_req(
             service=s_d,
         )
         msg_contents = msg
-    logger.info(msg_contents.dict(by_alias=True))
+    logger.debug(msg_contents.dict(by_alias=True))
     return JSONResponse(msg_contents.dict(by_alias=True))
