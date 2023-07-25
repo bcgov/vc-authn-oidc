@@ -67,51 +67,6 @@ if origins:
     )
 
 
-##################################
-# Test the websocket
-# TODO: If we keep this for some reason... Move the html to a template.
-html = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Socket.io Test</title>
-    <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
-    <script>
-        const socket = io("ws://" + location.host, {
-        path: "/ws/socket.io",
-        autoConnect: false,
-        });
-
-        const handleConnect = () => {
-            console.log("Button Clicked to Connect");
-            socket.connect();
-        };
-
-        const handleDisconnect = () => {
-            console.log("Button Clicked to Disconnect");
-            socket.disconnect();
-        };
-
-        socket.on("message", (e) => console.log("Received", e));
-
-        socket.on("connect", () => console.log("Connected"));
-    </script>
-</head>
-<body>
-    <div className="App">
-        <button onClick="handleConnect()">Connect</button>
-        <button onClick="handleDisconnect()">Disconnect</button>
-    </div>
-</body>
-</html>
-"""
-
-@app.get("/test-ws")
-async def root():
-    return HTMLResponse(html)
-##################################
-
 @app.on_event("startup")
 async def on_tenant_startup():
     """Register any events we need to respond to."""
