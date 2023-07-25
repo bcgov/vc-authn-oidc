@@ -18,7 +18,7 @@ logging.basicConfig(
     level=logging.DEBUG,
 )
 
-# Use environment variable to determin logging format
+# Use environment variable to determine logging format
 # fallback to logconf.json
 # finally default to true
 use_json_logs: bool
@@ -52,7 +52,7 @@ renderer = (
     else structlog.dev.ConsoleRenderer()
 )
 
-# override uvicron logging to use logstruct
+# override uvicorn logging to use logstruct
 formatter = structlog.stdlib.ProcessorFormatter(
     # These run ONLY on `logging` entries that do NOT originate within
     # structlog.
@@ -76,7 +76,7 @@ for _log in ["uvicorn", "uvicorn.error"]:
     logging.getLogger(_log).addHandler(handler)
     logging.getLogger(_log).propagate = False
 
-# This is already handled by our middlewear
+# This is already handled by our middleware
 logging.getLogger("uvicorn.access").handlers.clear()
 logging.getLogger("uvicorn.access").propagate = False
 
