@@ -24,7 +24,6 @@ from api.core.oidc.provider import init_provider
 logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 # setup loggers
-# TODO: set config via env parameters...
 logging_file_path = (Path(__file__).parent / "logging.conf").resolve()
 # structlog.config.fileConfig(logging_file_path, disable_existing_loggers=False)
 
@@ -70,7 +69,6 @@ if origins:
     )
 
 
-# TODO clean up try catch
 @app.middleware("http")
 async def logging_middleware(request: Request, call_next) -> Response:
     # clear the threadlocal context
