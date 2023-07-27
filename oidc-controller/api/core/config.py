@@ -37,7 +37,7 @@ def determin_log_level():
         case "ERROR":
             return logging.ERROR
         case _:
-            return logging.NOTSET
+            return logging.DEBUG
 
 
 logging.basicConfig(
