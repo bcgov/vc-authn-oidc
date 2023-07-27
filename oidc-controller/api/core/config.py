@@ -12,29 +12,39 @@ from pydantic import BaseSettings
 
 from pathlib import Path
 
-logging.basicConfig(
-    format="%(message)s",
-    stream=sys.stdout,
-    level=logging.DEBUG,
-)
 
 # Use environment variable to determine logging format
 # fallback to logconf.json
 # finally default to true
-use_json_logs: bool
+# bool() is needed to coerce the results of the environment variable
+use_json_logs: bool = bool(os.environ.get("LOG_WITH_JSON", True))
 
-time_stamp_format = "iso"
+time_stamp_format: str = os.environ.get("LOG_TIMESTAMP_FORMAT", "iso")
+
 with open((Path(__file__).parent.parent / "logconf.json").resolve()) as user_file:
     file_contents: dict = json.loads(user_file.read())
     logging.config.dictConfig(file_contents["logger"])
-    structlog_settings: dict = file_contents["structlog"]
 
-    # bool() is needed to coerce the results of the environment variable
-    use_json_logs = bool(
-        os.environ.get("LOG_WITH_JSON", structlog_settings.get("use_json_logs", True))
-    )
 
-    time_stamp_format = file_contents["structlog"]["time_stamp_format"]
+def determin_log_level():
+    match os.environ.get("LOG_LEVEL"):
+        case "DEBUG":
+            return logging.DEBUG
+        case "INFO":
+            return logging.INFO
+        case "WARNING":
+            return logging.WARNING
+        case "ERROR":
+            return logging.ERROR
+        case _:
+            return logging.NOTSET
+
+
+logging.basicConfig(
+    format="%(message)s",
+    stream=sys.stdout,
+    level=determin_log_level(),
+)
 
 shared_processors = [
     structlog.contextvars.merge_contextvars,

@@ -24,9 +24,5 @@
         "handler": "out"
       }
     }
-  },
-  "structlog": {
-    "use_json_logs": true,
-    "time_stamp_format": "%Y-%m-%d %H:%M.%S"
   }
 }
