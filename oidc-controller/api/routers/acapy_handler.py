@@ -1,5 +1,5 @@
 import json
-import logging
+import structlog
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, Request
@@ -12,14 +12,15 @@ from ..db.session import get_db
 
 from ..core.config import settings
 
-from ..routers.socketio import (sio, connections_reload)
-
-logger = logging.getLogger(__name__)
+logger = structlog.getLogger(__name__)
+from ..routers.socketio import sio, connections_reload
 
 router = APIRouter()
 
+
 async def _parse_webhook_body(request: Request):
     return json.loads((await request.body()).decode("ascii"))
+
 
 @router.post("/topic/{topic}/")
 async def post_topic(request: Request, topic: str, db: Database = Depends(get_db)):
@@ -37,12 +38,12 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
                 webhook_body["presentation_exchange_id"]
             )
-            
+
             # Get the saved websocket session
             pid = str(auth_session.id)
             connections = connections_reload()
             sid = connections.get(pid)
-            
+
             if webhook_body["state"] == "presentation_received":
                 logger.info("GOT A PRESENTATION, TIME TO VERIFY")
                 client.verify_presentation(auth_session.pres_exch_id)
@@ -52,10 +53,10 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                 logger.info("VERIFIED")
                 if webhook_body["verified"] == "true":
                     auth_session.proof_status = AuthSessionState.VERIFIED
-                    await sio.emit('status', {'status': 'verified'}, to=sid)
+                    await sio.emit("status", {"status": "verified"}, to=sid)
                 else:
                     auth_session.proof_status = AuthSessionState.FAILED
-                    await sio.emit('status', {'status': 'failed'}, to=sid)
+                    await sio.emit("status", {"status": "failed"}, to=sid)
 
                 await AuthSessionCRUD(db).patch(
                     str(auth_session.id), AuthSessionPatch(**auth_session.dict())
@@ -80,7 +81,7 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             ):
                 logger.info("EXPIRED")
                 auth_session.proof_status = AuthSessionState.EXPIRED
-                await sio.emit('status', {'status': 'expired'}, to=sid)
+                await sio.emit("status", {"status": "expired"}, to=sid)
                 await AuthSessionCRUD(db).patch(
                     str(auth_session.id), AuthSessionPatch(**auth_session.dict())
                 )

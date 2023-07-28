@@ -1,0 +1,23 @@
+{
+  "logger": {
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+      "plain": {
+        "()": "structlog.stdlib.ProcessorFormatter",
+        "processors": [
+          "renderer"
+        ],
+        "foreign_pre_chain": "shared_processors"
+      }
+    },
+    "handlers": {
+      "out": {
+        "formatter": "plain",
+        "class": "logging.StreamHandler",
+        "stream": "ext://sys.stdout"
+      }
+    },
+    "loggers": {}
+  }
+}

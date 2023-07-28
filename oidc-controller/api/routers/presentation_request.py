@@ -1,4 +1,4 @@
-import logging
+import structlog
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
@@ -21,7 +21,7 @@ from ..routers.socketio import (sio, connections_reload)
 from ..db.session import get_db
 from ..templates.helpers import add_asset
 
-logger = logging.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 router = APIRouter()
 
@@ -111,5 +111,5 @@ async def send_connectionless_proof_req(
             service=s_d,
         )
         msg_contents = msg
-    print(msg_contents.dict(by_alias=True))
+    logger.debug(msg_contents.dict(by_alias=True))
     return JSONResponse(msg_contents.dict(by_alias=True))

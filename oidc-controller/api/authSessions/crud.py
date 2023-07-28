@@ -1,4 +1,4 @@
-import logging
+import structlog
 
 from typing import Union
 from pymongo import ReturnDocument
@@ -16,7 +16,7 @@ from .models import (
 from api.db.session import COLLECTION_NAMES
 
 
-logger = logging.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 
 class AuthSessionCRUD:

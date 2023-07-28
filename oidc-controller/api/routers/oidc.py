@@ -1,6 +1,6 @@
 import base64
 import io
-import logging
+import structlog
 from urllib.parse import urlencode
 from datetime import datetime
 
@@ -32,7 +32,7 @@ AuthorizeCallbackUri = "/callback"
 VerifiedCredentialAuthorizeUri = "/authorize"
 VerifiedCredentialTokenUri = "/token"
 
-logger = logging.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 router = APIRouter()
 

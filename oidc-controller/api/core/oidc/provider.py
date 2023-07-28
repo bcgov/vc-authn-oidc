@@ -1,4 +1,5 @@
-import logging
+import structlog
+import structlog.typing
 import os
 
 from api.core.config import settings
@@ -14,7 +15,7 @@ from pyop.userinfo import Userinfo
 from urllib.parse import urlparse
 from jwkest.jwk import rsa_load, RSAKey, KEYS
 
-logger = logging.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.get_logger()
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
