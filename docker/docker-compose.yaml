@@ -49,22 +49,22 @@ services:
       - vc_auth
 
   keycloak:
-    image: jboss/keycloak:16.0.0
+    image: quay.io/keycloak/keycloak:22.0
+    command: start-dev --import-realm --http-relative-path=/auth
     ports:
       - 8880:8080
     volumes:
-      - ./keycloak/config:/tmp
+      - ./keycloak/config:/opt/keycloak/data/import
     environment:
-      DB_VENDOR: ${KEYCLOAK_DB_VENDOR}
-      DB_ADDR: ${KEYCLOAK_DB_ADDR}
-      DB_DATABASE: ${KEYCLOAK_DB_NAME}
-      DB_USER: ${KEYCLOAK_DB_USER}
-      DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
-      KEYCLOAK_USER: ${KEYCLOAK_USER}
-      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
-      KEYCLOAK_LOGLEVEL: ${KEYCLOAK_LOGLEVEL}
-      ROOT_LOGLEVEL: ${KEYCLOAK_ROOT_LOGLEVEL}
-      KEYCLOAK_IMPORT: ${KEYCLOAK_IMPORT}
+      KC_DB: ${KEYCLOAK_DB_VENDOR}
+      KC_DB_URL: jdbc:postgresql://${KEYCLOAK_DB_ADDR}/keycloak
+      # DB_DATABASE: ${KEYCLOAK_DB_NAME}
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_USER}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_PASSWORD}
+      # KEYCLOAK_LOGLEVEL: ${KEYCLOAK_LOGLEVEL}
+      # ROOT_LOGLEVEL: ${KEYCLOAK_ROOT_LOGLEVEL}
     depends_on:
       - keycloak-db
     networks:
@@ -82,7 +82,7 @@ services:
       - vc_auth
 
   aca-py:
-    image: bcgovimages/aries-cloudagent:py36-1.16-1_0.8.1
+    image: ghcr.io/hyperledger/aries-cloudagent-python:py3.9-0.9.0
     environment:
       - ACAPY_LABEL=${AGENT_NAME}
       - ACAPY_ENDPOINT=${AGENT_ENDPOINT}
