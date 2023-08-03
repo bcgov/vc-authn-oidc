@@ -354,7 +354,7 @@ function setNgrokEndpoints() {
   echoInfo "Determining ngrok url for controller service..."
   docker run --rm curlimages/curl -L -s http://${DOCKERHOST}:4056/api/tunnels > controller-ngrok.json
   NGROK_CONTROLLER_URL=$(docker run --rm -i ghcr.io/jqlang/jq:1.7rc1 < controller-ngrok.json --raw-output '.tunnels | map(select(.name=="command_line")) | .[0] | .public_url')
-  if [ -z "$NGROK_CONTROLLER_URL" ]; then
+  if [[ -z "$NGROK_CONTROLLER_URL" || "null" -eq "$NGROK_CONTROLLER_URL" ]]; then
     echoError "It was not possible to establish a connection with ngrok, please check the ngrok container logs for errors."
     exit 1
   fi
@@ -364,7 +364,7 @@ function setNgrokEndpoints() {
   echoInfo "Determining ngrok url for agent service..."
   docker run --rm curlimages/curl -L -s http://${DOCKERHOST}:${NGROK_AGENT_PORT}/api/tunnels > agent-ngrok.json
   NGROK_AGENT_URL=$(docker run --rm -i ghcr.io/jqlang/jq:1.7rc1 < agent-ngrok.json --raw-output '.tunnels | map(select(.name=="command_line")) | .[0] | .public_url')
-  if [ -z "$NGROK_AGENT_URL" ]; then
+  if [[ -z "$NGROK_AGENT_URL" || "null" -eq "$NGROK_AGENT_URL" ]]; then
     echoError "It was not possible to establish a connection with ngrok, please check the ngrok container logs for errors."
     exit 1
   fi
