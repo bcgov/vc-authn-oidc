@@ -367,8 +367,6 @@ function getNgrokUrl() {
   _output_file=$2
   _target_variable=$3
 
-  sleep 40
-
   docker run --rm curlimages/curl -L -s $_url > $_output_file
 
   NGROK_URL=$(docker run --rm -i ghcr.io/jqlang/jq:1.7rc1 < $_output_file --raw-output '.tunnels | map(select(.name=="command_line")) | .[0] | .public_url')
