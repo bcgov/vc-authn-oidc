@@ -274,9 +274,11 @@ initializeUserPrompts() {
   fi
   ######
 
-  # Set custom CONTROLLER_SERVICE_PORT if needed
+  # Set CONTROLLER_SERVICE_PORT for the ngrok service to use
   if [ ! -z "$CONTROLLER_SERVICE_PORT" ]; then
     echo "CONTROLLER_SERVICE_PORT=${CONTROLLER_SERVICE_PORT}" >> .env
+  else
+    echo "CONTROLLER_SERVICE_PORT=5000" >> .env
   fi
 
   PS3="Is your agent single-tenant or multi-tenant? "
