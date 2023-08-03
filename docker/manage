@@ -274,6 +274,11 @@ initializeUserPrompts() {
   fi
   ######
 
+  # Set custom CONTROLLER_SERVICE_PORT if needed
+  if [ ! -z "$CONTROLLER_SERVICE_PORT" ]; then
+    echo "CONTROLLER_SERVICE_PORT=${CONTROLLER_SERVICE_PORT}" >> .env
+  fi
+
   PS3="Is your agent single-tenant or multi-tenant? "
   select opt in "Single-Tenant" "Multi-Tenant/Traction" "Quit"; do
     case $REPLY in
