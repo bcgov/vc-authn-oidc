@@ -367,15 +367,29 @@ function getNgrokUrl() {
   _output_file=$2
   _target_variable=$3
 
-  docker run --rm curlimages/curl -L -s $_url > $_output_file
-
-  NGROK_URL=$(docker run --rm -i ghcr.io/jqlang/jq:1.7rc1 < $_output_file --raw-output '.tunnels | map(select(.name=="command_line")) | .[0] | .public_url')
+  function extractUrl() {
+    docker run --rm curlimages/curl -L -s $_url > $_output_file
+    NGROK_URL=$(docker run --rm -i ghcr.io/jqlang/jq:1.7rc1 < $_output_file --raw-output '.tunnels | map(select(.name=="command_line")) | .[0] | .public_url')
   
-  if [ -z "${NGROK_URL}" ] || [ "null" = "${NGROK_URL}" ]; then
-    echoError "It was not possible to establish a connection with ngrok, please check the ngrok container logs for errors."
-    exit 1
-  fi
+    if [ -z "${NGROK_URL}" ] || [ "null" = "${NGROK_URL}" ]; then
+      return 1
+    else
+      return 0
+    fi
+  }
 
+  local startTime=${SECONDS}
+  while ! extractUrl; do
+    printf "."
+    local duration=$(($SECONDS - $startTime))
+    if (( ${duration} >= 60 )); then
+      echoError "It was not possible to establish a connection with ngrok, please check ${_output_file} and the ngrok container logs for errors."
+      rtnCd=1
+      break
+    fi
+    sleep 1
+  done
+  
   rm $_output_file
 
   # assign value to target variable
