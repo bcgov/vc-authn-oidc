@@ -379,10 +379,11 @@ function getNgrokUrl() {
   }
 
   local startTime=${SECONDS}
+  local timeout=${TIMEOUT:-60}
   while ! extractUrl; do
     printf "."
     local duration=$(($SECONDS - $startTime))
-    if (( ${duration} >= 60 )); then
+    if (( ${duration} >= ${timeout} )); then
       echoError "It was not possible to establish a connection with ngrok, please check ${_output_file} and the ngrok container logs for errors."
       rtnCd=1
       break
