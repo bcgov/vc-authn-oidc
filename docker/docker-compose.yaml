@@ -65,6 +65,10 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_PASSWORD}
       # KEYCLOAK_LOGLEVEL: ${KEYCLOAK_LOGLEVEL}
       # ROOT_LOGLEVEL: ${KEYCLOAK_ROOT_LOGLEVEL}
+      #
+      # The following seems to be needed to get the logout redirect URI accepted in Keycloak 22
+      # There may be other ways around this in the vue app (google "error Invalid parameter: redirect_uri on keycloak")
+      KC_SPI_LOGIN_PROTOCOL_OPENID_CONNECT_LEGACY_LOGOUT_REDIRECT_URI: true
     depends_on:
       - keycloak-db
     networks:
