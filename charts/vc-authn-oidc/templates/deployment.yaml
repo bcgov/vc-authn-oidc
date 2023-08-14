@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "vc-authn-oidc.fullname" . }}
+  name: {{ include "global.fullname" . }}
   labels:
     {{- include "vc-authn-oidc.labels" . | nindent 4 }}
 spec:
