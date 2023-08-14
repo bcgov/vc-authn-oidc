@@ -1,4 +1,4 @@
-import logging
+import structlog
 
 from typing import List
 from pymongo import ReturnDocument
@@ -17,7 +17,7 @@ from ..db.session import COLLECTION_NAMES
 from api.core.oidc.provider import init_provider
 
 
-logger = logging.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 
 class ClientConfigurationCRUD:

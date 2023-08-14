@@ -1,4 +1,4 @@
-import logging
+import structlog
 
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 # from oic.oauth2.message import ASConfigurationResponse
 from ..core.oidc import provider
 
-logger = logging.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 router = APIRouter()
 

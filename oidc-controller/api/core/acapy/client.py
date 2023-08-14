@@ -1,6 +1,6 @@
 import requests
 import json
-import logging
+import structlog
 from typing import Optional, Union
 from uuid import UUID
 from .models import WalletDid, CreatePresentationResponse
@@ -8,7 +8,7 @@ from ..config import settings
 from .config import AgentConfig, MultiTenantAcapy, SingleTenantAcapy
 
 _client = None
-logger = logging.getLogger(__name__)
+logger = structlog.getLogger(__name__)
 
 WALLET_DID_URI = "/wallet/did"
 PUBLIC_WALLET_DID_URI = "/wallet/did/public"

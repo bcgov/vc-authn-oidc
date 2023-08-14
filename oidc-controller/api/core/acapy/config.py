@@ -1,5 +1,5 @@
 import requests
-import logging
+import structlog
 import json
 
 from functools import cache
@@ -7,7 +7,7 @@ from typing import Dict, Protocol
 
 from ..config import settings
 
-logger = logging.getLogger(__name__)
+logger = structlog.getLogger(__name__)
 
 
 class AgentConfig(Protocol):
