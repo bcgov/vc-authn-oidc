@@ -54,4 +54,40 @@ spec:
               serviceName: {{ $fullName }}
               servicePort: {{ $svcPort }}
               {{- end }}
+    {{- if .Values.acapy.enabled }}
+    - host: {{ include "acapy.host" . | quote }}
+      http:
+        paths:
+          - path: /
+            {{- if (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
+            pathType: ImplementationSpecific
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $acapyFullName }}
+                port:
+                  number: {{ $httpPort }}
+              {{- else }}
+              serviceName: {{ $acapyFullName }}
+              servicePort: {{ $httpPort }}
+              {{- end }}
+    - host: {{ include "acapy.admin.host" . | quote }}
+      http:
+        paths:
+          - path: /
+            {{- if (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
+            pathType: ImplementationSpecific
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $acapyFullName }}
+                port:
+                  number: {{ $adminPort }}
+              {{- else }}
+              serviceName: {{ $acapyFullName }}
+              servicePort: {{ $adminPort }}
+              {{- end }}
+    {{- end }}
 {{- end }}
