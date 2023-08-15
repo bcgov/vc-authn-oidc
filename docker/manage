@@ -157,7 +157,7 @@ configureEnvironment() {
 
 
   # controller
-  export CONTROLLER_SERVICE_PORT=5000
+  export CONTROLLER_SERVICE_PORT=${CONTROLLER_SERVICE_PORT:-5000}
   export CONTROLLER_URL="${CONTROLLER_URL:-http://controller:5000}"
   export CONTROLLER_WEB_HOOK_URL=${CONTROLLER_WEB_HOOK_URL:-${CONTROLLER_URL}/webhooks}
   if [ ! -z "${CONTROLLER_API_KEY}" ]; then
@@ -199,11 +199,10 @@ configureEnvironment() {
   export KEYCLOAK_DB_PASSWORD="keycloak"
 
   # keycloak
-  export KEYCLOAK_DB_VENDOR="POSTGRES"
+  export KEYCLOAK_DB_VENDOR="postgres"
   export KEYCLOAK_DB_ADDR="keycloak-db"
   export KEYCLOAK_USER="admin"
   export KEYCLOAK_PASSWORD="admin"
-  export KEYCLOAK_IMPORT="/tmp/keycloak_import.json"
   export KEYCLOAK_LOGLEVEL="WARN"
   export KEYCLOAK_ROOT_LOGLEVEL="WARN"
 
@@ -274,6 +273,13 @@ initializeUserPrompts() {
     touch .env
   fi
   ######
+
+  # Set CONTROLLER_SERVICE_PORT for the ngrok service to use
+  if [ ! -z "$CONTROLLER_SERVICE_PORT" ]; then
+    echo "CONTROLLER_SERVICE_PORT=${CONTROLLER_SERVICE_PORT}" >> .env
+  else
+    echo "CONTROLLER_SERVICE_PORT=5000" >> .env
+  fi
 
   PS3="Is your agent single-tenant or multi-tenant? "
   select opt in "Single-Tenant" "Multi-Tenant/Traction" "Quit"; do
@@ -346,27 +352,51 @@ function setNgrokEndpoints() {
   fi
 
   echoInfo "Determining ngrok url for controller service..."
-  docker run --rm curlimages/curl -L -s http://${DOCKERHOST}:4056/api/tunnels > controller-ngrok.json
-  NGROK_CONTROLLER_URL=$(docker run --rm -i stedolan/jq < controller-ngrok.json --raw-output '.tunnels | map(select(.name=="command_line")) | .[0] | .public_url')
-  if [ -z "$NGROK_CONTROLLER_URL" ]; then
-    echoError "It was not possible to establish a connection with ngrok, please check the ngrok container logs for errors."
-    exit 1
-  fi
+  getNgrokUrl http://${DOCKERHOST}:4056/api/tunnels controller-ngrok.json NGROK_CONTROLLER_URL
   export CONTROLLER_URL=${NGROK_CONTROLLER_URL}
   echoSuccess "The controller url is: ${NGROK_CONTROLLER_URL}"
 
   echoInfo "Determining ngrok url for agent service..."
-  docker run --rm curlimages/curl -L -s http://${DOCKERHOST}:${NGROK_AGENT_PORT}/api/tunnels > agent-ngrok.json
-  NGROK_AGENT_URL=$(docker run --rm -i stedolan/jq < agent-ngrok.json --raw-output '.tunnels | map(select(.name=="command_line")) | .[0] | .public_url')
-  if [ -z "$NGROK_AGENT_URL" ]; then
-    echoError "It was not possible to establish a connection with ngrok, please check the ngrok container logs for errors."
-    exit 1
-  fi
+  getNgrokUrl http://${DOCKERHOST}:${NGROK_AGENT_PORT}/api/tunnels agent-ngrok.json NGROK_AGENT_URL
   export AGENT_ENDPOINT=${NGROK_AGENT_URL}
   echoSuccess "The agent url is: ${NGROK_AGENT_URL}"
-
-  rm *-ngrok.json
 }
+
+function getNgrokUrl() {
+  _url=$1
+  _output_file=$2
+  _target_variable=$3
+
+  function extractUrl() {
+    docker run --rm curlimages/curl -L -s $_url > $_output_file
+    NGROK_URL=$(docker run --rm -i ghcr.io/jqlang/jq:1.7rc1 < $_output_file --raw-output '.tunnels | map(select(.name=="command_line")) | .[0] | .public_url')
+  
+    if [ -z "${NGROK_URL}" ] || [ "null" = "${NGROK_URL}" ]; then
+      return 1
+    else
+      return 0
+    fi
+  }
+
+  local startTime=${SECONDS}
+  local timeout=${TIMEOUT:-60}
+  while ! extractUrl; do
+    printf "."
+    local duration=$(($SECONDS - $startTime))
+    if (( ${duration} >= ${timeout} )); then
+      echoError "It was not possible to establish a connection with ngrok, please check ${_output_file} and the ngrok container logs for errors."
+      rtnCd=1
+      break
+    fi
+    sleep 1
+  done
+  
+  rm $_output_file
+
+  # assign value to target variable
+  printf -v "$_target_variable" "%s" "$NGROK_URL"
+}
+
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
