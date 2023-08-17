@@ -25,9 +25,8 @@ helm install my-release charts/vc-authn-oidc
 To install the chart with the release name `my-release`:
 
 ```console
-git clone https://github.com/bcgov/vc-authn-oidc.git
-cd vc-authn-oidc
-helm install my-release charts/vc-authn-oidc
+helm repo add vc-authn-oidc https://bcgov.github.io/vc-authn-oidc
+helm install my-release vc-authn-oidc/vc-authn-oidc
 ```
 
 The command deploys vc-authn-oidc with AcaPY agent, along with the MongoDB and PostgrSQL prerequisites on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
