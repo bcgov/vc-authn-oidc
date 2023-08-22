@@ -125,7 +125,7 @@ Create URL based on hostname and TLS status
 {{- printf "https://%s" (include "vc-authn-oidc.host" .) | quote }}
 {{- else -}}
 {{- printf "http://%s" (include "vc-authn-oidc.host" .) | quote }}
-{{- end -}}}}
+{{- end -}}
 {{- end }}
 
 {{/*
@@ -240,15 +240,22 @@ Return acapy label
 {{- end -}}
 
 {{/*
+Create URL based on hostname and TLS status
+*/}}
+{{- define "acapy.agent.url" -}}
+{{- if .Values.useHTTPS -}}
+{{- printf "https://%s" (include "acapy.host" .) }}
+{{- else -}}
+{{- printf "http://%s" (include "acapy.host" .) }}
+{{- end -}}
+{{- end }}
+
+{{/*
 generate hosts if not overriden
 */}}
 {{- define "acapy.host" -}}
 {{- if .Values.acapy.enabled }}
-{{- if .Values.useHTTPS -}}
-https://{{- include "global.fullname" . }}-agent{{ .Values.ingressSuffix -}}
-{{- else -}}
-http://{{- include "global.fullname" . }}-agent{{ .Values.ingressSuffix -}}
-{{- end -}}}}
+{{- include "global.fullname" . }}-agent{{ .Values.ingressSuffix -}}
 {{- else }}
     {{ .Values.acapy.agentUrl }}
 {{- end }}
