@@ -121,7 +121,11 @@ Create the name of the service account to use
 Create URL based on hostname and TLS status
 */}}
 {{- define "vc-authn-oidc.url" -}}
+{{- if .Values.useHTTPS -}}
 {{- printf "https://%s" (include "vc-authn-oidc.host" .) | quote }}
+{{- else -}}
+{{- printf "http://%s" (include "vc-authn-oidc.host" .) | quote }}
+{{- end -}}}}
 {{- end }}
 
 {{/*
@@ -240,7 +244,11 @@ generate hosts if not overriden
 */}}
 {{- define "acapy.host" -}}
 {{- if .Values.acapy.enabled }}
-    {{- include "global.fullname" . }}-agent{{ .Values.ingressSuffix -}}
+{{- if .Values.useHTTPS -}}
+https://{{- include "global.fullname" . }}-agent{{ .Values.ingressSuffix -}}
+{{- else -}}
+http://{{- include "global.fullname" . }}-agent{{ .Values.ingressSuffix -}}
+{{- end -}}}}
 {{- else }}
     {{ .Values.acapy.agentUrl }}
 {{- end }}
@@ -250,7 +258,7 @@ generate hosts if not overriden
 generate admin url (internal)
 */}}
 {{- define "acapy.internal.admin.url" -}}
-http://{{- include "global.fullname" . }}:{{.Values.acapy.service.adminPort }}
+http://{{- include "acapy.fullname" . }}:{{.Values.acapy.service.adminPort }}
 {{- end -}}
 
 {{/*

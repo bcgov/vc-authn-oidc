@@ -65,9 +65,9 @@ spec:
             - name: CONTROLLER_PRESENTATION_EXPIRE_TIME
               value: {{ .Values.controllerPresentationExpireTime | quote }}
             - name: ACAPY_AGENT_URL
-              value: https://{{ include "acapy.host" . }}
+              value: {{ include "acapy.host" . }}
             - name: ACAPY_ADMIN_URL
-              value: https://{{ include "acapy.admin.host" . }}
+              value: {{ include "acapy.internal.admin.url" . }}
             - name: USE_OOB_PRESENT_PROOF
               value: {{ .Values.useOobPresentProof | quote }}
             - name: SET_NON_REVOKED

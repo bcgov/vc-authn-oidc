@@ -1,3 +1,5 @@
+## @section Common Configuration
+##
 ## @param nameOverride 
 nameOverride: ""
 ## @param fullnameOverride
@@ -17,6 +19,9 @@ image:
 ## @param ingressSuffix Domain suffix to be used for default hostpaths in ingress
 ingressSuffix: .apps.silver.devops.gov.bc.ca
 
+## @section Controller Configuration
+##
+
 ## @param acapyTenancyMode Agent tenancy mode, either `single` or `multi`
 acapyTenancyMode: single
 ## @param setNonRevoked if True, the `non_revoked` attributed  will be added to each of the present-proof request `requested_attribute` and `requested_predicate` with 'from=0' and'to=`int(time.time())`
@@ -29,6 +34,8 @@ useOobLocalDIDService: false
 controllerCameraRedirectUrl: wallet_howto
 ## @param controllerPresentationExpireTime The number of time in seconds a proof request will be valid for
 controllerPresentationExpireTime: 300
+## @param useHTTPS Prepend Agent and Admin URLs with `https`
+useHTTPS: true
 ## @param logLevel Accepts one of the following values: CRITICAL, ERROR, WARNING, INFO, DEBUG
 logLevel: INFO
 

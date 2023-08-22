@@ -43,7 +43,7 @@ spec:
            --inbound-transport http '0.0.0.0' {{ .Values.acapy.service.httpPort }} \
            --outbound-transport http \
            --admin '0.0.0.0' {{ .Values.acapy.service.adminPort }} \
-           --endpoint https://{{ include "acapy.host" . }} \
+           --endpoint {{ include "acapy.host" . }} \
            --arg-file 'argfile.yml'        
            "
           ]
