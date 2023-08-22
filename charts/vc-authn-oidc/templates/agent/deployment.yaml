@@ -43,8 +43,8 @@ spec:
            --inbound-transport http '0.0.0.0' {{ .Values.acapy.service.httpPort }} \
            --outbound-transport http \
            --admin '0.0.0.0' {{ .Values.acapy.service.adminPort }} \
-           --endpoint https://{{ include "vc-authn-oidc.host" . }} \
-           --arg-file '/home/indy/argfile.yml'        
+           --endpoint https://{{ include "acapy.host" . }} \
+           --arg-file 'argfile.yml'        
            "
           ]
           ports:
@@ -104,7 +104,7 @@ spec:
             periodSeconds: 10 
           volumeMounts:
           - name: config
-            mountPath: "/home/indy/argfile.yml"
+            mountPath: "/home/aries/argfile.yml"
             subPath: "argfile.yml"
             readOnly: true
           - name: config
