@@ -43,7 +43,6 @@ spec:
            --inbound-transport http '0.0.0.0' {{ .Values.acapy.service.httpPort }} \
            --outbound-transport http \
            --admin '0.0.0.0' {{ .Values.acapy.service.adminPort }} \
-           --endpoint {{ include "acapy.agent.url" . }} \
            --arg-file 'argfile.yml'        
            "
           ]
@@ -70,6 +69,8 @@ spec:
                 secretKeyRef:
                   name: {{ template "vc-authn-oidc.apiSecretName" . }}
                   key: controllerApiKey
+            - name: ACAPY_ENDPOINT
+              value: {{ include "acapy.agent.url" . }}
             - name: ACAPY_WALLET_KEY
               valueFrom:
                 secretKeyRef:
