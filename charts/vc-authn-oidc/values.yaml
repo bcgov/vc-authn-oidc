@@ -1,144 +1,660 @@
-# Default values for vc-authn-oidc.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+## @section Common Configuration
+##
+## @param nameOverride 
+nameOverride: ""
+## @param fullnameOverride
+fullnameOverride: ""
 
-global:
-  # Default suffix to be used for ingress creation
-  ingressSuffix: .apps.silver.devops.gov.bc.ca
-
+## @param image.repository 
+## @param image.pullPolicy
+## @param image.pullSecrets [array]
+## @param image.tag Overrides the image tag which defaults to the chart appVersion.
+##
 image:
   repository: ghcr.io/bcgov/vc-authn-oidc
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "v2.0.0-alpha1"
+  pullSecrets: []
+  tag: "2.0.0-alpha2"
 
-imagePullSecrets: []
-nameOverride: ""
+## @param ingressSuffix Domain suffix to be used for default hostpaths in ingress
+ingressSuffix: .apps.silver.devops.gov.bc.ca
 
-role: controller
+## @section Controller Configuration
+##
 
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: false
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
+## @param acapyTenancyMode Agent tenancy mode, either `single` or `multi`
+acapyTenancyMode: single
+## @param setNonRevoked if True, the `non_revoked` attributed  will be added to each of the present-proof request `requested_attribute` and `requested_predicate` with 'from=0' and'to=`int(time.time())`
+setNonRevoked: true
+## @param useOobPresentProof if True, the present-proof request will be provided as a an [out of band](https://github.com/hyperledger/aries-rfcs/tree/main/features/0434-outofband) invitation with a [present-proof](https://github.com/hyperledger/aries-rfcs/tree/main/features/0037-present-proof) request inside. If False, the present-proof request will be use the [service-decorator](https://github.com/hyperledger/aries-rfcs/tree/main/features/0056-service-decorator)
+useOobPresentProof: false
+## @param useOobLocalDIDService
+useOobLocalDIDService: false
+## @param controllerCameraRedirectUrl The redirect url can be a web link or the name of a template
+controllerCameraRedirectUrl: wallet_howto
+## @param controllerPresentationExpireTime The number of time in seconds a proof request will be valid for
+controllerPresentationExpireTime: 300
+## @param useHTTPS Prepend Agent and Admin URLs with `https`
+useHTTPS: true
+## @param logLevel Accepts one of the following values: CRITICAL, ERROR, WARNING, INFO, DEBUG
+logLevel: INFO
 
-# Aca-Py settings
-acaPy:
-  agentUrl: ""
-  adminUrl: ""
-  existingSecret: ""
-  useOob: false
-  adminApiKey: ""
-  tenancyMode: single # Valid options: multi, single
-  tenant:
-    walletId: ""
-    walletKey: ""
-
+## @param auth.token.privateKey.filename Specify the name of the signing key file
+## @param auth.token.privateKey.existingSecret Specify the name of the secret containing the signing key to be mounted, if not specified, a new secret will be created.
 auth:
   token:
-    # signMethod: RS256
-    # ttl: 10m
     privateKey:
       filename: jwt-token.pem
       existingSecret: ""
 
+## @param podAnnotations Map of annotations to add to the acapy pods
+##
 podAnnotations: {}
-
+## @param podSecurityContext Pod Security Context
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+##
 podSecurityContext: {}
   # fsGroup: 2000
-
-securityContext: {}
+## @param containerSecurityContext Container Security Context
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+##
+containerSecurityContext: {}
   # capabilities:
   #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
-  # runAsUser: 1000
+  # runAsUser: 1001
 
-## Enable network policies for controller pods, ingress, and mongodb (required on Openshift)
+## Add networkpolicies
+##
 networkPolicy:
+  ## @param networkPolicy.enabled Enable network policies
+  ##
   enabled: true
+  ## @param networkPolicy.ingress.enabled Enable ingress rules
+  ## @param networkPolicy.ingress.namespaceSelector [object] Namespace selector label that is allowed to access the Tenant proxy pods.
+  ## @param networkPolicy.ingress.podSelector [object] Pod selector label that is allowed to access the Tenant proxy pods.
   ingress:
     enabled: true
     namespaceSelector:
       network.openshift.io/policy-group: ingress
-    # podSelector: {}
-  mongodb:
-    enabled: true
-  namespaceSelector: {}
+    podSelector: {}
 
+## Service configuration
+##
 service:
+  ## @param service.type Kubernetes Service type
+  ##
   type: ClusterIP
+  ## @param service.port
+  ##
   port: 5000
 
+## Configure the ingress resource that allows you to access the controller installation
+## ref: https://kubernetes.io/docs/user-guide/ingress/
+##
 ingress:
+  ## @param ingress.enabled Enable ingress record generation for controller
+  ##
   enabled: true
+  ## @param ingress.className IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
+  ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
+  ## ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
+  ##
   className: ""
+  ## @param ingress.annotations Additional annotations for the Ingress resource.
+  ##
   annotations:
-    route.openshift.io/termination: edge
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+   route.openshift.io/termination: edge
+  ## @param ingress.tls Enable TLS configuration for the host defined at ingress.
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
 
+## Controller resource requests and limits
+## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+## @param resources.limits.memory The memory limit for the controller containers
+## @param resources.limits.cpu The cpu limit for the controller containers
+## @param resources.requests.memory The requested memory for the controller containers
+## @param resources.requests.cpu The requested cpu for the controller containers
+##
 resources:
   limits:
-    cpu: 500m
+    cpu: 100m
     memory: 512Mi
   requests:
     cpu: 10m
     memory: 128Mi
 
+## @param replicaCount Number of controller replicas to deploy
+##
 replicaCount: 1
 
+## Autoscaling configuration
+## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+## @param autoscaling.enabled Enable Horizontal POD autoscaling forthe  controller
+## @param autoscaling.minReplicas Minimum number of controller replicas
+## @param autoscaling.maxReplicas Maximum number of controller replicas
+## @param autoscaling.targetCPUUtilizationPercentage Target CPU utilization percentage
+## @param autoscaling.targetMemoryUtilizationPercentage Target Memory utilization percentage
+## @param autoscaling.stabilizationWindowSeconds Stabilization window in seconds
+##
 autoscaling:
   enabled: true
   minReplicas: 1
   maxReplicas: 2
   targetCPUUtilizationPercentage: 80
-  targetMemoryUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: ''
   stabilizationWindowSeconds: 300
 
-nodeSelector: {}
+## ServiceAccount configuration
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+## @param serviceAccount.create Specifies whether a ServiceAccount should be created
+## @param serviceAccount.annotations Annotations for service account. Evaluated as a template. Only used if `create` is `true`.
+## @param serviceAccount.automountServiceAccountToken Automount service account token for the server service account
+## @param serviceAccount.name Name of the service account to use. If not set and create is true, a name is generated using the fullname template.
+##
+serviceAccount:
+  create: false
+  annotations: {}
+  automountServiceAccountToken: true
+  name: ""
 
+## @param affinity Affinity for pods assignment
+## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+## Note: podAffinityPreset, podAntiAffinityPreset, and nodeAffinityPreset will be ignored when it's set
+##
+affinity: {}
+## @param nodeSelector Node labels for pods assignment
+## ref: https://kubernetes.io/docs/user-guide/node-selection/
+##
+nodeSelector: {}
+## @param tolerations Tolerations for pods assignment
+## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+##
 tolerations: []
 
-affinity: {}
 
-database:
-  generateSecret: true
+## @section Acapy Configuration
+##
+acapy:
+  ## @param acapy.enabled Deploy AcaPy agent instance
+  enabled: true
+  ## @param acapy.agentUrl Agent host, required if `enabled`` is `false`, otherwise ignored
+  agentUrl: ""
+  ## @param acapy.adminUrl Agent admin host, required if `enabled` is `false`, otherwise ignored
+  adminUrl: ""
+  ## @param acapy.existingSecret Name of existing secret, required if `enabled` is `false`; Secret must contain `adminApiKey`, `walletKey`, and `webhookApiKey` keys.
+  existingSecret: ""
+  ## @param acapy.agentSeed
+  agentSeed: ""
+  ## @param acapy.image.repository 
+  ## @param acapy.image.pullPolicy
+  ## @param acapy.image.pullSecrets [array]
+  ## @param acapy.image.tag 
+  ##
+  image:
+    repository: ghcr.io/hyperledger/aries-cloudagent-python
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+    tag: py3.9-0.9.0
 
-#  Overrides for bitnami/mongodb chart - https://github.com/bitnami/charts/tree/main/bitnami/mongodb
+  ## ServiceAccount configuration
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+  ## @param acapy.serviceAccount.create Specifies whether a ServiceAccount should be created
+  ## @param acapy.serviceAccount.annotations Annotations for service account. Evaluated as a template. Only used if `create` is `true`.
+  ## @param acapy.serviceAccount.automountServiceAccountToken Automount service account token for the server service account
+  ## @param acapy.serviceAccount.name Name of the service account to use. If not set and create is true, a name is generated using the fullname template.
+  ##
+  serviceAccount:
+    create: false
+    annotations: {}
+    automountServiceAccountToken: true
+    name: ""
+
+  ## @param acapy.replicaCount Number of AcaPy replicas to deploy
+  ##
+  replicaCount: 1
+
+  ## AcaPy Autoscaling configuration
+  ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+  ## @param acapy.autoscaling.enabled Enable Horizontal POD autoscaling for AcaPy
+  ## @param acapy.autoscaling.minReplicas Minimum number of AcaPy replicas
+  ## @param acapy.autoscaling.maxReplicas Maximum number of AcaPy replicas
+  ## @param acapy.autoscaling.targetCPUUtilizationPercentage Target CPU utilization percentage
+  ## @param acapy.autoscaling.targetMemoryUtilizationPercentage Target Memory utilization percentage
+  ## @param acapy.autoscaling.stabilizationWindowSeconds Stabilization window in seconds
+  ##
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: ''
+    stabilizationWindowSeconds: 300
+
+  ## @param acapy.labelOverride
+  labelOverride: ""
+
+  ## @section Acapy configuration file
+  ##
+  ## @descriptionStart
+  ## Configuration file is mounted as is into the container. See the AcaPy documentation for details.
+  ## Note: Secure values of the configuration are passed via equivalent environment variables from secrets.
+  ## @descriptionEnd
+  ##
+  ## @param acapy.argfile.yml.admin-insecure-mode Run the admin web server in insecure mode. DO NOT USE FOR PRODUCTION DEPLOYMENTS. The admin server will be publicly available to anyone who has access to the interface. An auto-generated admin API Key is supplied via `ACAPY-ADMIN-API-KEY`.
+  ## @param acapy.argfile.yml.auto-accept-invites Automatically accept invites without firing a webhook event or waiting for an admin request. Default: false.
+  ## @param acapy.argfile.yml.auto-accept-requests Automatically accept connection requests without firing a webhook event or waiting for an admin request. Default: false.
+  ## @param acapy.argfile.yml.auto-ping-connection Automatically send a trust ping immediately after a connection response is accepted. Some agents require this before marking a connection as 'active'. Default: false.
+  ## @param acapy.argfile.yml.auto-provision If the requested profile does not exist, initialize it with the given parameters.
+  ## @param acapy.argfile.yml.auto-respond-credential-offer Automatically respond to Indy credential offers with a credential request. Default: false
+  ## @param acapy.argfile.yml.auto-respond-messages Automatically respond to basic messages indicating the message was received. Default: false.
+  ## @param acapy.argfile.yml.auto-verify-presentation Automatically verify a presentation when it is received. Default: false.
+  ## @param acapy.argfile.yml.genesis-transactions-list Load YAML configuration for connecting to multiple HyperLedger Indy ledgers.
+  ## @param acapy.argfile.yml.label Specifies the label for this agent. This label is publicized (self-attested) to other agents as part of forming a connection. Set to release name by default.
+  ## @param acapy.argfile.yml.log-level Specifies a custom logging level as one of: ('debug', 'info', 'warning', 'error', 'critical')
+  ## @param acapy.argfile.yml.monitor-ping Send a webhook when a ping is sent or received.
+  ## @param acapy.argfile.yml.multitenant-admin Specify whether to enable the multitenant admin api.
+  ## @param acapy.argfile.yml.multitenant Enable multitenant mode.
+  ## @param acapy.argfile.yml.public-invites Send invitations out using the public DID for the agent, and receive connection requests solicited by invitations which use the public DID. Default: false.
+  ## @param acapy.argfile.yml.read-only-ledger Sets ledger to read-only to prevent updates. Default: false.
+  ## @param acapy.argfile.yml.wallet-name Specifies the wallet name to be used by the agent. This is useful if your deployment has multiple wallets.
+  ## @param acapy.argfile.yml.wallet-storage-type Specifies the type of Indy wallet backend to use. Supported internal storage types are 'basic' (memory), 'default' (sqlite), and 'postgres_storage'.  The default, if not specified, is 'default'.
+  ## @param acapy.argfile.yml.wallet-type Specifies the type of Indy wallet provider to use. Supported internal storage types are 'basic' (memory) and 'indy'. The default (if not specified) is 'basic'.
+  ## @param acapy.argfile.yml.webhook-url Send webhooks containing internal state changes to the specified URL. Optional API key to be passed in the request body can be appended using a hash separator [#]. This is useful for a controller to monitor agent events and respond to those events using the admin API. If not specified, webhooks are not published by the agent.
+  ##
+  argfile.yml:
+    admin-insecure-mode: false
+    auto-accept-invites: true
+    auto-accept-requests: true
+    auto-ping-connection: true
+    auto-provision: true
+    auto-respond-credential-offer: true
+    auto-respond-messages: true
+    auto-verify-presentation: true
+    genesis-transactions-list: /tmp/ledgers.yml
+    label: '{{ include "acapy.label" .}}'
+    log-level: info
+    monitor-ping: true
+    multitenant-admin: false
+    multitenant: false
+    public-invites: true
+    read-only-ledger: true
+    wallet-name: askar-wallet
+    wallet-storage-type: postgres_storage
+    wallet-type: askar
+    webhook-url: '{{ include "vc-authn-oidc.host" . }}'
+
+  ## @param acapy.ledgers.yml [object]
+  ledgers.yml:
+    - id: BCovrinDev
+      is_production: true
+      genesis_url: 'http://dev.bcovrin.vonx.io/genesis'
+    - id: BCovrinTest
+      is_production: true
+      genesis_url: 'http://test.bcovrin.vonx.io/genesis'
+    - id: SovrinStagingNet
+      is_production: true
+      genesis_url: 'https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_sandbox_genesis'
+    - id: CANdyDev
+      is_production: true
+      genesis_url: 'https://raw.githubusercontent.com/ICCS-ISAC/dtrust-reconu/main/CANdy/dev/pool_transactions_genesis'
+    - id: CANdyTest
+      is_production: true
+      is_write: true
+      genesis_url: 'https://raw.githubusercontent.com/ICCS-ISAC/dtrust-reconu/main/CANdy/test/pool_transactions_genesis'
+
+  ## @section Wallet Storage configuration
+  ##  Specifies the storage configuration to use for the wallet. 
+  ##  This is required if you are for using 'postgres_storage' wallet 'storage type. 
+  ##  For example, '{"url":"localhost:5432", "wallet_scheme":"MultiWalletSingleTable"}'.
+  ##  This configuration maps to the indy sdk postgres plugin (PostgresConfig).
+  ##
+  ## @param acapy.walletStorageConfig.json Raw json, overrides all other values including postgres subchart values. e.g.: '{"url":"localhost:5432", "max_connections":"10", "wallet_scheme":"DatabasePerWallet"}'
+  ## @param acapy.walletStorageConfig.url Database url. Overrides all other values including postgres subchart values.
+  ## @param acapy.walletStorageConfig.max_connections Client max connections, defaults to 10.
+  ## @param acapy.walletStorageConfig.wallet_scheme Wallet scheme.
+  ##
+  walletStorageConfig:
+    json: ''
+    url: ''
+    max_connections: 10
+    wallet_scheme: DatabasePerWallet
+
+  ## @section Wallet Storage Credentials
+  ##  Specifies the storage credentials to use for the wallet.
+  ##  This is required if you are for using 'postgres_storage' wallet 'storage type.
+  ##  For example, '{"account":"postgres","password":"mysecretpassword","admin_account":"postgres","admin_password":"mysecretpassword"}'.
+  ##  This configuration maps to the indy sdk postgres plugin (PostgresCredential).
+  ##  NOTE: admin_user must have the CREATEDB role or else initialization will fail.
+  ##
+  ## @param acapy.walletStorageCredentials.json Raw json with database credentials. Overrides all other values including postgres subchart values. e.g.: '{"account":"postgres","password":"mysecretpassword","admin_account":"postgres","admin_password":"mysecretpassword"}'
+  ## @param acapy.walletStorageCredentials.account Database account name.
+  ## @param acapy.walletStorageCredentials.password Database password.
+  ## @param acapy.walletStorageCredentials.admin_account Database account with CREATEDB role used to create additional databases per wallet.
+  ## @param acapy.walletStorageCredentials.admin_password Database password for admin account.
+  ## @param acapy.walletStorageCredentials.existingSecret Name of an existing secret containing 'database-user', 'database-password', 'admin-password' keys.
+  ##
+  walletStorageCredentials:
+    json: ''
+    account: ''
+    password: ''
+    admin_account: postgres
+    admin_password: ''
+    existingSecret: ""
+
+  ## Acapy resource requests and limits
+  ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+  ## @param acapy.resources.limits.memory The memory limit for the Acapy containers
+  ## @param acapy.resources.limits.cpu The cpu limit for the Acapy containers
+  ## @param acapy.resources.requests.memory The requested memory for the Acapy containers
+  ## @param acapy.resources.requests.cpu The requested cpu for the Acapy containers
+  ##
+  resources:
+    limits:
+      cpu: '1'
+      memory: 1000Mi
+    requests:
+      cpu: 250m
+      memory: 384Mi
+
+  ## @param acapy.podAnnotations Map of annotations to add to the acapy pods
+  ##
+  podAnnotations: {}
+  ## @param acapy.podSecurityContext Pod Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  ##
+  podSecurityContext: {}
+    # fsGroup: 2000
+  ## @param acapy.containerSecurityContext Container Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  ##
+  containerSecurityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1001
+
+  ## Acapy service configuration
+  ##
+  service:
+    ## @param acapy.service.type Kubernetes Service type
+    ##
+    type: ClusterIP
+    ## @param acapy.service.adminPort Port to expose for admin service
+    ##
+    adminPort: 8031
+    ## @param acapy.service.httpPort Port to expose for http service
+    ##
+    httpPort: 8030
+
+  ## @param acapy.affinity Affinity for acapy pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## Note: acapy.podAffinityPreset, acapy.podAntiAffinityPreset, and acapy.nodeAffinityPreset will be ignored when it's set
+  ##
+  affinity: {}
+  ## @param acapy.nodeSelector Node labels for acapy pods assignment
+  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+  ## @param acapy.tolerations Tolerations for acapy pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+  
+  ## @section Acapy NetworkPolicy parameters
+
+  ## Add networkpolicies
+  ##
+  networkPolicy:
+    ## @param acapy.networkPolicy.enabled Enable network policies
+    ##
+    enabled: true
+    ## @param acapy.networkPolicy.ingress.enabled Enable ingress rules
+    ## @param acapy.networkPolicy.ingress.namespaceSelector [object] Namespace selector label that is allowed to access the Tenant proxy pods.
+    ## @param acapy.networkPolicy.ingress.podSelector [object] Pod selector label that is allowed to access the Tenant proxy pods.
+    ingress:
+      enabled: true
+      namespaceSelector:
+        network.openshift.io/policy-group: ingress
+      podSelector: {}
+
+  ## @section Acapy OpenShift Route parameters
+  ## ref: https://docs.openshift.com/container-platform/4.11/networking/routes/route-configuration.html
+  ##
+  ## Not required if ingress is enabled
+  openshift:
+    route:
+      ## @param acapy.openshift.route.enabled Create OpenShift Route resource for Acapy
+      ##
+      enabled: false
+      ## @param acapy.openshift.route.path Path that the router watches for, to route traffic to the service
+      ##
+      path: "/"
+      ## @param acapy.openshift.route.targetPort Target port for the service
+      ##
+      targetPort: http
+      ## @param acapy.openshift.route.timeout Timeout in seconds for a route to return
+      ##
+      timeout: 2m
+      tls:
+        ## @param acapy.openshift.route.tls.enabled Enable TLS termination
+        ##
+        enabled: true
+        ## @param acapy.openshift.route.tls.insecureEdgeTerminationPolicy TLS termination policy
+        ##
+        insecureEdgeTerminationPolicy: None
+        ## @param acapy.openshift.route.tls.termination TLS termination type
+        ##
+        termination: edge
+      ## @param acapy.openshift.route.wildcardPolicy Wildcard policy for the route
+      wildcardPolicy: None
+    adminRoute:
+      ## @param acapy.openshift.adminRoute.enabled Create OpenShift Route resource for Acapy admin service
+      ##
+      enabled: false
+      ## @param acapy.openshift.adminRoute.path Path that the router watches for, to route traffic to the service
+      ##
+      path: "/"
+      ## @param acapy.openshift.adminRoute.targetPort Target port for the service
+      ##
+      targetPort: admin
+      ## @param acapy.openshift.adminRoute.timeout Timeout in seconds for a route to return
+      ##
+      timeout: 2m
+      tls:
+        ## @param acapy.openshift.adminRoute.tls.enabled Enable TLS termination
+        ##
+        enabled: true
+        ## @param acapy.openshift.adminRoute.tls.insecureEdgeTerminationPolicy TLS termination policy
+        ##
+        insecureEdgeTerminationPolicy: None
+        ## @param acapy.openshift.adminRoute.tls.termination TLS termination type
+        ##
+        termination: edge
+      ## @param acapy.openshift.adminRoute.wildcardPolicy Wildcard policy for the route
+      ##
+      wildcardPolicy: None
+
+  ## Acapy secret configuration
+  ##
+  secret:
+    adminApiKey:
+      ## @param acapy.secret.adminApiKey.generated Generate admin api key
+      ##
+      generated: true
+      ## @param acapy.secret.adminApiKey.value Override admin api key
+      ##
+      value: ""
+
+##  Overrides for bitnami/mongodb chart - https://github.com/bitnami/charts/tree/main/bitnami/mongodb
 mongodb:
   auth:
+    ## @param mongodb.auth.enabled Enable authentication
+    ## ref: https://docs.mongodb.com/manual/tutorial/enable-authentication/
+    ##
     enabled: true
-    # When used with .databaseSecret.generate: true, existingSecret must be set to '{{ printf "%s-%s" .Release.Name "mongodb" | trunc 63 | trimSuffix "-" }}'
-    existingSecret: '{{ printf "%s-%s" .Release.Name "mongodb" | trunc 63 | trimSuffix "-" }}'
+    ## @param mongodb.auth.existingSecret Existing secret with MongoDB(&reg;) credentials (keys: `mongodb-passwords`, `mongodb-root-password`, `mongodb-metrics-password`, `mongodb-replica-set-key`)
+    ## NOTE: When it's set the previous parameters are ignored.
+    ##
+    existingSecret: '{{ include "global.fullname" . }}'
+    ## MongoDB(&reg;) custom users and databases
+    ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mongodb#creating-a-user-and-database-on-first-run
+    ## @param mongodb.auth.usernames List of custom users to be created during the initialization
+    ## @param mongodb.auth.databases List of custom databases to be created during the initialization
+    ##
     usernames: ['vcauthn']
     databases: ['vcauthn']
+  ## @param mongodb.commonLabels [array] Add labels to all the deployed resources (sub-charts are not considered). Evaluated as a template
+  ##
   commonLabels:
     app: vc-authn-oidc
     role: database
+  ## @param mongodb.image.registry image registry
   image:
     registry: artifacts.developer.gov.bc.ca/docker-remote
+  ## @param mongodb.architecture MongoDB(&reg;) architecture (`standalone` or `replicaset`)
+  ##
   architecture: replicaset
+  ## MongoDB(&reg;) containers' Security Context (main and metrics container).
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  ## @param mongodb.containerSecurityContext.enabled Enable MongoDB(&reg;) container(s)' Security Context
+  ##
   containerSecurityContext:
     enabled: false
+  ## MongoDB(&reg;) pods' Security Context.
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param mongodb.podSecurityContext.enabled Enable MongoDB(&reg;) pod(s)' Security Context
   podSecurityContext:
     enabled: false
+  ## Enable persistence using Persistent Volume Claims
+  ## ref: https://kubernetes.io/docs/user-guide/persistent-volumes/
+  ##
   persistence:
+    ## @param mongodb.persistence.enabled Enable MongoDB(&reg;) data persistence using PVC
+    ##
+    enabled: true
+    ## @param mongodb.persistence.storageClass PVC Storage Class for MongoDB(&reg;) data volume
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ## set, choosing the default provisioner.
+    ##
     storageClass: netapp-block-standard
+  ## ServiceAccount
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+  ##
   serviceAccount:
+    ## @param mongodb.serviceAccount.create Enable creation of ServiceAccount for MongoDB(&reg;) pods
+    ##
     create: false
   arbiter:
+    ## @param mongodb.arbiter.enabled Enable deploying the arbiter
+    ##   https://docs.mongodb.com/manual/tutorial/add-replica-set-arbiter/
+    ##
     enabled: false
   hidden:
+    ## @param mongodb.hidden.enabled Enable deploying the hidden nodes
+    ##   https://docs.mongodb.com/manual/tutorial/configure-a-hidden-replica-set-member/
+    ##
     enabled: false
   metrics:
+    ## @param mongodb.metrics.enabled Enable using a sidecar Prometheus exporter
+    ##
     enabled: false
+
+## @section PostgreSQL parameters
+##
+postgresql:
+  ## @param postgresql.enabled Deploy Bitnami PostgreSQL chart.
+  enabled: true
+  ## @param postgresql.fullnameOverride When overriding fullnameOverride, you must override this to match.
+  fullnameOverride: ""
+  ## @param postgresql.architecture PostgreSQL architecture (`standalone` or `replication`)
+  ##
+  architecture: standalone
+  ## @param postgresql.commonLabels [array] Add labels to all the deployed resources (sub-charts are not considered).
+  commonLabels:
+    app: agent
+    role: database
+  ## Authentication parameters
+  ## ref: https://github.com/bitnami/containers/tree/main/bitnami/postgresql#setting-the-root-password-on-first-run
+  ## ref: https://github.com/bitnami/containers/tree/main/bitnami/postgresql#creating-a-database-on-first-run
+  ## ref: https://github.com/bitnami/containers/tree/main/bitnami/postgresql#creating-a-database-user-on-first-run
+  ##
+  auth:
+    ## @param postgresql.auth.enablePostgresUser Assign a password to the "postgres" admin user. Otherwise, remote access will be blocked for this user
+    ##
+    enablePostgresUser: true
+    ## @param postgresql.auth.existingSecret Name of existing secret to use for PostgreSQL credentials. `postgresql.auth.postgresPassword`, `postgresql.auth.password`, and `postgresql.auth.replicationPassword` will be ignored and picked up from this secret. The secret might also contains the key `ldap-password` if LDAP is enabled. `ldap.bind_password` will be ignored and picked from this secret in this case.
+    ##
+    existingSecret: '{{ include "global.fullname" . }}'
+    ## @param postgresql.auth.secretKeys.adminPasswordKey Name of key in existing secret to use for PostgreSQL credentials. Only used when `auth.existingSecret` is set.
+    ## @param postgresql.auth.secretKeys.userPasswordKey Name of key in existing secret to use for PostgreSQL credentials. Only used when `auth.existingSecret` is set.
+    ##
+    secretKeys:
+      adminPasswordKey: admin-password
+      userPasswordKey: database-password
+    ## @param postgresql.auth.database Name for a custom database to create
+    ##
+    database: traction
+    ## @param postgresql.auth.username Name for a custom user to create
+    ##
+    username: acapy
+
+  ## PostgreSQL Primary parameters
+  primary:
+    ## PostgreSQL Primary persistence configuration
+    ##
+    persistence:
+      ## @param postgresql.primary.persistence.enabled Enable PostgreSQL Primary data persistence using PVC
+      ##
+      enabled: true
+      ## @param postgresql.primary.persistence.size PVC Storage Request for PostgreSQL volume
+      ##
+      size: 1Gi
+    ## Container Security Context
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+    ## @param postgresql.primary.containerSecurityContext.enabled Enable container security context
+    ##
+    containerSecurityContext:
+      enabled: false
+    ## Pod Security Context
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+    ## @param postgresql.primary.podSecurityContext.enabled Enable security context
+    ##
+    podSecurityContext:
+      enabled: false
+    ## PostgreSQL Primary resource requests and limits
+    ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+    ## @param postgresql.primary.resources.limits.memory The memory limit for the PostgreSQL Primary containers
+    ## @param postgresql.primary.resources.limits.cpu The cpu limit for the PostgreSQL Primary containers
+    ## @param postgresql.primary.resources.requests.memory The requested memory for the PostgreSQL Primary containers
+    ## @param postgresql.primary.resources.requests.cpu The requested cpu for the PostgreSQL Primary containers
+    ##
+    resources:
+      limits:
+        cpu: 600m
+        memory: 2600Mi
+      requests:
+        cpu: 300m
+        memory: 1300Mi
+    ## @param postgresql.primary.service.ports.postgresql PostgreSQL service port
+    ##
+    service:
+      ports:
+        postgresql: 5432
+    ## @param postgresql.primary.extendedConfiguration Extended PostgreSQL Primary configuration (appended to main or default configuration)
+    ## ref: https://github.com/bitnami/containers/tree/main/bitnami/postgresql#allow-settings-to-be-loaded-from-files-other-than-the-default-postgresqlconf
+    ##
+    extendedConfiguration: |
+      max_connections = 500
+
+## @param postgresql-ha.enabled Deploy HA PostgreSQL chart. Not currently supported, provided for future use.
+postgresql-ha:
+  enabled: false

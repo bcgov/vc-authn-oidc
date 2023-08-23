@@ -3,11 +3,11 @@ apiVersion: v1
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: {{ include "vc-authn-oidc.fullname" . }}-db
+  name: {{ include "global.fullname" . }}-db
   labels:
     {{- include "vc-authn-oidc.labels" . | nindent 4 }}
 spec:
-  # Allow traffic to the db from the controller
+  # Allow traffic from the controller to the db, and between db pods
   ingress:
     - from:
         - podSelector:
@@ -23,6 +23,29 @@ spec:
           port: {{ .Values.mongodb.service.ports.mongodb }}
   podSelector:
     {{- with .Values.mongodb.commonLabels }}
+    matchLabels:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+---
+apiVersion: v1
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: {{ include "acapy.fullname" . }}-db
+  labels:
+    {{- include "acapy.labels" . | nindent 4 }}
+spec:
+  # Allow traffic from the agent to the db
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "acapy.selectorLabels" . | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.postgresql.primary.service.ports.postgresql }}
+  podSelector:
+    {{- with .Values.postgresql.commonLabels }}
     matchLabels:
       {{- toYaml . | nindent 6 }}
     {{- end }}

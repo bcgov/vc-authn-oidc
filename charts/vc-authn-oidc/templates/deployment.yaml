@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "vc-authn-oidc.fullname" . }}
+  name: {{ include "global.fullname" . }}
   labels:
     {{- include "vc-authn-oidc.labels" . | nindent 4 }}
 spec:
@@ -20,11 +20,12 @@ spec:
       labels:
         {{- include "vc-authn-oidc.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.image.pullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "vc-authn-oidc.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
@@ -35,7 +36,7 @@ spec:
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
@@ -54,36 +55,46 @@ spec:
                   key: mongodb-passwords
             - name: CONTROLLER_URL
               value: {{ include "vc-authn-oidc.url" . }}
+            - name: CONTROLLER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "vc-authn-oidc.apiSecretName" . }}
+                  key: controllerApiKey
+            - name: CONTROLLER_CAMERA_REDIRECT_URL
+              value: {{ .Values.controllerCameraRedirectUrl }}
+            - name: CONTROLLER_PRESENTATION_EXPIRE_TIME
+              value: {{ .Values.controllerPresentationExpireTime | quote }}
             - name: ACAPY_AGENT_URL
-              value: {{ .Values.acaPy.agentUrl }}
+              value: {{ include "acapy.agent.url" . }}
             - name: ACAPY_ADMIN_URL
-              value: {{ .Values.acaPy.adminUrl }}
+              value: {{ include "acapy.internal.admin.url" . }}
             - name: USE_OOB_PRESENT_PROOF
-              value: {{ .Values.acaPy.useOob | quote }}
+              value: {{ .Values.useOobPresentProof | quote }}
+            - name: SET_NON_REVOKED
+              value: {{ .Values.setNonRevoked | quote }}
             - name: ACAPY_TENANCY
-              value: {{ .Values.acaPy.tenancyMode }}
-            {{- if eq .Values.acaPy.tenancyMode "single" }}
+              value: {{ .Values.acapyTenancyMode }}
+            {{- if eq .Values.acapyTenancyMode "single" }}
             - name: ST_ACAPY_ADMIN_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "vc-authn-oidc.acapy.secretName" . }}
-                  key: admin-api-key
+                  name: {{ include "acapy.secretName" . }}
+                  key: adminApiKey
             - name: ST_ACAPY_ADMIN_API_KEY_NAME
               value: "x-api-key"
             {{- else }}
             - name: MT_ACAPY_WALLET_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "vc-authn-oidc.acapy.secretName" . }}
-                  key: wallet-id
+              value: {{ (index .Values "acapy" "argfile.yml" "wallet-name" ) }}
             - name: MT_ACAPY_WALLET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "vc-authn-oidc.acapy.secretName" . }}
-                  key: wallet-key
+                  name: {{ include "acapy.secretName" . }}
+                  key: walletKey
             {{- end }}
             - name: SIGNING_KEY_FILEPATH
               value: {{ printf "/opt/token/%s" .Values.auth.token.privateKey.filename }}
+            - name: LOG_LEVEL
+              value: {{ .Values.logLevel | quote }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
