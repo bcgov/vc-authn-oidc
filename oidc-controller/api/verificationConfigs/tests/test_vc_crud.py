@@ -102,7 +102,7 @@ async def test_ver_config_patch_proof_request(db_client: Callable[[], MongoClien
         VerificationConfigPatch(
             proof_request=VerificationProofRequest(
                 version="0.0.2",
-                requested_attributes=[ReqAttr(name="first_name", restrictions=[])],
+                requested_attributes=[ReqAttr(names=["first_name"], restrictions=[])],
                 requested_predicates=[],
             ),
         ),
@@ -113,4 +113,5 @@ async def test_ver_config_patch_proof_request(db_client: Callable[[], MongoClien
         {"ver_config_id": "test_ver_config"}
     )
     assert document["proof_request"]["version"] == "0.0.2"
-    assert document["proof_request"]["requested_attributes"][0]["name"] == "first_name"
+    assert len(document["proof_request"]["requested_attributes"][0]["names"]) == 1
+    assert document["proof_request"]["requested_attributes"][0]["names"][0] == "first_name"
