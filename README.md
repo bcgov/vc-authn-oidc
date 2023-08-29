@@ -77,7 +77,7 @@ curl -X 'POST' \
     "requested_attributes": [
 
       {
-        "name": "email",
+        "names": ["email"],
         "restrictions": [
           {
             "schema_name": "verified-email",

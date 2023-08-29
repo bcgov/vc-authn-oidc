@@ -17,8 +17,7 @@ class AttributeFilter(BaseModel):
 
 
 class ReqAttr(BaseModel):
-    name: str
-    names: Optional[List[str]]
+    names: List[str]
     label: Optional[str]
     restrictions: List[AttributeFilter]
 

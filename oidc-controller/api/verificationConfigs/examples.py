@@ -5,8 +5,7 @@ ex_ver_config_read = {
         "name": "Basic Proof",
         "version": "1.0",
         "requested_attributes": [
-            {"name": "first_name", "restrictions": []},
-            {"name": "last_name", "restrictions": []},
+            {"names": ["first_name", "last_name"], "restrictions": []},
         ],
         "requested_predicates": [],
     },
@@ -19,8 +18,7 @@ ex_ver_config_create = {
         "name": "Basic Proof",
         "version": "1.0",
         "requested_attributes": [
-            {"name": "first_name", "restrictions": []},
-            {"name": "last_name", "restrictions": []},
+            {"names": ["first_name", "last_name"], "restrictions": []},
         ],
         "requested_predicates": [],
     },
