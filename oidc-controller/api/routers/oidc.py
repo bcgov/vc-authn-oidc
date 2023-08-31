@@ -1,10 +1,10 @@
 import base64
 import io
-import structlog
-from urllib.parse import urlencode
 from datetime import datetime
+from urllib.parse import urlencode
 
 import qrcode
+import structlog
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from jinja2 import Template
@@ -12,25 +12,25 @@ from oic.oic.message import AccessTokenRequest, AuthorizationRequest
 from pymongo.database import Database
 
 from ..authSessions.crud import AuthSessionCreate, AuthSessionCRUD
-from ..authSessions.models import AuthSessionState, AuthSessionPatch
+from ..authSessions.models import AuthSessionPatch, AuthSessionState
 from ..core.acapy.client import AcapyClient
 from ..core.config import settings
 from ..core.logger_util import log_debug
 from ..core.oidc import provider
 from ..core.oidc.issue_token_service import Token
 from ..db.session import get_db
-from ..verificationConfigs.crud import VerificationConfigCRUD
 
 # Access to the websocket
-from ..routers.socketio import (sio, connections_reload)
+from ..routers.socketio import connections_reload, sio
 
 # This allows the templates to insert assets like css, js or svg.
 from ..templates.helpers import add_asset
+from ..verificationConfigs.crud import VerificationConfigCRUD
 
 ChallengePollUri = "/poll"
 AuthorizeCallbackUri = "/callback"
-VerifiedCredentialAuthorizeUri = "/authorize"
-VerifiedCredentialTokenUri = "/token"
+VerifiedCredentialAuthorizeUri = f"/{provider.AuthorizeUriEndpoint}"
+VerifiedCredentialTokenUri = f"/{provider.TokenUriEndpoint}"
 
 logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
@@ -40,7 +40,7 @@ router = APIRouter()
 @log_debug
 
 # TODO: To be replaced by a websocket and a python scheduler
-# TODO: This is a hack to get the websocket to expire the proof, if necessary 
+# TODO: This is a hack to get the websocket to expire the proof, if necessary
 @router.get(f"{ChallengePollUri}/{{pid}}")
 async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
     """Called by authorize webpage to see if request
@@ -65,7 +65,7 @@ async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
             str(auth_session.id), AuthSessionPatch(**auth_session.dict())
         )
         # Send message through the websocket.
-        await sio.emit('status', {'status': 'expired'}, to=sid)
+        await sio.emit("status", {"status": "expired"}, to=sid)
 
     return {"proof_status": auth_session.proof_status}
 
