@@ -14,7 +14,7 @@ image:
   repository: ghcr.io/bcgov/vc-authn-oidc
   pullPolicy: IfNotPresent
   pullSecrets: []
-  tag: "2.0.0-alpha2"
+  tag: ""
 
 ## @param ingressSuffix Domain suffix to be used for default hostpaths in ingress
 ingressSuffix: .apps.silver.devops.gov.bc.ca
@@ -77,8 +77,9 @@ networkPolicy:
   ## @param networkPolicy.ingress.podSelector [object] Pod selector label that is allowed to access the Tenant proxy pods.
   ingress:
     enabled: true
-    namespaceSelector:
-      network.openshift.io/policy-group: ingress
+    namespaceSelector: []
+    ## Example:
+      # network.openshift.io/policy-group: ingress
     podSelector: {}
 
 ## Service configuration
@@ -105,8 +106,11 @@ ingress:
   className: ""
   ## @param ingress.annotations Additional annotations for the Ingress resource.
   ##
-  annotations:
-   route.openshift.io/termination: edge
+  annotations: []
+  ## Example:
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"  
+    # route.openshift.io/termination: edge
   ## @param ingress.tls Enable TLS configuration for the host defined at ingress.
   tls: []
   #  - secretName: chart-example-tls
