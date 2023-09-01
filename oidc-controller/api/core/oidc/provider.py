@@ -1,19 +1,18 @@
+import os
+from urllib.parse import urlparse
+
 import structlog
 import structlog.typing
-import os
-
 from api.core.config import settings
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
+from jwkest.jwk import KEYS, RSAKey, rsa_load
 from pymongo.database import Database
 from pyop.authz_state import AuthorizationState
 from pyop.provider import Provider
-from pyop.storage import StatelessWrapper
 from pyop.subject_identifier import HashBasedSubjectIdentifierFactory
 from pyop.userinfo import Userinfo
-from urllib.parse import urlparse
-from jwkest.jwk import rsa_load, RSAKey, KEYS
 
 logger: structlog.typing.FilteringBoundLogger = structlog.get_logger()
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -86,14 +85,15 @@ signing_key = RSAKey(
 )
 signing_keys = KEYS().append(signing_key)
 
-# config from vc-authn-oidc 1.0 can be found here
-# https://toip-vc-authn-controller-dev.apps.silver.devops.gov.bc.ca/.well-known/openid-configuration
+# Define constants so that they can be imported for route definition in routers/oidc.py
+AuthorizeUriEndpoint = "authorize"
+TokenUriEndpoint = "token"
 
 # TODO validate the correctness of this? either change config or add capabilities
 configuration_information = {
     "issuer": issuer_url,
-    "authorization_endpoint": f"{issuer_url}/authorization",
-    "token_endpoint": f"{issuer_url}/token",
+    "authorization_endpoint": f"{issuer_url}/{AuthorizeUriEndpoint}",
+    "token_endpoint": f"{issuer_url}/{TokenUriEndpoint}",
     "jwks_uri": f"{issuer_url}/.well-known/openid-configuration/jwks",
     "response_types_supported": ["code", "id_token", "token"],
     "id_token_signing_alg_values_supported": [signing_key.alg],
