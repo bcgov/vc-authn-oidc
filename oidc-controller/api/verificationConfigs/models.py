@@ -2,7 +2,7 @@ import time
 from typing import Optional, List
 from pydantic import BaseModel, Field
 
-from .examples import ex_ver_config_read, ex_ver_config_create
+from .examples import ex_ver_config
 from ..core.config import settings
 
 
@@ -51,7 +51,8 @@ class VerificationConfigBase(BaseModel):
         }
         for i, req_attr in enumerate(self.proof_request.requested_attributes):
             label = req_attr.label or "req_attr_" + str(i)
-            result["requested_attributes"][label] = req_attr.dict(exclude_none=True)
+            result["requested_attributes"][label] = req_attr.dict(
+                exclude_none=True)
             if settings.SET_NON_REVOKED:
                 result["requested_attributes"][label]["non_revoked"] = {
                     "from": int(time.time()),
@@ -60,7 +61,8 @@ class VerificationConfigBase(BaseModel):
         # TODO add I indexing
         for req_pred in self.proof_request.requested_predicates:
             label = req_pred.label or "req_pred_" + str(i)
-            result["requested_predicates"][label] = req_pred.dict(exclude_none=True)
+            result["requested_predicates"][label] = req_pred.dict(
+                exclude_none=True)
             if settings.SET_NON_REVOKED:
                 result["requested_attributes"][label]["non_revoked"] = {
                     "from": int(time.time()),
@@ -69,7 +71,7 @@ class VerificationConfigBase(BaseModel):
         return result
 
     class Config:
-        schema_extra = {"example": ex_ver_config_create}
+        schema_extra = {"example": ex_ver_config}
 
 
 class VerificationConfig(VerificationConfigBase):
@@ -78,16 +80,6 @@ class VerificationConfig(VerificationConfigBase):
 
 class VerificationConfigRead(VerificationConfigBase):
     ver_config_id: str = Field()
-
-    class Config:
-        schema_extra = {"example": ex_ver_config_read}
-
-
-class VerificationConfigCreate(VerificationConfigBase):
-    ver_config_id: str = Field()
-
-    class Config:
-        schema_extra = {"example": ex_ver_config_create}
 
 
 class VerificationConfigPatch(VerificationConfigBase):
