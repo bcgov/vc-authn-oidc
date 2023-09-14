@@ -45,3 +45,8 @@ class TimestampModel(BaseModel):
 
 class GenericErrorMessage(BaseModel):
     detail: str
+
+
+class RevealedAttribute(BaseModel):
+    sub_proof_index: int
+    values: dict

@@ -1,13 +1,16 @@
-import structlog
+import dataclasses
 import json
 import uuid
-import dataclasses
 from datetime import datetime
-from typing import List, Dict, Any
-from pydantic import BaseModel
+from typing import Any, Dict, List
+
+import structlog
 from oic.oic.message import OpenIDSchema
+from pydantic import BaseModel
+
 from ...authSessions.models import AuthSession
-from ...verificationConfigs.models import VerificationConfig
+from ...verificationConfigs.models import ReqAttr, VerificationConfig
+from ..models import RevealedAttribute
 
 logger = structlog.getLogger(__name__)
 
@@ -52,16 +55,36 @@ class Token(BaseModel):
             ]
         )
 
-        for referent, requested_attr in auth_session.presentation_exchange[
-            "presentation_request"
-        ]["requested_attributes"].items():
-            # loop through each value and put it in token as a claim
-            revealed_attrs: Dict[str, Any] = auth_session.presentation_exchange[
-                "presentation"
-            ]["requested_proof"]["revealed_attrs"]
-            presentation_claims[requested_attr["name"]] = Claim(
-                type=requested_attr["name"], value=revealed_attrs[referent]["raw"]
+        referent: str
+        requested_attr: ReqAttr
+        try:
+            for referent, requested_attr in auth_session.presentation_exchange[
+                "presentation_request"
+            ]["requested_attributes"].items():
+                logger.debug(
+                    f"Processing referent: {referent}, requested_attr: {requested_attr}"
+                )
+                revealed_attrs: Dict[
+                    str, RevealedAttribute
+                ] = auth_session.presentation_exchange["presentation"][
+                    "requested_proof"
+                ][
+                    "revealed_attr_groups"
+                ]
+                logger.debug(f"revealed_attrs: {revealed_attrs}")
+                # loop through each value and put it in token as a claim
+                for attr_name in requested_attr["names"]:
+                    logger.debug(f"AttrName: {attr_name}")
+                    presentation_claims[attr_name] = Claim(
+                        type=attr_name,
+                        value=revealed_attrs[referent]["values"][attr_name]["raw"],
+                    )
+                    logger.debug(f"Compiled presentation_claims: {presentation_claims}")
+        except Exception as err:
+            logger.error(
+                f"An exception occurred while extracting the proof claims: {err}"
             )
+            raise RuntimeError(err)
 
         # look at all presentation_claims and one should
         #   match the configured subject_identifier

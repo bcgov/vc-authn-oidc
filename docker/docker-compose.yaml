@@ -68,7 +68,7 @@ services:
       #
       # The following parameter addresses a redirect error on logout in later (post KC 16 at least).
       # It may be fixable by updating the vue app as well -- google "keycloak error Invalid parameter: redirect_uri"
-      KC_SPI_LOGIN_PROTOCOL_OPENID_CONNECT_LEGACY_LOGOUT_REDIRECT_URI: true
+      KC_SPI_LOGIN_PROTOCOL_OPENID_CONNECT_LEGACY_LOGOUT_REDIRECT_URI: "true"
     depends_on:
       - keycloak-db
     networks:
@@ -98,7 +98,7 @@ services:
       - ACAPY_WALLET_STORAGE_TYPE=${WALLET_TYPE}
       - ACAPY_READ_ONLY_LEDGER=true
       - ACAPY_GENESIS_TRANSACTIONS_LIST=/tmp/ledgers.yaml
-      - ACAPY_LOG_LEVEL=debug
+      - ACAPY_LOG_LEVEL=info
       - ACAPY_WEBHOOK_URL=${CONTROLLER_WEB_HOOK_URL}
       - ACAPY_AUTO_PROVISION=true
       - POSTGRESQL_WALLET_HOST=${POSTGRESQL_WALLET_HOST}

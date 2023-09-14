@@ -1,11 +1,13 @@
-import requests
 import json
-import structlog
 from typing import Optional, Union
 from uuid import UUID
-from .models import WalletDid, CreatePresentationResponse
+
+import requests
+import structlog
+
 from ..config import settings
 from .config import AgentConfig, MultiTenantAcapy, SingleTenantAcapy
+from .models import CreatePresentationResponse, WalletDid
 
 _client = None
 logger = structlog.getLogger(__name__)
@@ -67,7 +69,7 @@ class AcapyClient:
         assert resp_raw.status_code == 200, resp_raw.content
         resp = json.loads(resp_raw.content)
 
-        logger.debug("<<< get_presentation_request -> {resp}")
+        logger.debug(f"<<< get_presentation_request -> {resp}")
         return resp
 
     def verify_presentation(self, presentation_exchange_id: Union[UUID, str]):
