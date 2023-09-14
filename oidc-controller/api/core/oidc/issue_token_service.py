@@ -149,5 +149,3 @@ class Token(BaseModel):
             result[key] = value
 
         return result
-
-        return result
