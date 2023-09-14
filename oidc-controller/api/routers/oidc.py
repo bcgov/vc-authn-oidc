@@ -171,4 +171,5 @@ async def post_token(request: Request, db: Database = Depends(get_db)):
     token_response = provider.provider.handle_token_request(
         data, request.headers, claims
     )
+    logger.debug(f"Token response: {token_response.to_dict()}")
     return token_response.to_dict()
