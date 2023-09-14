@@ -3,19 +3,16 @@ import structlog
 from typing import List
 from pymongo import ReturnDocument
 from pymongo.database import Database
-from fastapi import HTTPException
-from fastapi import status as http_status
 from fastapi.encoders import jsonable_encoder
+
+from ..core.http_exception_util import raise_appropriate_http_exception, check_and_raise_not_found_http_exception
+from ..core.oidc.provider import init_provider
+from ..db.session import COLLECTION_NAMES
 
 from .models import (
     ClientConfiguration,
-    ClientConfigurationCreate,
     ClientConfigurationPatch,
-    ClientConfigurationRead,
 )
-from ..db.session import COLLECTION_NAMES
-from api.core.oidc.provider import init_provider
-
 
 logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
@@ -25,10 +22,14 @@ class ClientConfigurationCRUD:
         self._db = db
 
     async def create(
-        self, client_config: ClientConfigurationCreate
+        self, client_config: ClientConfiguration
     ) -> ClientConfiguration:
         col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
-        col.insert_one(jsonable_encoder(client_config))
+        try:
+            col.insert_one(jsonable_encoder(client_config))
+        except Exception as err:
+            raise_appropriate_http_exception(
+                err, exists_msg="Client configuration already exists")
 
         # remake provider instance to refresh provider client
         await init_provider(self._db)
@@ -36,21 +37,16 @@ class ClientConfigurationCRUD:
             **col.find_one({"client_id": client_config.client_id})
         )
 
-    async def get(self, client_id: str) -> ClientConfigurationRead:
+    async def get(self, client_id: str) -> ClientConfiguration:
         col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
         obj = col.find_one({"client_id": client_id})
-
-        if obj is None:
-            raise HTTPException(
-                status_code=http_status.HTTP_404_NOT_FOUND,
-                detail="The client_config hasn't been found!",
-            )
+        check_and_raise_not_found_http_exception(obj)
 
         return ClientConfiguration(**obj)
 
-    async def get_all(self) -> List[ClientConfigurationRead]:
+    async def get_all(self) -> List[ClientConfiguration]:
         col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
-        return [ClientConfigurationRead(**cc) for cc in col.find()]
+        return [ClientConfiguration(**cc) for cc in col.find()]
 
     async def patch(
         self, client_id: str, data: ClientConfigurationPatch
@@ -61,6 +57,8 @@ class ClientConfigurationCRUD:
             {"$set": data.dict(exclude_unset=True)},
             return_document=ReturnDocument.AFTER,
         )
+        check_and_raise_not_found_http_exception(obj)
+
         # remake provider instance to refresh provider client
         await init_provider(self._db)
         return obj
@@ -68,8 +66,8 @@ class ClientConfigurationCRUD:
     async def delete(self, client_id: str) -> bool:
         col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
         obj = col.find_one_and_delete({"client_id": client_id})
+        check_and_raise_not_found_http_exception(obj)
 
         # remake provider instance to refresh provider client
         await init_provider(self._db)
-
         return bool(obj)

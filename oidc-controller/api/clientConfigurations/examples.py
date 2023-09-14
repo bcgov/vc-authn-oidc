@@ -1,6 +1,6 @@
 from api.core.config import settings
 
-ex_client_config_create = {
+ex_client_config = {
     "client_id": settings.OIDC_CLIENT_ID,
     "client_name": settings.OIDC_CLIENT_NAME,
     "client_secret": "**********",
