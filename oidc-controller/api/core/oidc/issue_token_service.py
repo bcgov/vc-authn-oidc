@@ -1,13 +1,16 @@
-import structlog
+import dataclasses
 import json
 import uuid
-import dataclasses
 from datetime import datetime
-from typing import List, Dict, Any
-from pydantic import BaseModel
+from typing import Any, Dict, List
+
+import structlog
 from oic.oic.message import OpenIDSchema
+from pydantic import BaseModel
+
 from ...authSessions.models import AuthSession
-from ...verificationConfigs.models import VerificationConfig
+from ...verificationConfigs.models import ReqAttr, VerificationConfig
+from ..models import RevealedAttribute
 
 logger = structlog.getLogger(__name__)
 
@@ -52,16 +55,26 @@ class Token(BaseModel):
             ]
         )
 
+        referent: str
+        requested_attr: ReqAttr
         for referent, requested_attr in auth_session.presentation_exchange[
             "presentation_request"
         ]["requested_attributes"].items():
+            logger.debug(f"Referent: {referent}, ReqAttr: {requested_attr}")
+            revealed_attrs: Dict[
+                str, RevealedAttribute
+            ] = auth_session.presentation_exchange["presentation"]["requested_proof"][
+                "revealed_attr_groups"
+            ]
+            logger.debug(f"revealed Attrs: {revealed_attrs}")
             # loop through each value and put it in token as a claim
-            revealed_attrs: Dict[str, Any] = auth_session.presentation_exchange[
-                "presentation"
-            ]["requested_proof"]["revealed_attrs"]
-            presentation_claims[requested_attr["name"]] = Claim(
-                type=requested_attr["name"], value=revealed_attrs[referent]["raw"]
-            )
+            for attr_name in requested_attr["names"]:
+                logger.debug(f"AttrName: {attr_name}")
+                presentation_claims[attr_name] = Claim(
+                    type=attr_name,
+                    value=revealed_attrs[referent]["values"][attr_name]["raw"],
+                )
+                logger.debug(f"Claims: {presentation_claims}")
 
         # look at all presentation_claims and one should
         #   match the configured subject_identifier
@@ -124,5 +137,7 @@ class Token(BaseModel):
         # add to the top level of the dict.
         for key, value in standard_claims.to_dict().items():
             result[key] = value
+
+        return result
 
         return result
