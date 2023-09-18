@@ -117,3 +117,29 @@ curl -X 'POST' \
 - Lastly, obtain a valid BCGov Verified Email credential from the [BCGov Email Verification Service](https://email-verification.vonx.io)
 
 After all these steps have been completed, you should be able to authenticate with the demo application using the "Verified Credential Access" option.
+
+## Debugging
+
+To connect a debugger to the `vc-authn` controller service, start the project using `DEBUGGER=true ./manage start` and then launch the debugger, it should connect automatically to the container.
+
+This is a sample debugger launch configuration for VSCode that can be used by adding it to `launch.json`:
+```json
+{
+    "version": "0.1.0",
+    "configurations": [
+        {
+            "name": "Python: Debug VC-AuthN Controller",
+            "type": "python",
+            "request": "attach",
+            "port": 5678,
+            "host": "localhost",
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/oidc-controller",
+                    "remoteRoot": "/app"
+                }
+            ]
+        }
+    ]
+}
+```

@@ -2,14 +2,19 @@ version: "3"
 services:
   controller:
     image: vc-authn-oidc-controller
-
     entrypoint: /bin/bash
-    command:
-      [
-        "-c",
-        "uvicorn api.main:app --reload --host 0.0.0.0 --port 5000 --log-level info",
-      ]
+    command: >
+      -c "
+      if [ $DEBUGGER ] && [ "$DEBUGGER" == "true" ]; then
+        echo 'Starting in debug mode...'
+        pip install debugpy -t /tmp && \
+        python /tmp/debugpy --wait-for-client --listen 0.0.0.0:5678 -m uvicorn api.main:app --reload --host 0.0.0.0 --port 5000;
+      else
+        echo 'Starting in production mode...'
+        uvicorn api.main:app --reload --host 0.0.0.0 --port 5000;
+      fi"
     environment:
+      - DEBUGGER=${DEBUGGER}
       - DB_HOST=${MONGODB_HOST}
       - DB_PORT=${MONGODB_PORT}
       - DB_NAME=${MONGODB_NAME}
@@ -28,6 +33,7 @@ services:
       - USE_OOB_PRESENT_PROOF=${USE_OOB_PRESENT_PROOF}
     ports:
       - ${CONTROLLER_SERVICE_PORT}:5000
+      - 5678:5678
     volumes:
       - ../oidc-controller:/app:rw
     networks:

@@ -1,27 +1,23 @@
 # import api.core.logconfig
-import logging
-import logging.config
-import structlog
 import os
 import time
 import uuid
 from pathlib import Path
 
+import structlog
 import uvicorn
 from api.core.config import settings
+from api.core.oidc.provider import init_provider
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
-from fastapi.responses import HTMLResponse
-from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import acapy_handler, oidc, presentation_request, well_known_oid_config
-from .verificationConfigs.router import router as ver_configs_router
 from .clientConfigurations.router import router as client_config_router
-from .db.session import init_db, get_db
+from .db.session import get_db, init_db
+from .routers import acapy_handler, oidc, presentation_request, well_known_oid_config
 from .routers.socketio import sio_app
-
-from api.core.oidc.provider import init_provider
+from .verificationConfigs.router import router as ver_configs_router
 
 logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
