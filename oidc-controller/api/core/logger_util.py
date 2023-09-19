@@ -1,8 +1,9 @@
 import structlog
 import time
-
-
 from typing import Callable, Any
+
+logger = structlog.getLogger(__name__)
+
 
 
 def log_debug(func: Callable[..., Any]) -> Callable[..., Any]:
@@ -20,3 +21,11 @@ def log_debug(func: Callable[..., Any]) -> Callable[..., Any]:
         return ret_val
 
     return wrapper
+
+
+def extract_error_msg_from_traceback_exc(format_exc) -> str:
+    try:
+        return format_exc.splitlines()[-1].split(": ")[1:][0]
+    except Exception:
+        logger.error(f"Failed to extract error message from traceback: {format_exc}")
+        return "Unknown error"
