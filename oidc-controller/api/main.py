@@ -1,3 +1,4 @@
+import sys
 import traceback
 import structlog
 import os
@@ -21,7 +22,7 @@ from .verificationConfigs.router import router as ver_configs_router
 from .clientConfigurations.router import router as client_config_router
 from .db.session import init_db, get_db
 from .routers.socketio import sio_app
-from api.core.logger_util import extract_error_msg_from_traceback_exc
+from api.core.logger_util import extract_detail_from_exception
 from api.core.models import GenericErrorMessage
 from api.core.oidc.provider import init_provider
 
@@ -104,10 +105,11 @@ async def logging_middleware(request: Request, call_next) -> Response:
             if os.environ.get("LOG_WITH_JSON") is True:
                 logger.error(traceback.format_exc())
 
+            exc_type, exc_value, _ = sys.exc_info()
             return JSONResponse(
                 status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
                 content=GenericErrorMessage(
-                    detail=extract_error_msg_from_traceback_exc(traceback.format_exc())).dict()
+                    detail=extract_detail_from_exception(traceback.format_exception_only(exc_type, exc_value))).dict()
             )
 
 
