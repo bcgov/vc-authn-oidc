@@ -81,6 +81,13 @@ Agent labels
 {{- end -}}
 
 {{/*
+Agent tails pvc name.
+*/}}
+{{- define "acapy.tails.pvc.name" -}}
+{{ template "acapy.fullname" . }}-tails
+{{- end -}}
+
+{{/*
 vc-authn-oidc labels
 */}}
 {{- define "vc-authn-oidc.labels" -}}
