@@ -1,7 +1,5 @@
 import structlog
 import time
-
-
 from typing import Callable, Any
 
 

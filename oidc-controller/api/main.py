@@ -1,23 +1,28 @@
-# import api.core.logconfig
+import traceback
+import structlog
 import os
 import time
 import uuid
 from pathlib import Path
 
-import structlog
 import uvicorn
 from api.core.config import settings
-from api.core.oidc.provider import init_provider
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
+from fastapi.exceptions import HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import status as http_status
 
 from .clientConfigurations.router import router as client_config_router
 from .db.session import get_db, init_db
 from .routers import acapy_handler, oidc, presentation_request, well_known_oid_config
-from .routers.socketio import sio_app
 from .verificationConfigs.router import router as ver_configs_router
+from .clientConfigurations.router import router as client_config_router
+from .db.session import init_db, get_db
+from .routers.socketio import sio_app
+from api.core.models import GenericErrorMessage
+from api.core.oidc.provider import init_provider
 
 logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
@@ -73,9 +78,7 @@ if origins:
 
 @app.middleware("http")
 async def logging_middleware(request: Request, call_next) -> Response:
-    # clear the threadlocal context
     structlog.threadlocal.clear_threadlocal()
-    # bind threadlocal
     structlog.threadlocal.bind_threadlocal(
         logger="uvicorn.access",
         request_id=str(uuid.uuid4()),
@@ -86,14 +89,24 @@ async def logging_middleware(request: Request, call_next) -> Response:
     start_time = time.time()
     try:
         response: Response = await call_next(request)
+        return response
     finally:
         process_time = time.time() - start_time
-        logger.info(
-            "processed a request",
-            status_code=response.status_code,
-            process_time=process_time,
-        )
-    return response
+        # If we have a response object, log the details
+        if 'response' in locals():
+            logger.info("processed a request", status_code=response.status_code, process_time=process_time)
+        # Otherwise, extract the exception from traceback, log and return a 500 response
+        else:
+            logger.info("failed to process a request", status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR, process_time=process_time)
+
+            # Need to explicitly log the traceback as json here. Not clear as to why.
+            if os.environ.get("LOG_WITH_JSON", True) is True:
+                logger.error(traceback.format_exc())
+
+            raise HTTPException(
+                status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal Server Error",
+            )
 
 
 @app.on_event("startup")
