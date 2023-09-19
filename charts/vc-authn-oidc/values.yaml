@@ -349,7 +349,30 @@ acapy:
     admin_account: postgres
     admin_password: ''
     existingSecret: ""
-
+  ## @section Acapy tails persistence configuration
+  persistence:
+    ## @param acapy.persistence.existingClaim Name of an existing PVC to use
+    ##
+    existingClaim: ""
+    ## @param acapy.persistence.mountPath
+    ##
+    mountPath: /home/aries/.indy_client/tails
+    ## @param acapy.persistence.storageClass PVC Storage Class
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    storageClass: ""
+    ## @param acapy.persistence.accessModes PVC Access Mode. ReadWriteMany is required for each Acapy pod to access the same volume.
+    ##
+    accessModes:
+      - ReadWriteMany
+    ## @param acapy.persistence.size PVC Storage Request for tails volume
+    ##
+    size: 1Gi
+  ## @section Acapy common configurations
   ## Acapy resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   ## @param acapy.resources.limits.memory The memory limit for the Acapy containers
