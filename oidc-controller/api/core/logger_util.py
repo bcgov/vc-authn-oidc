@@ -2,9 +2,6 @@ import structlog
 import time
 from typing import Callable, Any
 
-logger = structlog.getLogger(__name__)
-
-
 
 def log_debug(func: Callable[..., Any]) -> Callable[..., Any]:
     def wrapper(*args, **kwargs):
