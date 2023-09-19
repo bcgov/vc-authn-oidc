@@ -11,7 +11,7 @@ from api.core.config import settings
 from fastapi import FastAPI
 from starlette.requests import Request
 from starlette.responses import Response
-from fastapi.responses import JSONResponse
+from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import status as http_status
 
@@ -22,7 +22,6 @@ from .verificationConfigs.router import router as ver_configs_router
 from .clientConfigurations.router import router as client_config_router
 from .db.session import init_db, get_db
 from .routers.socketio import sio_app
-from api.core.logger_util import extract_detail_from_exception
 from api.core.models import GenericErrorMessage
 from api.core.oidc.provider import init_provider
 
@@ -99,17 +98,15 @@ async def logging_middleware(request: Request, call_next) -> Response:
             logger.info("processed a request", status_code=response.status_code, process_time=process_time)
         # Otherwise, extract the exception from traceback, log and return a 500 response
         else:
-            logger.info("failed to process a request", status_code=500, process_time=process_time)
+            logger.info("failed to process a request", status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR, process_time=process_time)
 
             # Need to explicitly log the traceback as json here. Not clear as to why.
-            if os.environ.get("LOG_WITH_JSON") is True:
+            if os.environ.get("LOG_WITH_JSON", True) is True:
                 logger.error(traceback.format_exc())
 
-            exc_type, exc_value, _ = sys.exc_info()
-            return JSONResponse(
+            raise HTTPException(
                 status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
-                content=GenericErrorMessage(
-                    detail=extract_detail_from_exception(traceback.format_exception_only(exc_type, exc_value))).dict()
+                detail="Internal Server Error",
             )
 
 

@@ -21,11 +21,3 @@ def log_debug(func: Callable[..., Any]) -> Callable[..., Any]:
         return ret_val
 
     return wrapper
-
-
-def extract_detail_from_exception(exception_only_list) -> str:
-    try:
-        return exception_only_list[0].split(": ")[1:][0].rstrip()
-    except Exception:
-        logger.error(f"Failed to get exception details from: {exception_only_list}")
-        return "Unknown error"
