@@ -1,17 +1,15 @@
 import json
 import logging
-import sys
 import logging.config
-import structlog
 import os
+import sys
 from enum import Enum
 from functools import lru_cache
+from pathlib import Path
 from typing import Optional, Union
 
+import structlog
 from pydantic import BaseSettings
-
-from pathlib import Path
-
 
 # Use environment variable to determine logging format
 # fallback to logconf.json
