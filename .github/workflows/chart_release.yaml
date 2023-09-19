@@ -1,0 +1,47 @@
+name: Helm Chart Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  # Sometimes chart-releaser might fetch an outdated index.yaml from gh-pages, causing a WAW hazard on the repo
+  # This job checks the remote file is up to date with the local one on release
+  validate-gh-pages-index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+      - name: Download remote index file and check equality
+        run: |
+          curl -vsSL https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/index.yaml > index.yaml.remote
+          LOCAL="$(md5sum < index.yaml)"
+          REMOTE="$(md5sum < index.yaml.remote)"
+          echo "$LOCAL" = "$REMOTE"
+          test "$LOCAL" = "$REMOTE"
+
+  chart-release:
+    name: Create chart release
+    runs-on: ubuntu-latest
+    needs: [ validate-gh-pages-index ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+      - name: Add bitnami repository
+        run: helm repo add bitnami https://charts.bitnami.com/bitnami
+      - name: Run chart-releaser
+        uses: ./.github/actions/chart_releaser
+        with:
+          config: .github/actions/chart_releaser/cr.yaml
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
