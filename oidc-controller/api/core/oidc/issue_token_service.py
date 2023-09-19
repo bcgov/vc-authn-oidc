@@ -32,7 +32,7 @@ class Token(BaseModel):
 
     @classmethod
     def get_claims(
-        cls, pres_exch: Dict, auth_session: AuthSession, ver_config: VerificationConfig
+        cls, auth_session: AuthSession, ver_config: VerificationConfig
     ) -> dict[str, str]:
         """Converts vc presentation values to oidc claims"""
         oidc_claims: List[Claim] = [
@@ -108,7 +108,8 @@ class Token(BaseModel):
             {c.type: c.value for c in presentation_claims.values()}
         )
         return result
-
+    
+    # TODO: Determine if this is useful to keep, and remove it if it's not. It is currently unused.
     # renames and calculates dict members appropriate to
     # https://openid.net/specs/openid-connect-core-1_0.html#IDToken
     # and

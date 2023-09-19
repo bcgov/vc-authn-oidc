@@ -165,8 +165,7 @@ async def post_token(request: Request, db: Database = Depends(get_db)):
 
     auth_session = await AuthSessionCRUD(db).get_by_pyop_auth_code(model.get("code"))
     ver_config = await VerificationConfigCRUD(db).get(auth_session.ver_config_id)
-    presentation = client.get_presentation_request(auth_session.pres_exch_id)
-    claims = Token.get_claims(presentation, auth_session, ver_config)
+    claims = Token.get_claims(auth_session, ver_config)
 
     # modify subject identifier value to use vc-attribute as configured
     new_sub = claims.pop("sub")
