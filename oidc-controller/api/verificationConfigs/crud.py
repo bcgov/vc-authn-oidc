@@ -27,7 +27,7 @@ class VerificationConfigCRUD:
             ver_confs.insert_one(jsonable_encoder(ver_config))
         except Exception as err:
             raise_appropriate_http_exception(
-                err, exists_msg="Verification configuration already exists")
+                err, exists_msg="Verifier configuration already exists")
         return ver_confs.find_one({"ver_config_id": ver_config.ver_config_id})
 
     async def get(self, ver_config_id: str) -> VerificationConfig:
