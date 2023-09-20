@@ -20,9 +20,12 @@ def raise_appropriate_http_exception(err: WriteError, exists_msg: str = None):
         )
 
 
-def check_and_raise_not_found_http_exception(resp):
+def check_and_raise_not_found_http_exception(resp, detail: str = None):
+    if detail is None:
+        detail = "The requested resource wasn't found"
+
     if resp is None:
         raise HTTPException(
             status_code=http_status.HTTP_404_NOT_FOUND,
-            detail="The requested resource wasn't found",
+            detail=detail,
         )
