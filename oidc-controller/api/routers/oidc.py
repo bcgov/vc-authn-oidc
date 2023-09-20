@@ -5,11 +5,13 @@ from urllib.parse import urlencode
 
 import qrcode
 import structlog
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi import status as http_status
 from jinja2 import Template
 from oic.oic.message import AccessTokenRequest, AuthorizationRequest
 from pymongo.database import Database
+from pyop.exceptions import InvalidAuthenticationRequest
 
 from ..authSessions.crud import AuthSessionCreate, AuthSessionCRUD
 from ..authSessions.models import AuthSessionPatch, AuthSessionState
@@ -80,9 +82,15 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     model = AuthorizationRequest().from_dict(request.query_params._dict)
     model.verify()
 
-    auth_req = provider.provider.parse_authentication_request(
-        urlencode(request.query_params._dict), request.headers
-    )
+    try:
+        auth_req = provider.provider.parse_authentication_request(
+            urlencode(request.query_params._dict), request.headers
+        )
+    except InvalidAuthenticationRequest as e:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST, 
+            detail=f"Invalid auth request: {e}")
+        
     #  fetch placeholder user/model and create proof
     authn_response = provider.provider.authorize(model, "vc-user")
 
