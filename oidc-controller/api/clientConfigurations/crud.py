@@ -16,6 +16,7 @@ from .models import (
 
 logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
+NOT_FOUND_MSG = "The requested client configuration wasn't found"
 
 class ClientConfigurationCRUD:
     def __init__(self, db: Database):
@@ -40,7 +41,7 @@ class ClientConfigurationCRUD:
     async def get(self, client_id: str) -> ClientConfiguration:
         col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
         obj = col.find_one({"client_id": client_id})
-        check_and_raise_not_found_http_exception(obj)
+        check_and_raise_not_found_http_exception(obj, NOT_FOUND_MSG)
 
         return ClientConfiguration(**obj)
 
@@ -57,7 +58,7 @@ class ClientConfigurationCRUD:
             {"$set": data.dict(exclude_unset=True)},
             return_document=ReturnDocument.AFTER,
         )
-        check_and_raise_not_found_http_exception(obj)
+        check_and_raise_not_found_http_exception(obj, NOT_FOUND_MSG)
 
         # remake provider instance to refresh provider client
         await init_provider(self._db)
@@ -66,7 +67,7 @@ class ClientConfigurationCRUD:
     async def delete(self, client_id: str) -> bool:
         col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
         obj = col.find_one_and_delete({"client_id": client_id})
-        check_and_raise_not_found_http_exception(obj)
+        check_and_raise_not_found_http_exception(obj, NOT_FOUND_MSG)
 
         # remake provider instance to refresh provider client
         await init_provider(self._db)

@@ -207,6 +207,21 @@ Note: Secure values of the configuration are passed via equivalent environment v
 | `acapy.walletStorageCredentials.admin_account`  | Database account with CREATEDB role used to create additional databases per wallet.                                                                                                                                            | `postgres`  |
 | `acapy.walletStorageCredentials.admin_password` | Database password for admin account.                                                                                                                                                                                           | `""`        |
 | `acapy.walletStorageCredentials.existingSecret` | Name of an existing secret containing 'database-user', 'database-password', 'admin-password' keys.                                                                                                                             | `""`        |
+
+### Acapy tails persistence configuration
+
+| Name                              | Description                                                                              | Value                            |
+| --------------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------- |
+| `acapy.persistence.existingClaim` | Name of an existing PVC to use                                                           | `""`                             |
+| `acapy.persistence.mountPath`     |                                                                                          | `/home/aries/.indy_client/tails` |
+| `acapy.persistence.storageClass`  | PVC Storage Class                                                                        | `""`                             |
+| `acapy.persistence.accessModes`   | PVC Access Mode. ReadWriteMany is required for each Acapy pod to access the same volume. | `["ReadWriteMany"]`              |
+| `acapy.persistence.size`          | PVC Storage Request for tails volume                                                     | `1Gi`                            |
+
+### Acapy common configurations
+
+| Name                              | Description                                   | Value       |
+| --------------------------------- | --------------------------------------------- | ----------- |
 | `acapy.resources.limits.memory`                 | The memory limit for the Acapy containers                                                                                                                                                                                      | `1000Mi`    |
 | `acapy.resources.limits.cpu`                    | The cpu limit for the Acapy containers                                                                                                                                                                                         | `1`         |
 | `acapy.resources.requests.memory`               | The requested memory for the Acapy containers                                                                                                                                                                                  | `384Mi`     |

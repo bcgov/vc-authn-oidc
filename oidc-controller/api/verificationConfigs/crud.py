@@ -12,6 +12,7 @@ from .models import (
     VerificationConfigPatch,
 )
 
+NOT_FOUND_MSG = "The requested verifier configuration wasn't found"
 
 class VerificationConfigCRUD:
     _db: Database
@@ -26,13 +27,13 @@ class VerificationConfigCRUD:
             ver_confs.insert_one(jsonable_encoder(ver_config))
         except Exception as err:
             raise_appropriate_http_exception(
-                err, exists_msg="Verification configuration already exists")
+                err, exists_msg="Verifier configuration already exists")
         return ver_confs.find_one({"ver_config_id": ver_config.ver_config_id})
 
     async def get(self, ver_config_id: str) -> VerificationConfig:
         ver_confs = self._db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
         ver_conf = ver_confs.find_one({"ver_config_id": ver_config_id})
-        check_and_raise_not_found_http_exception(ver_conf)
+        check_and_raise_not_found_http_exception(ver_conf, NOT_FOUND_MSG)
 
         return VerificationConfig(**ver_conf)
 
@@ -52,7 +53,7 @@ class VerificationConfigCRUD:
             {"$set": data.dict(exclude_unset=True)},
             return_document=ReturnDocument.AFTER,
         )
-        check_and_raise_not_found_http_exception(ver_conf)
+        check_and_raise_not_found_http_exception(ver_conf, NOT_FOUND_MSG)
 
         return ver_conf
 
@@ -60,5 +61,5 @@ class VerificationConfigCRUD:
         ver_confs = self._db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
         ver_conf = ver_confs.find_one_and_delete(
             {"ver_config_id": ver_config_id})
-        check_and_raise_not_found_http_exception(ver_conf)
+        check_and_raise_not_found_http_exception(ver_conf, NOT_FOUND_MSG)
         return bool(ver_conf)

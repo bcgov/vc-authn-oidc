@@ -10,9 +10,9 @@ from api.core.config import settings
 from fastapi import FastAPI
 from starlette.requests import Request
 from starlette.responses import Response
-from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import status as http_status
+from fastapi.responses import JSONResponse
 
 from .clientConfigurations.router import router as client_config_router
 from .db.session import get_db, init_db
@@ -21,7 +21,6 @@ from .verificationConfigs.router import router as ver_configs_router
 from .clientConfigurations.router import router as client_config_router
 from .db.session import init_db, get_db
 from .routers.socketio import sio_app
-from api.core.models import GenericErrorMessage
 from api.core.oidc.provider import init_provider
 
 logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
@@ -103,9 +102,13 @@ async def logging_middleware(request: Request, call_next) -> Response:
             if os.environ.get("LOG_WITH_JSON", True) is True:
                 logger.error(traceback.format_exc())
 
-            raise HTTPException(
+            return JSONResponse(
                 status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Internal Server Error",
+                content={
+                    "status": "error",
+                    "message": "Internal Server Error",
+                    "process_time": process_time,
+                },
             )
 
 
