@@ -116,12 +116,23 @@ spec:
             mountPath: "/tmp/ledgers.yml"
             subPath: "ledgers.yml"
             readOnly: true
+          - name: tails
+            mountPath: {{ .Values.acapy.persistence.mountPath }}
           resources:
             {{- toYaml .Values.acapy.resources | nindent 12 }}
       volumes:
         - name: config
           configMap:
             name: {{ $acapyFullName }}-config
+      {{- if .Values.acapy.persistence.existingClaim }}
+        - name: tails
+          persistentVolumeClaim:
+            claimName: {{ tpl .Values.acapy.persistence.existingClaim $ }}
+      {{- else }}
+        - name: tails
+          persistentVolumeClaim:
+            claimName: {{ include "acapy.tails.pvc.name" . }}
+      {{- end }}
       {{- with .Values.acapy.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
