@@ -1,0 +1,4 @@
+owner: bcgov
+git-repo: vc-authn-oidc
+git-base-url: https://api.github.com/
+git-upload-url: https://uploads.github.com/
