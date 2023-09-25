@@ -49,7 +49,10 @@ class AcapyClient:
             headers=self.agent_config.get_headers(),
             json=present_proof_payload,
         )
+
+        # TODO: Determine if this should assert it received a json object
         assert resp_raw.status_code == 200, resp_raw.content
+
         resp = json.loads(resp_raw.content)
         result = CreatePresentationResponse.parse_obj(resp)
 
@@ -66,7 +69,10 @@ class AcapyClient:
             + str(presentation_exchange_id),
             headers=self.agent_config.get_headers(),
         )
+
+        # TODO: Determine if this should assert it received a json object
         assert resp_raw.status_code == 200, resp_raw.content
+
         resp = json.loads(resp_raw.content)
 
         logger.debug(f"<<< get_presentation_request -> {resp}")
@@ -102,9 +108,12 @@ class AcapyClient:
             url,
             headers=self.agent_config.get_headers(),
         )
+
+        # TODO: Determine if this should assert it received a json object
         assert (
             resp_raw.status_code == 200
         ), f"{resp_raw.status_code}::{resp_raw.content}"
+        
         resp = json.loads(resp_raw.content)
 
         if public:
