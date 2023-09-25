@@ -248,27 +248,15 @@ install_chart_releaser() {
 
 lookup_latest_tag() {
   git fetch --tags >/dev/null 2>&1
+  latest_tag=$(git tag --sort=-creatordate | sed -n '2p')
 
-  if git symbolic-ref --short -q HEAD; then
-    if ! git describe --tags --abbrev=0 HEAD~ 2>/dev/null; then
-      git rev-list --max-parents=0 --first-parent HEAD
-    fi
+  if [ -z "$latest_tag" ]; then
+    # If no tags are found, return the initial commit hash
+    git rev-list --max-parents=0 --first-parent HEAD
   else
-    # In a detached HEAD state, such as when the pipeline
-    # is triggered by a push on a tag commit, we need to look back
-    # by date
-    current_commit=$(git rev-parse HEAD)
-    for tag in $(git tag --sort=-creatordate); do
-      if [ $(git rev-parse "$tag") = "$current_commit" ]; then
-        continue
-      else
-        echo "$tag"
-        break
-      fi
-    done
+    echo "$latest_tag"
   fi
 }
-
 
 filter_charts() {
   while read -r chart; do
