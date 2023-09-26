@@ -184,7 +184,6 @@ class GlobalConfig(BaseSettings):
         os.environ.get("USE_OOB_LOCAL_DID_SERVICE", False)
     )
     SET_NON_REVOKED: bool = bool(os.environ.get("SET_NON_REVOKED", True))
-    USE_V1_COMPATIBILITY: bool = bool(os.environ.get("USE_V1_COMPATIBILITY", False))
     
     class Config:
         case_sensitive = True

@@ -41,6 +41,7 @@ class VerificationProofRequest(BaseModel):
 class VerificationConfigBase(BaseModel):
     subject_identifier: str = Field()
     proof_request: VerificationProofRequest = Field()
+    include_v1_attributes: Optional[bool] = Field(default=False)
 
     def generate_proof_request(self):
         result = {

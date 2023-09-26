@@ -4,7 +4,6 @@ from api.authSessions.models import AuthSession
 from api.core.oidc.issue_token_service import Token
 from api.core.oidc.tests.__mocks__ import auth_session, presentation, ver_config
 from api.test_utils import is_valid_uuid
-from api.core.config import settings
 
 basic_valid_requested_attributes = {
     "req_attr_0": {
@@ -116,26 +115,26 @@ async def test_valid_proof_presentation_with_multiple_attributes_returns_claims(
 
 
 @pytest.mark.asyncio
-@mock.patch.object(settings, "USE_V1_COMPATIBILITY", False)
-async def test_use_v1_compatibility_false_does_not_add_the_named_attributes():
+async def test_include_v1_attributes_false_does_not_add_the_named_attributes():
     presentation['presentation_request']['requested_attributes'] = multiple_valid_requested_attributes
     presentation['presentation']['requested_proof']['revealed_attr_groups'] = multiple_valid_revealed_attr_groups
     with mock.patch.object(AuthSession, "presentation_exchange", presentation):
+        ver_config.include_v1_attributes = False
         claims = Token.get_claims(auth_session, ver_config)
         vc_presented_attributes_obj = eval(claims["vc_presented_attributes"])
         assert claims is not None
         assert vc_presented_attributes_obj["email_1"] == 'jamiehalebc@gmail.com'
         assert vc_presented_attributes_obj["age_1"] == '30'
-        assert hasattr(claims, "email_1") is False
-        assert hasattr(claims, "age_1") is False
+        assert "email_1" not in claims
+        assert "age_1" not in claims
 
 
 @pytest.mark.asyncio
-@mock.patch.object(settings, "USE_V1_COMPATIBILITY", True)
-async def test_use_v1_compatibility_true_adds_the_named_attributes():
+async def test_include_v1_attributes_true_adds_the_named_attributes():
     presentation['presentation_request']['requested_attributes'] = multiple_valid_requested_attributes
     presentation['presentation']['requested_proof']['revealed_attr_groups'] = multiple_valid_revealed_attr_groups
     with mock.patch.object(AuthSession, "presentation_exchange", presentation):
+        ver_config.include_v1_attributes = True
         claims = Token.get_claims(auth_session, ver_config)
         vc_presented_attributes_obj = eval(claims["vc_presented_attributes"])
         assert claims is not None
@@ -145,18 +144,19 @@ async def test_use_v1_compatibility_true_adds_the_named_attributes():
         assert claims["age_1"] == '30'
 
 @pytest.mark.asyncio
-@mock.patch.object(settings, "USE_V1_COMPATIBILITY", None)
-async def test_use_v1_compatibility_none_does_not_add_the_named_attributes():
+async def test_include_v1_attributes_none_does_not_add_the_named_attributes():
     presentation['presentation_request']['requested_attributes'] = multiple_valid_requested_attributes
     presentation['presentation']['requested_proof']['revealed_attr_groups'] = multiple_valid_revealed_attr_groups
     with mock.patch.object(AuthSession, "presentation_exchange", presentation):
+        ver_config.include_v1_attributes = None
+        print(ver_config.include_v1_attributes)
         claims = Token.get_claims(auth_session, ver_config)
         vc_presented_attributes_obj = eval(claims["vc_presented_attributes"])
         assert claims is not None
         assert vc_presented_attributes_obj["email_1"] == 'jamiehalebc@gmail.com'
         assert vc_presented_attributes_obj["age_1"] == '30'
-        assert hasattr(claims, "email_1") is False
-        assert hasattr(claims, "age_1") is False
+        assert "email_1" not in claims
+        assert "age_1" not in claims
 
 
 @pytest.mark.asyncio

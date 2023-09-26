@@ -11,7 +11,6 @@ from pydantic import BaseModel
 from ...authSessions.models import AuthSession
 from ...verificationConfigs.models import ReqAttr, VerificationConfig
 from ..models import RevealedAttribute
-from ..config import settings
 
 logger = structlog.getLogger(__name__)
 
@@ -111,7 +110,7 @@ class Token(BaseModel):
 
         # TODO: Remove after full transistion to v2.0
         # Add the presentation claims to the result as keys for backwards compatibility [v1.0]
-        if settings.USE_V1_COMPATIBILITY:
+        if ver_config.include_v1_attributes:
             for key, value in presentation_claims.items():
                 result[key] = value.value
 
