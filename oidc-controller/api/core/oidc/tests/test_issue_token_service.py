@@ -22,7 +22,7 @@ basic_valid_revealed_attr_groups = {
         "sub_proof_index": 0,
         "values": {
             "email": {
-                "raw": "jamiehalebc@gmail.com",
+                "raw": "test@email.com",
                 "encoded": "73814602767252868561268261832462872577293109184327908660400248444458427915643",
             }
         }
@@ -46,7 +46,7 @@ multiple_valid_revealed_attr_groups = {
         "sub_proof_index": 0,
         "values": {
             "email_1": {
-                "raw": "jamiehalebc@gmail.com",
+                "raw": "test@email.com",
                 "encoded": "73814602767252868561268261832462872577293109184327908660400248444458427915643",
             },
             "age_1": {
@@ -94,7 +94,7 @@ async def test_valid_proof_presentation_with_multiple_attributes_returns_claims(
             "sub_proof_index": 0,
             "values": {
                 "email": {
-                    "raw": "jamiehalebc@gmail.com",
+                    "raw": "test@email.com",
                     "encoded": "73814602767252868561268261832462872577293109184327908660400248444458427915643",
                 }
             }
@@ -123,7 +123,7 @@ async def test_include_v1_attributes_false_does_not_add_the_named_attributes():
         claims = Token.get_claims(auth_session, ver_config)
         vc_presented_attributes_obj = eval(claims["vc_presented_attributes"])
         assert claims is not None
-        assert vc_presented_attributes_obj["email_1"] == 'jamiehalebc@gmail.com'
+        assert vc_presented_attributes_obj["email_1"] == 'test@email.com'
         assert vc_presented_attributes_obj["age_1"] == '30'
         assert "email_1" not in claims
         assert "age_1" not in claims
@@ -138,9 +138,9 @@ async def test_include_v1_attributes_true_adds_the_named_attributes():
         claims = Token.get_claims(auth_session, ver_config)
         vc_presented_attributes_obj = eval(claims["vc_presented_attributes"])
         assert claims is not None
-        assert vc_presented_attributes_obj["email_1"] == 'jamiehalebc@gmail.com'
+        assert vc_presented_attributes_obj["email_1"] == 'test@email.com'
         assert vc_presented_attributes_obj["age_1"] == '30'
-        assert claims["email_1"] == 'jamiehalebc@gmail.com'
+        assert claims["email_1"] == 'test@email.com'
         assert claims["age_1"] == '30'
 
 @pytest.mark.asyncio
@@ -153,7 +153,7 @@ async def test_include_v1_attributes_none_does_not_add_the_named_attributes():
         claims = Token.get_claims(auth_session, ver_config)
         vc_presented_attributes_obj = eval(claims["vc_presented_attributes"])
         assert claims is not None
-        assert vc_presented_attributes_obj["email_1"] == 'jamiehalebc@gmail.com'
+        assert vc_presented_attributes_obj["email_1"] == 'test@email.com'
         assert vc_presented_attributes_obj["age_1"] == '30'
         assert "email_1" not in claims
         assert "age_1" not in claims
@@ -177,7 +177,7 @@ async def test_revealed_attrs_dont_match_requested_attributes_throws_exception()
             "sub_proof_index": 0,
             "values": {
                 "email-wrong": {
-                    "raw": "jamiehalebc@gmail.com",
+                    "raw": "test@email.com",
                     "encoded": "73814602767252868561268261832462872577293109184327908660400248444458427915643",
                 }
             }
@@ -195,7 +195,7 @@ async def test_valid_presentation_with_matching_subject_identifier_has_identifie
     with mock.patch.object(AuthSession, "presentation_exchange", presentation):
         claims = Token.get_claims(auth_session, ver_config)
         print(claims)
-        assert claims["sub"] == "jamiehalebc@gmail.com"
+        assert claims["sub"] == "test@email.com"
 
 
 @pytest.mark.asyncio
