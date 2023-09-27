@@ -107,6 +107,13 @@ class Token(BaseModel):
         result[PROOF_CLAIMS_ATTRIBUTE_NAME] = json.dumps(
             {c.type: c.value for c in presentation_claims.values()}
         )
+
+        # TODO: Remove after full transistion to v2.0
+        # Add the presentation claims to the result as keys for backwards compatibility [v1.0]
+        if ver_config.include_v1_attributes:
+            for key, value in presentation_claims.items():
+                result[key] = value.value
+
         return result
     
     # TODO: Determine if this is useful to keep, and remove it if it's not. It is currently unused.

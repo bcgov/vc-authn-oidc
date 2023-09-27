@@ -1,5 +1,6 @@
 ex_ver_config = {
     "ver_config_id": "test-request-config",
+    "include_v1_attributes": False,
     "subject_identifier": "first_name",
     "proof_request": {
         "name": "Basic Proof",
