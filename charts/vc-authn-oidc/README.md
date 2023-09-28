@@ -1,6 +1,6 @@
 # VC-AuthN OIDC
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0-alpha1](https://img.shields.io/badge/AppVersion-2.0.0--alpha1-informational?style=flat-square)
+![Version: 0.1.4](https://img.shields.io/badge/Version-0.1.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0-rc0](https://img.shields.io/badge/AppVersion-2.0.0--rc0-informational?style=flat-square)
 
 A Helm chart to deploy Verifiable Credential Identity Provider for OpenID Connect.
 
@@ -11,7 +11,8 @@ Make sure to read the [best practices](/docs/BestPractices.md) to be used when p
 ## TL;DR
 
 ```console
-helm install my-release charts/vc-authn-oidc
+helm repo add vc-authn-oidc https://bcgov.github.io/vc-authn-oidc
+helm install my-release vc-authn-oidc/vc-authn-oidc
 ```
 
 ## Prerequisites
