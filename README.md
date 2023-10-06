@@ -47,10 +47,10 @@ If a [Traction](https://github.com/bcgov/traction) tenant is selected via user p
   ```yaml
   networks:
     default:
-      external:
-        name: oidc_vc_auth
+      name: oidc_vc_auth
+      external: true
   ```
-
+- copy `scripts/.env-example` to `scripts/.env` and adjust as necessary, for more info see [run local traction.](https://github.com/bcgov/traction/blob/main/scripts/README.md#run-local-traction)
 - start `traction` by executing `docker-compose up` from `<traction_folder>/scripts`
 - provision yourself a tenant and record the wallet Id/Key: they will be required to connect the controller with the agent.
 
