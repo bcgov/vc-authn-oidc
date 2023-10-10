@@ -147,6 +147,7 @@ configureEnvironment() {
 
   ## global
   export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn}"
+  export LOG_LEVEL=${LOG_LEVEL:-"DEBUG"}
 
   # controller-db
   export MONGODB_HOST="controller-db"
