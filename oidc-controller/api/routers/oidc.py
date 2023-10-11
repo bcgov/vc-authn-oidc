@@ -6,8 +6,8 @@ from urllib.parse import urlencode
 import qrcode
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi import status as http_status
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from jinja2 import Template
 from oic.oic.message import AccessTokenRequest, AuthorizationRequest
 from pymongo.database import Database
@@ -88,9 +88,10 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         )
     except InvalidAuthenticationRequest as e:
         raise HTTPException(
-            status_code=http_status.HTTP_400_BAD_REQUEST, 
-            detail=f"Invalid auth request: {e}")
-        
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid auth request: {e}",
+        )
+
     #  fetch placeholder user/model and create proof
     authn_response = provider.provider.authorize(model, "vc-user")
 
@@ -161,7 +162,6 @@ async def post_token(request: Request, db: Database = Depends(get_db)):
     """Called by oidc platform to retrieve token contents"""
     form = await request.form()
     model = AccessTokenRequest().from_dict(form._dict)
-    client = AcapyClient()
 
     auth_session = await AuthSessionCRUD(db).get_by_pyop_auth_code(model.get("code"))
     ver_config = await VerificationConfigCRUD(db).get(auth_session.ver_config_id)
@@ -169,9 +169,7 @@ async def post_token(request: Request, db: Database = Depends(get_db)):
 
     # modify subject identifier value to use vc-attribute as configured
     new_sub = claims.pop("sub")
-    provider.provider.authz_state.authorization_codes[model.get("code")][
-        "public"
-    ] = new_sub
+    provider.provider.authz_state.subject_identifiers["vc-user"]["public"] = new_sub
 
     # convert form data to what library expects, Flask.app.request.get_data()
     data = urlencode(form._dict)

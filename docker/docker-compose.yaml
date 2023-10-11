@@ -15,6 +15,7 @@ services:
       fi"
     environment:
       - DEBUGGER=${DEBUGGER}
+      - LOG_LEVEL=${LOG_LEVEL}
       - DB_HOST=${MONGODB_HOST}
       - DB_PORT=${MONGODB_PORT}
       - DB_NAME=${MONGODB_NAME}

@@ -1,8 +1,10 @@
 import os
+import secrets
 from urllib.parse import urlparse
 
 import structlog
 import structlog.typing
+from api.clientConfigurations.models import TOKENENDPOINTAUTHMETHODS
 from api.core.config import settings
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -11,6 +13,7 @@ from jwkest.jwk import KEYS, RSAKey, rsa_load
 from pymongo.database import Database
 from pyop.authz_state import AuthorizationState
 from pyop.provider import Provider
+from pyop.storage import StatelessWrapper
 from pyop.subject_identifier import HashBasedSubjectIdentifierFactory
 from pyop.userinfo import Userinfo
 
@@ -105,7 +108,7 @@ configuration_information = {
     "request_parameter_supported": True,
     "request_uri_parameter_supported": False,
     "scopes_supported": ["openid"],
-    "token_endpoint_auth_methods_supported": ["client_secret_basic"],
+    "token_endpoint_auth_methods_supported": TOKENENDPOINTAUTHMETHODS.list(),
     "frontchannel_logout_supported": True,
     "frontchannel_logout_session_supported": True,
     "backchannel_logout_supported": True,
@@ -113,6 +116,7 @@ configuration_information = {
 }
 
 subject_id_factory = HashBasedSubjectIdentifierFactory(settings.SUBJECT_ID_HASH_SALT)
+stateless_storage = StatelessWrapper("vc-authn", secrets.token_urlsafe())
 
 # placeholder that gets set on app_start and write operations to ClientConfigurationCRUD
 provider = None
@@ -131,7 +135,12 @@ async def init_provider(db: Database):
     provider = Provider(
         signing_key,
         configuration_information,
-        AuthorizationState(subject_id_factory),
+        AuthorizationState(
+            subject_id_factory,
+            authorization_code_db=stateless_storage,
+            access_token_db=stateless_storage,
+            refresh_token_db=stateless_storage,
+        ),
         client_db,
         Userinfo(user_db),
     )

@@ -96,7 +96,7 @@ class Token(BaseModel):
                 """subject_identifer not found in presentation values,
                   generating random subject_identifier"""
             )
-            sub_id_value = uuid.uuid4()
+            sub_id_value = str(uuid.uuid4())
         else:
             sub_id_value = sub_id_claim.value
 
@@ -115,7 +115,7 @@ class Token(BaseModel):
                 result[key] = value.value
 
         return result
-    
+
     # TODO: Determine if this is useful to keep, and remove it if it's not. It is currently unused.
     # renames and calculates dict members appropriate to
     # https://openid.net/specs/openid-connect-core-1_0.html#IDToken

@@ -1,13 +1,19 @@
 from enum import Enum
-from typing import Optional, List
+from typing import List, Optional
+
 from pydantic import BaseModel, Field
 
-from .examples import ex_client_config
 from ..core.config import settings
+from .examples import ex_client_config
 
 
 class TOKENENDPOINTAUTHMETHODS(str, Enum):
     client_secret_basic = "client_secret_basic"
+    client_secret_post = "client_secret_post"
+
+    @classmethod
+    def list(cls):
+        return list(map(lambda c: c.value, cls))
 
 
 class ClientConfigurationBase(BaseModel):
