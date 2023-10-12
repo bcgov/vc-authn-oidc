@@ -1,6 +1,5 @@
 import dataclasses
 import json
-import uuid
 from datetime import datetime
 from typing import Any, Dict, List
 
@@ -86,22 +85,13 @@ class Token(BaseModel):
             )
             raise RuntimeError(err)
 
-        # look at all presentation_claims and one should
-        #   match the configured subject_identifier
-        sub_id_value = None
+        # look at all presentation_claims for one
+        # matching the configured subject_identifier, if any
         sub_id_claim = presentation_claims.get(ver_config.subject_identifier)
 
-        if not sub_id_claim:
-            logger.warning(
-                """subject_identifer not found in presentation values,
-                  generating random subject_identifier"""
-            )
-            sub_id_value = str(uuid.uuid4())
-        else:
-            sub_id_value = sub_id_claim.value
-
-        # add sub and append presentation_claims
-        oidc_claims.append(Claim(type="sub", value=sub_id_value))
+        if sub_id_claim:
+            # add sub and append presentation_claims
+            oidc_claims.append(Claim(type="sub", value=sub_id_claim.value))
 
         result = {c.type: c.value for c in oidc_claims}
         result[PROOF_CLAIMS_ATTRIBUTE_NAME] = json.dumps(
