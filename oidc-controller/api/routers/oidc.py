@@ -1,5 +1,6 @@
 import base64
 import io
+import uuid
 from datetime import datetime
 from urllib.parse import urlencode
 
@@ -9,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi import status as http_status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from jinja2 import Template
-from oic.oic.message import AccessTokenRequest, AuthorizationRequest
+from oic.oic.message import AuthorizationRequest
 from pymongo.database import Database
 from pyop.exceptions import InvalidAuthenticationRequest
 
@@ -92,8 +93,9 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
             detail=f"Invalid auth request: {e}",
         )
 
-    #  fetch placeholder user/model and create proof
-    authn_response = provider.provider.authorize(model, "vc-user")
+    #  create proof for this request
+    new_user_id = str(uuid.uuid4())
+    authn_response = provider.provider.authorize(model, new_user_id)
 
     # retrieve presentation_request config.
     client = AcapyClient()
@@ -160,21 +162,31 @@ async def get_authorize_callback(pid: str, db: Database = Depends(get_db)):
 @router.post(VerifiedCredentialTokenUri, response_class=JSONResponse)
 async def post_token(request: Request, db: Database = Depends(get_db)):
     """Called by oidc platform to retrieve token contents"""
-    form = await request.form()
-    model = AccessTokenRequest().from_dict(form._dict)
+    async with request.form() as form:
+        form_dict = form._dict
+        auth_session = await AuthSessionCRUD(db).get_by_pyop_auth_code(
+            form_dict["code"]
+        )
+        ver_config = await VerificationConfigCRUD(db).get(auth_session.ver_config_id)
+        claims = Token.get_claims(auth_session, ver_config)
 
-    auth_session = await AuthSessionCRUD(db).get_by_pyop_auth_code(model.get("code"))
-    ver_config = await VerificationConfigCRUD(db).get(auth_session.ver_config_id)
-    claims = Token.get_claims(auth_session, ver_config)
+        # Replace auto-generated sub with one coming from proof, if available
+        # The stateless storage uses a cypher, so a new item can be added and
+        # the reference in the form needs to be updated with the new key value
+        if claims.get("sub"):
+            authz_info = provider.provider.authz_state.authorization_codes[
+                form_dict["code"]
+            ]
+            authz_info["sub"] = claims.pop("sub")
+            new_code = provider.provider.authz_state.authorization_codes.pack(
+                authz_info
+            )
+            form_dict["code"] = new_code
 
-    # modify subject identifier value to use vc-attribute as configured
-    new_sub = claims.pop("sub")
-    provider.provider.authz_state.subject_identifiers["vc-user"]["public"] = new_sub
-
-    # convert form data to what library expects, Flask.app.request.get_data()
-    data = urlencode(form._dict)
-    token_response = provider.provider.handle_token_request(
-        data, request.headers, claims
-    )
-    logger.debug(f"Token response: {token_response.to_dict()}")
-    return token_response.to_dict()
+        # convert form data to what library expects, Flask.app.request.get_data()
+        data = urlencode(form_dict)
+        token_response = provider.provider.handle_token_request(
+            data, request.headers, claims
+        )
+        logger.debug(f"Token response: {token_response.to_dict()}")
+        return token_response.to_dict()
