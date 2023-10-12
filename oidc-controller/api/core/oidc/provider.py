@@ -6,6 +6,7 @@ import structlog
 import structlog.typing
 from api.clientConfigurations.models import TOKENENDPOINTAUTHMETHODS
 from api.core.config import settings
+from api.core.models import VCUserinfo
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -15,7 +16,6 @@ from pyop.authz_state import AuthorizationState
 from pyop.provider import Provider
 from pyop.storage import StatelessWrapper
 from pyop.subject_identifier import HashBasedSubjectIdentifierFactory
-from pyop.userinfo import Userinfo
 
 logger: structlog.typing.FilteringBoundLogger = structlog.get_logger()
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -128,9 +128,6 @@ async def init_provider(db: Database):
 
     all_client_configs = await ClientConfigurationCRUD(db).get_all()
     client_db = {d.client_name: d.dict() for d in all_client_configs}
-    user_db = {
-        "vc-user": {"sub": None}
-    }  # placeholder, this will be replaced by the subject defined in the proof-configuration
 
     provider = Provider(
         signing_key,
@@ -142,5 +139,5 @@ async def init_provider(db: Database):
             refresh_token_db=stateless_storage,
         ),
         client_db,
-        Userinfo(user_db),
+        VCUserinfo({}),
     )
