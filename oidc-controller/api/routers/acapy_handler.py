@@ -26,6 +26,7 @@ async def _parse_webhook_body(request: Request):
 async def post_topic(request: Request, topic: str, db: Database = Depends(get_db)):
     """Called by aca-py agent."""
     logger.info(f">>> post_topic : topic={topic}")
+    # TODO: Listen for the proof being rejected... It's a new code being sent by the wallet.
 
     client = AcapyClient()
     match topic:
