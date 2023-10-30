@@ -11,11 +11,29 @@ from typing import Optional, Union
 import structlog
 from pydantic import BaseSettings
 
+# Removed in later versions of python
+def strtobool (val: str | bool) -> bool:
+    """Convert a string representation of truth to a boolean (True or False).
+    True values are 'y', 'yes', 't', 'true', 'on', and '1'; False
+    values are 'n', 'no', 'f', 'false', 'off', and '0'. If val is
+    already a boolean it is simply returned.  Raises ValueError if
+    'val' is anything else.
+    """
+    if isinstance(val, bool):
+        return val
+
+    val = val.lower()
+    if val in ('y', 'yes', 't', 'true', 'on', '1'):
+        return True
+    elif val in ('n', 'no', 'f', 'false', 'off', '0'):
+        return False
+    else:
+        raise ValueError(f"invalid truth value {val}")
+
 # Use environment variable to determine logging format
-# fallback to logconf.json
-# finally default to true
-# bool() is needed to coerce the results of the environment variable
-use_json_logs: bool = bool(os.environ.get("LOG_WITH_JSON", True))
+# default to True
+# strtobool will convert the results of the environment variable to a bool
+use_json_logs: bool =  strtobool(os.environ.get("LOG_WITH_JSON", True))
 
 time_stamp_format: str = os.environ.get("LOG_TIMESTAMP_FORMAT", "iso")
 
@@ -179,12 +197,11 @@ class GlobalConfig(BaseSettings):
 
     # OIDC Controller Settings
     CONTROLLER_API_KEY: str = os.environ.get("CONTROLLER_API_KEY", "")
-    USE_OOB_PRESENT_PROOF: bool = bool(os.environ.get("USE_OOB_PRESENT_PROOF", False))
-    USE_OOB_LOCAL_DID_SERVICE: bool = bool(
+    USE_OOB_PRESENT_PROOF: bool = strtobool(os.environ.get("USE_OOB_PRESENT_PROOF", False))
+    USE_OOB_LOCAL_DID_SERVICE: bool = strtobool(
         os.environ.get("USE_OOB_LOCAL_DID_SERVICE", False)
     )
-    SET_NON_REVOKED: bool = bool(os.environ.get("SET_NON_REVOKED", True))
-    
+    SET_NON_REVOKED: bool = strtobool(os.environ.get("SET_NON_REVOKED", True))
     class Config:
         case_sensitive = True
 

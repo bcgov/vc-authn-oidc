@@ -16,6 +16,7 @@ services:
     environment:
       - DEBUGGER=${DEBUGGER}
       - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_WITH_JSON=${LOG_WITH_JSON}
       - DB_HOST=${MONGODB_HOST}
       - DB_PORT=${MONGODB_PORT}
       - DB_NAME=${MONGODB_NAME}
