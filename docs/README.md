@@ -138,20 +138,12 @@ A verifiable credential presentation request configuration, takes the following 
 {
   "id": "<configuration-identifier>",
   "subject_identifier": "<attribute-name>",
-  "configuration": {
+  "proof_request": {
     "name": "Basic Proof",
     "version": "1.0",
     "requested_attributes": [
       {
-        "name": "email",
-        "restrictions": []
-      },
-      {
-        "name": "first_name",
-        "restrictions": []
-      },
-      {
-        "name": "last_name",
+        "names": ["email", "first_name", "last_name"]
         "restrictions": []
       }
     ]
@@ -160,16 +152,15 @@ A verifiable credential presentation request configuration, takes the following 
 ```
 
 
-<TODO ENSURE THIS IS CORRECT FOR 2.0 controller>
 This data model is inspired by that is defined and used in the [Hyperledger Indy](https://www.hyperledger.org/projects/hyperledger-indy) project for [proof requests](https://hyperledger-indy.readthedocs.io/projects/sdk/en/latest/docs/design/002-anoncreds/README.html).
 
 - `id` : The identifier for the presentation configuration.
 - `subject_identifier` : See [here](#subject-identifer-mapping) for further details on the purpose of this field.
-- `configuration` : Contains the details on the presentation request, e.g which attributes are to be disclosed
+- `proof_request` : Contains the details on the presentation request, e.g which attributes are to be disclosed
     - `name` : The name that will accompany the presentation request
     - `version` : The version of the presentation request
     - `requested_attributes` : Is a list of requested attributes.
-        - `name` : Is the name of the attribute to be disclosed.
+        - `names` : Is the array containing the names of the attributes, coming from the same credential, to be disclosed.
         - `restrictions` : An object declaring the constraints of the attributes disclosure.
             - `schema_id` : Identifier of the schema the disclosed attribute must be sourced from.
             - `schema_issuer_did` : DID of the schema used for the disclosed credential must be issued by.
@@ -287,7 +278,7 @@ Below details the additional information that will be added in the context of VC
 
 - `pres_req_conf_id` will be present as a claim in the ID token indicating the presentation request the VC-AuthN service presented to the user.
 
-Any attributes that are disclosed in the verifiable presentation sent by the IW back to the RP will also be mapped to claims present in the ID token.
+Any attributes that are disclosed in the verifiable presentation sent by the IW back to the RP will also be mapped to claims present in the ID token and added to the `vc_presented_attributes` object in the token.
 
 **Example**
 
@@ -303,8 +294,11 @@ Assume in the following example Alice was given a verifiable presentation that a
    "iat": 1311280970,
    "auth_time": 1311280969,
    "amr": "vc_authn",
-   "email" : "user@example.com",
-   "first_name" : "Alice"
+   "vc_presented_attributes": {
+      "email" : "user@example.com",
+      "first_name" : "Alice"
+   },
+   "pres_req_conf_id": "my-conf-id"
   }
 ```
 
@@ -318,12 +312,15 @@ When an OP is performing VC-AuthN, and the request has reached the point where t
 
 1. Nominate a disclosed attribute in the verifiable credential presentation that is used to populate the subject field.
 2. Ephemeral generate an identifier for this field e.g a randomly generated GUID.
+3. Generate a consistent identifier by hashing the immutable part of the proof-request into an encoded string
 
-Note - In option 2. this prevents the often desirable property of cross session correlation of an authenticated user, which will effect the ability for many integrating IAM solutions being able to conduct effective auditing.
+**Note:**
+- In option 2. this prevents the often desirable property of cross session correlation of an authenticated user, which will effect the ability for many integrating IAM solutions being able to conduct effective auditing.
+- In option 3. this method should be assessed and used with caution, as the chance of collisions for users holding credentials with exact same values is possible (e.g.: a proof-request using only `first_name` and `last_name`, would generate the same identifier for people with same first and last name).
 
 #### UserInfo Endpoint
 
-As defined in the [OpenID Connect Spec](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo), the purpose of this endpoint is to return claims about the authenticated end user. The RP, can use the `access_token` obtained during the OpenID Connect Authentication to fetch these claims. With a VC-Authn based OP, this functionality operates in the exact same way.
+As defined in the [OpenID Connect Spec](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo), the purpose of this endpoint is to return claims about the authenticated end user. The RP, can use the `access_token` obtained during the OpenID Connect Authentication to fetch these claims. With a VC-Authn based OP, this endpoint is non-functional/implemented since the OP does not store a database of user attributes.
 
 ## IAM Solution Integration
 

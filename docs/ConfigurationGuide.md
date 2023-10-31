@@ -74,3 +74,9 @@ Several functions in VC-AuthN can be tweaked by using the following environment 
 | LOG_WITH_JSON            | bool | If True, logging output should printed as JSON if False it will be pretty printed.| Default behavior will print as JSON. |
 | LOG_TIMESTAMP_FORMAT     | string | determines the timestamp formatting used in logs | Default is "iso" |
 | LOG_LEVEL                | "DEBUG", "INFO", "WARNING", or "ERROR" | sets the minimum log level that will be printed to standard out| Defaults to DEBUG |
+
+## Proof Request Configuration Options
+
+The basic structure of a proof-request configuration is described [here](README.md#data-model). Additional options are described via the Swagger document, and listed below:
+* `include_v1_attributes`: defaults to `false`, switch to `true` if root-level claims as presented in VC-AuthN v1 are still required for the proof-request.
+
