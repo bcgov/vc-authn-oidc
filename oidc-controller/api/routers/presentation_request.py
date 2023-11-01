@@ -38,8 +38,10 @@ async def send_connectionless_proof_req(
         "add_asset": add_asset,
     }
     # First prepare the response depending on the redirect url
+    # If the redirect url is a html file, then redirect to that page
     if ".html" in settings.CONTROLLER_CAMERA_REDIRECT_URL:
         response = RedirectResponse(settings.CONTROLLER_CAMERA_REDIRECT_URL)
+    # Otherwise render the template
     else:
         template_file = open(
             f"api/templates/{settings.CONTROLLER_CAMERA_REDIRECT_URL}.html", "r"
@@ -47,7 +49,7 @@ async def send_connectionless_proof_req(
         template = Template(template_file)
         response = HTMLResponse(template.render(data))
 
-    if 'text/html' in req.headers.get('accept'):
+    if req.headers.get('accept') and 'text/html' in req.headers.get('accept'):
         logger.info("Redirecting to instructions page")
         return response
 
