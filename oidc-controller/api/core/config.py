@@ -33,7 +33,11 @@ def strtobool (val: str | bool) -> bool:
 # Use environment variable to determine logging format
 # default to True
 # strtobool will convert the results of the environment variable to a bool
-use_json_logs: bool =  strtobool(os.environ.get("LOG_WITH_JSON", True))
+use_json_logs: bool = strtobool(
+    os.environ.get("LOG_WITH_JSON", True)
+    if os.environ.get("LOG_WITH_JSON", True) != ""
+    else True
+)
 
 time_stamp_format: str = os.environ.get("LOG_TIMESTAMP_FORMAT", "iso")
 
