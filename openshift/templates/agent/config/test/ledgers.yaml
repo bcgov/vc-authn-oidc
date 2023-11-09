@@ -1,9 +1,0 @@
-- id: SovrinStagingNet
-  is_production: true
-  genesis_url: 'https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_sandbox_genesis'
-- id: BCovrinTest
-  is_production: true
-  genesis_url: 'http://test.bcovrin.vonx.io/genesis'
-- id: CANdyTest
-  is_production: true
-  genesis_url: 'https://raw.githubusercontent.com/ICCS-ISAC/dtrust-reconu/main/CANdy/test/pool_transactions_genesis'
