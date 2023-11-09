@@ -13,6 +13,8 @@ For configuration instructions, refer to the [configuration guide](/docs/Configu
 
 Make sure to read the [best practices](/docs/BestPractices.md) to be used when protecting a web application using `vc-authn-oidc`.
 
+If you are upgrading from a previous release, take a look at the [migration guide](/docs/MigrationGuide.md).
+
 ## Pre-requisites
 
 - A bash-compatible shell such as [Git Bash](https://git-scm.com/downloads)

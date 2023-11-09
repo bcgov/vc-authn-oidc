@@ -92,15 +92,22 @@ async def logging_middleware(request: Request, call_next) -> Response:
     finally:
         process_time = time.time() - start_time
         # If we have a response object, log the details
-        if 'response' in locals():
-            logger.info("processed a request", status_code=response.status_code, process_time=process_time)
+        if "response" in locals():
+            logger.info(
+                "processed a request",
+                status_code=response.status_code,
+                process_time=process_time,
+            )
         # Otherwise, extract the exception from traceback, log and return a 500 response
         else:
-            logger.info("failed to process a request", status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR, process_time=process_time)
+            logger.info(
+                "failed to process a request",
+                status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
+                process_time=process_time,
+            )
 
-            # Need to explicitly log the traceback as json here. Not clear as to why.
-            if os.environ.get("LOG_WITH_JSON", True) is True:
-                logger.error(traceback.format_exc())
+            # Need to explicitly log the traceback
+            logger.error(traceback.format_exc())
 
             return JSONResponse(
                 status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
