@@ -44,7 +44,7 @@
     "fs-extra": "^10.0.0",
     "js-yaml": "^4.1.0",
     "jsonwebtoken": "^8.5.1",
-    "keycloak-connect": "^15.0.2",
+    "keycloak-connect": "^22.0.0",
     "winston": "^3.3.3",
     "winston-transport": "^4.4.0"
   },
