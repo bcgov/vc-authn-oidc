@@ -40,10 +40,18 @@ jobs:
         flag-name: tests-${{ matrix.python-version }}
         run: |
           pytest --log-cli-level=INFO --cov --cov-report lcov
-      - name: Coveralls
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@v2
+        with:
+          flag-name: run-${{ matrix.python-version }}
+          parallel: true
+  finish:
+    needs: test
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
         uses: coverallsapp/github-action@v2
         with:
           parallel-finished: true
-          carryforward: "tests-3.11"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          file: coverage.lcov
+          carryforward: "run-3.11"
