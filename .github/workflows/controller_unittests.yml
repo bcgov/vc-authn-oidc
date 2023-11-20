@@ -37,10 +37,13 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Test with pytest
         working-directory: ./oidc-controller
+        flag-name: tests-${{ matrix.python-version }}
         run: |
           pytest --log-cli-level=INFO --cov --cov-report lcov
       - name: Coveralls
         uses: coverallsapp/github-action@v2
         with:
+          parallel-finished: true
+          carryforward: "tests-3.11"
           github-token: ${{ secrets.GITHUB_TOKEN }}
           file: coverage.lcov
