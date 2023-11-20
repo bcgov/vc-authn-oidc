@@ -1,6 +1,7 @@
 import base64
 import io
 import uuid
+import canonicaljson
 from datetime import datetime
 from urllib.parse import urlencode
 
@@ -20,7 +21,7 @@ from ..core.acapy.client import AcapyClient
 from ..core.config import settings
 from ..core.logger_util import log_debug
 from ..core.oidc import provider
-from ..core.oidc.issue_token_service import Token
+from ..core.oidc.issue_token_service import PROOF_CLAIMS_ATTRIBUTE_NAME, Token
 from ..db.session import get_db
 
 # Access to the websocket
@@ -173,11 +174,16 @@ async def post_token(request: Request, db: Database = Depends(get_db)):
         # Replace auto-generated sub with one coming from proof, if available
         # The stateless storage uses a cypher, so a new item can be added and
         # the reference in the form needs to be updated with the new key value
-        if claims.get("sub"):
+        if claims.get("sub") and claims.get(PROOF_CLAIMS_ATTRIBUTE_NAME):
             authz_info = provider.provider.authz_state.authorization_codes[
                 form_dict["code"]
             ]
-            authz_info["sub"] = claims.pop("sub")
+            # Removed to avoid duplicate entries for "sub"
+            del claims["sub"]
+            # Generate the new sub based on the claims produced by the proof-request
+            authz_info["sub"] = canonicaljson.encode_canonical_json(
+                claims.get(PROOF_CLAIMS_ATTRIBUTE_NAME)
+            ).decode("utf-8")
             new_code = provider.provider.authz_state.authorization_codes.pack(
                 authz_info
             )
