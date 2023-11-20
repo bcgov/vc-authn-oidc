@@ -44,7 +44,7 @@ jobs:
           flag-name: run-${{ matrix.python-version }}
           parallel: true
   finish:
-    needs: test
+    needs: build
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
