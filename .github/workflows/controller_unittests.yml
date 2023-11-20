@@ -43,7 +43,8 @@ jobs:
         with:
           flag-name: run-${{ matrix.python-version }}
           parallel: true
-  finish:
+  code-coverage:
+    name: Generate Code Coverage
     needs: build
     if: ${{ always() }}
     runs-on: ubuntu-latest
