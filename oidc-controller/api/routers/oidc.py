@@ -159,17 +159,6 @@ async def get_authorize_callback(pid: str, db: Database = Depends(get_db)):
     return RedirectResponse(url)
 
 
-AuthCode = str
-
-
-def gen_auth_codes_for_user(original_code: AuthCode, identifier: str) -> AuthCode:
-    authz_info = provider.provider.authz_state.authorization_codes[original_code]
-    authz_info["sub"] = identifier
-    logger.warn(f"sub is {authz_info['sub']}")
-    new_code = provider.provider.authz_state.authorization_codes.pack(authz_info)
-    return new_code
-
-
 @log_debug
 @router.post(VerifiedCredentialTokenUri, response_class=JSONResponse)
 async def post_token(request: Request, db: Database = Depends(get_db)):
@@ -183,9 +172,18 @@ async def post_token(request: Request, db: Database = Depends(get_db)):
         ver_config = await VerificationConfigCRUD(db).get(auth_session.ver_config_id)
         claims = Token.get_claims(auth_session, ver_config)
 
-        form_dict["code"] = gen_auth_codes_for_user(
-            form_dict["code"], claims.pop("sub")
-        )
+        # Replace auto-generated sub with one coming from proof, if available
+        # The stateless storage uses a cypher, so a new item can be added and
+        # the reference in the form needs to be updated with the new key value
+        if claims.get("sub"):
+            authz_info = provider.provider.authz_state.authorization_codes[
+                form_dict["code"]
+            ]
+            authz_info["sub"] = claims.pop("sub")
+            new_code = provider.provider.authz_state.authorization_codes.pack(
+                authz_info
+            )
+            form_dict["code"] = new_code
 
         # convert form data to what library expects, Flask.app.request.get_data()
         data = urlencode(form_dict)
