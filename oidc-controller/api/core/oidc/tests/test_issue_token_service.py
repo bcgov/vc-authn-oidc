@@ -219,7 +219,7 @@ async def test_valid_presentation_with_matching_subject_identifier_has_identifie
 
 
 @pytest.mark.asyncio
-async def test_valid_presentation_with_non_matching_subject_identifier_and_has_no_sub():
+async def test_valid_presentation_with_non_matching_subject_identifier_and_generate_consistent_identifier_is_missing_and_has_no_sub():
     presentation["presentation_request"][
         "requested_attributes"
     ] = basic_valid_requested_attributes
@@ -229,4 +229,35 @@ async def test_valid_presentation_with_non_matching_subject_identifier_and_has_n
     with mock.patch.object(AuthSession, "presentation_exchange", presentation):
         ver_config.subject_identifier = "not-email"
         claims = Token.get_claims(auth_session, ver_config)
+        assert not ver_config.generate_consistent_identifier
         assert "sub" not in claims
+
+
+@pytest.mark.asyncio
+async def test_valid_presentation_with_non_matching_subject_identifier_and_generate_consistent_identifier_false_and_has_no_sub():
+    presentation["presentation_request"][
+        "requested_attributes"
+    ] = basic_valid_requested_attributes
+    presentation["presentation"]["requested_proof"][
+        "revealed_attr_groups"
+    ] = basic_valid_revealed_attr_groups
+    with mock.patch.object(AuthSession, "presentation_exchange", presentation):
+        ver_config.subject_identifier = "not-email"
+        ver_config.generate_consistent_identifier = False
+        claims = Token.get_claims(auth_session, ver_config)
+        assert "sub" not in claims
+
+
+@pytest.mark.asyncio
+async def test_valid_presentation_with_non_matching_subject_identifier_and_generate_consistent_identifier_true_and_has_sub():
+    presentation["presentation_request"][
+        "requested_attributes"
+    ] = basic_valid_requested_attributes
+    presentation["presentation"]["requested_proof"][
+        "revealed_attr_groups"
+    ] = basic_valid_revealed_attr_groups
+    with mock.patch.object(AuthSession, "presentation_exchange", presentation):
+        ver_config.subject_identifier = "not-email"
+        ver_config.generate_consistent_identifier = True
+        claims = Token.get_claims(auth_session, ver_config)
+        assert "sub" in claims
