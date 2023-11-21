@@ -1,7 +1,7 @@
 import base64
 import io
+from typing import cast
 import uuid
-import canonicaljson
 from datetime import datetime
 from urllib.parse import urlencode
 
@@ -21,7 +21,7 @@ from ..core.acapy.client import AcapyClient
 from ..core.config import settings
 from ..core.logger_util import log_debug
 from ..core.oidc import provider
-from ..core.oidc.issue_token_service import PROOF_CLAIMS_ATTRIBUTE_NAME, Token
+from ..core.oidc.issue_token_service import Token
 from ..db.session import get_db
 
 # Access to the websocket
@@ -159,35 +159,33 @@ async def get_authorize_callback(pid: str, db: Database = Depends(get_db)):
     return RedirectResponse(url)
 
 
+AuthCode = str
+
+
+def gen_auth_codes_for_user(original_code: AuthCode, identifier: str) -> AuthCode:
+    authz_info = provider.provider.authz_state.authorization_codes[original_code]
+    authz_info["sub"] = identifier
+    logger.warn(f"sub is {authz_info['sub']}")
+    new_code = provider.provider.authz_state.authorization_codes.pack(authz_info)
+    return new_code
+
+
 @log_debug
 @router.post(VerifiedCredentialTokenUri, response_class=JSONResponse)
 async def post_token(request: Request, db: Database = Depends(get_db)):
     """Called by oidc platform to retrieve token contents"""
     async with request.form() as form:
-        form_dict = form._dict
+        logger.warn(f"post_token: form was {form}")
+        form_dict = cast(dict[str, str], form._dict)
         auth_session = await AuthSessionCRUD(db).get_by_pyop_auth_code(
             form_dict["code"]
         )
         ver_config = await VerificationConfigCRUD(db).get(auth_session.ver_config_id)
         claims = Token.get_claims(auth_session, ver_config)
 
-        # Replace auto-generated sub with one coming from proof, if available
-        # The stateless storage uses a cypher, so a new item can be added and
-        # the reference in the form needs to be updated with the new key value
-        if claims.get("sub") and claims.get(PROOF_CLAIMS_ATTRIBUTE_NAME):
-            authz_info = provider.provider.authz_state.authorization_codes[
-                form_dict["code"]
-            ]
-            # Removed to avoid duplicate entries for "sub"
-            del claims["sub"]
-            # Generate the new sub based on the claims produced by the proof-request
-            authz_info["sub"] = canonicaljson.encode_canonical_json(
-                claims.get(PROOF_CLAIMS_ATTRIBUTE_NAME)
-            ).decode("utf-8")
-            new_code = provider.provider.authz_state.authorization_codes.pack(
-                authz_info
-            )
-            form_dict["code"] = new_code
+        form_dict["code"] = gen_auth_codes_for_user(
+            form_dict["code"], claims.pop("sub")
+        )
 
         # convert form data to what library expects, Flask.app.request.get_data()
         data = urlencode(form_dict)

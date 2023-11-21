@@ -74,6 +74,7 @@ curl -X 'POST' \
   -d '{
   "ver_config_id": "verified-email",
   "subject_identifier": "email",
+  "generate_consistent_identifier": true,
   "proof_request": {
     "name": "BCGov Verified Email",
     "version": "1.0",
