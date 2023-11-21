@@ -261,3 +261,15 @@ async def test_valid_presentation_with_non_matching_subject_identifier_and_gener
         ver_config.generate_consistent_identifier = True
         claims = Token.get_claims(auth_session, ver_config)
         assert "sub" in claims
+
+        # Ensure that this sub is not using the ver_config.subject_identifier
+        ver_config.subject_identifier = "email"
+        ver_config.generate_consistent_identifier = False
+        claims_subject_identifier = Token.get_claims(auth_session, ver_config)
+        assert claims["sub"] != claims_subject_identifier["sub"]
+
+        # Ensure that sub is consistent
+        ver_config.subject_identifier = "not-email"
+        ver_config.generate_consistent_identifier = True
+        claims_duplicate = Token.get_claims(auth_session, ver_config)
+        assert claims["sub"] == claims_duplicate["sub"]
