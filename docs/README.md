@@ -310,7 +310,7 @@ To quote from the OpenID Connect specification on [ID tokens](https://openid.net
 
 `sub : REQUIRED. Subject Identifier. A locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client, e.g., 24400320 or AItOawmwtWwcT0k51BayewNvutrJUqsvl6qs7A4. It MUST NOT exceed 255 ASCII characters in length. The sub value is a case sensitive string`
 
-When an OP is performing VC-AuthN, and the request has reached the point where the VC presentation has been generated and sent by the IW to the OP, the OP must now map contents of this VC presentation to an OpenID ID token. The question is then raised on what should populate this field. The three available are:
+When an OP is performing VC-AuthN, and the request has reached the point where the VC presentation has been generated and sent by the IW to the OP, the OP must now map contents of this VC presentation to an OpenID ID token. The question is then raised on what should populate this field. The three options available are:
 
 1. Nominate a disclosed attribute in the verifiable credential presentation that is used to populate the subject field.
 2. Ephemeral generate an identifier for this field e.g a randomly generated GUID.
