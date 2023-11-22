@@ -1,5 +1,6 @@
 import base64
 import io
+from typing import cast
 import uuid
 from datetime import datetime
 from urllib.parse import urlencode
@@ -163,7 +164,8 @@ async def get_authorize_callback(pid: str, db: Database = Depends(get_db)):
 async def post_token(request: Request, db: Database = Depends(get_db)):
     """Called by oidc platform to retrieve token contents"""
     async with request.form() as form:
-        form_dict = form._dict
+        logger.warn(f"post_token: form was {form}")
+        form_dict = cast(dict[str, str], form._dict)
         auth_session = await AuthSessionCRUD(db).get_by_pyop_auth_code(
             form_dict["code"]
         )

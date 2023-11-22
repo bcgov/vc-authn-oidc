@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import TypedDict
 
 from bson import ObjectId
 from pydantic import BaseModel, Field
@@ -48,7 +49,10 @@ class GenericErrorMessage(BaseModel):
     detail: str
 
 
-class RevealedAttribute(BaseModel):
+# Currently used as a TypedDict since it can be used as a part of a
+# Pydantic class but a Pydantic class can not inherit from TypedDict
+# and and BaseModel
+class RevealedAttribute(TypedDict, total=False):
     sub_proof_index: int
     values: dict
 

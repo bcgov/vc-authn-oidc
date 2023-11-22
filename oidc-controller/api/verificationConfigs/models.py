@@ -41,6 +41,7 @@ class VerificationProofRequest(BaseModel):
 class VerificationConfigBase(BaseModel):
     subject_identifier: str = Field()
     proof_request: VerificationProofRequest = Field()
+    generate_consistent_identifier: Optional[bool] = Field(default=False)
     include_v1_attributes: Optional[bool] = Field(default=False)
 
     def generate_proof_request(self):
@@ -52,8 +53,7 @@ class VerificationConfigBase(BaseModel):
         }
         for i, req_attr in enumerate(self.proof_request.requested_attributes):
             label = req_attr.label or "req_attr_" + str(i)
-            result["requested_attributes"][label] = req_attr.dict(
-                exclude_none=True)
+            result["requested_attributes"][label] = req_attr.dict(exclude_none=True)
             if settings.SET_NON_REVOKED:
                 result["requested_attributes"][label]["non_revoked"] = {
                     "from": int(time.time()),
@@ -62,8 +62,7 @@ class VerificationConfigBase(BaseModel):
         # TODO add I indexing
         for req_pred in self.proof_request.requested_predicates:
             label = req_pred.label or "req_pred_" + str(i)
-            result["requested_predicates"][label] = req_pred.dict(
-                exclude_none=True)
+            result["requested_predicates"][label] = req_pred.dict(exclude_none=True)
             if settings.SET_NON_REVOKED:
                 result["requested_attributes"][label]["non_revoked"] = {
                     "from": int(time.time()),

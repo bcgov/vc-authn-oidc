@@ -1,3 +1,4 @@
+import canonicaljson
 import dataclasses
 import json
 from datetime import datetime
@@ -9,7 +10,7 @@ from pydantic import BaseModel
 
 from ...authSessions.models import AuthSession
 from ...verificationConfigs.models import ReqAttr, VerificationConfig
-from ..models import RevealedAttribute
+from ...core.models import RevealedAttribute
 
 logger = structlog.getLogger(__name__)
 
@@ -57,9 +58,10 @@ class Token(BaseModel):
         referent: str
         requested_attr: ReqAttr
         try:
-            for referent, requested_attr in auth_session.presentation_exchange[
+            for referent, requested_attrdict in auth_session.presentation_exchange[
                 "presentation_request"
             ]["requested_attributes"].items():
+                requested_attr = ReqAttr(**requested_attrdict)
                 logger.debug(
                     f"Processing referent: {referent}, requested_attr: {requested_attr}"
                 )
@@ -72,7 +74,7 @@ class Token(BaseModel):
                 ]
                 logger.debug(f"revealed_attrs: {revealed_attrs}")
                 # loop through each value and put it in token as a claim
-                for attr_name in requested_attr["names"]:
+                for attr_name in requested_attr.names:
                     logger.debug(f"AttrName: {attr_name}")
                     presentation_claims[attr_name] = Claim(
                         type=attr_name,
@@ -85,6 +87,9 @@ class Token(BaseModel):
             )
             raise RuntimeError(err)
 
+        proof_claims = json.dumps(
+            {c.type: c.value for c in presentation_claims.values()}
+        )
         # look at all presentation_claims for one
         # matching the configured subject_identifier, if any
         sub_id_claim = presentation_claims.get(ver_config.subject_identifier)
@@ -92,11 +97,20 @@ class Token(BaseModel):
         if sub_id_claim:
             # add sub and append presentation_claims
             oidc_claims.append(Claim(type="sub", value=sub_id_claim.value))
+        elif ver_config.generate_consistent_identifier:
+            # Do not create a sub based on the proof claims if the
+            # user requests a generated identifier
+            oidc_claims.append(
+                Claim(
+                    type="sub",
+                    value=canonicaljson.encode_canonical_json(proof_claims).decode(
+                        "utf-8"
+                    ),
+                )
+            )
 
         result = {c.type: c.value for c in oidc_claims}
-        result[PROOF_CLAIMS_ATTRIBUTE_NAME] = json.dumps(
-            {c.type: c.value for c in presentation_claims.values()}
-        )
+        result[PROOF_CLAIMS_ATTRIBUTE_NAME] = proof_claims
 
         # TODO: Remove after full transistion to v2.0
         # Add the presentation claims to the result as keys for backwards compatibility [v1.0]

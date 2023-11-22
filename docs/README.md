@@ -138,6 +138,7 @@ A verifiable credential presentation request configuration, takes the following 
 {
   "id": "<configuration-identifier>",
   "subject_identifier": "<attribute-name>",
+  "generate_consistent_identifier": <true|false>,
   "proof_request": {
     "name": "Basic Proof",
     "version": "1.0",
@@ -156,6 +157,7 @@ This data model is inspired by that is defined and used in the [Hyperledger Indy
 
 - `id` : The identifier for the presentation configuration.
 - `subject_identifier` : See [here](#subject-identifer-mapping) for further details on the purpose of this field.
+- `generate_consistent_identifier` : Optional field defaulting to false. See [here](#subject-identifer-mapping) for more details.
 - `proof_request` : Contains the details on the presentation request, e.g which attributes are to be disclosed
     - `name` : The name that will accompany the presentation request
     - `version` : The version of the presentation request
@@ -308,7 +310,7 @@ To quote from the OpenID Connect specification on [ID tokens](https://openid.net
 
 `sub : REQUIRED. Subject Identifier. A locally unique and never reassigned identifier within the Issuer for the End-User, which is intended to be consumed by the Client, e.g., 24400320 or AItOawmwtWwcT0k51BayewNvutrJUqsvl6qs7A4. It MUST NOT exceed 255 ASCII characters in length. The sub value is a case sensitive string`
 
-When an OP is performing VC-AuthN, and the request has reached the point where the VC presentation has been generated and sent by the IW to the OP, the OP must now map contents of this VC presentation to an OpenID ID token. The question is then raised on what should populate this field. The two options available are:
+When an OP is performing VC-AuthN, and the request has reached the point where the VC presentation has been generated and sent by the IW to the OP, the OP must now map contents of this VC presentation to an OpenID ID token. The question is then raised on what should populate this field. The three options available are:
 
 1. Nominate a disclosed attribute in the verifiable credential presentation that is used to populate the subject field.
 2. Ephemeral generate an identifier for this field e.g a randomly generated GUID.
@@ -317,6 +319,7 @@ When an OP is performing VC-AuthN, and the request has reached the point where t
 **Note:**
 - In option 2. this prevents the often desirable property of cross session correlation of an authenticated user, which will effect the ability for many integrating IAM solutions being able to conduct effective auditing.
 - In option 3. this method should be assessed and used with caution, as the chance of collisions for users holding credentials with exact same values is possible (e.g.: a proof-request using only `first_name` and `last_name`, would generate the same identifier for people with same first and last name).
+- In order to enable option 3 the _presentation request configuration_ must have `generate_consistent_identifier`
 
 #### UserInfo Endpoint
 
