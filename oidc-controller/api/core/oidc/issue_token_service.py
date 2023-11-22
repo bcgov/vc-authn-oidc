@@ -2,14 +2,15 @@ import canonicaljson
 import dataclasses
 import json
 from datetime import datetime
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Any, Dict, List
 
 import structlog
 from oic.oic.message import OpenIDSchema
 from pydantic import BaseModel
 
 from ...authSessions.models import AuthSession
-from ...verificationConfigs.models import AttributeFilter, VerificationConfig
+from ...verificationConfigs.models import ReqAttr, VerificationConfig
+from ...core.models import RevealedAttribute
 
 logger = structlog.getLogger(__name__)
 
@@ -20,18 +21,6 @@ PROOF_CLAIMS_ATTRIBUTE_NAME = "vc_presented_attributes"
 class Claim(BaseModel):
     type: str
     value: str
-
-
-# Used as a work around since these are represented as dictionaries in this case
-class ReqAttrDict(TypedDict, total=False):
-    names: List[str]
-    label: Optional[str]
-    restrictions: List[AttributeFilter]
-
-
-class RevealedAttributeDict(TypedDict, total=False):
-    sub_proof_index: int
-    values: dict
 
 
 class Token(BaseModel):
@@ -67,16 +56,17 @@ class Token(BaseModel):
         )
 
         referent: str
-        requested_attr: ReqAttrDict
+        requested_attr: ReqAttr
         try:
-            for referent, requested_attr in auth_session.presentation_exchange[
+            for referent, requested_attrdict in auth_session.presentation_exchange[
                 "presentation_request"
             ]["requested_attributes"].items():
+                requested_attr = ReqAttr(**requested_attrdict)
                 logger.debug(
                     f"Processing referent: {referent}, requested_attr: {requested_attr}"
                 )
                 revealed_attrs: Dict[
-                    str, RevealedAttributeDict
+                    str, RevealedAttribute
                 ] = auth_session.presentation_exchange["presentation"][
                     "requested_proof"
                 ][
@@ -84,7 +74,7 @@ class Token(BaseModel):
                 ]
                 logger.debug(f"revealed_attrs: {revealed_attrs}")
                 # loop through each value and put it in token as a claim
-                for attr_name in requested_attr["names"]:
+                for attr_name in requested_attr.names:
                     logger.debug(f"AttrName: {attr_name}")
                     presentation_claims[attr_name] = Claim(
                         type=attr_name,
