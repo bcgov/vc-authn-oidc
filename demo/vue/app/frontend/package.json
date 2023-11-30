@@ -19,7 +19,7 @@
   "dependencies": {
     "@babel/eslint-parser": "^7.23.3",
     "@bcgov/bc-sans": "^1.0.1",
-    "axios": "^0.24.0",
+    "axios": "^1.6.0",
     "core-js": "^3.19.2",
     "eslint": "^8.54.0",
     "keycloak-js": "^15.0.2",
