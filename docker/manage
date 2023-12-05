@@ -174,7 +174,7 @@ configureEnvironment() {
 
   #controller app settings
   export SET_NON_REVOKED="True" # both work
-  export USE_OOB_PRESENT_PROOF="False" #BC wallet kinda supports true.
+  export USE_OOB_PRESENT_PROOF="True" #BC wallet kinda supports true.
   export USE_OOB_LOCAL_DID_SERVICE="False" #bc wallet does not support true
 
   # agent
