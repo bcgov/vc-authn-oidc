@@ -15,5 +15,5 @@ spec:
   resources:
     requests:
       storage: {{ .Values.acapy.persistence.size | quote }}
-  {{- include "common.storage.class" (dict "persistence" .Values.acapy.persistence "global" .Values.global) | nindent 8 }}
+  {{- include "common.storage.class" (dict "persistence" .Values.acapy.persistence "global" .Values.global) | nindent 2 }}
 {{- end}}
