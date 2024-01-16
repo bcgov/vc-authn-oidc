@@ -15,6 +15,7 @@ class AuthSessionState(StrEnum):
     EXPIRED = auto()
     VERIFIED = auto()
     FAILED = auto()
+    ABANDONED = auto()
 
 class AuthSessionBase(BaseModel):
     pres_exch_id: str
