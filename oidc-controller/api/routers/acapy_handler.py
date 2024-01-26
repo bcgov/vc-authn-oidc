@@ -61,6 +61,16 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                 await AuthSessionCRUD(db).patch(
                     str(auth_session.id), AuthSessionPatch(**auth_session.dict())
                 )
+            
+            # abandoned state
+            if webhook_body["state"] == "abandoned":
+                logger.info("ABANDONED")
+                logger.info(webhook_body["error_msg"])
+                auth_session.proof_status = AuthSessionState.ABANDONED
+                await sio.emit("status", {"status": "abandoned"}, to=sid)
+                await AuthSessionCRUD(db).patch(
+                    str(auth_session.id), AuthSessionPatch(**auth_session.dict())
+                )
 
             # Calcuate the expiration time of the proof
             now_time = datetime.now()
