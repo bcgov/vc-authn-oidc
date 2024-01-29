@@ -275,90 +275,27 @@ initializeUserPrompts() {
   fi
   ######
 
-  # Set CONTROLLER_SERVICE_PORT for the ngrok service to use
-  if [ ! -z "$CONTROLLER_SERVICE_PORT" ]; then
-    echo "CONTROLLER_SERVICE_PORT=${CONTROLLER_SERVICE_PORT}" >> .env
-  else
-    echo "CONTROLLER_SERVICE_PORT=5000" >> .env
-  fi
-
-  PS3="Is your agent single-tenant or multi-tenant? "
-  select opt in "Single-Tenant" "Multi-Tenant/Traction" "Quit"; do
-    case $REPLY in
-      1)
-        echo "AGENT_TENANT_MODE=single" >> .env
-        export AGENT_TENANT_MODE=single
-        echo "AGENT_WALLET_SEED=$(generateSeed vc-authn-oidc)" >> .env
-        break
-        ;;
-      2)
-        read  -p "Please provide your tenant's Wallet ID:" MT_ACAPY_WALLET_ID
-        read  -p "Please provide your tenant's Wallet Key:" MT_ACAPY_WALLET_KEY
-        echo "AGENT_TENANT_MODE=multi" >> .env
-        export AGENT_TENANT_MODE=multi
-        echo "MT_ACAPY_WALLET_ID=${MT_ACAPY_WALLET_ID}" >> .env
-        echo "MT_ACAPY_WALLET_KEY=${MT_ACAPY_WALLET_KEY}" >> .env
-        echo "AGENT_HOST=${DOCKERHOST}" >> .env
-        echo "AGENT_HTTP_PORT=8030" >> .env
-        echo "AGENT_ADMIN_PORT=8032" >> .env
-
-        # do not start agent services when using external multi-tenant instance
-        unset ACAPY_CONTAINERS
-        break
-        ;;
-      3)
-        exit 0
-        ;;
-      *) 
-        echo "Invalid option $REPLY"
-        ;;
-    esac
-  done
-
-  read -p "Do you want to use ngrok for your agent and controller [y/n]? " -n 1 -r
-  echo    # (optional) move to a new line
-  if [[ $REPLY =~ ^[Yy]$ ]]
-  then
-      echo "USE_NGROK=true" >> .env
-      echo "AGENT_HTTP_PORT=8030" >> .env
-      
-      startNgrokContainers $AGENT_TENANT_MODE
-      
-      setNgrokEndpoints
-  fi
+  echo "AGENT_WALLET_SEED=$(generateSeed vc-authn-oidc)" >> .env
+  startNgrokContainers
+  setNgrokEndpoints
 }
 
 # starts ngrok proxies for controller and, when in single-tenant mode, for the agent
 function startNgrokContainers() {
-  CONTROLLER_NGROK_CONTAINER=controller-ngrok
-  AGENT_NGROK_CONTAINER=aca-py-ngrok
-
-  if [[ $AGENT_TENANT_MODE == "multi" ]]
-  then
-      #  will be using traction's ngrok proxy for the agent
-      unset AGENT_NGROK_CONTAINER
-  fi
-
-  #  start ngrok containers first so we can grab the URLs
-  COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn}" docker compose -f docker-compose-ngrok.yaml up -d --force-recreate ${CONTROLLER_NGROK_CONTAINER} ${AGENT_NGROK_CONTAINER}
+  #  start ngrok container first so we can grab the tunnel URLs
+  echo "Starting ngrok container..."
+  COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn}" docker compose -f docker-compose-ngrok.yaml up -d --force-recreate
 }
 
 # fetches and sets the ngrok endpoints for controlelr and agent for the current session
 function setNgrokEndpoints() {
-  if [[ $AGENT_TENANT_MODE == "multi" ]]; then
-    # use traction agent ngrok
-    NGROK_AGENT_PORT=4052
-  else
-    NGROK_AGENT_PORT=4059
-  fi
-
   echoInfo "Determining ngrok url for controller service..."
-  getNgrokUrl http://${DOCKERHOST}:4056/api/tunnels controller-ngrok.json NGROK_CONTROLLER_URL
+  getNgrokUrl http://${DOCKERHOST}:4046/api/tunnels controller-ngrok.json NGROK_CONTROLLER_URL controller-ngrok
   export CONTROLLER_URL=${NGROK_CONTROLLER_URL}
   echoSuccess "The controller url is: ${NGROK_CONTROLLER_URL}"
 
   echoInfo "Determining ngrok url for agent service..."
-  getNgrokUrl http://${DOCKERHOST}:${NGROK_AGENT_PORT}/api/tunnels agent-ngrok.json NGROK_AGENT_URL
+  getNgrokUrl http://${DOCKERHOST}:4046/api/tunnels agent-ngrok.json NGROK_AGENT_URL aca-py-ngrok
   export AGENT_ENDPOINT=${NGROK_AGENT_URL}
   echoSuccess "The agent url is: ${NGROK_AGENT_URL}"
 }
@@ -367,10 +304,11 @@ function getNgrokUrl() {
   _url=$1
   _output_file=$2
   _target_variable=$3
+  _tunnel_name=$4
 
   function extractUrl() {
     docker run --rm curlimages/curl -L -s $_url > $_output_file
-    NGROK_URL=$(docker run --rm -i ghcr.io/jqlang/jq:1.7rc1 < $_output_file --raw-output '.tunnels | map(select(.name=="command_line")) | .[0] | .public_url')
+    NGROK_URL=$(docker run --rm -i ghcr.io/jqlang/jq:1.7rc1 < $_output_file --raw-output '.tunnels | map(select(.name=="'${_tunnel_name}'")) | .[0] | .public_url')
   
     if [ -z "${NGROK_URL}" ] || [ "null" = "${NGROK_URL}" ]; then
       return 1
@@ -413,16 +351,11 @@ start|up)
     initializeUserPrompts
     echoWarning "User preferences were saved in docker/.env for future use"
   else
-    export USE_NGROK=$(grep USE_NGROK ./.env | cut -d'=' -f 2-)
-    export AGENT_TENANT_MODE=$(grep AGENT_TENANT_MODE ./.env | cut -d'=' -f 2-)
-    if [[ $USE_NGROK == "true" ]]; then
-      # ngrok was already chosen, refresh containers/endpoints
-      echoInfo "Refreshing ngrok containers..."
-      startNgrokContainers $AGENT_TENANT_MODE
-      setNgrokEndpoints 
-    fi
+    # ngrok was already chosen, refresh containers/endpoints
+    echoInfo "Refreshing ngrok containers..."
+    startNgrokContainers
+    setNgrokEndpoints
   fi
-
 
   configureEnvironment $@
 
