@@ -1,0 +1,13 @@
+version: 2
+tunnels:
+  controller-ngrok:
+    addr: controller:5000
+    proto: http
+    schemes:
+      - https
+  aca-py-ngrok:
+    addr: aca-py:8030
+    proto: http
+    schemes:
+      - https
+log: stdout

@@ -18,4 +18,4 @@ jobs:
           stale-issue-label: 'stale'
           exempt-issue-labels: 'pinned,security,dependencies,epic'
           stale-pr-label: 'stale'
-          exempt-pr-labels: 'awaiting-approval,work-in-progress'
+          exempt-pr-labels: 'awaiting-approval,work-in-progress,dependencies'

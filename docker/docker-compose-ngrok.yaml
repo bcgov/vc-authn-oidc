@@ -1,23 +1,18 @@
 version: "3"
 services:
-  controller-ngrok:
+  ngrok:
     image: ngrok/ngrok
     environment:
-      - CONTROLLER_SERVICE_PORT=${CONTROLLER_SERVICE_PORT}
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
     ports:
-      - 4056:4040
-    command: http controller:${CONTROLLER_SERVICE_PORT} --log stdout
-    networks:
-      - vc_auth
-
-  aca-py-ngrok:
-    image: ngrok/ngrok
-    environment:
-      - AGENT_HTTP_PORT=${AGENT_HTTP_PORT}
-    ports:
-      - 4059:4040
-    command: http aca-py:${AGENT_HTTP_PORT} --log stdout
+      - 4046:4040
+    command:
+      - "start"
+      - "--all"
+      - "--config"
+      - "/etc/ngrok.yml"
+    volumes:
+          - ./ngrok.yml:/etc/ngrok.yml
     networks:
       - vc_auth
 
