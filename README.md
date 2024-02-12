@@ -64,7 +64,7 @@ To use VC-AuthN for development and/or demo purposes, a pre-configured demo app 
 In order to use the VC OIDC authentication, a couple of extra steps are required:
 
 - A proof-request configuration needs to be registered with VC-AuthN. To do
-  so, the following command can be used to post a configuration requesting a BCGov Verified Email credential:
+  so, the following command can be used to post a configuration requesting a BC Wallet Showcase Person credential:
 
 ```bash
 curl -X 'POST' \
@@ -72,20 +72,28 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "ver_config_id": "verified-email",
-  "subject_identifier": "email",
+  "ver_config_id": "showcase-person",
+  "subject_identifier": "",
   "generate_consistent_identifier": true,
   "proof_request": {
-    "name": "BCGov Verified Email",
+    "name": "BC Wallet Showcase Person",
     "version": "1.0",
     "requested_attributes": [
 
       {
-        "names": ["email"],
+        "names": ["given_names", "family_name", "country"],
         "restrictions": [
           {
-            "schema_name": "verified-email",
-            "issuer_did": "MTYqmTBoLT7KLP5RNfgK3b"
+            "schema_name": "Person",
+            "issuer_did": "L6ASjmDDbDH7yPL1t2yFj9"
+          },
+          {
+            "schema_name": "Person",
+            "issuer_did": "QEquAHkM35w4XVT3Ku5yat"
+          },
+          {
+            "schema_name": "Person",
+            "issuer_did": "M6dhuFj5UwbhWkSLmvYSPc"
           }
         ]
       }
@@ -118,7 +126,7 @@ curl -X 'POST' \
 }'
 ```
 
-- Lastly, obtain a valid BCGov Verified Email credential from the [BCGov Email Verification Service](https://email-verification.vonx.io)
+- Lastly, obtain a Person Credential from the [BC Wallet Showcase](https://digital.gov.bc.ca/digital-trust/showcase) by completing the lawyer demo.
 
 After all these steps have been completed, you should be able to authenticate with the demo application using the "Verified Credential Access" option.
 
