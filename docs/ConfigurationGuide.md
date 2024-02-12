@@ -59,6 +59,17 @@ To register a new client, `POST` a request to the `/clients` endpoint with a pay
 }
 ```
 
+### Mappers
+
+Once the new Identity Provider is configured, mappers should be added in order to consume the claims in issued tokens. This can be done by clicking `Add mapper` in the `Mappers` tab within the Identity Provider configuration view. Mappers should be configured using the type `Attribute Importer` and, at minimum, should include:
+
+- `pres_req_conf_id`: this will return the id of the proof request configuration that was used during the authentication request. It should be used by the client application to check authentication was completed by using the expected credential (see [best bractices](./BestPractices.md) for additional information).
+- `vc_presented_attributes`: this will contain a serialized JSON object containing all of the attributes requested as part of the proof request, for the application to consume. If individual mappers are preferred, they can be configured to extract individual claims.
+
+The following is an example mapper configuration:
+![vc-authn-oidc-flow](img/03-mappers.png)
+
+
 ## Direct Configuration
 
 VC-AuthN 2.0 only supports confidential clients, and cannot be configured to be invoked directly from Single-Page applications. For back-end systems, however, the above instructions should still apply.
