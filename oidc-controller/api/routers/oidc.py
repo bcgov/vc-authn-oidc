@@ -129,6 +129,10 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     image_contents = base64.b64encode(buff.getvalue()).decode("utf-8")
     callback_url = f"""{controller_host}{AuthorizeCallbackUri}?pid={auth_session.id}"""
 
+    # BC Wallet deep link
+    response_b64 = base64.b64encode(response.json().encode("utf-8")).decode("utf-8")
+    wallet_deep_link = f"bcwallet://aries_proof-request?oob={response_b64}"
+
     # This is the payload to send to the template
     data = {
         "image_contents": image_contents,
@@ -139,6 +143,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         "pid": auth_session.id,
         "controller_host": controller_host,
         "challenge_poll_uri": ChallengePollUri,
+        "wallet_deep_link": wallet_deep_link,
     }
 
     # Prepare the template
