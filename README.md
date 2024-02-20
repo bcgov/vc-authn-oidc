@@ -35,27 +35,12 @@ NGROK_AUTHTOKEN=<your token here>
 Open a shell in the [docker](docker/) folder and run the following commands:
 
 - `./manage build`: this command will build the controller image. This step is required the first time the project is run, and when dependencies in change in the requirements file(s).
-- `./manage start`: this will start the project. The user will be prompted to select whether to target the default standalone ACA-Py agent, or a tenant on a pre-provisioned instance of [Traction](https://github.com/bcgov/traction). Follow the script prompts to select the appropriate runtime options: they will be saved in an `env` file for the next execution.
+- `./manage start`: this will start the project. Follow the script prompts to select the appropriate runtime options: they will be saved in an `env` file for the next execution.
 - To reset everything (including removing container data and selected options in the `env` file) execute `./manage rm`.
 
 A list of all available commands is visible by executing `./manage -h`.
 
 The project is set-up to run without needing any external dependencies by default, using a standalone agent in read-only that will target the ledgers specified in [ledgers.yaml](docker/agent/config/ledgers.yaml).
-
-If a [Traction](https://github.com/bcgov/traction) tenant is selected via user prompts for the agent, some pre-requisite steps are required for the project to start-up successfully:
-
-- clone the [Traction](https://github.com/bcgov/traction) repository.
-- add the following to `<traction_folder>/scripts/docker-compose.yaml`
-
-  ```yaml
-  networks:
-    default:
-      name: oidc_vc_auth
-      external: true
-  ```
-- copy `scripts/.env-example` to `scripts/.env` and adjust as necessary, for more info see [run local traction.](https://github.com/bcgov/traction/blob/main/scripts/README.md#run-local-traction)
-- start `traction` by executing `docker-compose up` from `<traction_folder>/scripts`
-- provision yourself a tenant and record the wallet Id/Key: they will be required to connect the controller with the agent.
 
 ## Using VC-AuthN
 
