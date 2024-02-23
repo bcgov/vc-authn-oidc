@@ -7,15 +7,7 @@ from pymongo.database import Database
 
 from ..authSessions.crud import AuthSessionCRUD
 from ..authSessions.models import AuthSession, AuthSessionState
-from ..core.acapy.client import AcapyClient
-from ..core.aries import (
-    OOBServiceDecorator,
-    OutOfBandMessage,
-    OutOfBandPresentProofAttachment,
-    PresentationRequestMessage,
-    PresentProofv10Attachment,
-    ServiceDecorator,
-)
+
 from ..core.config import settings
 from ..routers.socketio import (sio, connections_reload)
 from ..db.session import get_db
@@ -65,51 +57,7 @@ async def send_connectionless_proof_req(
         await AuthSessionCRUD(db).patch(auth_session.id, auth_session)
         await sio.emit('status', {'status': 'pending'}, to=sid)
 
-    client = AcapyClient()
-    use_public_did = (
-        not settings.USE_OOB_PRESENT_PROOF
-    ) and settings.USE_OOB_LOCAL_DID_SERVICE
-    wallet_did = client.get_wallet_did(public=use_public_did)
+    msg = auth_session.presentation_request_msg
 
-    byo_attachment = PresentProofv10Attachment.build(
-        auth_session.presentation_exchange["presentation_request"]
-    )
-
-    msg = None
-    if settings.USE_OOB_PRESENT_PROOF:
-        if settings.USE_OOB_LOCAL_DID_SERVICE:
-            oob_s_d = OOBServiceDecorator(
-                service_endpoint=client.service_endpoint,
-                recipient_keys=[wallet_did.verkey],
-            ).dict()
-        else:
-            wallet_did = client.get_wallet_did(public=True)
-            oob_s_d = wallet_did.verkey
-
-        msg = PresentationRequestMessage(
-            id=auth_session.presentation_exchange["thread_id"],
-            request=[byo_attachment],
-        )
-        oob_msg = OutOfBandMessage(
-            request_attachments=[
-                OutOfBandPresentProofAttachment(
-                    id="request-0",
-                    data={"json": msg.dict(by_alias=True)},
-                )
-            ],
-            id=auth_session.presentation_exchange["thread_id"],
-            services=[oob_s_d],
-        )
-        msg_contents = oob_msg
-    else:
-        s_d = ServiceDecorator(
-            service_endpoint=client.service_endpoint, recipient_keys=[wallet_did.verkey]
-        )
-        msg = PresentationRequestMessage(
-            id=auth_session.presentation_exchange["thread_id"],
-            request=[byo_attachment],
-            service=s_d,
-        )
-        msg_contents = msg
-    logger.debug(msg_contents.dict(by_alias=True))
-    return JSONResponse(msg_contents.dict(by_alias=True))
+    logger.debug(msg)
+    return JSONResponse(msg)
