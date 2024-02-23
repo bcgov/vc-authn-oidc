@@ -19,6 +19,9 @@ async def init_db():
     client_configs = db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
     client_configs.create_index([("client_id", ASCENDING)], unique=True)
 
+    auth_session = db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
+    auth_session.create_index([("pres_exch_id", ASCENDING)], unique=True)
+    auth_session.create_index([("pyop_auth_code", ASCENDING)], unique=True)
 
 async def get_db():
     return client[settings.DB_NAME]
