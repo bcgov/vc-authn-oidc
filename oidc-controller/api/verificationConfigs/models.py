@@ -32,7 +32,7 @@ class ReqPred(BaseModel):
 
 class VerificationProofRequest(BaseModel):
     name: Optional[str]
-    version: str = Field(regex="[0-9](.[0.9])*", example="0.0.1")
+    version: str = Field(pattern="[0-9](.[0.9])*", example="0.0.1")
     non_revoked: Optional[str]
     requested_attributes: List[ReqAttr]
     requested_predicates: List[ReqPred]
