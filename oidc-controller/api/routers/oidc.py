@@ -1,5 +1,6 @@
 import base64
 import io
+import json
 from typing import cast
 import uuid
 from datetime import datetime
@@ -18,6 +19,14 @@ from pyop.exceptions import InvalidAuthenticationRequest
 from ..authSessions.crud import AuthSessionCreate, AuthSessionCRUD
 from ..authSessions.models import AuthSessionPatch, AuthSessionState
 from ..core.acapy.client import AcapyClient
+from ..core.aries import (
+    OOBServiceDecorator,
+    OutOfBandMessage,
+    OutOfBandPresentProofAttachment,
+    PresentationRequestMessage,
+    PresentProofv10Attachment,
+    ServiceDecorator,
+)
 from ..core.config import settings
 from ..core.logger_util import log_debug
 from ..core.oidc import provider
@@ -105,18 +114,70 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
 
     # Create presentation_request to show on screen
     response = client.create_presentation_request(ver_config.generate_proof_request())
+    pres_exch_dict = response.dict()
 
+    # Prepeare the presentation request    
+    client = AcapyClient()
+    use_public_did = (
+        not settings.USE_OOB_PRESENT_PROOF
+    ) and settings.USE_OOB_LOCAL_DID_SERVICE
+    wallet_did = client.get_wallet_did(public=use_public_did)
+
+    byo_attachment = PresentProofv10Attachment.build(
+        pres_exch_dict["presentation_request"]
+    )
+
+    msg = None
+    if settings.USE_OOB_PRESENT_PROOF:
+        if settings.USE_OOB_LOCAL_DID_SERVICE:
+            oob_s_d = OOBServiceDecorator(
+                service_endpoint=client.service_endpoint,
+                recipient_keys=[wallet_did.verkey],
+            ).dict()
+        else:
+            wallet_did = client.get_wallet_did(public=True)
+            oob_s_d = wallet_did.verkey
+
+        msg = PresentationRequestMessage(
+            id=pres_exch_dict["thread_id"],
+            request=[byo_attachment],
+        )
+        oob_msg = OutOfBandMessage(
+            request_attachments=[
+                OutOfBandPresentProofAttachment(
+                    id="request-0",
+                    data={"json": msg.dict(by_alias=True)},
+                )
+            ],
+            id=pres_exch_dict["thread_id"],
+            services=[oob_s_d],
+        )
+        msg_contents = oob_msg
+    else:
+        s_d = ServiceDecorator(
+            service_endpoint=client.service_endpoint, recipient_keys=[wallet_did.verkey]
+        )
+        msg = PresentationRequestMessage(
+            id=pres_exch_dict["thread_id"],
+            request=[byo_attachment],
+            service=s_d,
+        )
+        msg_contents = msg
+    
+    
+    # Create and save OIDC AuthSession 
     new_auth_session = AuthSessionCreate(
         response_url=authn_response.request(auth_req["redirect_uri"]),
         pyop_auth_code=authn_response["code"],
         request_parameters=model.to_dict(),
         ver_config_id=ver_config_id,
         pres_exch_id=response.presentation_exchange_id,
-        presentation_exchange=response.dict(),
+        presentation_exchange=pres_exch_dict,
+        presentation_request_msg=msg_contents.dict(by_alias=True),
     )
-
-    # save OIDC AuthSession
     auth_session = await AuthSessionCRUD(db).create(new_auth_session)
+
+    formated_msg = json.dumps(msg_contents.dict(by_alias=True))
 
     # QR CONTENTS
     controller_host = settings.CONTROLLER_URL
@@ -129,6 +190,12 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     image_contents = base64.b64encode(buff.getvalue()).decode("utf-8")
     callback_url = f"""{controller_host}{AuthorizeCallbackUri}?pid={auth_session.id}"""
 
+    # BC Wallet deep link
+    # base64 encode the formated_msg
+    base64_msg = base64.b64encode(formated_msg.encode("utf-8")).decode("utf-8")
+    wallet_deep_link = f"bcwallet://aries_proof-request?c_i={base64_msg}"
+
+
     # This is the payload to send to the template
     data = {
         "image_contents": image_contents,
@@ -139,6 +206,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         "pid": auth_session.id,
         "controller_host": controller_host,
         "challenge_poll_uri": ChallengePollUri,
+        "wallet_deep_link": wallet_deep_link,
     }
 
     # Prepare the template

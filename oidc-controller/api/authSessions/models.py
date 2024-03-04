@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from enum import StrEnum, auto
-from typing import Dict
+from typing import Dict, Optional
 
 from api.core.acapy.client import AcapyClient
 from api.core.models import UUIDModel
@@ -25,6 +25,7 @@ class AuthSessionBase(BaseModel):
     request_parameters: dict
     pyop_auth_code: str
     response_url: str
+    presentation_request_msg: Optional[dict] = None
 
     class Config:
         allow_population_by_field_name = True
