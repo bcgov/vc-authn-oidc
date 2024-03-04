@@ -6,25 +6,25 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.1.7
+version: 0.1.8
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "2.0.0"
+appVersion: "2.0.1-rc0"
 
-# Charts the vc-authn-oidc service depends on 
+# Charts the vc-authn-oidc service depends on
 dependencies:
-- name: mongodb
-  version: "13.13.1"
-  repository: "https://charts.bitnami.com/bitnami"
-- name: postgresql
-  version: 11.9.13
-  repository: https://charts.bitnami.com/bitnami/
-  condition: postgresql.enabled
-- name: common
-  repository: "https://charts.bitnami.com/bitnami"
-  tags:
-    - bitnami-common
-  version: 2.x.x
+  - name: mongodb
+    version: "13.13.1"
+    repository: "https://charts.bitnami.com/bitnami"
+  - name: postgresql
+    version: 11.9.13
+    repository: https://charts.bitnami.com/bitnami/
+    condition: postgresql.enabled
+  - name: common
+    repository: "https://charts.bitnami.com/bitnami"
+    tags:
+      - bitnami-common
+    version: 2.x.x
