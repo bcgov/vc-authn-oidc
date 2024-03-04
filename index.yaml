@@ -2,6 +2,29 @@ apiVersion: v1
 entries:
   vc-authn-oidc:
   - apiVersion: v2
+    appVersion: 2.0.1-rc0
+    created: "2024-03-04T17:54:05.63428223Z"
+    dependencies:
+    - name: mongodb
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.13.1
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami/
+      version: 11.9.13
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: A Helm chart to deploy VC-AuthN on OpenShift
+    digest: 355d1c6283f35324da67563a48c66e4287f962cebe778c52c1d780ce06906ae2
+    name: vc-authn-oidc
+    type: application
+    urls:
+    - https://github.com/bcgov/vc-authn-oidc/releases/download/vc-authn-oidc-0.1.8/vc-authn-oidc-0.1.8.tgz
+    version: 0.1.8
+  - apiVersion: v2
     appVersion: 2.0.0
     created: "2024-02-15T18:30:00.935166346Z"
     dependencies:
@@ -116,4 +139,4 @@ entries:
     urls:
     - https://github.com/bcgov/vc-authn-oidc/releases/download/vc-authn-oidc-0.1.3/vc-authn-oidc-0.1.3.tgz
     version: 0.1.3
-generated: "2024-02-15T18:30:00.93518982Z"
+generated: "2024-03-04T17:54:05.634300685Z"
