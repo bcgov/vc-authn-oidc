@@ -1,11 +1,11 @@
 ## @section Common Configuration
 ##
-## @param nameOverride 
+## @param nameOverride
 nameOverride: ""
 ## @param fullnameOverride
 fullnameOverride: ""
 
-## @param image.repository 
+## @param image.repository
 ## @param image.pullPolicy
 ## @param image.pullSecrets [array]
 ## @param image.tag Overrides the image tag which defaults to the chart appVersion.
@@ -53,12 +53,14 @@ podAnnotations: {}
 ## @param podSecurityContext Pod Security Context
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 ##
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 ## @param containerSecurityContext Container Security Context
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 ##
-containerSecurityContext: {}
+containerSecurityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -79,7 +81,7 @@ networkPolicy:
     enabled: true
     namespaceSelector: []
     ## Example:
-      # network.openshift.io/policy-group: ingress
+    # network.openshift.io/policy-group: ingress
     podSelector: {}
 
 ## Service configuration
@@ -108,9 +110,9 @@ ingress:
   ##
   annotations: []
   ## Example:
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"  
-    # route.openshift.io/termination: edge
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+  # route.openshift.io/termination: edge
   ## @param ingress.tls Enable TLS configuration for the host defined at ingress.
   tls: []
   #  - secretName: chart-example-tls
@@ -150,7 +152,7 @@ autoscaling:
   minReplicas: 1
   maxReplicas: 2
   targetCPUUtilizationPercentage: 80
-  targetMemoryUtilizationPercentage: ''
+  targetMemoryUtilizationPercentage: ""
   stabilizationWindowSeconds: 300
 
 ## ServiceAccount configuration
@@ -180,13 +182,12 @@ nodeSelector: {}
 ##
 tolerations: []
 
-
 ## @section Acapy Configuration
 ##
 acapy:
   ## @param acapy.enabled Deploy AcaPy agent instance
   enabled: true
-  ## @param acapy.agentUrl Agent host, required if `enabled`` is `false`, otherwise ignored
+  ## @param acapy.agentUrl Agent host, required if `enabled` is `false`, otherwise ignored
   agentUrl: ""
   ## @param acapy.adminUrl Agent admin host, required if `enabled` is `false`, otherwise ignored
   adminUrl: ""
@@ -194,10 +195,10 @@ acapy:
   existingSecret: ""
   ## @param acapy.agentSeed
   agentSeed: ""
-  ## @param acapy.image.repository 
+  ## @param acapy.image.repository
   ## @param acapy.image.pullPolicy
   ## @param acapy.image.pullSecrets [array]
-  ## @param acapy.image.tag 
+  ## @param acapy.image.tag
   ##
   image:
     repository: ghcr.io/hyperledger/aries-cloudagent-python
@@ -236,7 +237,7 @@ acapy:
     minReplicas: 1
     maxReplicas: 100
     targetCPUUtilizationPercentage: 80
-    targetMemoryUtilizationPercentage: ''
+    targetMemoryUtilizationPercentage: ""
     stabilizationWindowSeconds: 300
 
   ## @param acapy.labelOverride
@@ -296,24 +297,24 @@ acapy:
   ledgers.yml:
     - id: BCovrinDev
       is_production: true
-      genesis_url: 'http://dev.bcovrin.vonx.io/genesis'
+      genesis_url: "http://dev.bcovrin.vonx.io/genesis"
     - id: BCovrinTest
       is_production: true
-      genesis_url: 'http://test.bcovrin.vonx.io/genesis'
+      genesis_url: "http://test.bcovrin.vonx.io/genesis"
     - id: SovrinStagingNet
       is_production: true
-      genesis_url: 'https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_sandbox_genesis'
+      genesis_url: "https://raw.githubusercontent.com/sovrin-foundation/sovrin/stable/sovrin/pool_transactions_sandbox_genesis"
     - id: CANdyDev
       is_production: true
-      genesis_url: 'https://raw.githubusercontent.com/ICCS-ISAC/dtrust-reconu/main/CANdy/dev/pool_transactions_genesis'
+      genesis_url: "https://raw.githubusercontent.com/ICCS-ISAC/dtrust-reconu/main/CANdy/dev/pool_transactions_genesis"
     - id: CANdyTest
       is_production: true
       is_write: true
-      genesis_url: 'https://raw.githubusercontent.com/ICCS-ISAC/dtrust-reconu/main/CANdy/test/pool_transactions_genesis'
+      genesis_url: "https://raw.githubusercontent.com/ICCS-ISAC/dtrust-reconu/main/CANdy/test/pool_transactions_genesis"
 
   ## @section Wallet Storage configuration
-  ##  Specifies the storage configuration to use for the wallet. 
-  ##  This is required if you are for using 'postgres_storage' wallet 'storage type. 
+  ##  Specifies the storage configuration to use for the wallet.
+  ##  This is required if you are for using 'postgres_storage' wallet 'storage type.
   ##  For example, '{"url":"localhost:5432", "wallet_scheme":"MultiWalletSingleTable"}'.
   ##  This configuration maps to the indy sdk postgres plugin (PostgresConfig).
   ##
@@ -323,8 +324,8 @@ acapy:
   ## @param acapy.walletStorageConfig.wallet_scheme Wallet scheme.
   ##
   walletStorageConfig:
-    json: ''
-    url: ''
+    json: ""
+    url: ""
     max_connections: 10
     wallet_scheme: DatabasePerWallet
 
@@ -343,11 +344,11 @@ acapy:
   ## @param acapy.walletStorageCredentials.existingSecret Name of an existing secret containing 'database-user', 'database-password', 'admin-password' keys.
   ##
   walletStorageCredentials:
-    json: ''
-    account: ''
-    password: ''
+    json: ""
+    account: ""
+    password: ""
     admin_account: postgres
-    admin_password: ''
+    admin_password: ""
     existingSecret: ""
   ## @section Acapy tails persistence configuration
   persistence:
@@ -382,7 +383,7 @@ acapy:
   ##
   resources:
     limits:
-      cpu: '1'
+      cpu: "1"
       memory: 1000Mi
     requests:
       cpu: 250m
@@ -394,12 +395,14 @@ acapy:
   ## @param acapy.podSecurityContext Pod Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   ##
-  podSecurityContext: {}
+  podSecurityContext:
+    {}
     # fsGroup: 2000
   ## @param acapy.containerSecurityContext Container Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   ##
-  containerSecurityContext: {}
+  containerSecurityContext:
+    {}
     # capabilities:
     #   drop:
     #   - ALL
@@ -433,7 +436,7 @@ acapy:
   ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   ##
   tolerations: []
-  
+
   ## @section Acapy NetworkPolicy parameters
 
   ## Add networkpolicies
@@ -535,8 +538,8 @@ mongodb:
     ## @param mongodb.auth.usernames List of custom users to be created during the initialization
     ## @param mongodb.auth.databases List of custom databases to be created during the initialization
     ##
-    usernames: ['vcauthn']
-    databases: ['vcauthn']
+    usernames: ["vcauthn"]
+    databases: ["vcauthn"]
   ## @param mongodb.commonLabels [array] Add labels to all the deployed resources (sub-charts are not considered). Evaluated as a template
   ##
   commonLabels:
@@ -676,11 +679,12 @@ postgresql:
     service:
       ports:
         postgresql: 5432
-    ## @param postgresql.primary.extendedConfiguration Extended PostgreSQL Primary configuration (appended to main or default configuration)
-    ## ref: https://github.com/bitnami/containers/tree/main/bitnami/postgresql#allow-settings-to-be-loaded-from-files-other-than-the-default-postgresqlconf
-    ##
-    extendedConfiguration: |
-      max_connections = 500
+        ## @param postgresql.primary.extendedConfiguration Extended PostgreSQL Primary configuration (appended to main or default configuration)
+        ## ref: https://github.com/bitnami/containers/tree/main/bitnami/postgresql#allow-settings-to-be-loaded-from-files-other-than-the-default-postgresqlconf
+        ##
+        primary:
+          extendedConfiguration: |
+            max_connections = 500
 
 ## @param postgresql-ha.enabled Deploy HA PostgreSQL chart. Not currently supported, provided for future use.
 postgresql-ha:
