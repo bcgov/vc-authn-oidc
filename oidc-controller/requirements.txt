@@ -1,5 +1,5 @@
 fastapi==0.96.0
-jinja2==3.1.2
+jinja2==3.1.3
 oic==1.6.0
 pymongo==4.3.3
 pyop==3.4.0
