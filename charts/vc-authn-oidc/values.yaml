@@ -266,6 +266,7 @@ acapy:
   ## @param acapy.argfile.yml.multitenant Enable multitenant mode.
   ## @param acapy.argfile.yml.public-invites Send invitations out using the public DID for the agent, and receive connection requests solicited by invitations which use the public DID. Default: false.
   ## @param acapy.argfile.yml.read-only-ledger Sets ledger to read-only to prevent updates. Default: false.
+  ## @param acapy.argfile.yml.wallet-local-did If this parameter is set, provisions the wallet with a local DID from the '--seed' parameter, instead of a public DID to use with a Hyperledger Indy ledger. Default: false.
   ## @param acapy.argfile.yml.wallet-name Specifies the wallet name to be used by the agent. This is useful if your deployment has multiple wallets.
   ## @param acapy.argfile.yml.wallet-storage-type Specifies the type of Indy wallet backend to use. Supported internal storage types are 'basic' (memory), 'default' (sqlite), and 'postgres_storage'.  The default, if not specified, is 'default'.
   ## @param acapy.argfile.yml.wallet-type Specifies the type of Indy wallet provider to use. Supported internal storage types are 'basic' (memory) and 'indy'. The default (if not specified) is 'basic'.
@@ -288,6 +289,7 @@ acapy:
     multitenant: false
     public-invites: true
     read-only-ledger: true
+    wallet-local-did: true
     wallet-name: askar-wallet
     wallet-storage-type: postgres_storage
     wallet-type: askar
