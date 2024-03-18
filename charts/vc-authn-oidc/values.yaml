@@ -295,9 +295,6 @@ acapy:
 
   ## @param acapy.ledgers.yml [object]
   ledgers.yml:
-    - id: BCovrinDev
-      is_production: true
-      genesis_url: "http://dev.bcovrin.vonx.io/genesis"
     - id: BCovrinTest
       is_production: true
       genesis_url: "http://test.bcovrin.vonx.io/genesis"
