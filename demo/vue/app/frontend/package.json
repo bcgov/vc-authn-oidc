@@ -19,9 +19,9 @@
   "dependencies": {
     "@babel/eslint-parser": "^7.23.10",
     "@bcgov/bc-sans": "^2.1.0",
-    "axios": "^1.6.7",
-    "core-js": "^3.35.1",
-    "eslint": "^8.56.0",
+    "axios": "^1.6.8",
+    "core-js": "^3.36.0",
+    "eslint": "^8.57.0",
     "keycloak-js": "^15.0.2",
     "nprogress": "^0.2.0",
     "vue": "^2.7.16",
@@ -43,8 +43,8 @@
     "eslint-plugin-vuetify": "^1.1.0",
     "lodash": "^4.17.21",
     "prettier": "^3.2.5",
-    "sass": "^1.70.0",
-    "sass-loader": "^14.1.0",
+    "sass": "^1.72.0",
+    "sass-loader": "^14.1.1",
     "vue-cli-plugin-vuetify": "^2.5.8",
     "vue-template-compiler": "^2.7.16",
     "vuetify-loader": "^1.9.2"
