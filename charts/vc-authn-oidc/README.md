@@ -1,6 +1,6 @@
 # VC-AuthN OIDC
 
-![Version: 0.1.8](https://img.shields.io/badge/Version-0.1.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.1-rc0](https://img.shields.io/badge/AppVersion-2.0.1-rc0-informational?style=flat-square)
+![Version: 0.1.9](https://img.shields.io/badge/Version-0.1.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.1](https://img.shields.io/badge/AppVersion-2.0.1-informational?style=flat-square)
 
 A Helm chart to deploy Verifiable Credential Identity Provider for OpenID Connect.
 
@@ -84,7 +84,7 @@ kubectl delete secret,pvc --selector "app.kubernetes.io/instance"=my-release
 | `image.repository`  |                                                                 | `ghcr.io/bcgov/vc-authn-oidc`   |
 | `image.pullPolicy`  |                                                                 | `IfNotPresent`                  |
 | `image.pullSecrets` |                                                                 | `[]`                            |
-| `image.tag`         | Overrides the image tag which defaults to the chart appVersion. | `2.0.1-rc0`                     |
+| `image.tag`         | Overrides the image tag which defaults to the chart appVersion. | `2.0.1`                         |
 | `ingressSuffix`     | Domain suffix to be used for default hostpaths in ingress       | `.apps.silver.devops.gov.bc.ca` |
 
 ### Controller Configuration
@@ -182,6 +182,7 @@ Note: Secure values of the configuration are passed via equivalent environment v
 | `acapy.argfile.yml.multitenant`                   | Enable multitenant mode.                                                                                                                                                                                                                                                                                                                | `false`                                |
 | `acapy.argfile.yml.public-invites`                | Send invitations out using the public DID for the agent, and receive connection requests solicited by invitations which use the public DID. Default: false.                                                                                                                                                                             | `true`                                 |
 | `acapy.argfile.yml.read-only-ledger`              | Sets ledger to read-only to prevent updates. Default: false.                                                                                                                                                                                                                                                                            | `true`                                 |
+| `acapy.argfile.yml.wallet-local-did`              | If this parameter is set, provisions the wallet with a local DID from the '--seed' parameter, instead of a public DID to use with a Hyperledger Indy ledger. Default: false.                                                                                                                                                            | `true`                                 |
 | `acapy.argfile.yml.wallet-name`                   | Specifies the wallet name to be used by the agent. This is useful if your deployment has multiple wallets.                                                                                                                                                                                                                              | `askar-wallet`                         |
 | `acapy.argfile.yml.wallet-storage-type`           | Specifies the type of Indy wallet backend to use. Supported internal storage types are 'basic' (memory), 'default' (sqlite), and 'postgres_storage'. The default, if not specified, is 'default'.                                                                                                                                       | `postgres_storage`                     |
 | `acapy.argfile.yml.wallet-type`                   | Specifies the type of Indy wallet provider to use. Supported internal storage types are 'basic' (memory) and 'indy'. The default (if not specified) is 'basic'.                                                                                                                                                                         | `askar`                                |
