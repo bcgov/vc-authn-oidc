@@ -11,8 +11,9 @@ from typing import Optional, Union
 import structlog
 from pydantic import BaseSettings
 
+
 # Removed in later versions of python
-def strtobool (val: str | bool) -> bool:
+def strtobool(val: str | bool) -> bool:
     """Convert a string representation of truth to a boolean (True or False).
     True values are 'y', 'yes', 't', 'true', 'on', and '1'; False
     values are 'n', 'no', 'f', 'false', 'off', and '0'. If val is
@@ -23,12 +24,13 @@ def strtobool (val: str | bool) -> bool:
         return val
 
     val = val.lower()
-    if val in ('y', 'yes', 't', 'true', 'on', '1'):
+    if val in ("y", "yes", "t", "true", "on", "1"):
         return True
-    elif val in ('n', 'no', 'f', 'false', 'off', '0'):
+    elif val in ("n", "no", "f", "false", "off", "0"):
         return False
     else:
         raise ValueError(f"invalid truth value {val}")
+
 
 # Use environment variable to determine logging format
 # default to True
@@ -150,7 +152,9 @@ class GlobalConfig(BaseSettings):
     DB_USER: str = os.environ.get("OIDC_CONTROLLER_DB_USER", "oidccontrolleruser")
     DB_PASS: str = os.environ.get("OIDC_CONTROLLER_DB_USER_PWD", "oidccontrollerpass")
 
-    MONGODB_URL: str = f"""mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}?retryWrites=true&w=majority"""  # noqa: E501
+    MONGODB_URL: str = (
+        f"""mongodb://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}?retryWrites=true&w=majority"""  # noqa: E501
+    )
 
     CONTROLLER_URL: Optional[str] = os.environ.get("CONTROLLER_URL")
     # Where to send users when trying to scan with their mobile camera (not a wallet)
@@ -201,11 +205,14 @@ class GlobalConfig(BaseSettings):
 
     # OIDC Controller Settings
     CONTROLLER_API_KEY: str = os.environ.get("CONTROLLER_API_KEY", "")
-    USE_OOB_PRESENT_PROOF: bool = strtobool(os.environ.get("USE_OOB_PRESENT_PROOF", False))
+    USE_OOB_PRESENT_PROOF: bool = strtobool(
+        os.environ.get("USE_OOB_PRESENT_PROOF", False)
+    )
     USE_OOB_LOCAL_DID_SERVICE: bool = strtobool(
-        os.environ.get("USE_OOB_LOCAL_DID_SERVICE", False)
+        os.environ.get("USE_OOB_LOCAL_DID_SERVICE", True)
     )
     SET_NON_REVOKED: bool = strtobool(os.environ.get("SET_NON_REVOKED", True))
+
     class Config:
         case_sensitive = True
 

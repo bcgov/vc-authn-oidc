@@ -1,9 +1,9 @@
 import base64
 import io
 import json
-from typing import cast
 import uuid
 from datetime import datetime
+from typing import cast
 from urllib.parse import urlencode
 
 import qrcode
@@ -116,11 +116,9 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     response = client.create_presentation_request(ver_config.generate_proof_request())
     pres_exch_dict = response.dict()
 
-    # Prepeare the presentation request    
+    # Prepeare the presentation request
     client = AcapyClient()
-    use_public_did = (
-        not settings.USE_OOB_PRESENT_PROOF
-    ) and settings.USE_OOB_LOCAL_DID_SERVICE
+    use_public_did = not settings.USE_OOB_LOCAL_DID_SERVICE
     wallet_did = client.get_wallet_did(public=use_public_did)
 
     byo_attachment = PresentProofv10Attachment.build(
@@ -135,7 +133,6 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
                 recipient_keys=[wallet_did.verkey],
             ).dict()
         else:
-            wallet_did = client.get_wallet_did(public=True)
             oob_s_d = wallet_did.verkey
 
         msg = PresentationRequestMessage(
@@ -163,9 +160,8 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
             service=s_d,
         )
         msg_contents = msg
-    
-    
-    # Create and save OIDC AuthSession 
+
+    # Create and save OIDC AuthSession
     new_auth_session = AuthSessionCreate(
         response_url=authn_response.request(auth_req["redirect_uri"]),
         pyop_auth_code=authn_response["code"],
@@ -194,7 +190,6 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     # base64 encode the formated_msg
     base64_msg = base64.b64encode(formated_msg.encode("utf-8")).decode("utf-8")
     wallet_deep_link = f"bcwallet://aries_proof-request?c_i={base64_msg}"
-
 
     # This is the payload to send to the template
     data = {
