@@ -9,7 +9,7 @@ connections = {}
 
 sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 
-sio_app = socketio.ASGIApp(socketio_server=sio)
+sio_app = socketio.ASGIApp(socketio_server=sio, socketio_path='/ws/socket.io')
 
 @sio.event
 async def connect(sid, socket):
