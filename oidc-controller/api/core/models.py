@@ -4,15 +4,16 @@ from typing import TypedDict
 from bson import ObjectId
 from pydantic import BaseModel, ConfigDict, Field
 from pyop.userinfo import Userinfo
+from pydantic_core import core_schema  
 
 
 class PyObjectId(ObjectId):
     @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
+    def __get_pydantic_core_schema__(cls, source_type, handler) -> core_schema.CoreSchema:
+        return core_schema.general_plain_validator_function(cls.validate)
 
     @classmethod
-    def validate(cls, v):
+    def validate(cls, v, info):
         if not ObjectId.is_valid(v):
             raise ValueError("Invalid objectid")
         return ObjectId(v)
