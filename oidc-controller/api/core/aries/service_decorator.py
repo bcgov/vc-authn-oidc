@@ -13,7 +13,7 @@ class ServiceDecorator(BaseModel):
 
 class OOBServiceDecorator(ServiceDecorator):
     # ServiceDecorator
-    recipient_keys: Optional[List[str]]
+    recipient_keys: Optional[List[str]] = None
     routing_keys: Optional[List[str]] = Field(default=[])
     service_endpoint: Optional[str] = None
     id: str = Field(default="did:vc-authn-oidc:123456789zyxwvutsr#did-communication")

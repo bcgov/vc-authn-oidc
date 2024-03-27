@@ -17,7 +17,7 @@ class PresentationRequestMessage(BaseModel):
         alias="request_presentations~attach"
     )
     comment: Optional[str] = None
-    service: Optional[ServiceDecorator] = Field(alias="~service")
+    service: Optional[ServiceDecorator] = Field(None, alias="~service")
 
     model_config = ConfigDict(populate_by_name=True)
 

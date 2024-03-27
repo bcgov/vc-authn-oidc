@@ -32,7 +32,7 @@ class ReqPred(BaseModel):
 
 class VerificationProofRequest(BaseModel):
     name: Optional[str] = None
-    version: str = Field(pattern="[0-9](.[0.9])*", example="0.0.1")
+    version: str = Field(pattern="[0-9](.[0.9])*", examples=["0.0.1"])
     non_revoked: Optional[str] = None
     requested_attributes: List[ReqAttr]
     requested_predicates: List[ReqPred]
@@ -82,7 +82,7 @@ class VerificationConfigRead(VerificationConfigBase):
 
 
 class VerificationConfigPatch(VerificationConfigBase):
-    subject_identifier: Optional[str] = Field()
-    proof_request: Optional[VerificationProofRequest] = Field()
+    subject_identifier: Optional[str] = Field(None)
+    proof_request: Optional[VerificationProofRequest] = Field(None)
 
     pass
