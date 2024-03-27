@@ -41,11 +41,11 @@ class ClientConfigurationRead(ClientConfigurationBase):
 
 
 class ClientConfigurationPatch(ClientConfigurationBase):
-    client_id: Optional[str]
-    client_name: Optional[str]
+    client_id: Optional[str] = None
+    client_name: Optional[str] = None
     response_types: Optional[List[str]]
     redirect_uris: Optional[List[str]]
     token_endpoint_auth_method: Optional[TOKENENDPOINTAUTHMETHODS]
-    client_secret: Optional[str]
+    client_secret: Optional[str] = None
 
     pass
