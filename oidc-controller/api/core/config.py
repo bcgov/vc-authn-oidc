@@ -8,6 +8,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Optional, Union
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 
 import structlog
 
@@ -213,8 +214,7 @@ class GlobalConfig(BaseSettings):
     )
     SET_NON_REVOKED: bool = strtobool(os.environ.get("SET_NON_REVOKED", True))
 
-    class Config:
-        case_sensitive = True
+    model_config = ConfigDict(case_sensitive=True)
 
 
 class LocalConfig(GlobalConfig):

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import TypedDict
 
 from bson import ObjectId
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from pyop.userinfo import Userinfo
 
 
@@ -36,8 +36,7 @@ class StatusMessage(BaseModel):
 class UUIDModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
 
-    class Config:
-        json_encoders = {ObjectId: str}
+    model_config = ConfigDict(json_encoders={ObjectId: str})
 
 
 class TimestampModel(BaseModel):

@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ..core.config import settings
 from .examples import ex_client_config
@@ -27,9 +27,7 @@ class ClientConfigurationBase(BaseModel):
 
     client_secret: str = Field(default=settings.OIDC_CLIENT_SECRET)
 
-    class Config:
-        allow_population_by_field_name = True
-        schema_extra = {"example": ex_client_config}
+    model_config = ConfigDict(populate_by_name=True, json_schema_extra={"example": ex_client_config})
 
 
 class ClientConfiguration(ClientConfigurationBase):

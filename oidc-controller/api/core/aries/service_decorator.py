@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ServiceDecorator(BaseModel):
@@ -8,8 +8,7 @@ class ServiceDecorator(BaseModel):
     routing_keys: Optional[List[str]] = Field(default=None, alias="routingKeys")
     service_endpoint: Optional[str] = Field(default=None, alias="serviceEndpoint")
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class OOBServiceDecorator(ServiceDecorator):
@@ -21,5 +20,4 @@ class OOBServiceDecorator(ServiceDecorator):
     type: str = Field(default="did-communication")
     priority: int = 0
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)

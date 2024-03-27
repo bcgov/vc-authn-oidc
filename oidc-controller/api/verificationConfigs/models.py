@@ -1,6 +1,6 @@
 import time
 from typing import Optional, List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from .examples import ex_ver_config
 from ..core.config import settings
@@ -69,9 +69,8 @@ class VerificationConfigBase(BaseModel):
                     "to": int(time.time()),
                 }
         return result
-
-    class Config:
-        schema_extra = {"example": ex_ver_config}
+    
+    model_config = ConfigDict(schema_extra={"example": ex_ver_config})
 
 
 class VerificationConfig(VerificationConfigBase):
