@@ -1,5 +1,5 @@
 from typing import Dict, List, Union
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from .service_decorator import OOBServiceDecorator
 
 
@@ -8,8 +8,7 @@ class OutOfBandPresentProofAttachment(BaseModel):
     mime_type: str = Field(default="application/json", alias="mime-type")
     data: Dict
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class OutOfBandMessage(BaseModel):
@@ -28,5 +27,4 @@ class OutOfBandMessage(BaseModel):
     )
     services: List[Union[OOBServiceDecorator, str]] = Field(alias="services")
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)

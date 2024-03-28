@@ -7,9 +7,10 @@ from enum import Enum
 from functools import lru_cache
 from pathlib import Path
 from typing import Optional, Union
+from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 
 import structlog
-from pydantic import BaseSettings
 
 
 # Removed in later versions of python
@@ -162,7 +163,7 @@ class GlobalConfig(BaseSettings):
         "CONTROLLER_CAMERA_REDIRECT_URL"
     )
     # The number of seconds to wait for a presentation to be verified, Default: 10
-    CONTROLLER_PRESENTATION_EXPIRE_TIME: Union[int, str] = os.environ.get(
+    CONTROLLER_PRESENTATION_EXPIRE_TIME: int = os.environ.get(
         "CONTROLLER_PRESENTATION_EXPIRE_TIME", 10
     )
 
@@ -188,11 +189,11 @@ class GlobalConfig(BaseSettings):
     DEFAULT_PAGE_SIZE: Union[int, str] = os.environ.get("DEFAULT_PAGE_SIZE", 10)
 
     # openssl rand -hex 32
-    SIGNING_KEY_SIZE = os.environ.get("SIGNING_KEY_SIZE", 2048)
+    SIGNING_KEY_SIZE: int = os.environ.get("SIGNING_KEY_SIZE", 2048)
     # SIGNING_KEY_FILEPATH expects complete path including filename and extension.
     SIGNING_KEY_FILEPATH: Optional[str] = os.environ.get("SIGNING_KEY_FILEPATH")
     SIGNING_KEY_ALGORITHM: str = os.environ.get("SIGNING_KEY_ALGORITHM", "RS256")
-    SUBJECT_ID_HASH_SALT = os.environ.get("SUBJECT_ID_HASH_SALT", "test_hash_salt")
+    SUBJECT_ID_HASH_SALT: str = os.environ.get("SUBJECT_ID_HASH_SALT", "test_hash_salt")
 
     # OIDC Client Settings
     OIDC_CLIENT_ID: str = os.environ.get("OIDC_CLIENT_ID", "keycloak")
@@ -213,15 +214,14 @@ class GlobalConfig(BaseSettings):
     )
     SET_NON_REVOKED: bool = strtobool(os.environ.get("SET_NON_REVOKED", True))
 
-    class Config:
-        case_sensitive = True
+    model_config = ConfigDict(case_sensitive=True)
 
 
 class LocalConfig(GlobalConfig):
     """Local configurations."""
 
     DEBUG: bool = True
-    DB_ECHO_LOG = True
+    DB_ECHO_LOG: bool = True
     ENVIRONMENT: EnvironmentEnum = EnvironmentEnum.LOCAL
 
 

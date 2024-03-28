@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ..core.config import settings
 from .examples import ex_client_config
@@ -27,9 +27,7 @@ class ClientConfigurationBase(BaseModel):
 
     client_secret: str = Field(default=settings.OIDC_CLIENT_SECRET)
 
-    class Config:
-        allow_population_by_field_name = True
-        schema_extra = {"example": ex_client_config}
+    model_config = ConfigDict(populate_by_name=True, json_schema_extra={"example": ex_client_config})
 
 
 class ClientConfiguration(ClientConfigurationBase):
@@ -41,11 +39,11 @@ class ClientConfigurationRead(ClientConfigurationBase):
 
 
 class ClientConfigurationPatch(ClientConfigurationBase):
-    client_id: Optional[str]
-    client_name: Optional[str]
-    response_types: Optional[List[str]]
-    redirect_uris: Optional[List[str]]
-    token_endpoint_auth_method: Optional[TOKENENDPOINTAUTHMETHODS]
-    client_secret: Optional[str]
+    client_id: Optional[str] = None
+    client_name: Optional[str] = None
+    response_types: Optional[List[str]] = None
+    redirect_uris: Optional[List[str]] = None
+    token_endpoint_auth_method: Optional[TOKENENDPOINTAUTHMETHODS] = None
+    client_secret: Optional[str] = None
 
     pass
