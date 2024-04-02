@@ -10,7 +10,7 @@ class WalletDid(BaseModel):
 
 
 class WalletDidPublicResponse(BaseModel):
-    result: Optional[WalletDid]
+    result: Optional[WalletDid] = None
 
 
 class CreatePresentationResponse(BaseModel):

@@ -4,7 +4,7 @@ from typing import Dict, Optional
 
 from api.core.acapy.client import AcapyClient
 from api.core.models import UUIDModel
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ..core.config import settings
 
@@ -27,8 +27,7 @@ class AuthSessionBase(BaseModel):
     response_url: str
     presentation_request_msg: Optional[dict] = None
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class AuthSession(AuthSessionBase, UUIDModel):

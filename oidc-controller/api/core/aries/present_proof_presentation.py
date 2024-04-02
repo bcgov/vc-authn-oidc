@@ -2,7 +2,7 @@ import json
 import base64
 from typing import Optional, List
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from api.core.aries import PresentProofv10Attachment, ServiceDecorator
 
 
@@ -17,10 +17,9 @@ class PresentationRequestMessage(BaseModel):
         alias="request_presentations~attach"
     )
     comment: Optional[str] = None
-    service: Optional[ServiceDecorator] = Field(alias="~service")
+    service: Optional[ServiceDecorator] = Field(None, alias="~service")
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
     def b64_str(self):
         # object->dict->jsonString->ascii->ENCODE->ascii
