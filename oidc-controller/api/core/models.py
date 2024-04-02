@@ -2,23 +2,24 @@ from datetime import datetime
 from typing import TypedDict
 
 from bson import ObjectId
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from pyop.userinfo import Userinfo
+from pydantic_core import core_schema  
 
 
 class PyObjectId(ObjectId):
     @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
+    def __get_pydantic_core_schema__(cls, source_type, handler) -> core_schema.CoreSchema:
+        return core_schema.general_plain_validator_function(cls.validate)
 
     @classmethod
-    def validate(cls, v):
+    def validate(cls, v, info):
         if not ObjectId.is_valid(v):
             raise ValueError("Invalid objectid")
         return ObjectId(v)
 
     @classmethod
-    def __modify_schema__(cls, field_schema):
+    def __get_pydantic_json_schema__(cls, field_schema):
         field_schema.update(type="string")
 
 
@@ -36,8 +37,7 @@ class StatusMessage(BaseModel):
 class UUIDModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
 
-    class Config:
-        json_encoders = {ObjectId: str}
+    model_config = ConfigDict(json_encoders={ObjectId: str})
 
 
 class TimestampModel(BaseModel):
