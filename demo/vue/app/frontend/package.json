@@ -26,7 +26,7 @@
     "nprogress": "^0.2.0",
     "vue": "^2.7.16",
     "vue-router": "^3.6.5",
-    "vuetify": "^2.7.1",
+    "vuetify": "^2.7.2",
     "vuex": "^3.6.2"
   },
   "devDependencies": {
