@@ -1,4 +1,4 @@
-FROM docker.io/node:16-buster
+FROM docker.io/node:20-bookworm
 ENV NO_UPDATE_NOTIFIER=true
 WORKDIR /opt/app-root/src/app
 COPY . /opt/app-root/src
