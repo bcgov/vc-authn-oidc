@@ -5,10 +5,10 @@ updates:
   # Maintain dependencies for GitHub Actions
   #  - Check for updates once a week
   #  - Group all updates into a single PR
-  - package-ecosystem: github-actions
-    directory: /
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: weekly
+      interval: "weekly"
     groups:
       all-actions:
         patterns: [ "*" ]
@@ -21,6 +21,9 @@ updates:
       day: "monday"
       time: "04:00"
       timezone: "Canada/Pacific"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   # Maintain dependencies for Vue
   - package-ecosystem: "npm"
@@ -30,6 +33,9 @@ updates:
       day: "monday"
       time: "04:00"
       timezone: "Canada/Pacific"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
 
   # Maintain dependencies for Vue
   - package-ecosystem: "npm"
@@ -39,6 +45,9 @@ updates:
       day: "monday"
       time: "04:00"
       timezone: "Canada/Pacific"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
 
   # Maintain dependencies for docker
   - package-ecosystem: "docker"
