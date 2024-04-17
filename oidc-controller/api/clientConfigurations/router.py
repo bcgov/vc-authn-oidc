@@ -11,7 +11,7 @@ from .models import (
     ClientConfigurationRead,
 )
 from ..core.auth import get_api_key
-from ..core.models import GenericErrorMessage,  StatusMessage
+from ..core.models import GenericErrorMessage, StatusMessage
 from ..db.session import get_db
 
 
@@ -69,9 +69,7 @@ async def patch_client_config(
     data: ClientConfigurationPatch,
     db: Database = Depends(get_db),
 ):
-    return await ClientConfigurationCRUD(db).patch(
-        client_id=client_id, data=data
-    )
+    return await ClientConfigurationCRUD(db).patch(client_id=client_id, data=data)
 
 
 @router.delete(

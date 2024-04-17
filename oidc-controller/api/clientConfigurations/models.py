@@ -27,7 +27,9 @@ class ClientConfigurationBase(BaseModel):
 
     client_secret: str = Field(default=settings.OIDC_CLIENT_SECRET)
 
-    model_config = ConfigDict(populate_by_name=True, json_schema_extra={"example": ex_client_config})
+    model_config = ConfigDict(
+        populate_by_name=True, json_schema_extra={"example": ex_client_config}
+    )
 
 
 class ClientConfiguration(ClientConfigurationBase):

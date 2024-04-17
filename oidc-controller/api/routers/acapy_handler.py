@@ -11,9 +11,9 @@ from ..core.acapy.client import AcapyClient
 from ..db.session import get_db
 
 from ..core.config import settings
+from ..routers.socketio import sio, connections_reload
 
 logger = structlog.getLogger(__name__)
-from ..routers.socketio import sio, connections_reload
 
 router = APIRouter()
 
@@ -61,7 +61,7 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                 await AuthSessionCRUD(db).patch(
                     str(auth_session.id), AuthSessionPatch(**auth_session.dict())
                 )
-            
+
             # abandoned state
             if webhook_body["state"] == "abandoned":
                 logger.info("ABANDONED")

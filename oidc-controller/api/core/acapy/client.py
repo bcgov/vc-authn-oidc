@@ -113,7 +113,7 @@ class AcapyClient:
         assert (
             resp_raw.status_code == 200
         ), f"{resp_raw.status_code}::{resp_raw.content}"
-        
+
         resp = json.loads(resp_raw.content)
 
         if public:

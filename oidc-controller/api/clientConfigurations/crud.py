@@ -5,7 +5,10 @@ from pymongo import ReturnDocument
 from pymongo.database import Database
 from fastapi.encoders import jsonable_encoder
 
-from ..core.http_exception_util import raise_appropriate_http_exception, check_and_raise_not_found_http_exception
+from ..core.http_exception_util import (
+    raise_appropriate_http_exception,
+    check_and_raise_not_found_http_exception,
+)
 from ..core.oidc.provider import init_provider
 from ..db.session import COLLECTION_NAMES
 
@@ -18,19 +21,19 @@ logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 NOT_FOUND_MSG = "The requested client configuration wasn't found"
 
+
 class ClientConfigurationCRUD:
     def __init__(self, db: Database):
         self._db = db
 
-    async def create(
-        self, client_config: ClientConfiguration
-    ) -> ClientConfiguration:
+    async def create(self, client_config: ClientConfiguration) -> ClientConfiguration:
         col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
         try:
             col.insert_one(jsonable_encoder(client_config))
         except Exception as err:
             raise_appropriate_http_exception(
-                err, exists_msg="Client configuration already exists")
+                err, exists_msg="Client configuration already exists"
+            )
 
         # remake provider instance to refresh provider client
         await init_provider(self._db)

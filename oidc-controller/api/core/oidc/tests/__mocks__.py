@@ -1,5 +1,3 @@
-
-
 from datetime import datetime, timedelta
 
 from api.verificationConfigs.models import VerificationConfig, VerificationProofRequest
@@ -42,8 +40,7 @@ presentation = {
             ],
             "aggregated_proof": {
                 "c_hash": "8135055767072243139738404741550925116429855319200452769474586673630216912237",
-                "c_list": 
-                [[1]], # Not complete data
+                "c_list": [[1]],  # Not complete data
             },
         },
         "requested_proof": {
@@ -87,13 +84,13 @@ auth_session = AuthSession(
     expired_timestamp=datetime.now() + timedelta(seconds=3000),
     ver_config_id="verified-email",
     request_parameters={
-        'scope': 'openid vc_authn',
-        'state': 'oFLNfUyzDtWHmc61dNiQZkVZRsRUUXZ5KZIiQBeQuJQ.xfaKQBh1xfQ.T02DEr3QRTmMUfjegc9fQQ',
-        'response_type': 'code',
-        'client_id': 'keycloak',
-        'redirect_uri': 'http://localhost:8880/auth/realms/vc-authn/broker/vc-authn/endpoint',
-        'pres_req_conf_id': 'verified-email',
-        'nonce': 'J2o8dDBWAZyov0ipkMPZng'
+        "scope": "openid vc_authn",
+        "state": "oFLNfUyzDtWHmc61dNiQZkVZRsRUUXZ5KZIiQBeQuJQ.xfaKQBh1xfQ.T02DEr3QRTmMUfjegc9fQQ",
+        "response_type": "code",
+        "client_id": "keycloak",
+        "redirect_uri": "http://localhost:8880/auth/realms/vc-authn/broker/vc-authn/endpoint",
+        "pres_req_conf_id": "verified-email",
+        "nonce": "J2o8dDBWAZyov0ipkMPZng",
     },
     pyop_auth_code="str",
     response_url="str",
@@ -112,11 +109,11 @@ ver_config = VerificationConfig(
                 "restrictions": [
                     {
                         "schema_name": "verified-email",
-                        "issuer_did": "MTYqmTBoLT7KLP5RNfgK3b"
+                        "issuer_did": "MTYqmTBoLT7KLP5RNfgK3b",
                     }
-                ]
+                ],
             }
         ],
-        requested_predicates=[]
-    )
+        requested_predicates=[],
+    ),
 )
