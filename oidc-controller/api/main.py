@@ -14,12 +14,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import status as http_status
 from fastapi.responses import JSONResponse
 
-from .clientConfigurations.router import router as client_config_router
 from .db.session import get_db, init_db
 from .routers import acapy_handler, oidc, presentation_request, well_known_oid_config
 from .verificationConfigs.router import router as ver_configs_router
 from .clientConfigurations.router import router as client_config_router
-from .db.session import init_db, get_db
 from .routers.socketio import sio_app
 from api.core.oidc.provider import init_provider
 

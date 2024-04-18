@@ -114,4 +114,6 @@ async def test_ver_config_patch_proof_request(db_client: Callable[[], MongoClien
     )
     assert document["proof_request"]["version"] == "0.0.2"
     assert len(document["proof_request"]["requested_attributes"][0]["names"]) == 1
-    assert document["proof_request"]["requested_attributes"][0]["names"][0] == "first_name"
+    assert (
+        document["proof_request"]["requested_attributes"][0]["names"][0] == "first_name"
+    )

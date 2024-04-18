@@ -23,5 +23,6 @@ async def init_db():
     auth_session.create_index([("pres_exch_id", ASCENDING)], unique=True)
     auth_session.create_index([("pyop_auth_code", ASCENDING)], unique=True)
 
+
 async def get_db():
     return client[settings.DB_NAME]

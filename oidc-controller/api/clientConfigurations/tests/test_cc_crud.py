@@ -11,6 +11,7 @@ from api.db.session import COLLECTION_NAMES
 from mongomock import MongoClient
 from typing import Callable
 import structlog
+
 logger = structlog.getLogger(__name__)
 
 
@@ -68,15 +69,16 @@ async def test_client_config_delete(db_client: Callable[[], MongoClient]):
     ).find_one({"client_id": test_client_config.client_id})
     assert not document
 
+
 @pytest.fixture(name="log_output")
 def fixture_log_output():
     return structlog.testing.LogCapture()
 
+
 @pytest.fixture(autouse=True)
 def fixture_configure_structlog(log_output):
-    structlog.configure(
-        processors=[log_output]
-    )
+    structlog.configure(processors=[log_output])
+
 
 @pytest.mark.asyncio
 async def test_client_config_patch(db_client: Callable[[], MongoClient], log_output):

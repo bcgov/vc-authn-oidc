@@ -11,8 +11,7 @@ logger = structlog.getLogger(__name__)
 
 
 class AgentConfig(Protocol):
-    def get_headers() -> Dict[str, str]:
-        ...
+    def get_headers() -> Dict[str, str]: ...
 
 
 class MultiTenantAcapy:

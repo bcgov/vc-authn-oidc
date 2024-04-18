@@ -4,12 +4,14 @@ from typing import TypedDict
 from bson import ObjectId
 from pydantic import BaseModel, ConfigDict, Field
 from pyop.userinfo import Userinfo
-from pydantic_core import core_schema  
+from pydantic_core import core_schema
 
 
 class PyObjectId(ObjectId):
     @classmethod
-    def __get_pydantic_core_schema__(cls, source_type, handler) -> core_schema.CoreSchema:
+    def __get_pydantic_core_schema__(
+        cls, source_type, handler
+    ) -> core_schema.CoreSchema:
         return core_schema.general_plain_validator_function(cls.validate)
 
     @classmethod
@@ -71,7 +73,8 @@ class VCUserinfo(Userinfo):
         return {}
 
     def get_claims_for(self, user_id, requested_claims, userinfo=None):
-        # type: (str, Mapping[str, Optional[Mapping[str, Union[str, List[str]]]]) -> Dict[str, Union[str, List[str]]]
+        # type: (str, Mapping[str, Optional[Mapping[str, Union[str, List[str]]]])
+        # -> Dict[str, Union[str, List[str]]]
         """
         There is no user info database, we always return an empty dictionary
         """

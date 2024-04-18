@@ -65,13 +65,11 @@ class Token(BaseModel):
                 logger.debug(
                     f"Processing referent: {referent}, requested_attr: {requested_attr}"
                 )
-                revealed_attrs: Dict[
-                    str, RevealedAttribute
-                ] = auth_session.presentation_exchange["presentation"][
-                    "requested_proof"
-                ][
-                    "revealed_attr_groups"
-                ]
+                revealed_attrs: Dict[str, RevealedAttribute] = (
+                    auth_session.presentation_exchange["presentation"][
+                        "requested_proof"
+                    ]["revealed_attr_groups"]
+                )
                 logger.debug(f"revealed_attrs: {revealed_attrs}")
                 # loop through each value and put it in token as a claim
                 for attr_name in requested_attr.names:
@@ -113,14 +111,16 @@ class Token(BaseModel):
         result[PROOF_CLAIMS_ATTRIBUTE_NAME] = proof_claims
 
         # TODO: Remove after full transistion to v2.0
-        # Add the presentation claims to the result as keys for backwards compatibility [v1.0]
+        # Add the presentation claims to the result as keys
+        # for backwards compatibility [v1.0]
         if ver_config.include_v1_attributes:
             for key, value in presentation_claims.items():
                 result[key] = value.value
 
         return result
 
-    # TODO: Determine if this is useful to keep, and remove it if it's not. It is currently unused.
+    # TODO: Determine if this is useful to keep, and remove it if it's not.
+    # It is currently unused.
     # renames and calculates dict members appropriate to
     # https://openid.net/specs/openid-connect-core-1_0.html#IDToken
     # and

@@ -9,7 +9,7 @@ from ..authSessions.crud import AuthSessionCRUD
 from ..authSessions.models import AuthSession, AuthSessionState
 
 from ..core.config import settings
-from ..routers.socketio import (sio, connections_reload)
+from ..routers.socketio import sio, connections_reload
 from ..db.session import get_db
 from ..templates.helpers import add_asset
 
@@ -39,7 +39,7 @@ async def send_connectionless_proof_req(
         template = Template(template_file)
         response = HTMLResponse(template.render(data))
 
-    if 'text/html' in req.headers.get('accept'):
+    if "text/html" in req.headers.get("accept"):
         logger.info("Redirecting to instructions page")
         return response
 
@@ -55,7 +55,7 @@ async def send_connectionless_proof_req(
     if auth_session.proof_status is AuthSessionState.NOT_STARTED:
         auth_session.proof_status = AuthSessionState.PENDING
         await AuthSessionCRUD(db).patch(auth_session.id, auth_session)
-        await sio.emit('status', {'status': 'pending'}, to=sid)
+        await sio.emit("status", {"status": "pending"}, to=sid)
 
     msg = auth_session.presentation_request_msg
 
