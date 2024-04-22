@@ -9,7 +9,10 @@ CONFLICT_DEFAULT_MSG = "The requested resource already exists"
 NOT_FOUND_DEFAULT_MSG = "The requested resource wasn't found"
 UNKNOWN_DEFAULT_MSG = "The server was unable to process the request"
 
-def raise_appropriate_http_exception(err: WriteError, exists_msg: str = CONFLICT_DEFAULT_MSG):
+
+def raise_appropriate_http_exception(
+    err: WriteError, exists_msg: str = CONFLICT_DEFAULT_MSG
+):
     if err.code == 11000:
         raise HTTPException(
             status_code=http_status.HTTP_409_CONFLICT,

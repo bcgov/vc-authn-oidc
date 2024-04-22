@@ -69,7 +69,7 @@ class VerificationConfigBase(BaseModel):
                     "to": int(time.time()),
                 }
         return result
-    
+
     model_config = ConfigDict(json_schema_extra={"example": ex_ver_config})
 
 

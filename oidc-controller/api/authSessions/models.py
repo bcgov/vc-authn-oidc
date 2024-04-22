@@ -17,10 +17,13 @@ class AuthSessionState(StrEnum):
     FAILED = auto()
     ABANDONED = auto()
 
+
 class AuthSessionBase(BaseModel):
     pres_exch_id: str
-    expired_timestamp: datetime = Field(default=datetime.now() +
-        timedelta(seconds=settings.CONTROLLER_PRESENTATION_EXPIRE_TIME))
+    expired_timestamp: datetime = Field(
+        default=datetime.now()
+        + timedelta(seconds=settings.CONTROLLER_PRESENTATION_EXPIRE_TIME)
+    )
     ver_config_id: str
     request_parameters: dict
     pyop_auth_code: str

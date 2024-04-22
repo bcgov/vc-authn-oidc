@@ -22,7 +22,10 @@ basic_valid_revealed_attr_groups = {
         "values": {
             "email": {
                 "raw": "test@email.com",
-                "encoded": "73814602767252868561268261832462872577293109184327908660400248444458427915643",
+                "encoded": (
+                    "738146027672528685612682618324628725772931091843279086604002484444"
+                    "58427915643"
+                ),
             }
         },
     }
@@ -46,11 +49,17 @@ multiple_valid_revealed_attr_groups = {
         "values": {
             "email_1": {
                 "raw": "test@email.com",
-                "encoded": "73814602767252868561268261832462872577293109184327908660400248444458427915643",
+                "encoded": (
+                    "738146027672528685612682618324628725772931091843279086604002484444"
+                    "58427915643"
+                ),
             },
             "age_1": {
                 "raw": "30",
-                "encoded": "73814602767252868561268261832462872577293109184327908660400248444458427915644",
+                "encoded": (
+                    "738146027672528685612682618324628725772931091843279086604002484444"
+                    "58427915643"
+                ),
             },
         },
     }
@@ -98,7 +107,10 @@ async def test_valid_proof_presentation_with_multiple_attributes_returns_claims(
             "values": {
                 "email": {
                     "raw": "test@email.com",
-                    "encoded": "73814602767252868561268261832462872577293109184327908660400248444458427915643",
+                    "encoded": (
+                        "73814602767252868561268261832462872577293109184327908660400"
+                        "248444458427915643"
+                    ),
                 }
             },
         },
@@ -107,7 +119,10 @@ async def test_valid_proof_presentation_with_multiple_attributes_returns_claims(
             "values": {
                 "age": {
                     "raw": "30",
-                    "encoded": "73814602767252868561268261832462872577293109184327908660400248444458427915644",
+                    "encoded": (
+                        "73814602767252868561268261832462872577293109184327908660400"
+                        "248444458427915643"
+                    ),
                 }
             },
         },
@@ -194,7 +209,10 @@ async def test_revealed_attrs_dont_match_requested_attributes_throws_exception()
             "values": {
                 "email-wrong": {
                     "raw": "test@email.com",
-                    "encoded": "73814602767252868561268261832462872577293109184327908660400248444458427915643",
+                    "encoded": (
+                        "73814602767252868561268261832462872577293109184327908660400"
+                        "248444458427915643"
+                    ),
                 }
             },
         }
@@ -205,7 +223,7 @@ async def test_revealed_attrs_dont_match_requested_attributes_throws_exception()
 
 
 @pytest.mark.asyncio
-async def test_valid_presentation_with_matching_subject_identifier_has_identifier_in_claims_sub():
+async def test_valid_presentation_with_matching_subject_identifier_in_claims_sub():
     presentation["presentation_request"][
         "requested_attributes"
     ] = basic_valid_requested_attributes
@@ -219,7 +237,7 @@ async def test_valid_presentation_with_matching_subject_identifier_has_identifie
 
 
 @pytest.mark.asyncio
-async def test_valid_presentation_with_non_matching_subject_identifier_and_generate_consistent_identifier_is_missing_and_has_no_sub():
+async def test_valid_pres_with_non_matching_subj_id_gen_consistent_id_missing_no_sub():
     presentation["presentation_request"][
         "requested_attributes"
     ] = basic_valid_requested_attributes
@@ -234,7 +252,7 @@ async def test_valid_presentation_with_non_matching_subject_identifier_and_gener
 
 
 @pytest.mark.asyncio
-async def test_valid_presentation_with_non_matching_subject_identifier_and_generate_consistent_identifier_false_and_has_no_sub():
+async def test_valid_pres_non_matching_subj_id_gen_consistent_id_false_has_no_sub():
     presentation["presentation_request"][
         "requested_attributes"
     ] = basic_valid_requested_attributes
@@ -249,7 +267,7 @@ async def test_valid_presentation_with_non_matching_subject_identifier_and_gener
 
 
 @pytest.mark.asyncio
-async def test_valid_presentation_with_non_matching_subject_identifier_and_generate_consistent_identifier_true_and_has_sub():
+async def test_valid_pres_non_matching_subj_id_gen_consistent_id_true_has_sub():
     presentation["presentation_request"][
         "requested_attributes"
     ] = basic_valid_requested_attributes
