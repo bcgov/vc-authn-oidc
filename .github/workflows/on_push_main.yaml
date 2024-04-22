@@ -38,13 +38,11 @@ jobs:
       - name: VC-Authn Dev Helm
         run: |
           helm upgrade --install vc-authn-oidc \
-          -f ./charts/vc-authn-oidc/values.yaml \
+          -f ./charts/vc-authn-oidc/templates/deployment.yaml \
           --set image.tag="dev" \
           ./charts/vc-authn-oidc --wait
-
       - name: Restart Deployments
         # TODO determine the vc-authn equivalent
         run: |
           oc rollout restart deployment/vc-authn-oidc
-          oc rollout restart deployment/vc-authn-agent
           oc rollout restart deployment/vc-authn-controller
