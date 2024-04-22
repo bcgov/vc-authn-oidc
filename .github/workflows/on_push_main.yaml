@@ -22,7 +22,7 @@ jobs:
     needs:
       - deploy_vc_auth
     # TODO Ensure that these success results make sense for vc-authn
-    if: ${{ always() && contains(needs.*.result, 'success') && !(contains(needs.*.result, 'failure')) && (github.repository_owner == 'bcgov') }}
+    if: ${{ always() !(contains(needs.*.result, 'failed')) && (github.repository_owner == 'bcgov') }}
 
     steps:
       - uses: actions/checkout@v4
