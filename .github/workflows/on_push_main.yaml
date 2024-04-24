@@ -1,0 +1,45 @@
+name: Build & Deploy Development
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+jobs:
+  deploy_vc_auth:
+    name: "Build VC-Authn"
+    if: github.repository_owner == 'bcgov'
+    uses: ./.github/workflows/publish.yml
+    id: builder
+    with:
+      tag: "dev"
+      ref: "main"
+
+  # Build vc-authn
+  deploy:
+    name: Deploy Dev
+    environment: dev
+    runs-on: ubuntu-latest
+    needs:
+      - deploy_vc_auth
+    if: ${{ always() !(contains(needs.*.result, 'failed')) && (github.repository_owner == 'bcgov') }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate and set context
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER }}
+          openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
+          namespace: ${{ secrets.OPENSHIFT_NAMESPACE }}
+
+      - name: VC-Authn Dev Helm
+        run: |
+          helm upgrade --install vc-authn-oidc \
+          -f ./charts/vc-authn-oidc/templates/deployment.yaml \
+          --set image.tag="dev" \
+          ./charts/vc-authn-oidc --wait
+      - name: Restart Deployments
+        run: |
+          oc rollout restart deployment/vc-authn-oidc-agent
+          oc rollout restart deployment/vc-authn-oidc

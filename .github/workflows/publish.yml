@@ -3,7 +3,21 @@ run-name: Publish VC-AuthN ${{ inputs.tag || github.event.release.tag_name }} Im
 on:
   release:
     types: [published]
-
+  workflow_call:
+    inputs:
+      tag:
+        description: "Image tag"
+        required: true
+        type: string
+      platforms:
+        description: "Platforms - Comma separated list of the platforms to support."
+        required: true
+        default: linux/amd64
+        type: string
+      ref:
+        description: "Optional - The branch, tag or SHA to checkout."
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       tag:
