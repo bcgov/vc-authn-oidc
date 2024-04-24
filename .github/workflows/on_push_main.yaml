@@ -43,4 +43,3 @@ jobs:
         run: |
           oc rollout restart deployment/vc-authn-oidc-agent
           oc rollout restart deployment/vc-authn-oidc
-          oc rollout restart deployment/vc-authn-controller
