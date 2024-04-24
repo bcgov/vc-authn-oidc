@@ -21,7 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - deploy_vc_auth
-    # TODO Ensure that these success results make sense for vc-authn
     if: ${{ always() !(contains(needs.*.result, 'failed')) && (github.repository_owner == 'bcgov') }}
 
     steps:
@@ -41,7 +40,6 @@ jobs:
           --set image.tag="dev" \
           ./charts/vc-authn-oidc --wait
       - name: Restart Deployments
-        # TODO determine the vc-authn equivalent
         run: |
           oc rollout restart deployment/vc-authn-oidc
           oc rollout restart deployment/vc-authn-controller
