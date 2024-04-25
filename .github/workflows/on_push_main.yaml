@@ -12,6 +12,7 @@ jobs:
     with:
       tag: "dev"
       ref: "main"
+      platforms: "linux/amd64"
 
   # Build vc-authn
   deploy:
