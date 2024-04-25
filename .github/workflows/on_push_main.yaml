@@ -5,23 +5,22 @@ on:
     branches:
       - main
 jobs:
-  deploy_vc_auth:
-    name: "Build VC-Authn"
+  build:
+    name: "Build VC-AuthN"
     if: github.repository_owner == 'bcgov'
     uses: ./.github/workflows/publish.yml
-    id: builder
     with:
       tag: "dev"
       ref: "main"
 
   # Build vc-authn
   deploy:
-    name: Deploy Dev
+    name: Deploy VC-AuthN to Dev
     environment: dev
     runs-on: ubuntu-latest
     needs:
-      - deploy_vc_auth
-    if: ${{ always() !(contains(needs.*.result, 'failed')) && (github.repository_owner == 'bcgov') }}
+      - build
+    if: ${{ always() && !(contains(needs.*.result, 'failed')) && (github.repository_owner == 'bcgov') }}
 
     steps:
       - uses: actions/checkout@v4
