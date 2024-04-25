@@ -36,7 +36,7 @@ jobs:
       - name: VC-Authn Dev Helm
         run: |
           helm upgrade --install vc-authn-oidc \
-          -f ./charts/vc-authn-oidc/templates/deployment.yaml \
+          -f https://raw.githubusercontent.com/bcgov/trust-over-ip-configurations/main/helm-values/vc-authn-oidc/dev.yaml \
           --set image.tag="dev" \
           ./charts/vc-authn-oidc --wait
       - name: Restart Deployments
