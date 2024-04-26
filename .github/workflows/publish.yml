@@ -21,10 +21,10 @@ on:
     outputs:
       image_tag:
         description: "The tag used for this image"
-        value: ${{ jobs.values.outputs.image_tag }}
+        value: ${{ jobs.publish-image.outputs.image_tag }}
       image_version:
         description: "The tag used for this image"
-        value: ${{ jobs.values.outputs.image_version }}
+        value: ${{ jobs.publish-image.outputs.image_version }}
 
   workflow_dispatch:
     inputs:
