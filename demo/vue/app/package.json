@@ -33,7 +33,7 @@
   "dependencies": {
     "api-problem": "^9.0.2",
     "axios": "^1.6.8",
-    "axios-oauth-client": "^2.0.4",
+    "axios-oauth-client": "^2.1.0",
     "axios-token-interceptor": "^0.2.0",
     "compression": "^1.7.4",
     "config": "^3.3.11",
