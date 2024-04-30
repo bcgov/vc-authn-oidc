@@ -17,7 +17,7 @@
     "reinstall": "npm run purge && npm install"
   },
   "dependencies": {
-    "@babel/eslint-parser": "^7.24.1",
+    "@babel/eslint-parser": "^7.24.5",
     "@bcgov/bc-sans": "^2.1.0",
     "@vue/eslint-config-prettier": "^9.0.0",
     "axios": "^1.6.8",
