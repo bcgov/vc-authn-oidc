@@ -1,4 +1,4 @@
-black==24.4.0
+black==24.4.2
 flake8==7.0.0
 mock==5.1.0
 mongomock==4.1.2
