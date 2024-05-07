@@ -204,7 +204,7 @@ acapy:
     repository: ghcr.io/hyperledger/aries-cloudagent-python
     pullPolicy: IfNotPresent
     pullSecrets: []
-    tag: py3.9-0.12.0rc0
+    tag: py3.9-0.12.1
 
   ## ServiceAccount configuration
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
