@@ -1,0 +1,200 @@
+<html>
+  <head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>{{ title }}</title>
+  </head>
+
+  <style>
+    @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+    @import url("https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css");
+    @import url("https://cdn.datatables.net/2.0.5/css/dataTables.bootstrap5.css");
+    :root {
+      --big-font-size: 1.5rem;
+      --small-font-size: 1.8rem;
+      --font-family-sans-serif: Arial, Helvetica, sans-serif;
+      --bs-primary: #003366;
+      --bs-secondary: #335c85;
+      --bs-btn-disabled-color: #b2c1d1;
+      --bs-blue: #003366;
+    }
+    .header-branding {
+      background-color: var(--bs-primary);
+      height: 5rem;
+      width: 100%;
+      border-style: none none solid none;
+      border-color: #fcba19;
+      box-shadow: 0px 3px 3px 0px #dedede;
+      padding-top: 4px;
+    }
+    .header-branding svg {
+      position: relative;
+      height: 4rem;
+    }
+    .navbar-brand span,
+    .navbar-brand i {
+      color: white;
+      font-size: 1.5rem;
+    }
+    .navbar-brand svg {
+      margin-left: 2rem;
+      padding-bottom: 5px;
+    }
+  </style>
+
+  <body>
+    <nav class="navbar header-branding">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+          {{add_asset('BCID_H_rgb_rev.svg')}}
+          <span>VC-AuthN Presentation Request Explorer</span>
+        </a>
+        <a href="https://github.com/bcgov/vc-authn-oidc">
+          <i class="bi bi-github text-white fs-3 mt-n4"></i>
+        </a>
+      </div>
+    </nav>
+    <main class="container mt-3">
+      <div class="alert alert-primary mb-5" role="alert">
+        Proof of Concept. For internal use only at this time.
+      </div>
+
+      <table class="table" id="myTable">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Attributes</th>
+            <th scope="col">Presentation Request</th>
+          </tr>
+        </thead>
+        <tbody class="table-group-divider">
+          {% for vc in ver_configs %}
+          <tr>
+            <td>{{ vc.ver_config_id }}</td>
+            <td>{{ vc.proof_request.name }}</td>
+            <td>
+              <ul>
+                {% for name in vc.proof_request.requested_attributes[0].names %}
+                <li>{{ name }}</li>
+                {% endfor %}
+              </ul>
+            </td>
+            <td>
+              <!-- Button trigger modal -->
+              <button
+                type="button"
+                class="btn btn-primary btn-circle"
+                data-bs-toggle="modal"
+                data-bs-target="#exampleModal"
+              >
+                <i class="bi bi-eye"></i>
+              </button>
+
+              <!-- Modal -->
+              <div
+                class="modal fade"
+                id="exampleModal"
+                tabindex="-1"
+                aria-labelledby="exampleModalLabel"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">
+                        Presentation Request
+                      </h5>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <div class="modal-body">
+                      <pre>{{ vc.proof_request | tojson(indent=2) }}</pre>
+                    </div>
+                    <div class="modal-footer">
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <!-- Add more cells for other fields -->
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="row mt-5 mb-5">
+        <div class="col-sm-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Need to add a Presentation Request?</h5>
+              <p class="card-text">
+                If you are integrating VCAuthN into your line of business
+                application and do not see the Presentation Request you need,
+                you can request an addition from us.
+              </p>
+              <a href="#" class="btn btn-primary">Request Addition</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Integrating with VCAuthN-OIDC</h5>
+              <h6 class="card-subtitle mb-2 text-muted">Onboarding to SSO</h6>
+              <p class="card-text">
+                Some text here about linking to "how to onboard" instructions.
+                <br />
+                SSO Keyloak integration details, etc
+              </p>
+              <a href="#" class="card-link">SSO Team</a>
+              <a href="#" class="card-link">About VCs?</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-light">
+      <div class="container">
+        <span class="text-muted">© 2024 Government of British Columbia</span>
+      </div>
+    </footer>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+      integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8="
+      crossorigin="anonymous"
+    ></script>
+    <script src="//cdn.datatables.net/2.0.5/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.5/js/dataTables.bootstrap5.js"></script>
+  </body>
+</html>
+
+<script>
+  let table = new DataTable("#myTable", {
+    // options
+  });
+</script>
