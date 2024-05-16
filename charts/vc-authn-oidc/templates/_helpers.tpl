@@ -156,18 +156,56 @@ Usage:
 {{- end }}
 
 {{/*
-Create the name of the database secret to use
+Define the name of the database secret to use
 */}}
 {{- define "vc-authn-oidc.databaseSecretName" -}}
+{{- if (empty .Values.database.existingSecret) -}}
 {{- printf "%s-%s" .Release.Name "mongodb" | trunc 63 | trimSuffix "-" }}
+{{- else -}}
+{{- .Values.database.existingSecret -}}
+{{- end -}}
 {{- end }}
+
+{{/*
+Return true if a database secret should be created
+*/}}
+{{- define "vc-authn-oidc.database.createSecret" -}}
+{{- if not .Values.database.existingSecret -}}
+{{- true -}}
+{{- end -}}
+{{- end -}}
 
 {{/*
 Create the name of the api key secret to use
 */}}
 {{- define "vc-authn-oidc.apiSecretName" -}}
-{{- printf "%s-%s" .Release.Name "api-key" | trunc 63 | trimSuffix "-" }}
+{{- if (empty .Values.auth.token.privateKey.existingSecret) }}
+    {{- printf "%s-%s" .Release.Name "api-key" | trunc 63 | trimSuffix "-" }}
+{{- else -}}
+    {{- .Values.auth.token.privateKey.existingSecret }}
+{{- end -}}
+
 {{- end }}
+
+{{/*
+Return true if the api-secret should be created
+*/}}
+{{- define "vc-authn-oidc.api.createSecret" -}}
+{{- if (empty .Values.auth.token.privateKey.existingSecret) }}
+    {{- true -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Return the secret with vc-authn-oidc token private key
+*/}}
+{{- define "vc-authn-oidc.token.secretName" -}}
+    {{- if .Values.auth.token.privateKey.existingSecret -}}
+        {{- .Values.auth.token.privateKey.existingSecret -}}
+    {{- else -}}
+        {{- printf "%s-jwt-token" (include "global.fullname" .) | trunc 63 | trimSuffix "-" -}}
+    {{- end -}}
+{{- end -}}
 
 {{/*
 Return true if a secret object should be created for the vc-authn-oidc token private key
@@ -176,17 +214,6 @@ Return true if a secret object should be created for the vc-authn-oidc token pri
 {{- if (empty .Values.auth.token.privateKey.existingSecret) }}
     {{- true -}}
 {{- end -}}
-{{- end -}}
-
-{{/*
-Return the secret with vc-authn-oidc token private key
-*/}}
-{{- define "vc-authn-oidc.token.secretName" -}}
-    {{- if .Values.auth.token.privateKey.existingSecret -}}
-        {{- printf "%s" .Values.auth.token.privateKey.existingSecret | trunc 63 | trimSuffix "-" -}}
-    {{- else -}}
-        {{- printf "%s-jwt-token" (include "global.fullname" .) | trunc 63 | trimSuffix "-" -}}
-    {{- end -}}
 {{- end -}}
 
 {{/*
@@ -217,7 +244,7 @@ Return the secret with vc-authn-oidc token private key
 */}}
 {{- define "acapy.secretName" -}}
     {{- if .Values.acapy.existingSecret -}}
-        {{- printf "%s" .Values.acapy.existingSecret | trunc 63 | trimSuffix "-" -}}
+        {{- .Values.acapy.existingSecret -}}
     {{- else -}}
         {{- printf "%s-acapy-secret" (include "global.fullname" .) | trunc 63 | trimSuffix "-" -}}
     {{- end -}}
@@ -232,6 +259,15 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- .Values.acapy.walletStorageCredentials.existingSecret }}
 {{- else -}}
 {{ template "global.fullname" . }}-postgresql
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return true if a database secret should be created
+*/}}
+{{- define "acapy.database.createSecret" -}}
+{{- if not .Values.acapy.walletStorageCredentials.existingSecret -}}
+{{- true -}}
 {{- end -}}
 {{- end -}}
 
@@ -350,8 +386,17 @@ Return seed
 */}}
 {{- define "acapy.seed" -}}
 {{- if .Values.acapy.agentSeed -}}
-{{- .Values.acapy.agentSeed }}
+{{- .Values.acapy.agentSeed.seed }}
 {{- else -}}
 {{ include "getOrGeneratePass" (dict "Namespace" .Release.Namespace "Kind" "Secret" "Name" (include "acapy.fullname" .) "Key" "seed" "Length" 32) }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return true if the seed secret should be created
+*/}}
+{{- define "acapy.seed.createSecret" -}}
+{{- if not .Values.acapy.agentSeed.existingSecret -}}
+{{- true -}}
 {{- end -}}
 {{- end -}}
