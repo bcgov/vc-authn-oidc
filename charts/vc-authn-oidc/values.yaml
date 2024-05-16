@@ -47,6 +47,10 @@ auth:
       filename: jwt-token.pem
       existingSecret: ""
 
+## @param database.secret.existingSecret Specify existing secret containing the keys `mongodb-root-password`, `mongodb-replica-set-key`, and `mongodb-passwords`. `database.secret.create` must be set to `false` when using existing secret.
+database:
+  existingSecret: ""
+
 ## @param podAnnotations Map of annotations to add to the acapy pods
 ##
 podAnnotations: {}
@@ -193,8 +197,9 @@ acapy:
   adminUrl: ""
   ## @param acapy.existingSecret Name of existing secret, required if `enabled` is `false`; Secret must contain `adminApiKey`, `walletKey`, and `webhookApiKey` keys.
   existingSecret: ""
-  ## @param acapy.agentSeed
-  agentSeed: ""
+  ## @param acapy.agentSeed.existingSecret Name of existing secret with the 'seed' key.
+  agentSeed:
+    existingSecret: ""
   ## @param acapy.image.repository
   ## @param acapy.image.pullPolicy
   ## @param acapy.image.pullSecrets [array]
@@ -341,6 +346,8 @@ acapy:
   ## @param acapy.walletStorageCredentials.admin_account Database account with CREATEDB role used to create additional databases per wallet.
   ## @param acapy.walletStorageCredentials.admin_password Database password for admin account.
   ## @param acapy.walletStorageCredentials.existingSecret Name of an existing secret containing 'database-user', 'database-password', 'admin-password' keys.
+  ## @param acapy.walletStorageCredentials.secretKeys.adminPasswordKey Key in existing secret containing admin password.
+  ## @param acapy.walletStorageCredentials.secretKeys.userPasswordKey Key in existing secret containing password .
   ##
   walletStorageCredentials:
     json: ""
@@ -349,6 +356,10 @@ acapy:
     admin_account: postgres
     admin_password: ""
     existingSecret: ""
+    secretKeys:
+      adminPasswordKey: admin-password
+      userPasswordKey: database-password
+  
   ## @section Acapy tails persistence configuration
   persistence:
     ## @param acapy.persistence.existingClaim Name of an existing PVC to use
