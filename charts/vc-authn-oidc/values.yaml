@@ -657,7 +657,7 @@ postgresql:
       enabled: true
       ## @param postgresql.primary.persistence.size PVC Storage Request for PostgreSQL volume
       ##
-      size: 8Gi
+      size: 5Gi
     ## Container Security Context
     ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
     ## @param postgresql.primary.containerSecurityContext.enabled Enable container security context
