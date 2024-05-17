@@ -95,7 +95,7 @@ services:
       - vc_auth
 
   aca-py:
-    image: ghcr.io/hyperledger/aries-cloudagent-python:py3.9-0.12.0rc0
+    image: ghcr.io/hyperledger/aries-cloudagent-python:py3.9-0.12.1
     environment:
       - ACAPY_LABEL=${AGENT_NAME}
       - ACAPY_ENDPOINT=${AGENT_ENDPOINT}
