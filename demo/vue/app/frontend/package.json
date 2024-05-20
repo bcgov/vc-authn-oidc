@@ -20,7 +20,7 @@
     "@babel/eslint-parser": "^7.24.5",
     "@bcgov/bc-sans": "^2.1.0",
     "@vue/eslint-config-prettier": "^9.0.0",
-    "axios": "^1.6.8",
+    "axios": "^1.7.0",
     "core-js": "^3.37.1",
     "eslint": "^8.57.0",
     "eslint-plugin-prettier": "^5.1.3",
