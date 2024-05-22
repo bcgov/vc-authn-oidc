@@ -22,25 +22,19 @@ async def init_db():
     client_configs.create_index([("client_id", ASCENDING)], unique=True)
 
     auth_session = db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
-    expire_time = settings.CONTROLLER_PRESENTATION_EXPIRE_TIME + settings.CONTROLLER_PRESENTATION_BUFFER_TIME
     auth_session.create_index([("pres_exch_id", ASCENDING)], unique=True)
     auth_session.create_index([("pyop_auth_code", ASCENDING)], unique=True)
-    auth_session.create_index([("created_at", ASCENDING)],
-                              name="expired_ttl",
-                              expireAfterSeconds=expire_time,
-                              partialFilterExpression={"proof_status":
-                                                       { "$eq": AuthSessionState.EXPIRED.value }})
-    auth_session.create_index([("created_at", ASCENDING)],
-                              name="failed_ttl",
-                              expireAfterSeconds=expire_time,
-                              partialFilterExpression={"proof_status":
-                                                       { "$eq": AuthSessionState.FAILED.value }})
-    auth_session.create_index([("created_at", ASCENDING)],
-                              name="abandoned_ttl",
-                              expireAfterSeconds=expire_time,
-                              partialFilterExpression= {"proof_status":
-                                                        { "$eq": AuthSessionState.ABANDONED.value }
-                                                        })
+
+    expire_time: int = settings.CONTROLLER_PRESENTATION_EXPIRE_TIME + settings.CONTROLLER_PRESENTATION_BUFFER_TIME
+
+    for k, v in [("expired_ttl", AuthSessionState.EXPIRED),
+                 ("failed_ttl", AuthSessionState.FAILED),
+                 ("abandoned_ttl", AuthSessionState.ABANDONED)]:
+        auth_session.create_index([("created_at", ASCENDING)],
+                                  expireAfterSeconds=expire_time,
+                                  name=k,
+                                  partialFilterExpression={"proof_status":
+                                                           { "$eq": v.value }})
 
 
 async def get_db():
