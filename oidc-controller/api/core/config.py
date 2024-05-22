@@ -167,6 +167,10 @@ class GlobalConfig(BaseSettings):
         "CONTROLLER_PRESENTATION_EXPIRE_TIME", 10
     )
 
+    CONTROLLER_PRESENTATION_BUFFER_TIME: int = os.environ.get(
+        "CONTROLLER_PRESENTATION_BUFFER_TIME", 10
+    )
+
     ACAPY_AGENT_URL: Optional[str] = os.environ.get("ACAPY_AGENT_URL")
     if not ACAPY_AGENT_URL:
         logger.warning("ACAPY_AGENT_URL was not provided, agent will not be accessible")

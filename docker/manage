@@ -171,6 +171,7 @@ configureEnvironment() {
 
   # The number of time in seconds a proof request will be valid for
   export CONTROLLER_PRESENTATION_EXPIRE_TIME=10
+  export CONTROLLER_PRESENTATION_BUFFER_TIME=10
 
   #controller app settings
   export SET_NON_REVOKED="True"

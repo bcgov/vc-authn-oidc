@@ -1,6 +1,8 @@
 from pymongo import MongoClient, ASCENDING
 from api.core.config import settings
 from .collections import COLLECTION_NAMES
+from ..core.config import settings
+from ..authSessions.models import AuthSessionState
 
 
 async def get_async_session():
@@ -20,8 +22,25 @@ async def init_db():
     client_configs.create_index([("client_id", ASCENDING)], unique=True)
 
     auth_session = db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
+    expire_time = settings.CONTROLLER_PRESENTATION_EXPIRE_TIME + settings.CONTROLLER_PRESENTATION_BUFFER_TIME
     auth_session.create_index([("pres_exch_id", ASCENDING)], unique=True)
     auth_session.create_index([("pyop_auth_code", ASCENDING)], unique=True)
+    auth_session.create_index([("created_at", ASCENDING)],
+                              name="expired_ttl",
+                              expireAfterSeconds=expire_time,
+                              partialFilterExpression={"proof_status":
+                                                       { "$eq": AuthSessionState.EXPIRED.value }})
+    auth_session.create_index([("created_at", ASCENDING)],
+                              name="failed_ttl",
+                              expireAfterSeconds=expire_time,
+                              partialFilterExpression={"proof_status":
+                                                       { "$eq": AuthSessionState.FAILED.value }})
+    auth_session.create_index([("created_at", ASCENDING)],
+                              name="abandoned_ttl",
+                              expireAfterSeconds=expire_time,
+                              partialFilterExpression= {"proof_status":
+                                                        { "$eq": AuthSessionState.ABANDONED.value }
+                                                        })
 
 
 async def get_db():
