@@ -39,9 +39,12 @@ useHTTPS: true
 ## @param logLevel Accepts one of the following values: CRITICAL, ERROR, WARNING, INFO, DEBUG
 logLevel: INFO
 
+## @param auth.api.existingSecret Specify the name of the secret containing `controllerApiKey` key.
 ## @param auth.token.privateKey.filename Specify the name of the signing key file
 ## @param auth.token.privateKey.existingSecret Specify the name of the secret containing the signing key to be mounted, if not specified, a new secret will be created.
 auth:
+  api:
+    existingSecret: ""
   token:
     privateKey:
       filename: jwt-token.pem
