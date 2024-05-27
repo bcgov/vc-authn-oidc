@@ -179,12 +179,11 @@ Return true if a database secret should be created
 Create the name of the api key secret to use
 */}}
 {{- define "vc-authn-oidc.apiSecretName" -}}
-{{- if (empty .Values.auth.token.privateKey.existingSecret) }}
+{{- if (empty .Values.auth.api.existingSecret) }}
     {{- printf "%s-%s" .Release.Name "api-key" | trunc 63 | trimSuffix "-" }}
 {{- else -}}
-    {{- .Values.auth.token.privateKey.existingSecret }}
+    {{- .Values.auth.api.existingSecret }}
 {{- end -}}
-
 {{- end }}
 
 {{/*
