@@ -382,17 +382,6 @@ Create the name of the acapy service account to use
 {{- end }}
 
 {{/*
-Return seed
-*/}}
-{{- define "acapy.seed" -}}
-{{- if .Values.acapy.agentSeed -}}
-{{- .Values.acapy.agentSeed.seed }}
-{{- else -}}
-{{ include "getOrGeneratePass" (dict "Namespace" .Release.Namespace "Kind" "Secret" "Name" (include "acapy.fullname" .) "Key" "seed" "Length" 32) }}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Return true if the seed secret should be created
 */}}
 {{- define "acapy.seed.createSecret" -}}
