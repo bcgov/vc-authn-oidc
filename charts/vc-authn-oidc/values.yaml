@@ -200,6 +200,7 @@ acapy:
   ## @param acapy.agentSeed.existingSecret Name of existing secret with the 'seed' key.
   agentSeed:
     existingSecret: ""
+
   ## @param acapy.image.repository
   ## @param acapy.image.pullPolicy
   ## @param acapy.image.pullSecrets [array]
@@ -520,17 +521,6 @@ acapy:
       ## @param acapy.openshift.adminRoute.wildcardPolicy Wildcard policy for the route
       ##
       wildcardPolicy: None
-
-  ## Acapy secret configuration
-  ##
-  secret:
-    adminApiKey:
-      ## @param acapy.secret.adminApiKey.generated Generate admin api key
-      ##
-      generated: true
-      ## @param acapy.secret.adminApiKey.value Override admin api key
-      ##
-      value: ""
 
 ##  Overrides for bitnami/mongodb chart - https://github.com/bitnami/charts/tree/main/bitnami/mongodb
 mongodb:
