@@ -1,4 +1,5 @@
 import json
+import structlog
 from pymongo import MongoClient, ASCENDING
 from pathlib import Path
 from api.core.config import settings
@@ -11,6 +12,7 @@ async def get_async_session():
 
 
 client = MongoClient(settings.MONGODB_URL, uuidRepresentation="standard")
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 
 async def init_db():
@@ -33,15 +35,24 @@ async def init_db():
     ) as user_file:
         experation_times: dict[str, int] = json.loads(user_file.read())
         auth_session_states: list[str] = [str(i) for i in list(AuthSessionState)]
-        for k, v in experation_times.items():
-            assert isinstance(k, str)
-            assert k in auth_session_states
-            auth_session.create_index(
-                [("created_at", ASCENDING)],
-                expireAfterSeconds=v + settings.CONTROLLER_PRESENTATION_BUFFER_TIME,
-                name=k + "_ttl",
-                partialFilterExpression={"proof_status": {"$eq": k}},
-            )
+        try:
+            for k, v in experation_times.items():
+                assert isinstance(k, str)
+                assert k in auth_session_states
+                auth_session.create_index(
+                    [("created_at", ASCENDING)],
+                    expireAfterSeconds=v + settings.CONTROLLER_PRESENTATION_BUFFER_TIME,
+                    name=k + "_ttl",
+                    partialFilterExpression={"proof_status": {"$eq": k}},
+                )
+        except Exception as e:
+            match e:
+                case AssertionError():
+                    logger.error(
+                        "Invalid entry in sessiontimeout.json ",
+                        e,
+                        " no following expiration times will be applied",
+                    )
 
 
 async def get_db():
