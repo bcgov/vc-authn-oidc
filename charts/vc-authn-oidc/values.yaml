@@ -39,13 +39,20 @@ useHTTPS: true
 ## @param logLevel Accepts one of the following values: CRITICAL, ERROR, WARNING, INFO, DEBUG
 logLevel: INFO
 
+## @param auth.api.existingSecret Specify the name of the secret containing `controllerApiKey` key.
 ## @param auth.token.privateKey.filename Specify the name of the signing key file
 ## @param auth.token.privateKey.existingSecret Specify the name of the secret containing the signing key to be mounted, if not specified, a new secret will be created.
 auth:
+  api:
+    existingSecret: ""
   token:
     privateKey:
       filename: jwt-token.pem
       existingSecret: ""
+
+## @param database.secret.existingSecret Specify existing secret containing the keys `mongodb-root-password`, `mongodb-replica-set-key`, and `mongodb-passwords`. `database.secret.create` must be set to `false` when using existing secret.
+database:
+  existingSecret: ""
 
 ## @param podAnnotations Map of annotations to add to the acapy pods
 ##
@@ -193,8 +200,10 @@ acapy:
   adminUrl: ""
   ## @param acapy.existingSecret Name of existing secret, required if `enabled` is `false`; Secret must contain `adminApiKey`, `walletKey`, and `webhookApiKey` keys.
   existingSecret: ""
-  ## @param acapy.agentSeed
-  agentSeed: ""
+  ## @param acapy.agentSeed.existingSecret Name of existing secret with the 'seed' key.
+  agentSeed:
+    existingSecret: ""
+
   ## @param acapy.image.repository
   ## @param acapy.image.pullPolicy
   ## @param acapy.image.pullSecrets [array]
@@ -341,6 +350,8 @@ acapy:
   ## @param acapy.walletStorageCredentials.admin_account Database account with CREATEDB role used to create additional databases per wallet.
   ## @param acapy.walletStorageCredentials.admin_password Database password for admin account.
   ## @param acapy.walletStorageCredentials.existingSecret Name of an existing secret containing 'database-user', 'database-password', 'admin-password' keys.
+  ## @param acapy.walletStorageCredentials.secretKeys.adminPasswordKey Key in existing secret containing admin password.
+  ## @param acapy.walletStorageCredentials.secretKeys.userPasswordKey Key in existing secret containing password .
   ##
   walletStorageCredentials:
     json: ""
@@ -349,6 +360,10 @@ acapy:
     admin_account: postgres
     admin_password: ""
     existingSecret: ""
+    secretKeys:
+      adminPasswordKey: admin-password
+      userPasswordKey: database-password
+  
   ## @section Acapy tails persistence configuration
   persistence:
     ## @param acapy.persistence.existingClaim Name of an existing PVC to use
@@ -510,17 +525,6 @@ acapy:
       ##
       wildcardPolicy: None
 
-  ## Acapy secret configuration
-  ##
-  secret:
-    adminApiKey:
-      ## @param acapy.secret.adminApiKey.generated Generate admin api key
-      ##
-      generated: true
-      ## @param acapy.secret.adminApiKey.value Override admin api key
-      ##
-      value: ""
-
 ##  Overrides for bitnami/mongodb chart - https://github.com/bitnami/charts/tree/main/bitnami/mongodb
 mongodb:
   auth:
@@ -646,7 +650,7 @@ postgresql:
       enabled: true
       ## @param postgresql.primary.persistence.size PVC Storage Request for PostgreSQL volume
       ##
-      size: 1Gi
+      size: 5Gi
     ## Container Security Context
     ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
     ## @param postgresql.primary.containerSecurityContext.enabled Enable container security context
