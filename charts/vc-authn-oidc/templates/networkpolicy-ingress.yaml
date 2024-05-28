@@ -1,7 +1,6 @@
 {{- if or .Values.networkPolicy.enabled .Values.networkPolicy.ingress.enabled -}}
-apiVersion: v1
 kind: NetworkPolicy
-apiVersion: networking.k8s.io/v1
+apiVersion: {{ include "common.capabilities.networkPolicy.apiVersion" . }}
 metadata:
   name: {{ include "global.fullname" . }}-ingress
   labels:

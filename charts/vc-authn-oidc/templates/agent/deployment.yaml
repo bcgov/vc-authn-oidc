@@ -62,12 +62,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ template "acapy.database.secretName" . }}
-                  key: {{ .Values.postgresql.auth.secretKeys.userPasswordKey }}
+                  key: {{ .Values.acapy.walletStorageCredentials.secretKeys.userPasswordKey }}
             - name: POSTGRES_POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ template "acapy.database.secretName" . }}
-                  key: {{ .Values.postgresql.auth.secretKeys.adminPasswordKey }}
+                  key: {{ .Values.acapy.walletStorageCredentials.secretKeys.adminPasswordKey }}
             - name: WEBHOOK_API_KEY
               valueFrom:
                 secretKeyRef:
