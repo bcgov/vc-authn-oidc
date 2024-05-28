@@ -3,7 +3,6 @@ from pymongo import MongoClient, ASCENDING
 from pathlib import Path
 from api.core.config import settings
 from .collections import COLLECTION_NAMES
-from ..core.config import settings
 from ..authSessions.models import AuthSessionState
 
 
