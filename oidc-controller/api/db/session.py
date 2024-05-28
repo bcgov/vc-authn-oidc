@@ -1,4 +1,6 @@
+import json
 from pymongo import MongoClient, ASCENDING
+from pathlib import Path
 from api.core.config import settings
 from .collections import COLLECTION_NAMES
 from ..core.config import settings
@@ -25,16 +27,18 @@ async def init_db():
     auth_session.create_index([("pres_exch_id", ASCENDING)], unique=True)
     auth_session.create_index([("pyop_auth_code", ASCENDING)], unique=True)
 
-    expire_time: int = settings.CONTROLLER_PRESENTATION_EXPIRE_TIME + settings.CONTROLLER_PRESENTATION_BUFFER_TIME
-
-    for k, v in [("expired_ttl", AuthSessionState.EXPIRED),
-                 ("failed_ttl", AuthSessionState.FAILED),
-                 ("abandoned_ttl", AuthSessionState.ABANDONED)]:
-        auth_session.create_index([("created_at", ASCENDING)],
-                                  expireAfterSeconds=expire_time,
-                                  name=k,
-                                  partialFilterExpression={"proof_status":
-                                                           { "$eq": v.value }})
+    with open((Path(__file__).parent.parent / "authSessions" / "sessiontimeout.json").resolve()) as user_file:
+        experation_times: dict[str, int] = json.loads(user_file.read())
+        auth_session_states: list[str] = [str(i) for i in list(AuthSessionState)]
+        for k, v in experation_times.items():
+            assert isinstance(k, str)
+            assert k in auth_session_states
+            auth_session.create_index(
+                [("created_at", ASCENDING)],
+                expireAfterSeconds=v + settings.CONTROLLER_PRESENTATION_BUFFER_TIME,
+                name=k + "_ttl",
+                partialFilterExpression={"proof_status": {"$eq": k}},
+            )
 
 
 async def get_db():
