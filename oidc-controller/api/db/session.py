@@ -27,7 +27,11 @@ async def init_db():
     auth_session.create_index([("pres_exch_id", ASCENDING)], unique=True)
     auth_session.create_index([("pyop_auth_code", ASCENDING)], unique=True)
 
-    with open((Path(__file__).parent.parent / "authSessions" / "sessiontimeout.json").resolve()) as user_file:
+    with open(
+        (
+            Path(__file__).parent.parent / "authSessions" / "sessiontimeout.json"
+        ).resolve()
+    ) as user_file:
         experation_times: dict[str, int] = json.loads(user_file.read())
         auth_session_states: list[str] = [str(i) for i in list(AuthSessionState)]
         for k, v in experation_times.items():
