@@ -43,7 +43,7 @@ services:
       - vc_auth
 
   controller-db:
-    image: mongo:6.0
+    image: mongo:7.0
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${OIDC_CONTROLLER_DB_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${OIDC_CONTROLLER_DB_USER_PWD}
