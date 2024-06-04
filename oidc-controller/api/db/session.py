@@ -31,7 +31,6 @@ def create_ttl_indexes(auth_session: Collection, file: str):
         except OperationFailure as _:
             # If this index does not exist just continue
             pass
-    logger.warning("Here")
     try:
         with open(Path(file).resolve()) as user_file:
             expiration_times: dict[str, int] = json.loads(user_file.read())
