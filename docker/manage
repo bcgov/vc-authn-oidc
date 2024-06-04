@@ -173,6 +173,9 @@ configureEnvironment() {
   export CONTROLLER_PRESENTATION_EXPIRE_TIME=10
   export CONTROLLER_PRESENTATION_BUFFER_TIME=20
 
+  # The path to the auth_session timeouts config file
+  export CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE="/tmp/sessiontimeout.json"
+
   #controller app settings
   export SET_NON_REVOKED="True"
   export USE_OOB_PRESENT_PROOF=${USE_OOB_PRESENT_PROOF:-"false"}
