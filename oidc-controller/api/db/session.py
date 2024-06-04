@@ -25,7 +25,6 @@ def create_ttl_indexes(auth_session: Collection, file: str):
     auth_session_states: list[str] = [str(i) for i in list(AuthSessionState)]
     # Drop all old indexes if they exist
     for state in auth_session_states:
-
         try:
             auth_session.drop_index(index_name(state))
         except OperationFailure as _:
@@ -64,7 +63,7 @@ def create_ttl_indexes(auth_session: Collection, file: str):
                     + ". Ensure all entries in your session timout file map an "
                     + "AuthSessionState to an integer "
                     + "valid auth session strings are "
-                    + str([str(i) for i in list(AuthSessionState)])
+                    + str(auth_session_states)
                     + " No expiration times will be applied",
                 )
     else:
