@@ -1,5 +1,1 @@
-{
-	"expired": 20,
-	"failed": 10,
-	"abandoned": 10
-}
+["expired", "failed", "abandoned"]

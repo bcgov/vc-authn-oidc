@@ -17,26 +17,27 @@ client = MongoClient(settings.MONGODB_URL, uuidRepresentation="standard")
 logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 
-def index_name(k: str) -> str:
-    return k + "_ttl"
-
+def apply_expiration_times(auth_session: Collection, expiration_times: list[str]):
+    # Create all indexes based on the config file
+    auth_session.create_index(
+        [("created_at", ASCENDING)],
+        # TODO add timout for controller
+        expireAfterSeconds=settings.CONTROLLER_PRESENTATION_CLEANUP_TIME
+        name="expiration_ttl",
+        partialFilterExpression={"$or":
+                                 [{ "proof_status": {"$eq": state}} for state in expiration_times]
+                                 },
+    )
 
 def create_ttl_indexes(auth_session: Collection, file: str):
     auth_session_states: list[str] = [str(i) for i in list(AuthSessionState)]
-    # Drop all old indexes if they exist
-    for state in auth_session_states:
-        try:
-            auth_session.drop_index(index_name(state))
-        except OperationFailure as _:
-            # If this index does not exist just continue
-            pass
     try:
         with open(Path(file).resolve()) as user_file:
-            expiration_times: dict[str, int] = json.loads(user_file.read())
+            expiration_times: list[str] = json.load(user_file)
             # Ensure the given config is valid
             if not all(
-                isinstance(k, str) and (k in auth_session_states) and isinstance(v, int)
-                for k, v in expiration_times.items()
+                    isinstance(status, str) and (status in auth_session_states)
+                    for status in expiration_times
             ):
                 raise Exception("Invalid json formatting")
 
@@ -51,7 +52,7 @@ def create_ttl_indexes(auth_session: Collection, file: str):
                 )
             case json.JSONDecodeError():
                 logger.warning(
-                    "Failed to decode the auth session timeouts timout config file "
+                    "Failed to decode the auth session timeouts timeout config file "
                     + file
                     + " with the following error "
                     + str(e),
@@ -60,21 +61,14 @@ def create_ttl_indexes(auth_session: Collection, file: str):
                 logger.error(
                     "There is at least one invalid entry in the file "
                     + file
-                    + ". Ensure all entries in your session timout file map an "
-                    + "AuthSessionState to an integer "
+                    + ". Ensure all entries in your session timeout file "
+                    + "should be a valid AuthSessionState "
                     + "valid auth session strings are "
                     + str(auth_session_states)
-                    + " No expiration times will be applied",
+                    + ". No expiration times will be applied",
                 )
     else:
-        # Create all indexes based on the config file
-        for k, v in expiration_times.items():
-            auth_session.create_index(
-                [("created_at", ASCENDING)],
-                expireAfterSeconds=v + settings.CONTROLLER_PRESENTATION_BUFFER_TIME,
-                name=index_name(k),
-                partialFilterExpression={"proof_status": {"$eq": k}},
-            )
+        apply_expiration_times(auth_session, expiration_times)
 
 
 async def init_db():
