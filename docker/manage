@@ -173,7 +173,7 @@ configureEnvironment() {
   export CONTROLLER_PRESENTATION_EXPIRE_TIME=10
 
   # How long auth_sessions with matching the states in
-  # CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE are stored for
+  # CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE are stored for in seconds
   export CONTROLLER_PRESENTATION_CLEANUP_TIME=86400
 
   # The path to the auth_session timeouts config file

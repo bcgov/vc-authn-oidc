@@ -19,15 +19,26 @@ logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 def apply_expiration_times(auth_session: Collection, expiration_times: list[str]):
     # Create all indexes based on the config file
-    auth_session.create_index(
-        [("created_at", ASCENDING)],
-        # TODO add timout for controller
-        expireAfterSeconds=settings.CONTROLLER_PRESENTATION_CLEANUP_TIME
-        name="expiration_ttl",
-        partialFilterExpression={"$or":
-                                 [{ "proof_status": {"$eq": state}} for state in expiration_times]
-                                 },
-    )
+    index_name = "auth_session_ttl"
+
+    try:
+        auth_session.create_index(
+            [("created_at", ASCENDING)],
+            expireAfterSeconds=settings.CONTROLLER_PRESENTATION_CLEANUP_TIME,
+            name=index_name,
+            partialFilterExpression={
+                "$or": [{"proof_status": {"$eq": state}} for state in expiration_times]
+            },
+        )
+    except OperationFailure as _:
+        # Warn the user if the index already exists
+        logger.warning(
+            "The index "
+            + index_name
+            + " already exists. It must manually be deleted to "
+            + "update the timeout or matched AuthSessionState's"
+        )
+
 
 def create_ttl_indexes(auth_session: Collection, file: str):
     auth_session_states: list[str] = [str(i) for i in list(AuthSessionState)]
@@ -36,8 +47,8 @@ def create_ttl_indexes(auth_session: Collection, file: str):
             expiration_times: list[str] = json.load(user_file)
             # Ensure the given config is valid
             if not all(
-                    isinstance(status, str) and (status in auth_session_states)
-                    for status in expiration_times
+                isinstance(status, str) and (status in auth_session_states)
+                for status in expiration_times
             ):
                 raise Exception("Invalid json formatting")
 
@@ -61,8 +72,8 @@ def create_ttl_indexes(auth_session: Collection, file: str):
                 logger.error(
                     "There is at least one invalid entry in the file "
                     + file
-                    + ". Ensure all entries in your session timeout file "
-                    + "should be a valid AuthSessionState "
+                    + ". The timeout config file should contain "
+                    + "a json list of AuthSessionStates."
                     + "valid auth session strings are "
                     + str(auth_session_states)
                     + ". No expiration times will be applied",
