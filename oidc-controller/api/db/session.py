@@ -73,7 +73,7 @@ def create_ttl_indexes(auth_session: Collection, file: str):
                     "There is at least one invalid entry in the file "
                     + file
                     + ". The timeout config file should contain "
-                    + "a json list of AuthSessionStates."
+                    + "a JSON array of AuthSessionStates."
                     + "valid auth session strings are "
                     + str(auth_session_states)
                     + ". No expiration times will be applied",
