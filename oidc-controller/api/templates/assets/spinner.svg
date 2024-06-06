@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="48"
+   height="48"
+   viewBox="0 0 48 48"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="spinner.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="6.5628348"
+     inkscape:cx="56.454263"
+     inkscape:cy="16.989609"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="3832"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <path
+     id="Icon_material-refresh"
+     data-name="Icon material-refresh"
+     d="M 41.026162,7.5363953 C 23.829804,-9.6119325 -5.0484867,7.0536883 1.3448609,30.41487 7.7382086,53.77605 41.120858,53.569275 47.204563,30.112169 H 41.036047 C 36.223718,43.656698 18.059973,46.160203 9.7286108,34.42839 1.3972477,22.696576 9.8333604,6.4950865 24.270334,6.5035165 c 4.711297,0.00754 9.221525,1.9005387 12.514971,5.2529245 L 47.9954,0.60135275 Z"
+     fill="#0048c4"
+     sodipodi:nodetypes="csccscccc"
+     style="stroke-width:1.97223" />
+</svg>
