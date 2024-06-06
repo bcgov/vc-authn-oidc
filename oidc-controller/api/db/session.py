@@ -30,7 +30,7 @@ def apply_expiration_times(auth_session: Collection, expiration_times: list[str]
                 "$or": [{"proof_status": {"$eq": state}} for state in expiration_times]
             },
         )
-    except OperationFailure as _:
+    except OperationFailure:
         # Warn the user if the index already exists
         logger.warning(
             "The index "
