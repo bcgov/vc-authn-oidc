@@ -167,6 +167,15 @@ class GlobalConfig(BaseSettings):
         "CONTROLLER_PRESENTATION_EXPIRE_TIME", 10
     )
 
+    # How long auth_sessions with matching the states in
+    # CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE are stored for in seconds
+    CONTROLLER_PRESENTATION_CLEANUP_TIME: int = os.environ.get(
+        "CONTROLLER_PRESENTATION_CLEANUP_TIME", 86400
+    )
+
+    CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE: Optional[str] = os.environ.get(
+        "CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE"
+    )
     ACAPY_AGENT_URL: Optional[str] = os.environ.get("ACAPY_AGENT_URL")
     if not ACAPY_AGENT_URL:
         logger.warning("ACAPY_AGENT_URL was not provided, agent will not be accessible")

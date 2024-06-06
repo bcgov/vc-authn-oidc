@@ -343,6 +343,19 @@ The following additional metadata must be present at the OP's `/.well-known/open
 
 - The `scopes_supported` JSON array, should be extended to include the `vc_authn` scope
 
+## Auth Session Cleanup
+
+For each authentication attempt, an auth session is created. Over Time, these can accumulate, increasing the database size. To address this issue, a configuration file specified by the environment variable CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE is used to automatically clean up auth sessions based on their current state. This file contains a JSON array of different auth session states as strings.
+
+An example configuration file would contain the following text
+```json
+["expired", "failed", "abandoned"]
+```
+
+If no file is found no auth session cleanup is applied. If this config file is changed and the service is restarted no new clean up will be scheduled. The user must manually delete the existing Time To Live (ttl) index from the MongoDB database under the title `auth_session_ttl`.
+
+The environment variable `CONTROLLER_PRESENTATION_CLEANUP_TIME` determined the frequency at which these sessions are deleted. It's value should contain an integer indicating the number of seconds each session will remain. By default it is set to `86400` (one day).
+
 ## Un-Answered questions
 
 - SIOP instead of DIDComm for the requests between the RP and IW?

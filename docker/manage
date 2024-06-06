@@ -172,6 +172,13 @@ configureEnvironment() {
   # The number of time in seconds a proof request will be valid for
   export CONTROLLER_PRESENTATION_EXPIRE_TIME=10
 
+  # How long auth_sessions with matching the states in
+  # CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE are stored for in seconds
+  export CONTROLLER_PRESENTATION_CLEANUP_TIME=86400
+
+  # The path to the auth_session timeouts config file
+  export CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE="/tmp/sessiontimeout.json"
+
   #controller app settings
   export SET_NON_REVOKED="True"
   export USE_OOB_PRESENT_PROOF=${USE_OOB_PRESENT_PROOF:-"false"}
