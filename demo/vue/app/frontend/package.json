@@ -17,7 +17,7 @@
     "reinstall": "npm run purge && npm install"
   },
   "dependencies": {
-    "@babel/eslint-parser": "^7.24.6",
+    "@babel/eslint-parser": "^7.24.7",
     "@bcgov/bc-sans": "^2.1.0",
     "@vue/eslint-config-prettier": "^9.0.0",
     "axios": "^1.7.2",
@@ -42,8 +42,8 @@
     "eslint-plugin-vue": "^9.26.0",
     "eslint-plugin-vuetify": "^1.1.0",
     "lodash": "^4.17.21",
-    "prettier": "^3.2.5",
-    "sass": "^1.77.2",
+    "prettier": "^3.3.1",
+    "sass": "^1.77.4",
     "sass-loader": "^14.2.1",
     "vue-cli-plugin-vuetify": "^2.5.8",
     "vue-template-compiler": "^2.7.16",
