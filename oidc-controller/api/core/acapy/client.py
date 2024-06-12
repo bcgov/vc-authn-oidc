@@ -14,8 +14,8 @@ logger = structlog.getLogger(__name__)
 
 WALLET_DID_URI = "/wallet/did"
 PUBLIC_WALLET_DID_URI = "/wallet/did/public"
-CREATE_PRESENTATION_REQUEST_URL = "/present-proof/create-request"
-PRESENT_PROOF_RECORDS = "/present-proof/records"
+CREATE_PRESENTATION_REQUEST_URL = "/present-proof-2.0/create-request"
+PRESENT_PROOF_RECORDS = "/present-proof-2.0/records"
 
 
 class AcapyClient:
@@ -42,7 +42,9 @@ class AcapyClient:
         self, presentation_request_configuration: dict
     ) -> CreatePresentationResponse:
         logger.debug(">>> create_presentation_request")
-        present_proof_payload = {"proof_request": presentation_request_configuration}
+        present_proof_payload = {
+            "presentation_request": presentation_request_configuration
+        }
 
         resp_raw = requests.post(
             self.acapy_host + CREATE_PRESENTATION_REQUEST_URL,
