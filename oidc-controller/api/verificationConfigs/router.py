@@ -15,7 +15,6 @@ from .models import (
 from ..core.auth import get_api_key
 from ..core.models import GenericErrorMessage, StatusMessage
 from ..db.session import get_db
-from ..templates.helpers import add_asset
 
 router = APIRouter()
 
@@ -55,7 +54,6 @@ async def get_proof_request_explorer(db: Database = Depends(get_db)):
     template = Template(template_file)
     #  get all from VerificationConfigCRUD and add to the jinja template
     ver_configs = await VerificationConfigCRUD(db).get_all()
-    data["add_asset"] = add_asset
     data["ver_configs"] = [vc.dict() for vc in ver_configs]
 
     return HTMLResponse(template.render(data))

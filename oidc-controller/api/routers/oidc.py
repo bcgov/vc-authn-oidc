@@ -36,8 +36,6 @@ from ..db.session import get_db
 # Access to the websocket
 from ..routers.socketio import connections_reload, sio
 
-# This allows the templates to insert assets like css, js or svg.
-from ..templates.helpers import add_asset
 from ..verificationConfigs.crud import VerificationConfigCRUD
 
 ChallengePollUri = "/poll"
@@ -195,7 +193,6 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         "image_contents": image_contents,
         "url_to_message": url_to_message,
         "callback_url": callback_url,
-        "add_asset": add_asset,
         "pres_exch_id": auth_session.pres_exch_id,
         "pid": auth_session.id,
         "controller_host": controller_host,

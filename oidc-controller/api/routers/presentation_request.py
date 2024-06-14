@@ -11,7 +11,6 @@ from ..authSessions.models import AuthSession, AuthSessionState
 from ..core.config import settings
 from ..routers.socketio import sio, connections_reload
 from ..db.session import get_db
-from ..templates.helpers import add_asset
 
 logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
@@ -26,9 +25,7 @@ async def send_connectionless_proof_req(
     If the user scanes the QR code with a mobile camera,
     they will be redirected to a help page.
     """
-    data = {
-        "add_asset": add_asset,
-    }
+    data = {}
     # First prepare the response depending on the redirect url
     if ".html" in settings.CONTROLLER_CAMERA_REDIRECT_URL:
         response = RedirectResponse(settings.CONTROLLER_CAMERA_REDIRECT_URL)
