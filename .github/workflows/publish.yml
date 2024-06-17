@@ -98,7 +98,7 @@ jobs:
             type=sha
 
       - name: Build and Push Image to ghcr.io
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           context: .
