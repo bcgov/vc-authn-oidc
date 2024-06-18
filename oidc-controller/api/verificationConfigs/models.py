@@ -48,29 +48,23 @@ class VerificationConfigBase(BaseModel):
         result = {
             "name": "proof_requested",
             "version": "0.0.1",
-            "indy": {
-                "requested_attributes": {},
-                "requested_predicates": {},
-            },
+            "requested_attributes": {},
+            "requested_predicates": {},
         }
         for i, req_attr in enumerate(self.proof_request.requested_attributes):
             label = req_attr.label or "req_attr_" + str(i)
-            result["indy"]["requested_attributes"][label] = req_attr.dict(
-                exclude_none=True
-            )
+            result["requested_attributes"][label] = req_attr.dict(exclude_none=True)
             if settings.SET_NON_REVOKED:
-                result["indy"]["requested_attributes"][label]["non_revoked"] = {
+                result["requested_attributes"][label]["non_revoked"] = {
                     "from": int(time.time()),
                     "to": int(time.time()),
                 }
         # TODO add I indexing
         for req_pred in self.proof_request.requested_predicates:
             label = req_pred.label or "req_pred_" + str(i)
-            result["indy"]["requested_predicates"][label] = req_pred.dict(
-                exclude_none=True
-            )
+            result["requested_predicates"][label] = req_pred.dict(exclude_none=True)
             if settings.SET_NON_REVOKED:
-                result["indy"]["requested_attributes"][label]["non_revoked"] = {
+                result["requested_attributes"][label]["non_revoked"] = {
                     "from": int(time.time()),
                     "to": int(time.time()),
                 }

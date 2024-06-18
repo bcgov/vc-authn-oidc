@@ -120,9 +120,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     use_public_did = not settings.USE_OOB_LOCAL_DID_SERVICE
     wallet_did = client.get_wallet_did(public=use_public_did)
 
-    byo_attachment = PresentProofv10Attachment.build(
-        pres_exch_dict["presentation_request"]
-    )
+    byo_attachment = PresentProofv10Attachment.build(pres_exch_dict["pres_request"])
 
     msg = None
     if settings.USE_OOB_PRESENT_PROOF:
@@ -166,7 +164,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         pyop_auth_code=authn_response["code"],
         request_parameters=model.to_dict(),
         ver_config_id=ver_config_id,
-        pres_exch_id=response.presentation_exchange_id,
+        pres_exch_id=response.pres_ex_id,
         presentation_exchange=pres_exch_dict,
         presentation_request_msg=msg_contents.dict(by_alias=True),
     )

@@ -43,7 +43,7 @@ class AcapyClient:
     ) -> CreatePresentationResponse:
         logger.debug(">>> create_presentation_request")
         present_proof_payload = {
-            "presentation_request": presentation_request_configuration
+            "presentation_request": {"indy": presentation_request_configuration}
         }
 
         resp_raw = requests.post(
