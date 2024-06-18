@@ -29,14 +29,12 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
 
     client = AcapyClient()
     match topic:
-        case "present_proof":
+        case "present_proof_v2_0":
             webhook_body = await _parse_webhook_body(request)
-            logger.info(
-                f">>>> pres_exch_id: {webhook_body['presentation_exchange_id']}"
-            )
+            logger.info(f">>>> pres_exch_id: {webhook_body['pres_ex_id']}")
 
             auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
-                webhook_body["presentation_exchange_id"]
+                webhook_body["pres_ex_id"]
             )
 
             # Get the saved websocket session
