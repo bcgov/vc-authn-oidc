@@ -20,9 +20,6 @@ from ..authSessions.crud import AuthSessionCreate, AuthSessionCRUD
 from ..authSessions.models import AuthSessionPatch, AuthSessionState
 from ..core.acapy.client import AcapyClient
 from ..core.aries import (
-    OOBServiceDecorator,
-    OutOfBandMessage,
-    OutOfBandPresentProofAttachment,
     PresentationRequestMessage,
     PresentProofv10Attachment,
     ServiceDecorator,
@@ -124,29 +121,10 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
 
     msg = None
     if settings.USE_OOB_PRESENT_PROOF:
-        if settings.USE_OOB_LOCAL_DID_SERVICE:
-            oob_s_d = OOBServiceDecorator(
-                service_endpoint=client.service_endpoint,
-                recipient_keys=[wallet_did.verkey],
-            ).dict()
-        else:
-            oob_s_d = wallet_did.verkey
-
-        msg = PresentationRequestMessage(
-            id=pres_exch_dict["thread_id"],
-            request=[byo_attachment],
+        oob_invite_response = client.oob_create_invitation(
+            pres_exch_dict, use_public_did
         )
-        oob_msg = OutOfBandMessage(
-            request_attachments=[
-                OutOfBandPresentProofAttachment(
-                    id="request-0",
-                    data={"json": msg.dict(by_alias=True)},
-                )
-            ],
-            id=pres_exch_dict["thread_id"],
-            services=[oob_s_d],
-        )
-        msg_contents = oob_msg
+        msg_contents = oob_invite_response.invitation
     else:
         s_d = ServiceDecorator(
             service_endpoint=client.service_endpoint, recipient_keys=[wallet_did.verkey]
