@@ -294,17 +294,31 @@ function startNgrokContainers() {
   COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-vc-authn}" docker compose -f docker-compose-ngrok.yaml up -d --force-recreate
 }
 
-# fetches and sets the ngrok endpoints for controlelr and agent for the current session
+# This function verifies if the controller and agent URLs are already set. If they are not set,
+# it retrieves and assigns the ngrok endpoints for both the controller and agent services.
+# This enables remote access to these services for the current session.
 function setNgrokEndpoints() {
-  echoInfo "Determining ngrok url for controller service..."
-  getNgrokUrl http://${DOCKERHOST}:4046/api/tunnels controller-ngrok.json NGROK_CONTROLLER_URL controller-ngrok
-  export CONTROLLER_URL=${NGROK_CONTROLLER_URL}
-  echoSuccess "The controller url is: ${NGROK_CONTROLLER_URL}"
+  if [ -n "$CONTROLLER_URL" ]; then
+    echo "CONTROLLER_URL is already set to: $CONTROLLER_URL"
+  else
+    echoInfo "Determining ngrok url for controller service..."
+    
+    getNgrokUrl http://${DOCKERHOST}:4046/api/tunnels controller-ngrok.json NGROK_CONTROLLER_URL controller-ngrok
+    export CONTROLLER_URL=${NGROK_CONTROLLER_URL}
+    
+    echoSuccess "The controller url is: ${NGROK_CONTROLLER_URL}"
+  fi
 
-  echoInfo "Determining ngrok url for agent service..."
-  getNgrokUrl http://${DOCKERHOST}:4046/api/tunnels agent-ngrok.json NGROK_AGENT_URL aca-py-ngrok
-  export AGENT_ENDPOINT=${NGROK_AGENT_URL}
-  echoSuccess "The agent url is: ${NGROK_AGENT_URL}"
+  if [ -n "$AGENT_ENDPOINT" ]; then
+    echo "AGENT_ENDPOINT is already set to: $AGENT_ENDPOINT"
+  else
+    echoInfo "Determining ngrok url for agent service..."
+    getNgrokUrl http://${DOCKERHOST}:4046/api/tunnels agent-ngrok.json NGROK_AGENT_URL aca-py-ngrok
+    
+    export AGENT_ENDPOINT=${NGROK_AGENT_URL}
+    
+    echoSuccess "The agent url is: ${NGROK_AGENT_URL}"
+  fi
 }
 
 function getNgrokUrl() {

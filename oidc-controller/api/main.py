@@ -13,6 +13,7 @@ from starlette.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import status as http_status
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from .db.session import get_db, init_db
 from .routers import acapy_handler, oidc, presentation_request, well_known_oid_config
@@ -44,6 +45,11 @@ def get_application() -> FastAPI:
 
 
 app = get_application()
+
+# Serve static assets for the frontend
+app.mount("/static", StaticFiles(directory="api/templates/assets"), name="static")
+
+# Include routers
 app.include_router(ver_configs_router, prefix="/ver_configs", tags=["ver_configs"])
 app.include_router(client_config_router, prefix="/clients", tags=["oidc_clients"])
 app.include_router(well_known_oid_config.router, tags=[".well-known"])
