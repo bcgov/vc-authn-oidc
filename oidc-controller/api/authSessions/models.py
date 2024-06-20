@@ -30,7 +30,7 @@ class AuthSessionBase(BaseModel):
     response_url: str
     presentation_request_msg: Optional[dict] = None
     model_config = ConfigDict(populate_by_name=True)
-    created_at: datetime = Field(default=datetime.now())
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
 class AuthSession(AuthSessionBase, UUIDModel):
