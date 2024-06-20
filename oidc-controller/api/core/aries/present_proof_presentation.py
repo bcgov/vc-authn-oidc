@@ -10,7 +10,7 @@ class PresentationRequestMessage(BaseModel):
     # https://github.com/hyperledger/aries-rfcs/blob/main/features/0037-present-proof/README.md#presentation
     id: str = Field(alias="@id")
     type: str = Field(
-        "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/present-proof/1.0/request-presentation",
+        "https://didcomm.org/present-proof/2.0/request-presentation",
         alias="@type",
     )
     request: List[PresentProofv10Attachment] = Field(
