@@ -30,6 +30,8 @@ setNonRevoked: true
 useOobPresentProof: false
 ## @param useOobLocalDIDService
 useOobLocalDIDService: false
+## @param useUrlDeepLink if True, will use the new encoded URL (didcomm://?_url={redirect URL}) redirect form of the deep link
+useUrlDeepLink: false
 ## @param controllerCameraRedirectUrl The redirect url can be a web link or the name of a template
 controllerCameraRedirectUrl: wallet_howto
 ## @param controllerPresentationExpireTime The number of time in seconds a proof request will be valid for

@@ -221,6 +221,7 @@ class GlobalConfig(BaseSettings):
     USE_OOB_LOCAL_DID_SERVICE: bool = strtobool(
         os.environ.get("USE_OOB_LOCAL_DID_SERVICE", True)
     )
+    USE_URL_DEEP_LINK: bool = strtobool(os.environ.get("USE_URL_DEEP_LINK", False))
     SET_NON_REVOKED: bool = strtobool(os.environ.get("SET_NON_REVOKED", True))
 
     model_config = ConfigDict(case_sensitive=True)

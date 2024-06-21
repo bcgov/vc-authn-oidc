@@ -73,6 +73,8 @@ spec:
               value: {{ include "acapy.internal.admin.url" . }}
             - name: USE_OOB_PRESENT_PROOF
               value: {{ .Values.useOobPresentProof | quote }}
+            - name: USE_URL_DEEP_LINK
+              value: {{ .Values.useUrlDeepLink | quote }}
             - name: SET_NON_REVOKED
               value: {{ .Values.setNonRevoked | quote }}
             - name: ACAPY_TENANCY
