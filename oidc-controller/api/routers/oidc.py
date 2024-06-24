@@ -162,9 +162,13 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     callback_url = f"""{controller_host}{AuthorizeCallbackUri}?pid={auth_session.id}"""
 
     # BC Wallet deep link
-    # base64 encode the formated_msg
-    base64_msg = base64.b64encode(formated_msg.encode("utf-8")).decode("utf-8")
-    wallet_deep_link = f"bcwallet://aries_proof-request?c_i={base64_msg}"
+    if settings.USE_URL_DEEP_LINK:
+        suffix = (
+            f'_url={base64.b64encode(url_to_message.encode("utf-8")).decode("utf-8")}'
+        )
+    else:
+        suffix = f'c_i={base64.b64encode(formated_msg.encode("utf-8")).decode("utf-8")}'
+    wallet_deep_link = f"bcwallet://aries_proof-request?{suffix}"
 
     # This is the payload to send to the template
     data = {
