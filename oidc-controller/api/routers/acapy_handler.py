@@ -32,7 +32,6 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
         case "present_proof_v2_0":
             webhook_body = await _parse_webhook_body(request)
             logger.info(f">>>> pres_exch_id: {webhook_body['pres_ex_id']}")
-
             auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
                 webhook_body["pres_ex_id"]
             )
@@ -42,12 +41,13 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             connections = connections_reload()
             sid = connections.get(pid)
 
-            if webhook_body["state"] == "presentation_received":
+            if webhook_body["state"] == "presentation-received":
                 logger.info("GOT A PRESENTATION, TIME TO VERIFY")
+                # Not found Record not found: pres_ex_v20/0a85e304-15e9-4ead-8e82-4151a577b26f.
                 client.verify_presentation(auth_session.pres_exch_id)
                 # This state is the default on the front end.. So don't send a status
 
-            if webhook_body["state"] == "verified":
+            if webhook_body["state"] == "done":
                 logger.info("VERIFIED")
                 if webhook_body["verified"] == "true":
                     auth_session.proof_status = AuthSessionState.VERIFIED

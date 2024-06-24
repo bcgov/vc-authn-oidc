@@ -50,16 +50,19 @@ class Token(BaseModel):
 
         presentation_claims: Dict[str, Claim] = {}
         logger.info(
-            auth_session.presentation_exchange["presentation_request"][
-                "requested_attributes"
-            ]
+            "pres_request_token"
+            + str(
+                auth_session.presentation_exchange["pres_request"][
+                    "requested_attributes"
+                ]
+            )
         )
 
         referent: str
         requested_attr: ReqAttr
         try:
             for referent, requested_attrdict in auth_session.presentation_exchange[
-                "presentation_request"
+                "pres_request"
             ]["requested_attributes"].items():
                 requested_attr = ReqAttr(**requested_attrdict)
                 logger.debug(

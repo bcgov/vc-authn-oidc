@@ -13,9 +13,9 @@ class ServiceDecorator(BaseModel):
 
 class OOBServiceDecorator(ServiceDecorator):
     # ServiceDecorator
-    recipient_keys: Optional[List[str]] = None
-    routing_keys: Optional[List[str]] = Field(default=[])
-    service_endpoint: Optional[str] = None
+    recipient_keys: Optional[List[str]] = Field(default=None, alias="recipientKeys")
+    routing_keys: Optional[List[str]] = Field(default=None, alias="routingKeys")
+    service_endpoint: Optional[str] = Field(default=None, alias="serviceEndpoint")
     id: str = Field(default="did:vc-authn-oidc:123456789zyxwvutsr#did-communication")
     type: str = Field(default="did-communication")
     priority: int = 0

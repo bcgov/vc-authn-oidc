@@ -1,4 +1,5 @@
 from typing import Optional, Dict
+from ..aries import OutOfBandMessage
 
 from pydantic import BaseModel
 
@@ -17,3 +18,12 @@ class CreatePresentationResponse(BaseModel):
     thread_id: str
     pres_ex_id: str
     pres_request: Dict
+
+
+class OobCreateInvitationResponse(BaseModel):
+    invi_msg_id: str
+    invitation_url: str
+    oob_id: str
+    trace: bool
+    state: str
+    invitation: OutOfBandMessage
