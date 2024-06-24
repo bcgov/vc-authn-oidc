@@ -27,3 +27,58 @@ jobs:
           config: .github/actions/chart_releaser/cr.yaml
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+  
+  gitops_update:
+    runs-on: ubuntu-latest
+    name: Update GitOps Repo
+    needs:
+      - chart-release
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Add SSH key
+        env:
+          DITP_GITOPS_REPO_SECRET: ${{ secrets.DITP_GITOPS_REPO_SECRET }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$DITP_GITOPS_REPO_SECRET" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+      - name: Clone gitops-repo
+        run: |
+          git clone git@github.com:bcgov-c/ministry-gitops-ditp.git
+          cd ministry-gitops-ditp
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Lookup latest chart
+        id: chart_version
+        run: |
+          helm repo add vc-authn-oidc https://bcgov.github.io/vc-authn-oidc
+          helm repo update
+          echo "::set output name=APP_VERSION::$(helm search repo vc-authn-oidc --version ^0.2 -ojson | jq '.[0].app_version')"
+          echo "::set output name=CHART_VERSION::$(helm search repo vc-authn-oidc --version ^0.2 -ojson | jq '.[0].version')"
+      - name: Update test
+        env:
+          APP_VERSION: ${{ steps.chart_version.outputs.APP_VERSION }}
+          CHART_VERSION: ${{ steps.chart_version.outputs.CHART_VERSION }}
+        run: |
+          cd ministry-gitops-ditp
+          yq e -i '.appVersion = $APP_VERSION' services/vc-authn-oidc/charts/test/Chart.yaml
+          yq e -i '.version = $CHART_VERSION' services/vc-authn-oidc/charts/test/Chart.yaml
+      - name: Update prod
+        env:
+          APP_VERSION: ${{ steps.chart_version.outputs.APP_VERSION }}
+          CHART_VERSION: ${{ steps.chart_version.outputs.CHART_VERSION }}
+        run: |
+          cd ministry-gitops-ditp
+          yq e -i '.appVersion = $APP_VERSION' services/vc-authn-oidc/charts/prod/Chart.yaml
+          yq e -i '.version = $CHART_VERSION' services/vc-authn-oidc/charts/prod/Chart.yaml
+      - name: Commit and push changes
+        run: |
+          cd ministry-gitops-ditp
+          git add services/vc-authn-oidc/charts/test/Chart.yaml services/vc-authn-oidc/charts/prod/Chart.yaml
+          git commit -m "Update chart version"
+          git push origin main
