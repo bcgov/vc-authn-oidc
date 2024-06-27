@@ -51,23 +51,26 @@ class Token(BaseModel):
 
         presentation_claims: Dict[str, Claim] = {}
         logger.info(
-            auth_session.presentation_exchange["presentation_request"][
-                "requested_attributes"
-            ]
+            "pres_request_token"
+            + str(
+                auth_session.presentation_exchange["pres_request"]["indy"][
+                    "requested_attributes"
+                ]
+            )
         )
 
         referent: str
         requested_attr: ReqAttr
         try:
             for referent, requested_attrdict in auth_session.presentation_exchange[
-                "presentation_request"
-            ]["requested_attributes"].items():
+                "pres_request"
+            ]["indy"]["requested_attributes"].items():
                 requested_attr = ReqAttr(**requested_attrdict)
                 logger.debug(
                     f"Processing referent: {referent}, requested_attr: {requested_attr}"
                 )
                 revealed_attrs: Dict[str, RevealedAttribute] = (
-                    auth_session.presentation_exchange["presentation"][
+                    auth_session.presentation_exchange["pres"]["indy"][
                         "requested_proof"
                     ]["revealed_attr_groups"]
                 )

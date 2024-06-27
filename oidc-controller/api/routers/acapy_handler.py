@@ -29,14 +29,11 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
 
     client = AcapyClient()
     match topic:
-        case "present_proof":
+        case "present_proof_v2_0":
             webhook_body = await _parse_webhook_body(request)
-            logger.info(
-                f">>>> pres_exch_id: {webhook_body['presentation_exchange_id']}"
-            )
-
+            logger.info(f">>>> pres_exch_id: {webhook_body['pres_ex_id']}")
             auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
-                webhook_body["presentation_exchange_id"]
+                webhook_body["pres_ex_id"]
             )
 
             # Get the saved websocket session
@@ -44,15 +41,14 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             connections = connections_reload()
             sid = connections.get(pid)
 
-            if webhook_body["state"] == "presentation_received":
-                logger.info("GOT A PRESENTATION, TIME TO VERIFY")
-                client.verify_presentation(auth_session.pres_exch_id)
-                # This state is the default on the front end.. So don't send a status
+            if webhook_body["state"] == "presentation-received":
+                logger.info("presentation-received")
 
-            if webhook_body["state"] == "verified":
+            if webhook_body["state"] == "done":
                 logger.info("VERIFIED")
                 if webhook_body["verified"] == "true":
                     auth_session.proof_status = AuthSessionState.VERIFIED
+                    auth_session.presentation_exchange = webhook_body["by_format"]
                     await sio.emit("status", {"status": "verified"}, to=sid)
                 else:
                     auth_session.proof_status = AuthSessionState.FAILED
