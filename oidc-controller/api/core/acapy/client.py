@@ -81,24 +81,6 @@ class AcapyClient:
         logger.debug(f"<<< get_presentation_request -> {resp}")
         return resp
 
-    def verify_presentation(self, presentation_exchange_id: Union[UUID, str]):
-        logger.debug(">>> verify_presentation")
-
-        resp_raw = requests.post(
-            self.acapy_host
-            + PRESENT_PROOF_RECORDS
-            + "/"
-            + str(presentation_exchange_id)
-            + "/verify-presentation",
-            headers=self.agent_config.get_headers(),
-        )
-        assert resp_raw.status_code == 200, resp_raw.content
-
-        resp = json.loads(resp_raw.content)
-
-        logger.debug(f"<<< verify_presentation -> {resp}")
-        return resp
-
     def get_wallet_did(self, public=False) -> WalletDid:
         logger.debug(">>> get_wallet_did")
         url = None
