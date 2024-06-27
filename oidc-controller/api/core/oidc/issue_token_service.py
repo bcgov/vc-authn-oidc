@@ -52,7 +52,7 @@ class Token(BaseModel):
         logger.info(
             "pres_request_token"
             + str(
-                auth_session.presentation_exchange["pres_request"][
+                auth_session.presentation_exchange["pres_request"]["indy"][
                     "requested_attributes"
                 ]
             )
@@ -63,13 +63,13 @@ class Token(BaseModel):
         try:
             for referent, requested_attrdict in auth_session.presentation_exchange[
                 "pres_request"
-            ]["requested_attributes"].items():
+            ]["indy"]["requested_attributes"].items():
                 requested_attr = ReqAttr(**requested_attrdict)
                 logger.debug(
                     f"Processing referent: {referent}, requested_attr: {requested_attr}"
                 )
                 revealed_attrs: Dict[str, RevealedAttribute] = (
-                    auth_session.presentation_exchange["presentation"][
+                    auth_session.presentation_exchange["pres"]["indy"][
                         "requested_proof"
                     ]["revealed_attr_groups"]
                 )

@@ -35,11 +35,7 @@ class AuthSessionBase(BaseModel):
 
 class AuthSession(AuthSessionBase, UUIDModel):
     proof_status: AuthSessionState = Field(default=AuthSessionState.NOT_STARTED)
-
-    @property
-    def presentation_exchange(self) -> Dict:
-        client = AcapyClient()
-        return client.get_presentation_request(self.pres_exch_id)
+    presentation_exchange: dict = Field(default_factory=dict)
 
 
 class AuthSessionCreate(AuthSessionBase):
@@ -48,4 +44,5 @@ class AuthSessionCreate(AuthSessionBase):
 
 class AuthSessionPatch(AuthSessionBase):
     proof_status: AuthSessionState = Field(default=AuthSessionState.PENDING)
+    presentation_exchange: dict = Field(default_factory=dict)
     pass
