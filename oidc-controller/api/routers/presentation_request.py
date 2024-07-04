@@ -57,7 +57,8 @@ async def send_connectionless_proof_req(
     if auth_session.proof_status is AuthSessionState.NOT_STARTED:
         auth_session.proof_status = AuthSessionState.PENDING
         await AuthSessionCRUD(db).patch(auth_session.id, auth_session)
-        await sio.emit("status", {"status": "pending"}, to=sid)
+        if sid:
+            await sio.emit("status", {"status": "pending"}, to=sid)
 
     msg = auth_session.presentation_request_msg
 
