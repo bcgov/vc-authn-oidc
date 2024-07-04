@@ -166,8 +166,6 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     )
     auth_session = await AuthSessionCRUD(db).create(new_auth_session)
 
-    formated_msg = json.dumps(msg_contents.dict(by_alias=True))
-
     # QR CONTENTS
     controller_host = settings.CONTROLLER_URL
     url_to_message = (
