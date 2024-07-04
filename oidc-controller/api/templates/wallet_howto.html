@@ -1,6 +1,8 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Bootstrap -->
+    <link href="/static/css/bootstrap.532.min.css" rel="stylesheet" />
     <style>
       body {
         display: flex;
@@ -36,15 +38,66 @@
   <body>
     <div class="container">
       <div class="title">
-        It appears you have scanned a QR code without a digital wallet.
+        It appears you have scanned a QR code from outside of a digital wallet.
       </div>
       <div class="content">
         Please install or open a digital wallet, then try again by using the QR
         code scanner in your digital wallet.
+
       </div>
       <div class="icon">
-        <img src="static/img/digital-wallet.svg" alt="Digital Wallet" />
+        <img src="/static/img/digital-wallet.svg" alt="Digital Wallet" />
       </div>
+      <div id="open-in-wallet" class="mobile-device content pt-5">
+        Alternatively <b>if you use the BC wallet</b> select the button bellow
+        <a
+          id="deep-link-button"
+          href="{{wallet_deep_link}}"
+          class="btn btn-lg btn-block btn-primary w-100 mb-4 rounded-1"
+          title="Open BC Wallet"
+          target="_blank"
+          :class="{disabled: state.disableDeeplink}"
+          v-on:click="$emit('open')"
+        >
+          Open With BC Wallet
+        </a>
+      </div>
+
     </div>
   </body>
+  <script>
+   const getBrowser = () => {
+      let userAgent = navigator.userAgent || navigator.vendor;
+
+      if (/android/i.test(userAgent)) {
+        return "Android";
+      }
+
+      if (
+        /iPad|iPhone|iPod/.test(userAgent) ||
+        (/Macintosh/.test(userAgent) && "ontouchend" in document) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) ||
+        (navigator.vendor && navigator.vendor.indexOf("Apple") > -1)
+      ) {
+        return "iOS";
+      }
+
+      return "unknown";
+    }
+
+   const hideElementForBrowser = (elementId, show) => {
+     if (!(getBrowser() === "Android" || getBrowser() === "iOS")) {
+       document.querySelectorAll(elementId).forEach((el) => {
+         el.style.display = "none";
+       });
+     }
+   }
+   try {
+     hideElementForBrowser(".mobile-device")
+   } catch (e) {
+     console.log("Error hiding browser element", e);
+   }
+  </script>
 </html>
+
+

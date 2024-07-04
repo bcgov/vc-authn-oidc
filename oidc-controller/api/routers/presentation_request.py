@@ -10,6 +10,7 @@ from ..authSessions.models import AuthSession, AuthSessionState
 
 from ..core.config import settings
 from ..routers.socketio import sio, connections_reload
+from ..routers.oidc import gen_deep_link
 from ..db.session import get_db
 
 logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
@@ -32,8 +33,13 @@ async def send_connectionless_proof_req(
         template_file = open(
             f"api/templates/{settings.CONTROLLER_CAMERA_REDIRECT_URL}.html", "r"
         ).read()
+
+        auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
+            pres_exch_id
+        )
+        wallet_deep_link = gen_deep_link(auth_session)
         template = Template(template_file)
-        response = HTMLResponse(template.render())
+        response = HTMLResponse(template.render({"wallet_deep_link": wallet_deep_link}))
 
     if "text/html" in req.headers.get("accept"):
         logger.info("Redirecting to instructions page")
