@@ -26,12 +26,14 @@ async def _parse_webhook_body(request: Request):
 async def post_topic(request: Request, topic: str, db: Database = Depends(get_db)):
     """Called by aca-py agent."""
     logger.info(f">>> post_topic : topic={topic}")
+    logger.info(f">>> web hook post_body : {await _parse_webhook_body(request)}")
 
     client = AcapyClient()
     match topic:
         case "present_proof_v2_0":
             webhook_body = await _parse_webhook_body(request)
             logger.info(f">>>> pres_exch_id: {webhook_body['pres_ex_id']}")
+            # logger.info(f">>>> web hook: {webhook_body}")
             auth_session: AuthSession = await AuthSessionCRUD(db).get_by_pres_exch_id(
                 webhook_body["pres_ex_id"]
             )

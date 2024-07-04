@@ -35,7 +35,7 @@ class AuthSessionBase(BaseModel):
 
 class AuthSession(AuthSessionBase, UUIDModel):
     proof_status: AuthSessionState = Field(default=AuthSessionState.NOT_STARTED)
-    presentation_exchange: dict = Field(default_factory=dict)
+    presentation_exchange: dict | None = Field(default_factory=dict)
 
 
 class AuthSessionCreate(AuthSessionBase):

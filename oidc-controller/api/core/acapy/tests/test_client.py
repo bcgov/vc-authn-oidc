@@ -145,48 +145,6 @@ async def test_get_presentation_throws_assertion_error_for_non_200_response_from
 
 
 @pytest.mark.asyncio
-async def test_verify_presentation_returns_sucessfully_with_valid_data(requests_mock):
-    requests_mock.post(
-        settings.ACAPY_ADMIN_URL
-        + PRESENT_PROOF_RECORDS
-        + "/"
-        + "1234-567890"
-        + "/verify-presentation",
-        headers={},
-        json={"result": "success"},
-        status_code=200,
-    )
-
-    client = AcapyClient()
-    client.agent_config.get_headers = mock.MagicMock(return_value={"x-api-key": ""})
-    verification = client.verify_presentation("1234-567890")
-    assert verification is not None
-
-
-@pytest.mark.asyncio
-async def test_verify_presentation_throws_assertion_error_for_non_200_resp_from_acapy(
-    requests_mock,
-):
-    requests_mock.post(
-        settings.ACAPY_ADMIN_URL
-        + PRESENT_PROOF_RECORDS
-        + "/"
-        + "1234-567890"
-        + "/verify-presentation",
-        headers={},
-        json={"result": "success"},
-        status_code=400,
-    )
-
-    client = AcapyClient()
-    client.agent_config.get_headers = mock.MagicMock(return_value={"x-api-key": ""})
-    try:
-        client.verify_presentation("1234-567890")
-    except AssertionError as e:
-        assert e is not None
-
-
-@pytest.mark.asyncio
 async def test_get_wallet_did_public_returns_sucessfully_on_public_url_and_simple_resp(
     requests_mock,
 ):

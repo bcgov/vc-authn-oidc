@@ -68,20 +68,20 @@ multiple_valid_revealed_attr_groups = {
 
 @pytest.mark.asyncio
 async def test_valid_proof_presentation_with_one_attribute_returns_claims():
-    presentation["presentation_request"][
+    presentation["by_format"]["pres_request"]["indy"][
         "requested_attributes"
     ] = basic_valid_requested_attributes
-    presentation["presentation"]["requested_proof"][
+    presentation["by_format"]["pres"]["indy"]["requested_proof"][
         "revealed_attr_groups"
     ] = basic_valid_revealed_attr_groups
-    with mock.patch.object(AuthSession, "presentation_exchange", presentation):
-        claims = Token.get_claims(auth_session, ver_config)
-        assert claims is not None
+    auth_session.presentation_exchange = presentation["by_format"]
+    claims = Token.get_claims(auth_session, ver_config)
+    assert claims is not None
 
 
 @pytest.mark.asyncio
 async def test_valid_proof_presentation_with_multiple_attributes_returns_claims():
-    presentation["presentation_request"]["requested_attributes"] = {
+    presentation["by_format"]["pres_request"]["indy"]["requested_attributes"] = {
         "req_attr_0": {
             "names": ["email"],
             "restrictions": [
@@ -101,7 +101,9 @@ async def test_valid_proof_presentation_with_multiple_attributes_returns_claims(
             ],
         },
     }
-    presentation["presentation"]["requested_proof"]["revealed_attr_groups"] = {
+    presentation["by_format"]["pres"]["indy"]["requested_proof"][
+        "revealed_attr_groups"
+    ] = {
         "req_attr_0": {
             "sub_proof_index": 0,
             "values": {
@@ -127,72 +129,72 @@ async def test_valid_proof_presentation_with_multiple_attributes_returns_claims(
             },
         },
     }
-    with mock.patch.object(AuthSession, "presentation_exchange", presentation):
-        claims = Token.get_claims(auth_session, ver_config)
-        assert claims is not None
+    auth_session.presentation_exchange = presentation["by_format"]
+    claims = Token.get_claims(auth_session, ver_config)
+    assert claims is not None
 
 
 @pytest.mark.asyncio
 async def test_include_v1_attributes_false_does_not_add_the_named_attributes():
-    presentation["presentation_request"][
+    presentation["by_format"]["pres_request"]["indy"][
         "requested_attributes"
     ] = multiple_valid_requested_attributes
-    presentation["presentation"]["requested_proof"][
+    presentation["by_format"]["pres"]["indy"]["requested_proof"][
         "revealed_attr_groups"
     ] = multiple_valid_revealed_attr_groups
-    with mock.patch.object(AuthSession, "presentation_exchange", presentation):
-        ver_config.include_v1_attributes = False
-        claims = Token.get_claims(auth_session, ver_config)
-        vc_presented_attributes_obj = eval(claims["vc_presented_attributes"])
-        assert claims is not None
-        assert vc_presented_attributes_obj["email_1"] == "test@email.com"
-        assert vc_presented_attributes_obj["age_1"] == "30"
-        assert "email_1" not in claims
-        assert "age_1" not in claims
+    auth_session.presentation_exchange = presentation["by_format"]
+    ver_config.include_v1_attributes = False
+    claims = Token.get_claims(auth_session, ver_config)
+    vc_presented_attributes_obj = eval(claims["vc_presented_attributes"])
+    assert claims is not None
+    assert vc_presented_attributes_obj["email_1"] == "test@email.com"
+    assert vc_presented_attributes_obj["age_1"] == "30"
+    assert "email_1" not in claims
+    assert "age_1" not in claims
 
 
 @pytest.mark.asyncio
 async def test_include_v1_attributes_true_adds_the_named_attributes():
-    presentation["presentation_request"][
+    presentation["by_format"]["pres_request"]["indy"][
         "requested_attributes"
     ] = multiple_valid_requested_attributes
-    presentation["presentation"]["requested_proof"][
+    presentation["by_format"]["pres"]["indy"]["requested_proof"][
         "revealed_attr_groups"
     ] = multiple_valid_revealed_attr_groups
-    with mock.patch.object(AuthSession, "presentation_exchange", presentation):
-        ver_config.include_v1_attributes = True
-        claims = Token.get_claims(auth_session, ver_config)
-        vc_presented_attributes_obj = eval(claims["vc_presented_attributes"])
-        assert claims is not None
-        assert vc_presented_attributes_obj["email_1"] == "test@email.com"
-        assert vc_presented_attributes_obj["age_1"] == "30"
-        assert claims["email_1"] == "test@email.com"
-        assert claims["age_1"] == "30"
+    auth_session.presentation_exchange = presentation["by_format"]
+    ver_config.include_v1_attributes = True
+    claims = Token.get_claims(auth_session, ver_config)
+    vc_presented_attributes_obj = eval(claims["vc_presented_attributes"])
+    assert claims is not None
+    assert vc_presented_attributes_obj["email_1"] == "test@email.com"
+    assert vc_presented_attributes_obj["age_1"] == "30"
+    assert claims["email_1"] == "test@email.com"
+    assert claims["age_1"] == "30"
 
 
 @pytest.mark.asyncio
 async def test_include_v1_attributes_none_does_not_add_the_named_attributes():
-    presentation["presentation_request"][
+    presentation["by_format"]["pres_request"]["indy"][
         "requested_attributes"
     ] = multiple_valid_requested_attributes
-    presentation["presentation"]["requested_proof"][
+    presentation["by_format"]["pres"]["indy"]["requested_proof"][
         "revealed_attr_groups"
     ] = multiple_valid_revealed_attr_groups
-    with mock.patch.object(AuthSession, "presentation_exchange", presentation):
-        ver_config.include_v1_attributes = None
-        print(ver_config.include_v1_attributes)
-        claims = Token.get_claims(auth_session, ver_config)
-        vc_presented_attributes_obj = eval(claims["vc_presented_attributes"])
-        assert claims is not None
-        assert vc_presented_attributes_obj["email_1"] == "test@email.com"
-        assert vc_presented_attributes_obj["age_1"] == "30"
-        assert "email_1" not in claims
-        assert "age_1" not in claims
+    auth_session.presentation_exchange = presentation["by_format"]
+    ver_config.include_v1_attributes = None
+    print(ver_config.include_v1_attributes)
+    claims = Token.get_claims(auth_session, ver_config)
+    vc_presented_attributes_obj = eval(claims["vc_presented_attributes"])
+    assert claims is not None
+    assert vc_presented_attributes_obj["email_1"] == "test@email.com"
+    assert vc_presented_attributes_obj["age_1"] == "30"
+    assert "email_1" not in claims
+    assert "age_1" not in claims
 
 
 @pytest.mark.asyncio
 async def test_revealed_attrs_dont_match_requested_attributes_throws_exception():
-    presentation["presentation_request"]["requested_attributes"] = {
+    presentation["by_format"]["pres_request"]["indy"]["requested_attributes"] = {
         "req_attr_0": {
             "names": ["email"],
             "restrictions": [
@@ -203,7 +205,9 @@ async def test_revealed_attrs_dont_match_requested_attributes_throws_exception()
             ],
         }
     }
-    presentation["presentation"]["requested_proof"]["revealed_attr_groups"] = {
+    presentation["by_format"]["pres"]["indy"]["requested_proof"][
+        "revealed_attr_groups"
+    ] = {
         "req_attr_0": {
             "sub_proof_index": 0,
             "values": {
@@ -217,77 +221,77 @@ async def test_revealed_attrs_dont_match_requested_attributes_throws_exception()
             },
         }
     }
-    with mock.patch.object(AuthSession, "presentation_exchange", presentation):
-        with pytest.raises(Exception):
-            Token.get_claims(auth_session, ver_config)
+    auth_session.presentation_exchange = presentation["by_format"]
+    with pytest.raises(Exception):
+        Token.get_claims(auth_session, ver_config)
 
 
 @pytest.mark.asyncio
 async def test_valid_presentation_with_matching_subject_identifier_in_claims_sub():
-    presentation["presentation_request"][
+    presentation["by_format"]["pres_request"]["indy"][
         "requested_attributes"
     ] = basic_valid_requested_attributes
-    presentation["presentation"]["requested_proof"][
+    presentation["by_format"]["pres"]["indy"]["requested_proof"][
         "revealed_attr_groups"
     ] = basic_valid_revealed_attr_groups
-    with mock.patch.object(AuthSession, "presentation_exchange", presentation):
-        claims = Token.get_claims(auth_session, ver_config)
-        print(claims)
-        assert claims["sub"] == "test@email.com"
+    auth_session.presentation_exchange = presentation["by_format"]
+    claims = Token.get_claims(auth_session, ver_config)
+    print(claims)
+    assert claims["sub"] == "test@email.com"
 
 
 @pytest.mark.asyncio
 async def test_valid_pres_with_non_matching_subj_id_gen_consistent_id_missing_no_sub():
-    presentation["presentation_request"][
+    presentation["by_format"]["pres_request"]["indy"][
         "requested_attributes"
     ] = basic_valid_requested_attributes
-    presentation["presentation"]["requested_proof"][
+    presentation["by_format"]["pres"]["indy"]["requested_proof"][
         "revealed_attr_groups"
     ] = basic_valid_revealed_attr_groups
-    with mock.patch.object(AuthSession, "presentation_exchange", presentation):
-        ver_config.subject_identifier = "not-email"
-        claims = Token.get_claims(auth_session, ver_config)
-        assert not ver_config.generate_consistent_identifier
-        assert "sub" not in claims
+    auth_session.presentation_exchange = presentation["by_format"]
+    ver_config.subject_identifier = "not-email"
+    claims = Token.get_claims(auth_session, ver_config)
+    assert not ver_config.generate_consistent_identifier
+    assert "sub" not in claims
 
 
 @pytest.mark.asyncio
 async def test_valid_pres_non_matching_subj_id_gen_consistent_id_false_has_no_sub():
-    presentation["presentation_request"][
+    presentation["by_format"]["pres_request"]["indy"][
         "requested_attributes"
     ] = basic_valid_requested_attributes
-    presentation["presentation"]["requested_proof"][
+    presentation["by_format"]["pres"]["indy"]["requested_proof"][
         "revealed_attr_groups"
     ] = basic_valid_revealed_attr_groups
-    with mock.patch.object(AuthSession, "presentation_exchange", presentation):
-        ver_config.subject_identifier = "not-email"
-        ver_config.generate_consistent_identifier = False
-        claims = Token.get_claims(auth_session, ver_config)
-        assert "sub" not in claims
+    auth_session.presentation_exchange = presentation["by_format"]
+    ver_config.subject_identifier = "not-email"
+    ver_config.generate_consistent_identifier = False
+    claims = Token.get_claims(auth_session, ver_config)
+    assert "sub" not in claims
 
 
 @pytest.mark.asyncio
 async def test_valid_pres_non_matching_subj_id_gen_consistent_id_true_has_sub():
-    presentation["presentation_request"][
+    presentation["by_format"]["pres_request"]["indy"][
         "requested_attributes"
     ] = basic_valid_requested_attributes
-    presentation["presentation"]["requested_proof"][
+    presentation["by_format"]["pres"]["indy"]["requested_proof"][
         "revealed_attr_groups"
     ] = basic_valid_revealed_attr_groups
-    with mock.patch.object(AuthSession, "presentation_exchange", presentation):
-        ver_config.subject_identifier = "not-email"
-        ver_config.generate_consistent_identifier = True
-        claims = Token.get_claims(auth_session, ver_config)
-        assert "sub" in claims
+    auth_session.presentation_exchange = presentation["by_format"]
+    ver_config.subject_identifier = "not-email"
+    ver_config.generate_consistent_identifier = True
+    claims = Token.get_claims(auth_session, ver_config)
+    assert "sub" in claims
 
-        # Ensure that this sub is not using the ver_config.subject_identifier
-        ver_config.subject_identifier = "email"
-        ver_config.generate_consistent_identifier = False
-        claims_subject_identifier = Token.get_claims(auth_session, ver_config)
-        assert claims["sub"] != claims_subject_identifier["sub"]
+    # Ensure that this sub is not using the ver_config.subject_identifier
+    ver_config.subject_identifier = "email"
+    ver_config.generate_consistent_identifier = False
+    claims_subject_identifier = Token.get_claims(auth_session, ver_config)
+    assert claims["sub"] != claims_subject_identifier["sub"]
 
-        # Ensure that sub is consistent
-        ver_config.subject_identifier = "not-email"
-        ver_config.generate_consistent_identifier = True
-        claims_duplicate = Token.get_claims(auth_session, ver_config)
-        assert claims["sub"] == claims_duplicate["sub"]
+    # Ensure that sub is consistent
+    ver_config.subject_identifier = "not-email"
+    ver_config.generate_consistent_identifier = True
+    claims_duplicate = Token.get_claims(auth_session, ver_config)
+    assert claims["sub"] == claims_duplicate["sub"]
