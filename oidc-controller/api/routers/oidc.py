@@ -111,7 +111,6 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     pres_exch_dict = response.dict()
 
     # Prepeare the presentation request
-    client = AcapyClient()
     use_public_did = not settings.USE_OOB_LOCAL_DID_SERVICE
 
     msg = None
