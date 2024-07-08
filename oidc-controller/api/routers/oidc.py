@@ -113,11 +113,6 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     # Prepeare the presentation request
     client = AcapyClient()
     use_public_did = not settings.USE_OOB_LOCAL_DID_SERVICE
-    wallet_did = client.get_wallet_did(public=use_public_did)
-
-    byo_attachment = PresentProofv10Attachment.build(
-        pres_exch_dict["presentation_request"]
-    )
 
     msg = None
     if settings.USE_OOB_PRESENT_PROOF:
@@ -126,6 +121,11 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         )
         msg_contents = oob_invite_response.invitation
     else:
+        wallet_did = client.get_wallet_did(public=use_public_did)
+
+        byo_attachment = PresentProofv10Attachment.build(
+            pres_exch_dict["presentation_request"]
+        )
         s_d = ServiceDecorator(
             service_endpoint=client.service_endpoint, recipient_keys=[wallet_did.verkey]
         )
