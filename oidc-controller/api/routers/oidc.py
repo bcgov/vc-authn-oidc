@@ -72,7 +72,8 @@ async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
             str(auth_session.id), AuthSessionPatch(**auth_session.dict())
         )
         # Send message through the websocket.
-        await sio.emit("status", {"status": "expired"}, to=sid)
+        if sid:
+            await sio.emit("status", {"status": "expired"}, to=sid)
 
     return {"proof_status": auth_session.proof_status}
 
