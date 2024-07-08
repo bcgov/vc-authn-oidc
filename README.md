@@ -69,16 +69,12 @@ curl -X 'POST' \
         "names": ["given_names", "family_name", "country"],
         "restrictions": [
           {
-            "schema_name": "Person",
-            "issuer_did": "L6ASjmDDbDH7yPL1t2yFj9"
+              "schema_name": "Person",
+              "issuer_did": "QEquAHkM35w4XVT3Ku5yat"
           },
           {
-            "schema_name": "Person",
-            "issuer_did": "QEquAHkM35w4XVT3Ku5yat"
-          },
-          {
-            "schema_name": "Person",
-            "issuer_did": "M6dhuFj5UwbhWkSLmvYSPc"
+              "schema_name": "Person",
+              "issuer_did": "RGjWbW1eycP7FrMf4QJvX8"
           }
         ]
       }
@@ -120,28 +116,29 @@ After all these steps have been completed, you should be able to authenticate wi
 To connect a debugger to the `vc-authn` controller service, start the project using `DEBUGGER=true ./manage start` and then launch the debugger, it should connect automatically to the container.
 
 This is a sample debugger launch configuration for VSCode that can be used by adding it to `launch.json`, it assumes a `.venv` folder containing the virtual environment was created in the repository root:
+
 ```json
 {
-    "version": "0.1.1",
-    "configurations": [
+  "version": "0.1.1",
+  "configurations": [
+    {
+      "name": "Python: Debug VC-AuthN Controller",
+      "type": "python",
+      "request": "attach",
+      "port": 5678,
+      "host": "localhost",
+      "pathMappings": [
         {
-            "name": "Python: Debug VC-AuthN Controller",
-            "type": "python",
-            "request": "attach",
-            "port": 5678,
-            "host": "localhost",
-            "pathMappings": [
-                {
-                    "localRoot": "${workspaceFolder}/oidc-controller",
-                    "remoteRoot": "/app"
-                },
-                {
-                    "localRoot": "${workspaceFolder}/.venv/Lib/site-packages",
-                    "remoteRoot": "/usr/local/lib/python3.11/site-packages"
-                }
-            ],
-            "justMyCode": false
+          "localRoot": "${workspaceFolder}/oidc-controller",
+          "remoteRoot": "/app"
+        },
+        {
+          "localRoot": "${workspaceFolder}/.venv/Lib/site-packages",
+          "remoteRoot": "/usr/local/lib/python3.11/site-packages"
         }
-    ]
+      ],
+      "justMyCode": false
+    }
+  ]
 }
 ```
