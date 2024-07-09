@@ -34,6 +34,7 @@
         width: 8rem;
       }
     </style>
+    <link href="/static/css/custom.css" rel="stylesheet" />
   </head>
   <body>
     <div class="container">
@@ -56,7 +57,6 @@
           class="btn btn-lg btn-block btn-primary w-100 mb-4 rounded-1"
           title="Open BC Wallet"
           target="_blank"
-          :class="{disabled: state.disableDeeplink}"
           v-on:click="$emit('open')"
         >
           Open With BC Wallet
@@ -85,8 +85,9 @@
       return "unknown";
     }
 
+   const isMobile = () => (getBrowser() === "Android" || getBrowser() === "iOS")
    const hideElementForBrowser = (elementId, show) => {
-     if (!(getBrowser() === "Android" || getBrowser() === "iOS")) {
+     if (!isMobile()) {
        document.querySelectorAll(elementId).forEach((el) => {
          el.style.display = "none";
        });
@@ -96,6 +97,9 @@
      hideElementForBrowser(".mobile-device")
    } catch (e) {
      console.log("Error hiding browser element", e);
+   }
+   if (isMobile()){
+     window.location.href = "{{wallet_deep_link}}"
    }
   </script>
 </html>
