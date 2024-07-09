@@ -168,7 +168,8 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         )
     else:
         suffix = f'c_i={base64.b64encode(formated_msg.encode("utf-8")).decode("utf-8")}'
-    wallet_deep_link = f"bcwallet://aries_proof-request?{suffix}"
+    wallet_deep_link_uri_scheme = settings.WALLET_DEEP_LINK_URI_SCHEME
+    wallet_deep_link = f"{wallet_deep_link_uri_scheme}://aries_proof-request?{suffix}"
 
     # This is the payload to send to the template
     data = {

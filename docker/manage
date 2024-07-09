@@ -184,6 +184,7 @@ configureEnvironment() {
   export USE_OOB_PRESENT_PROOF=${USE_OOB_PRESENT_PROOF:-"false"}
   export USE_OOB_LOCAL_DID_SERVICE=${USE_OOB_LOCAL_DID_SERVICE:-"true"}
   export USE_URL_DEEP_LINK=${USE_URL_DEEP_LINK:-"false"}
+  export WALLET_DEEP_LINK_URI_SCHEME=${WALLET_DEEP_LINK_URI_SCHEME:-"bcwallet"}
 
   # agent
   export AGENT_TENANT_MODE="${AGENT_TENANT_MODE:-single}"
