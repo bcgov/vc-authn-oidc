@@ -8,23 +8,11 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
-        margin: 0;
-        padding: 1rem;
         font-family: Arial, Helvetica, sans-serif;
         color: #313132;
       }
       .title {
-        font-size: 1.5rem;
-        font-weight: bold;
-        margin-bottom: 1rem;
-      }
-      .container {
-        text-align: center;
-        border-radius: 0.5rem;
-        box-shadow: 2px 2px 3px 3px #dedede;
-        padding: 2rem;
-        max-width: 500px;
+        font-size: 2rem;
       }
       .icon {
         margin-top: 2rem;
@@ -37,32 +25,35 @@
     <link href="/static/css/custom.css" rel="stylesheet" />
   </head>
   <body>
-    <div class="container">
-      <div class="title">
-        It appears you have scanned a QR code from outside of a digital wallet.
+    <div class="text-center  mx-3" style=" max-width: 500px;">
+      <div class="title fw-bold mb-3 px-4">
+        Please scan with a digital wallet
       </div>
-      <div class="content">
-        Please install or open a digital wallet, then try again by using the QR
-        code scanner in your digital wallet.
-
+      <div class="content fs-3">
+        This QR code can only be scanned with a digital wallet app.
       </div>
       <div class="icon">
-        <img src="/static/img/digital-wallet.svg" alt="Digital Wallet" />
+        <img src="/static/img/new-digital-wallet.svg" alt="Digital Wallet" />
       </div>
-      <div id="open-in-wallet" class="mobile-device content pt-5">
-        Alternatively <b>if you use the BC wallet</b> select the button bellow
+      <div id="open-in-wallet" class="mobile-device content">
+        <div class="fs-3 py-2">
+          Don't have a digital wallet?
+        </div>
         <a
-          id="deep-link-button"
-          href="{{wallet_deep_link}}"
-          class="btn btn-lg btn-block btn-primary w-100 mb-4 rounded-1"
-          title="Open BC Wallet"
+          id="download-link"
+          href="https://www2.gov.bc.ca/gov/content/governments/government-id/bc-wallet"
+          class="btn btn-lg btn-default btn-block-secondary btn-outline-primary w-100 mb-2 border-2 rounded-1 fw-bold"
+          title="Download BC Wallet"
           target="_blank"
-          v-on:click="$emit('open')"
         >
-          Open With BC Wallet
+          Download BC Wallet
         </a>
       </div>
-
+      <div class="p-4">
+        <a href="https://www2.gov.bc.ca/gov/content/governments/government-id/bc-wallet">
+          Learn more on digital wallets
+        </a>
+      </div>
     </div>
   </body>
   <script>
@@ -87,19 +78,20 @@
 
    const isMobile = () => (getBrowser() === "Android" || getBrowser() === "iOS")
    const hideElementForBrowser = (elementId, show) => {
-     if (!isMobile()) {
-       document.querySelectorAll(elementId).forEach((el) => {
-         el.style.display = "none";
-       });
-     }
    }
    try {
-     hideElementForBrowser(".mobile-device")
+     if (isMobile()) {
+       // Set the url for downloading the wallet depending on platform
+       document.getElementById("download-link").href = getBrowser() === "Android"
+                                                     ? "https://play.google.com/store/apps/details?id=ca.bc.gov.BCWallet"
+                                                     : "https://apps.apple.com/us/app/bc-wallet/id1587380443"
+       // Attempt to open the BC wallet if installed
+       window.location.href = "{{wallet_deep_link}}"
+     } else {
+       document.getElementById("open-in-wallet").style.display = "none";
+     }
    } catch (e) {
      console.log("Error hiding browser element", e);
-   }
-   if (isMobile()){
-     window.location.href = "{{wallet_deep_link}}"
    }
   </script>
 </html>
