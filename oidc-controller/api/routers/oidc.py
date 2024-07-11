@@ -164,10 +164,14 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     # BC Wallet deep link
     if settings.USE_URL_DEEP_LINK:
         suffix = (
-            f'_url={base64.urlsafe_b64encode(url_to_message.encode("utf-8")).decode("utf-8")}'
+            f'_url={base64.urlsafe_b64encode(
+                url_to_message.encode("utf-8")).decode("utf-8")}'
         )
     else:
-        suffix = f'c_i={base64.urlsafe_b64encode(formated_msg.encode("utf-8")).decode("utf-8")}'
+        suffix = (
+            f'c_i={base64.urlsafe_b64encode(
+                formated_msg.encode("utf-8")).decode("utf-8")}'
+        )
     WALLET_DEEP_LINK_PREFIX = settings.WALLET_DEEP_LINK_PREFIX
     wallet_deep_link = f"{WALLET_DEEP_LINK_PREFIX}?{suffix}"
 
