@@ -92,7 +92,8 @@ def gen_deep_link(auth_session: AuthSession) -> str:
         formated_msg = json.dumps(auth_session.presentation_request_msg)
         suffix = f'c_i={base64.b64encode(formated_msg.encode("utf-8")).decode("utf-8")}'
 
-    wallet_deep_link = f"bcwallet://aries_proof-request?{suffix}"
+    WALLET_DEEP_LINK_PREFIX = settings.WALLET_DEEP_LINK_PREFIX
+    wallet_deep_link = f"{WALLET_DEEP_LINK_PREFIX}?{suffix}"
     return wallet_deep_link
 
 
