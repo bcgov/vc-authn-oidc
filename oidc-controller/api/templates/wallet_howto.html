@@ -4,23 +4,28 @@
     <!-- Bootstrap -->
     <link href="/static/css/bootstrap.532.min.css" rel="stylesheet" />
     <style>
-      body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: Arial, Helvetica, sans-serif;
-        color: #313132;
+     body {
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       font-family: "Arial", sans-serif;
+       color: #313132;
       }
-      .title {
-        font-size: 2rem;
-      }
-      .icon {
-        margin-top: 2rem;
-      }
-      .icon svg {
-        height: 8rem;
-        width: 8rem;
-      }
+     .test {
+       flex: none;
+       align-self: stretch;
+
+     }
+     .title {
+       font-size: 2rem;
+     }
+     .icon {
+       margin-top: 2rem;
+     }
+     .icon svg {
+       height: 8rem;
+       width: 8rem;
+     }
     </style>
     <link href="/static/css/custom.css" rel="stylesheet" />
   </head>
@@ -29,27 +34,27 @@
       <div class="title fw-bold mb-3 px-4">
         Please scan with a digital wallet
       </div>
-      <div class="content fs-3">
+      <div class="test fs-4">
         This QR code can only be scanned with a digital wallet app.
       </div>
       <div class="icon">
         <img src="/static/img/new-digital-wallet.svg" alt="Digital Wallet" />
       </div>
       <div id="open-in-wallet" class="mobile-device content">
-        <div class="fs-3 py-2">
+        <div class="fs-4 py-2 mb-1">
           Don't have a digital wallet?
         </div>
         <a
           id="download-link"
           href="https://www2.gov.bc.ca/gov/content/governments/government-id/bc-wallet"
-          class="btn btn-lg btn-default btn-block-secondary btn-outline-primary w-100 mb-2 border-2 rounded-1 fw-bold"
+          class="fs-4 btn btn-lg btn-default btn-block-secondary btn-outline-primary w-100 mb-2 border-2 rounded-1 fw-bold"
           title="Download BC Wallet"
           target="_blank"
         >
           Download BC Wallet
         </a>
       </div>
-      <div class="p-4">
+      <div class="fs-4 p-4">
         <a href="https://www2.gov.bc.ca/gov/content/governments/government-id/bc-wallet">
           Learn more on digital wallets
         </a>
