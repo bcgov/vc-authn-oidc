@@ -83,15 +83,13 @@ def gen_deep_link(auth_session: AuthSession) -> str:
     url_to_message = (
         controller_host + "/url/pres_exch/" + str(auth_session.pres_exch_id)
     )
-    suffix = f'_url={base64.b64encode(url_to_message.encode("utf-8")).decode("utf-8")}'
     if settings.USE_URL_DEEP_LINK:
-        suffix = (
-            f'_url={base64.b64encode(url_to_message.encode("utf-8")).decode("utf-8")}'
-        )
+        suffix = f"""_url={base64.urlsafe_b64encode(
+            url_to_message.encode("utf-8")).decode("utf-8")}"""
     else:
         formated_msg = json.dumps(auth_session.presentation_request_msg)
-        suffix = f'c_i={base64.b64encode(formated_msg.encode("utf-8")).decode("utf-8")}'
-
+        suffix = f"""c_i={base64.urlsafe_b64encode(
+                formated_msg.encode("utf-8")).decode("utf-8")}"""
     WALLET_DEEP_LINK_PREFIX = settings.WALLET_DEEP_LINK_PREFIX
     wallet_deep_link = f"{WALLET_DEEP_LINK_PREFIX}?{suffix}"
     return wallet_deep_link
