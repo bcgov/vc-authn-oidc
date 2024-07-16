@@ -1,6 +1,4 @@
-import mock
 import pytest
-from api.authSessions.models import AuthSession
 from api.core.oidc.issue_token_service import Token
 from api.core.oidc.tests.__mocks__ import auth_session, presentation, ver_config
 

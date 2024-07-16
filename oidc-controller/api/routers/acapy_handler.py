@@ -7,7 +7,6 @@ from pymongo.database import Database
 
 from ..authSessions.crud import AuthSessionCRUD
 from ..authSessions.models import AuthSession, AuthSessionPatch, AuthSessionState
-from ..core.acapy.client import AcapyClient
 from ..db.session import get_db
 
 from ..core.config import settings
@@ -28,7 +27,6 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
     logger.info(f">>> post_topic : topic={topic}")
     logger.info(f">>> web hook post_body : {await _parse_webhook_body(request)}")
 
-    client = AcapyClient()
     match topic:
         case "present_proof_v2_0":
             webhook_body = await _parse_webhook_body(request)

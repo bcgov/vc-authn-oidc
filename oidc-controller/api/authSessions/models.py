@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta
 from enum import StrEnum, auto
-from typing import Dict, Optional
+from typing import Optional
 
-from api.core.acapy.client import AcapyClient
 from api.core.models import UUIDModel
 from pydantic import BaseModel, ConfigDict, Field
 
