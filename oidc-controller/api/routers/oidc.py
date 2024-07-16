@@ -72,7 +72,8 @@ async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
             str(auth_session.id), AuthSessionPatch(**auth_session.dict())
         )
         # Send message through the websocket.
-        await sio.emit("status", {"status": "expired"}, to=sid)
+        if sid:
+            await sio.emit("status", {"status": "expired"}, to=sid)
 
     return {"proof_status": auth_session.proof_status}
 
@@ -111,7 +112,6 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     pres_exch_dict = response.dict()
 
     # Prepeare the presentation request
-    client = AcapyClient()
     use_public_did = not settings.USE_OOB_LOCAL_DID_SERVICE
     wallet_did = client.get_wallet_did(public=use_public_did)
 
@@ -124,6 +124,9 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         )
         msg_contents = oob_invite_response.invitation
     else:
+        wallet_did = client.get_wallet_did(public=use_public_did)
+
+        byo_attachment = PresentProofv10Attachment.build(pres_exch_dict["pres_request"])
         s_d = ServiceDecorator(
             service_endpoint=client.service_endpoint, recipient_keys=[wallet_did.verkey]
         )
@@ -160,9 +163,14 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     callback_url = f"""{controller_host}{AuthorizeCallbackUri}?pid={auth_session.id}"""
 
     # BC Wallet deep link
-    # base64 encode the formated_msg
-    base64_msg = base64.b64encode(formated_msg.encode("utf-8")).decode("utf-8")
-    wallet_deep_link = f"bcwallet://aries_proof-request?c_i={base64_msg}"
+    if settings.USE_URL_DEEP_LINK:
+        suffix = f"""_url={base64.urlsafe_b64encode(
+                url_to_message.encode("utf-8")).decode("utf-8")}"""
+    else:
+        suffix = f"""c_i={base64.urlsafe_b64encode(
+                formated_msg.encode("utf-8")).decode("utf-8")}"""
+    WALLET_DEEP_LINK_PREFIX = settings.WALLET_DEEP_LINK_PREFIX
+    wallet_deep_link = f"{WALLET_DEEP_LINK_PREFIX}?{suffix}"
 
     # This is the payload to send to the template
     data = {

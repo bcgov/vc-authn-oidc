@@ -1,6 +1,7 @@
 import canonicaljson
 import dataclasses
 import json
+import hashlib
 from datetime import datetime
 from typing import Any, Dict, List
 
@@ -101,12 +102,13 @@ class Token(BaseModel):
         elif ver_config.generate_consistent_identifier:
             # Do not create a sub based on the proof claims if the
             # user requests a generated identifier
+            # Generate a SHA256 hash of the canonicaljson encoded proof_claims
+            encoded_json = canonicaljson.encode_canonical_json(proof_claims)
+            sha256_hash = hashlib.sha256(encoded_json).hexdigest()
             oidc_claims.append(
                 Claim(
                     type="sub",
-                    value=canonicaljson.encode_canonical_json(proof_claims).decode(
-                        "utf-8"
-                    ),
+                    value=sha256_hash,
                 )
             )
 

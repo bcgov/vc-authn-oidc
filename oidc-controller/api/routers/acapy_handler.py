@@ -42,6 +42,7 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             pid = str(auth_session.id)
             connections = connections_reload()
             sid = connections.get(pid)
+            logger.debug(f"sid: {sid} found for pid: {pid}")
 
             if webhook_body["state"] == "presentation-received":
                 logger.info("presentation-received")
@@ -51,10 +52,12 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                 if webhook_body["verified"] == "true":
                     auth_session.proof_status = AuthSessionState.VERIFIED
                     auth_session.presentation_exchange = webhook_body["by_format"]
-                    await sio.emit("status", {"status": "verified"}, to=sid)
+                    if sid:
+                        await sio.emit("status", {"status": "verified"}, to=sid)
                 else:
                     auth_session.proof_status = AuthSessionState.FAILED
-                    await sio.emit("status", {"status": "failed"}, to=sid)
+                    if sid:
+                        await sio.emit("status", {"status": "failed"}, to=sid)
 
                 await AuthSessionCRUD(db).patch(
                     str(auth_session.id), AuthSessionPatch(**auth_session.dict())
@@ -65,7 +68,9 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                 logger.info("ABANDONED")
                 logger.info(webhook_body["error_msg"])
                 auth_session.proof_status = AuthSessionState.ABANDONED
-                await sio.emit("status", {"status": "abandoned"}, to=sid)
+                if sid:
+                    await sio.emit("status", {"status": "abandoned"}, to=sid)
+
                 await AuthSessionCRUD(db).patch(
                     str(auth_session.id), AuthSessionPatch(**auth_session.dict())
                 )
@@ -89,7 +94,9 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             ):
                 logger.info("EXPIRED")
                 auth_session.proof_status = AuthSessionState.EXPIRED
-                await sio.emit("status", {"status": "expired"}, to=sid)
+                if sid:
+                    await sio.emit("status", {"status": "expired"}, to=sid)
+
                 await AuthSessionCRUD(db).patch(
                     str(auth_session.id), AuthSessionPatch(**auth_session.dict())
                 )

@@ -36,6 +36,8 @@ services:
       - ST_ACAPY_ADMIN_API_KEY_NAME=${ST_ACAPY_ADMIN_API_KEY_NAME}
       - USE_OOB_PRESENT_PROOF=${USE_OOB_PRESENT_PROOF}
       - USE_OOB_LOCAL_DID_SERVICE=${USE_OOB_LOCAL_DID_SERVICE}
+      - USE_URL_DEEP_LINK=${USE_URL_DEEP_LINK}
+      - WALLET_DEEP_LINK_PREFIX=${WALLET_DEEP_LINK_PREFIX}
     ports:
       - ${CONTROLLER_SERVICE_PORT}:5000
       - 5678:5678
@@ -98,7 +100,7 @@ services:
       - vc_auth
 
   aca-py:
-    image: ghcr.io/hyperledger/aries-cloudagent-python:py3.9-0.12.1
+    image: ghcr.io/hyperledger/aries-cloudagent-python:py3.12-1.0.0rc4
     environment:
       - ACAPY_LABEL=${AGENT_NAME}
       - ACAPY_ENDPOINT=${AGENT_ENDPOINT}
@@ -131,7 +133,7 @@ services:
     command:
       [
         "-c",
-        'sleep 15; aca-py start --debug-webhooks --inbound-transport http ''0.0.0.0'' ${AGENT_HTTP_PORT} --outbound-transport http --wallet-storage-config ''{"url":"${POSTGRESQL_WALLET_HOST}:${POSTGRESQL_WALLET_PORT}","max_connections":5}'' --wallet-storage-creds ''{"account":"${POSTGRESQL_WALLET_USER}","password":"${POSTGRESQL_WALLET_PASSWORD}","admin_account":"${POSTGRESQL_WALLET_USER}","admin_password":"${POSTGRESQL_WALLET_PASSWORD}"}'' --admin ''0.0.0.0'' ${AGENT_ADMIN_PORT} --${AGENT_ADMIN_MODE} ',
+        'sleep 15; aca-py start --inbound-transport http ''0.0.0.0'' ${AGENT_HTTP_PORT} --outbound-transport http --wallet-storage-config ''{"url":"${POSTGRESQL_WALLET_HOST}:${POSTGRESQL_WALLET_PORT}","max_connections":5}'' --wallet-storage-creds ''{"account":"${POSTGRESQL_WALLET_USER}","password":"${POSTGRESQL_WALLET_PASSWORD}","admin_account":"${POSTGRESQL_WALLET_USER}","admin_password":"${POSTGRESQL_WALLET_PASSWORD}"}'' --admin ''0.0.0.0'' ${AGENT_ADMIN_PORT} --${AGENT_ADMIN_MODE} ',
       ]
 
   wallet-db:
