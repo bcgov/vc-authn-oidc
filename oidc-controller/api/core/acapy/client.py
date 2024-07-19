@@ -124,7 +124,6 @@ class AcapyClient:
                 }
             ],
             "use_public_did": use_public_did,
-            "trace": True,
         }
 
         resp_raw = requests.post(
