@@ -30,7 +30,10 @@ export default {
     login() {
       if (this.keycloakReady) {
         window.location.replace(
-          this.createLoginUrl() + '&pres_req_conf_id=' + this.presReqConfId
+          this.createLoginUrl() +
+            '&pres_req_conf_id=' +
+            this.presReqConfId +
+            '&back_to_url=http://localhost:8080/',
         );
       }
     },
@@ -39,7 +42,7 @@ export default {
         window.location.replace(
           this.createLogoutUrl({
             redirectUri: `${location.origin}/${this.$config.basePath}`,
-          })
+          }),
         );
       }
     },
