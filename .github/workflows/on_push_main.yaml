@@ -136,7 +136,7 @@ jobs:
       - name: Deploy VC-Authn-OIDC to Development
         run: |
           cp trust-over-ip-configurations/services/vc-authn-oidc/charts/dev/values.yaml ./dev-values.yaml
-          yq e -i 'del(.traction) | . *= load("trust-over-ip-configurations/services/vc-authn-oidc/charts/dev/values.yaml").vc-authn-oidc' ./dev-values.yaml
+          yq e -i 'del(.vc-authn-oidc) | . *= load("trust-over-ip-configurations/services/vc-authn-oidc/charts/dev/values.yaml").vc-authn-oidc' ./dev-values.yaml
           helm upgrade --install vc-authn-oidc -f ./dev-values.yaml --set image.tag=${{ needs.build.outputs.image_version }} ./charts/vc-authn-oidc --wait
 
       - name: Restart Deployments
