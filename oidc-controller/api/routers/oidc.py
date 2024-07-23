@@ -113,9 +113,6 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
 
     # Prepeare the presentation request
     use_public_did = not settings.USE_OOB_LOCAL_DID_SERVICE
-    wallet_did = client.get_wallet_did(public=use_public_did)
-
-    byo_attachment = PresentProofv10Attachment.build(pres_exch_dict["pres_request"])
 
     msg = None
     if settings.USE_OOB_PRESENT_PROOF:
