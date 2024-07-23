@@ -113,6 +113,15 @@ a {
 .navbar img {
 	height: 4rem;
 }
+.back-btn {
+	display: block;
+	margin-bottom: 1em;
+	font-weight: bold;
+	text-decoration: none;
+}
+.desktop-head .back-btn {
+	margin-left: -350px;
+}
 footer {
 	background-color: var(--bc-primary);
 	border-top: 2px solid var(--bc-accent);
