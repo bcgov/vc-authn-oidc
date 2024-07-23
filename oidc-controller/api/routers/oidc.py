@@ -17,7 +17,7 @@ from pymongo.database import Database
 from pyop.exceptions import InvalidAuthenticationRequest
 
 from ..authSessions.crud import AuthSessionCreate, AuthSessionCRUD
-from ..authSessions.models import AuthSessionPatch, AuthSessionState
+from ..authSessions.models import AuthSessionPatch, AuthSessionState, AuthSession
 from ..core.acapy.client import AcapyClient
 from ..core.aries import (
     PresentationRequestMessage,
@@ -72,9 +72,27 @@ async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
             str(auth_session.id), AuthSessionPatch(**auth_session.dict())
         )
         # Send message through the websocket.
-        await sio.emit("status", {"status": "expired"}, to=sid)
+        if sid:
+            await sio.emit("status", {"status": "expired"}, to=sid)
 
     return {"proof_status": auth_session.proof_status}
+
+
+def gen_deep_link(auth_session: AuthSession) -> str:
+    controller_host = settings.CONTROLLER_URL
+    url_to_message = (
+        controller_host + "/url/pres_exch/" + str(auth_session.pres_exch_id)
+    )
+    if settings.USE_URL_DEEP_LINK:
+        suffix = f"""_url={base64.urlsafe_b64encode(
+            url_to_message.encode("utf-8")).decode("utf-8")}"""
+    else:
+        formated_msg = json.dumps(auth_session.presentation_request_msg)
+        suffix = f"""c_i={base64.urlsafe_b64encode(
+                formated_msg.encode("utf-8")).decode("utf-8")}"""
+    WALLET_DEEP_LINK_PREFIX = settings.WALLET_DEEP_LINK_PREFIX
+    wallet_deep_link = f"{WALLET_DEEP_LINK_PREFIX}?{suffix}"
+    return wallet_deep_link
 
 
 @log_debug
@@ -111,13 +129,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     pres_exch_dict = response.dict()
 
     # Prepeare the presentation request
-    client = AcapyClient()
     use_public_did = not settings.USE_OOB_LOCAL_DID_SERVICE
-    wallet_did = client.get_wallet_did(public=use_public_did)
-
-    byo_attachment = PresentProofv10Attachment.build(
-        pres_exch_dict["presentation_request"]
-    )
 
     msg = None
     if settings.USE_OOB_PRESENT_PROOF:
@@ -126,6 +138,11 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         )
         msg_contents = oob_invite_response.invitation
     else:
+        wallet_did = client.get_wallet_did(public=use_public_did)
+
+        byo_attachment = PresentProofv10Attachment.build(
+            pres_exch_dict["presentation_request"]
+        )
         s_d = ServiceDecorator(
             service_endpoint=client.service_endpoint, recipient_keys=[wallet_did.verkey]
         )
@@ -148,8 +165,6 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     )
     auth_session = await AuthSessionCRUD(db).create(new_auth_session)
 
-    formated_msg = json.dumps(msg_contents.dict(by_alias=True))
-
     # QR CONTENTS
     controller_host = settings.CONTROLLER_URL
     url_to_message = (
@@ -162,13 +177,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     callback_url = f"""{controller_host}{AuthorizeCallbackUri}?pid={auth_session.id}"""
 
     # BC Wallet deep link
-    if settings.USE_URL_DEEP_LINK:
-        suffix = (
-            f'_url={base64.b64encode(url_to_message.encode("utf-8")).decode("utf-8")}'
-        )
-    else:
-        suffix = f'c_i={base64.b64encode(formated_msg.encode("utf-8")).decode("utf-8")}'
-    wallet_deep_link = f"bcwallet://aries_proof-request?{suffix}"
+    wallet_deep_link = gen_deep_link(auth_session)
 
     # This is the payload to send to the template
     data = {
