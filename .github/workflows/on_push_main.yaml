@@ -1,4 +1,4 @@
-name: Build & Deploy Development
+name: Build, Update Config, and Deploy Development
 on:
   workflow_dispatch:
   push:
@@ -14,82 +14,117 @@ jobs:
       ref: "main"
       platforms: "linux/amd64"
 
-  changed_files:
+  check_helm_changes:
     runs-on: ubuntu-latest
-    name: Test changed files
+    name: Check for Helm Chart changes
     outputs:
-      any_changed: ${{ steps.chart-changes.outputs.any_changed }}
+      helm_changed: ${{ steps.list-changed.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
-      - name: Check for changes in the charts folder
-        id: chart-changes
-        uses: tj-actions/changed-files@v44
-        with:
-          files: charts/vc-authn-oidc/*.*
+      
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.6.1
 
-  argo_sync:
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }})
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+
+  update_configs_repo:
     runs-on: ubuntu-latest
-    name: Update GitOps Repo to trigger ArgoCD Sync
+    name: Update Configurations Repo
     needs:
       - build
-      - changed_files
-    if: needs.changed_files.outputs.any_changed != 'true'
+      - check_helm_changes
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      - name: Add SSH key
-        env:
-          DITP_GITOPS_REPO_SECRET: ${{ secrets.DITP_GITOPS_REPO_SECRET }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$DITP_GITOPS_REPO_SECRET" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-      - name: Clone gitops-repo
-        run: |
-          git clone git@github.com:bcgov-c/ministry-gitops-ditp.git
-          cd ministry-gitops-ditp
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-      - name: Lookup latest chart
+      
+      - name: Checkout services directory from the trust-over-ip-configurations repo
+        uses: actions/checkout@v4
+        with:
+          repository: bcgov/trust-over-ip-configurations
+          ssh-key: ${{ secrets.DITP_CONFIGS_REPO_SECRET }}
+          sparse-checkout: |
+            services
+          path: trust-over-ip-configurations
+
+      - name: Lookup Helm Chart and App versions
         id: chart_version
         run: |
           helm repo add vc-authn-oidc https://bcgov.github.io/vc-authn-oidc
           helm repo update
-          echo "::set output name=APP_VERSION::$(helm search repo vc-authn-oidc -ojson | jq '.[0].app_version')"
-          echo "::set output name=CHART_VERSION::$(helm search repo vc-authn-oidc -ojson | jq '.[0].version')"
-      - name: Update values
+          echo "PUBLISHED_APP_VERSION=$(helm search repo vc-authn-oidc -ojson | jq -r '.[0].app_version')" >> $GITHUB_OUTPUT
+          echo "PUBLISHED_CHART_VERSION=$(helm search repo vc-authn-oidc -ojson | jq -r '.[0].version')" >> $GITHUB_OUTPUT
+          echo "LOCAL_APP_VERSION=$(yq e .appVersion charts/vc-authn-oidc/Chart.yaml)" >> $GITHUB_OUTPUT
+          echo "LOCAL_CHART_VERSION=$(yq e .version charts/vc-authn-oidc/Chart.yaml)" >> $GITHUB_OUTPUT
+
+      - name: Update versions
         env:
-          APP_VERSION: ${{ steps.chart_version.outputs.APP_VERSION }}
-          CHART_VERSION: ${{ steps.chart_version.outputs.CHART_VERSION }}
-          IMAGE_TAG: ${{ needs.build_acapy.outputs.image_version }}
+          IMAGE_TAG: ${{ needs.build.outputs.image_version }}
         run: |
-          cd ministry-gitops-ditp
+          cd trust-over-ip-configurations
+          if [[ "${{ needs.check_helm_changes.outputs.helm_changed }}" == "true" ]]; then
+            APP_VERSION="${{ steps.chart_version.outputs.LOCAL_APP_VERSION }}"
+            CHART_VERSION="${{ steps.chart_version.outputs.LOCAL_CHART_VERSION }}"
+          else
+            APP_VERSION="${{ steps.chart_version.outputs.PUBLISHED_APP_VERSION }}"
+            CHART_VERSION="${{ steps.chart_version.outputs.PUBLISHED_CHART_VERSION }}"
+          fi
+
           yq e -i '.appVersion = $APP_VERSION' services/vc-authn-oidc/charts/dev/Chart.yaml
           yq e -i '.version = $CHART_VERSION' services/vc-authn-oidc/charts/dev/Chart.yaml
-          yq e -i '.vc-authn-oidc.acapy.image.tag = $IMAGE_TAG' services/vc-authn-oidc/charts/dev/values.yaml
-      - name: Commit and push changes
+          yq e -i '.dependencies[0].version = $CHART_VERSION' services/vc-authn-oidc/charts/dev/Chart.yaml
+          yq e -i '.vc-authn-oidc.image.tag = $IMAGE_TAG' services/vc-authn-oidc/charts/dev/values.yaml
+          
+      - name: Commit and Push to trust-over-ip-configurations Repo
         run: |
-          cd ministry-gitops-ditp
+          cd trust-over-ip-configurations
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add services/vc-authn-oidc/charts/dev/values.yaml services/vc-authn-oidc/charts/dev/Chart.yaml
-          git commit -m "Update chart version and image tags"
+          git commit -m "Update chart version and image tag" || echo "No changes to commit"
           git push origin main
 
+      - uses: convictional/trigger-workflow-and-wait@v1.6.5
+        id: workflow-trigger
+        with:
+          owner: bcgov
+          repo: trust-over-ip-configurations
+          github_token: ${{ secrets.DITP_CONFIGS_REPO_TOKEN }}
+          workflow_file_name: gitops_sync.yaml
+
+      - name: Trigger ArgoCD Sync of e79518-test-vc-authn-oidc
+        uses: OpsVerseIO/argocd-sync@0.2.0
+        if: needs.check_helm_changes.outputs.helm_changed != 'true' && steps.workflow-trigger.outputs.conclusion == 'success'
+        with:
+          address: gitops-shared.apps.silver.devops.gov.bc.ca
+          token: ${{ secrets.DITP_GITOPS_ARGO_SECRET}}
+          action: sync
+          appName: "e79518-test-vc-authn-oidc"
+
   # Build vc-authn
-  deploy:
+  deploy_dev:
     name: Deploy VC-AuthN to Dev
     environment: dev
     runs-on: ubuntu-latest
     needs:
       - build
-      - changed_files
-    if: ${{ needs.changed_files.outputs.any_changed == 'true' && !(contains(needs.*.result, 'failed')) && (github.repository_owner == 'bcgov') }}
+      - check_helm_changes
+    if: ${{ needs.check_helm_changes.outputs.helm_changed == 'true' && contains(needs.*.result, 'success') && !(contains(needs.*.result, 'failure')) && (github.repository_owner == 'bcgov') }}
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Checkout services directory from the trust-over-ip-configurations repo
+        uses: actions/checkout@v4
+        with:
+          repository: bcgov/trust-over-ip-configurations
+          ssh-key: ${{ secrets.DITP_CONFIGS_REPO_SECRET }}
+          sparse-checkout: |
+            services
+          path: trust-over-ip-configurations
 
       - name: Authenticate and set context
         uses: redhat-actions/oc-login@v1
@@ -98,12 +133,12 @@ jobs:
           openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
           namespace: ${{ secrets.OPENSHIFT_NAMESPACE }}
 
-      - name: VC-Authn Dev Helm
+      - name: Deploy VC-Authn-OIDC to Development
         run: |
-          helm upgrade --install vc-authn-oidc \
-          -f https://raw.githubusercontent.com/bcgov/trust-over-ip-configurations/main/helm-values/vc-authn-oidc/dev.yaml \
-          --set image.tag=${{ needs.build.outputs.image_version }} \
-          ./charts/vc-authn-oidc --wait
+          cp trust-over-ip-configurations/services/vc-authn-oidc/charts/dev/values.yaml ./dev-values.yaml
+          yq e -i 'del(.traction) | . *= load("trust-over-ip-configurations/services/vc-authn-oidc/charts/dev/values.yaml").vc-authn-oidc' ./dev-values.yaml
+          helm upgrade --install vc-authn-oidc -f ./dev-values.yaml --set image.tag=${{ needs.build.outputs.image_version }} ./charts/vc-authn-oidc --wait
+
       - name: Restart Deployments
         run: |
           oc rollout restart deployment/vc-authn-oidc-agent
