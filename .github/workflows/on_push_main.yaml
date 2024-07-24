@@ -73,10 +73,10 @@ jobs:
             CHART_VERSION="${{ steps.chart_version.outputs.PUBLISHED_CHART_VERSION }}"
           fi
 
-          yq e -i '.appVersion = $APP_VERSION' services/vc-authn-oidc/charts/dev/Chart.yaml
-          yq e -i '.version = $CHART_VERSION' services/vc-authn-oidc/charts/dev/Chart.yaml
-          yq e -i '.dependencies[0].version = $CHART_VERSION' services/vc-authn-oidc/charts/dev/Chart.yaml
-          yq e -i '.vc-authn-oidc.image.tag = $IMAGE_TAG' services/vc-authn-oidc/charts/dev/values.yaml
+          yq e -i '.appVersion = env(APP_VERSION)' services/vc-authn-oidc/charts/dev/Chart.yaml
+          yq e -i '.version = env(CHART_VERSION)' services/vc-authn-oidc/charts/dev/Chart.yaml
+          yq e -i '.dependencies[0].version = env(CHART_VERSION)' services/vc-authn-oidc/charts/dev/Chart.yaml
+          yq e -i '.vc-authn-oidc.image.tag = env(IMAGE_TAG)' services/vc-authn-oidc/charts/dev/values.yaml
           
       - name: Commit and Push to trust-over-ip-configurations Repo
         run: |
