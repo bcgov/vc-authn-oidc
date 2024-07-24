@@ -75,6 +75,8 @@ spec:
               value: {{ .Values.useOobPresentProof | quote }}
             - name: USE_URL_DEEP_LINK
               value: {{ .Values.useUrlDeepLink | quote }}
+            - name: WALLET_DEEP_LINK_PREFIX
+              value: {{ .Values.walletDeepLinkPrefix }}
             - name: SET_NON_REVOKED
               value: {{ .Values.setNonRevoked | quote }}
             - name: ACAPY_TENANCY

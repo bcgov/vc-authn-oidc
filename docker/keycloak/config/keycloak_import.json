@@ -1101,7 +1101,7 @@
       "config": {
         "validateSignature": "true",
         "clientId": "keycloak",
-        "forwardParameters": "pres_req_conf_id",
+        "forwardParameters": "pres_req_conf_id,back_to_url",
         "tokenUrl": "http://controller:5000/token",
         "authorizationUrl": "http://localhost:5000/authorize",
         "clientAuthMethod": "client_secret_basic",
