@@ -141,7 +141,9 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         wallet_did = client.get_wallet_did(public=use_public_did)
 
         byo_attachment = PresentProofv20Attachment(
-            # As of present proof 2.0 the
+            # As of present proof 2.0 the pres_exch_dict already
+            # contains a complete attachment so we only need to
+            # extract the base64 encoded data
             data=pres_exch_dict["pres_request"]["request_presentations~attach"][0][
                 "data"
             ]

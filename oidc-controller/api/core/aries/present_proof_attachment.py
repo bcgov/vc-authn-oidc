@@ -10,15 +10,3 @@ class PresentProofv20Attachment(BaseModel):
     id: str = Field(default="libindy-request-presentation-0", alias="@id")
     mime_type: str = Field(default="application/json", alias="mime-type")
     data: Dict
-
-    @classmethod
-    def build(
-        cls, presentation_request
-    ) -> "PresentProofv20Attachment":  # bundle everything needed for the QR code
-        return cls(
-            data={
-                "base64": base64.b64encode(
-                    json.dumps(presentation_request).encode("ascii")
-                ).decode("ascii")
-            }
-        )
