@@ -21,7 +21,7 @@ from ..authSessions.models import AuthSessionPatch, AuthSessionState, AuthSessio
 from ..core.acapy.client import AcapyClient
 from ..core.aries import (
     PresentationRequestMessage,
-    PresentProofv10Attachment,
+    PresentProofv20Attachment,
     ServiceDecorator,
 )
 from ..core.config import settings
