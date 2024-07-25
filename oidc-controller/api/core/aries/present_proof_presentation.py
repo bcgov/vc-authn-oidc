@@ -1,9 +1,9 @@
 import json
 import base64
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 from pydantic import BaseModel, ConfigDict, Field
-from api.core.aries import PresentProofv10Attachment, ServiceDecorator
+from api.core.aries import PresentProofv20Attachment, ServiceDecorator
 
 
 class PresentationRequestMessage(BaseModel):
@@ -13,7 +13,8 @@ class PresentationRequestMessage(BaseModel):
         "https://didcomm.org/present-proof/2.0/request-presentation",
         alias="@type",
     )
-    request: List[PresentProofv10Attachment] = Field(
+    formats: List[Dict]
+    request: List[PresentProofv20Attachment] = Field(
         alias="request_presentations~attach"
     )
     comment: Optional[str] = None

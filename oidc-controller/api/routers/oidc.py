@@ -123,12 +123,21 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     else:
         wallet_did = client.get_wallet_did(public=use_public_did)
 
-        byo_attachment = PresentProofv10Attachment.build(pres_exch_dict["pres_request"])
+        byo_attachment = PresentProofv20Attachment(
+            # As of present proof 2.0 the
+            data=pres_exch_dict["pres_request"]["request_presentations~attach"][0][
+                "data"
+            ]
+        )
+
         s_d = ServiceDecorator(
             service_endpoint=client.service_endpoint, recipient_keys=[wallet_did.verkey]
         )
         msg = PresentationRequestMessage(
             id=pres_exch_dict["thread_id"],
+            formats=[
+                {"attach_id": byo_attachment.id, "format": "hlindy/proof-req@v2.0"}
+            ],
             request=[byo_attachment],
             service=s_d,
         )
