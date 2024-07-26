@@ -1,19 +1,20 @@
 import json
 import base64
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 from pydantic import BaseModel, ConfigDict, Field
-from api.core.aries import PresentProofv10Attachment, ServiceDecorator
+from api.core.aries import PresentProofv20Attachment, ServiceDecorator
 
 
 class PresentationRequestMessage(BaseModel):
     # https://github.com/hyperledger/aries-rfcs/blob/main/features/0037-present-proof/README.md#presentation
     id: str = Field(alias="@id")
     type: str = Field(
-        "did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/present-proof/1.0/request-presentation",
+        "https://didcomm.org/present-proof/2.0/request-presentation",
         alias="@type",
     )
-    request: List[PresentProofv10Attachment] = Field(
+    formats: List[Dict]
+    request: List[PresentProofv20Attachment] = Field(
         alias="request_presentations~attach"
     )
     comment: Optional[str] = None

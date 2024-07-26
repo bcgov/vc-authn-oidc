@@ -14,8 +14,8 @@ logger = structlog.getLogger(__name__)
 
 WALLET_DID_URI = "/wallet/did"
 PUBLIC_WALLET_DID_URI = "/wallet/did/public"
-CREATE_PRESENTATION_REQUEST_URL = "/present-proof/create-request"
-PRESENT_PROOF_RECORDS = "/present-proof/records"
+CREATE_PRESENTATION_REQUEST_URL = "/present-proof-2.0/create-request"
+PRESENT_PROOF_RECORDS = "/present-proof-2.0/records"
 OOB_CREATE_INVITATION = "/out-of-band/create-invitation"
 
 
@@ -43,7 +43,9 @@ class AcapyClient:
         self, presentation_request_configuration: dict
     ) -> CreatePresentationResponse:
         logger.debug(">>> create_presentation_request")
-        present_proof_payload = {"proof_request": presentation_request_configuration}
+        present_proof_payload = {
+            "presentation_request": {"indy": presentation_request_configuration}
+        }
 
         resp_raw = requests.post(
             self.acapy_host + CREATE_PRESENTATION_REQUEST_URL,
@@ -77,24 +79,6 @@ class AcapyClient:
         resp = json.loads(resp_raw.content)
 
         logger.debug(f"<<< get_presentation_request -> {resp}")
-        return resp
-
-    def verify_presentation(self, presentation_exchange_id: Union[UUID, str]):
-        logger.debug(">>> verify_presentation")
-
-        resp_raw = requests.post(
-            self.acapy_host
-            + PRESENT_PROOF_RECORDS
-            + "/"
-            + str(presentation_exchange_id)
-            + "/verify-presentation",
-            headers=self.agent_config.get_headers(),
-        )
-        assert resp_raw.status_code == 200, resp_raw.content
-
-        resp = json.loads(resp_raw.content)
-
-        logger.debug(f"<<< verify_presentation -> {resp}")
         return resp
 
     def get_wallet_did(self, public=False) -> WalletDid:
@@ -134,7 +118,7 @@ class AcapyClient:
         create_invitation_payload = {
             "attachments": [
                 {
-                    "id": presentation_exchange["presentation_exchange_id"],
+                    "id": presentation_exchange["pres_ex_id"],
                     "type": "present-proof",
                     "data": {"json": presentation_exchange},
                 }

@@ -1,6 +1,6 @@
 # flake8: noqa
 
-from .present_proof_attachment import PresentProofv10Attachment
+from .present_proof_attachment import PresentProofv20Attachment
 from .service_decorator import ServiceDecorator, OOBServiceDecorator
 
 from .present_proof_presentation import PresentationRequestMessage
