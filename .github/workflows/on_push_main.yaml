@@ -55,29 +55,27 @@ jobs:
         run: |
           helm repo add vc-authn-oidc https://bcgov.github.io/vc-authn-oidc
           helm repo update
-          echo "PUBLISHED_APP_VERSION=$(helm search repo vc-authn-oidc -ojson | jq -r '.[0].app_version')" >> $GITHUB_OUTPUT
-          echo "PUBLISHED_CHART_VERSION=$(helm search repo vc-authn-oidc -ojson | jq -r '.[0].version')" >> $GITHUB_OUTPUT
-          echo "LOCAL_APP_VERSION=$(yq e .appVersion charts/vc-authn-oidc/Chart.yaml)" >> $GITHUB_OUTPUT
-          echo "LOCAL_CHART_VERSION=$(yq e .version charts/vc-authn-oidc/Chart.yaml)" >> $GITHUB_OUTPUT
+          if [[ "${{ needs.check_helm_changes.outputs.helm_changed }}" == "true" ]]; then
+            echo "APP_VERSION=$(yq e .appVersion charts/vc-authn-oidc/Chart.yaml)" >> $GITHUB_OUTPUT
+            echo "CHART_VERSION=$(yq e .version charts/vc-authn-oidc/Chart.yaml)" >> $GITHUB_OUTPUT
+          else
+            echo "APP_VERSION=$(helm search repo vc-authn-oidc -ojson | jq -r '.[0].app_version')" >> $GITHUB_OUTPUT
+            echo "CHART_VERSION=$(helm search repo vc-authn-oidc -ojson | jq -r '.[0].version')" >> $GITHUB_OUTPUT
+          fi
 
       - name: Update versions
         env:
+          APP_VERSION: ${{ steps.chart_version.outputs.APP_VERSION }}
+          CHART_VERSION: ${{ steps.chart_version.outputs.CHART_VERSION }}
           IMAGE_TAG: ${{ needs.build.outputs.image_version }}
         run: |
           cd trust-over-ip-configurations
-          if [[ "${{ needs.check_helm_changes.outputs.helm_changed }}" == "true" ]]; then
-            APP_VERSION="${{ steps.chart_version.outputs.LOCAL_APP_VERSION }}"
-            CHART_VERSION="${{ steps.chart_version.outputs.LOCAL_CHART_VERSION }}"
-          else
-            APP_VERSION="${{ steps.chart_version.outputs.PUBLISHED_APP_VERSION }}"
-            CHART_VERSION="${{ steps.chart_version.outputs.PUBLISHED_CHART_VERSION }}"
-          fi
 
           yq e -i '.appVersion = env(APP_VERSION)' services/vc-authn-oidc/charts/dev/Chart.yaml
           yq e -i '.version = env(CHART_VERSION)' services/vc-authn-oidc/charts/dev/Chart.yaml
           yq e -i '.dependencies[0].version = env(CHART_VERSION)' services/vc-authn-oidc/charts/dev/Chart.yaml
           yq e -i '.vc-authn-oidc.image.tag = env(IMAGE_TAG)' services/vc-authn-oidc/charts/dev/values.yaml
-          
+
       - name: Commit and Push to trust-over-ip-configurations Repo
         run: |
           cd trust-over-ip-configurations

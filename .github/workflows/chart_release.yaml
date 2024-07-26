@@ -55,8 +55,8 @@ jobs:
         run: |
           helm repo add vc-authn-oidc https://bcgov.github.io/vc-authn-oidc
           helm repo update
-          echo "::set output name=APP_VERSION::$(helm search repo vc-authn-oidc -ojson | jq '.[0].app_version')"
-          echo "::set output name=CHART_VERSION::$(helm search repo vc-authn-oidc -ojson | jq '.[0].version')"
+          echo "APP_VERSION=$(helm search repo vc-authn-oidc -ojson | jq '.[0].app_version')" >> $GITHUB_OUTPUT
+          echo "CHART_VERSION=$(helm search repo vc-authn-oidc -ojson | jq '.[0].version')" >> $GITHUB_OUTPUT
 
       - name: Update test
         env:
