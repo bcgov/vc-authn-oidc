@@ -101,7 +101,7 @@ jobs:
           address: gitops-shared.apps.silver.devops.gov.bc.ca
           token: ${{ secrets.DITP_GITOPS_ARGO_SECRET}}
           action: sync
-          appName: "e79518-test-vc-authn-oidc"
+          appName: "e79518-dev-vc-authn-oidc
 
   # Build vc-authn
   deploy_dev:
