@@ -337,16 +337,14 @@ Create a default fully qualified app name for the postgres requirement.
 Generate acapy wallet storage config
 */}}
 {{- define "acapy.walletStorageConfig" -}}
-{{- if and .Values.acapy.walletStorageConfig (not .Values.postgresql.enabled) (not index .Values "postgresql-ha" "enabled") -}}
+{{- if and .Values.acapy.walletStorageConfig (not .Values.postgresql.enabled) -}}
 {{- if .Values.acapy.walletStorageConfig.json -}}
 {{- .Values.acapy.walletStorageConfig.json -}}
 {{- else -}}
 '{"url":"{{ .Values.acapy.walletStorageConfig.url }}","max_connections":"{{ .Values.acapy.walletStorageConfig.max_connection | default 10 }}"", "wallet_scheme":"{{ .Values.acapy.walletStorageConfig.wallet_scheme }}"}'
 {{- end -}}
-{{- else if and .Values.postgresql.enabled ( not ( index .Values "postgresql-ha" "enabled") ) -}}
+{{- else if .Values.postgresql.enabled -}}
 '{"url":"{{ include "global.postgresql.fullname" . }}:{{ .Values.postgresql.primary.service.ports.postgresql }}","max_connections":"{{ .Values.acapy.walletStorageConfig.max_connections }}", "wallet_scheme":"{{ .Values.acapy.walletStorageConfig.wallet_scheme }}"}'
-{{- else if and ( index .Values "postgresql-ha" "enabled" ) ( not .Values.postgresql.enabled ) -}}
-'{"url":"{{ include "global.postgresql-ha.fullname" . }}:{{ index .Values "postgresql-ha" "service" "ports" "postgresql" }}","max_connections":"5", "wallet_scheme":"{{ .Values.acapy.walletScheme }}"}'
 {{- else -}}
 ''
 {{ end }}
@@ -356,16 +354,14 @@ Generate acapy wallet storage config
 Generate acapy wallet storage credentials
 */}}
 {{- define "acapy.walletStorageCredentials" -}}
-{{- if and .Values.acapy.walletStorageCredentials (not .Values.postgresql.enabled) (not index .Values "postgresql-ha" "enabled") -}}
+{{- if and .Values.acapy.walletStorageCredentials (not .Values.postgresql.enabled) -}}
 {{- if .Values.acapy.walletStorageCredentials.json -}}
 {{- .Values.acapy.walletStorageCredentials.json -}}
 {{- else -}}
 '{"account":"{{ .Values.acapy.walletStorageCredentials.account | default "acapy" }}","password":"{{ .Values.acapy.walletStorageCredentials.password }}", "admin_account":"{{ .Values.acapy.walletStorageCredentials.admin_account }}", "admin_password":"{{ .Values.acapy.walletStorageCredentials.admin_password }}"}'
 {{- end -}}
-{{- else if and .Values.postgresql.enabled ( not ( index .Values "postgresql-ha" "enabled") ) -}}
+{{- else if and .Values.postgresql.enabled -}}
 '{"account":"{{ .Values.postgresql.auth.username }}","password":"$(POSTGRES_PASSWORD)", "admin_account":"{{ .Values.acapy.walletStorageCredentials.admin_account }}", "admin_password":"$(POSTGRES_POSTGRES_PASSWORD)"}'
-{{- else if and ( index .Values "postgresql-ha" "enabled" ) ( not .Values.postgresql.enabled ) -}}
-'{"account":"{{ .Values.acapy.walletStorageCredentials.account | default "acapy" }}","password":"$(POSTGRES_PASSWORD)", "admin_account":"{{ .Values.acapy.walletStorageCredentials.admin_account }}", "admin_password":"$(POSTGRES_POSTGRES_PASSWORD)"}'
 {{- end -}}
 {{- end -}}
 
