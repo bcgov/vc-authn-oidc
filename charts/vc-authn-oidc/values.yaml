@@ -217,7 +217,7 @@ acapy:
     repository: ghcr.io/hyperledger/aries-cloudagent-python
     pullPolicy: IfNotPresent
     pullSecrets: []
-    tag: py3.9-0.12.1
+    tag: py3.12-1.0.0rc5
 
   ## ServiceAccount configuration
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
@@ -367,7 +367,7 @@ acapy:
     secretKeys:
       adminPasswordKey: admin-password
       userPasswordKey: database-password
-  
+
   ## @section Acapy tails persistence configuration
   persistence:
     ## @param acapy.persistence.existingClaim Name of an existing PVC to use
