@@ -21,6 +21,8 @@ jobs:
       helm_changed: ${{ steps.list-changed.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.6.1
