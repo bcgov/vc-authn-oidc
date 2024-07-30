@@ -693,7 +693,3 @@ postgresql:
         primary:
           extendedConfiguration: |
             max_connections = 500
-
-## @param postgresql-ha.enabled Deploy HA PostgreSQL chart. Not currently supported, provided for future use.
-postgresql-ha:
-  enabled: false
