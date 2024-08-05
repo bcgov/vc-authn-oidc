@@ -9,4 +9,4 @@ structlog==24.2.0
 uvicorn[standard]==0.30.3
 python-socketio==5.11.3 # required to run websockets
 canonicaljson==2.0.0 # used to provide unique consistent user identifiers
-pydantic-settings==2.3.4
+pydantic-settings==2.4.0
