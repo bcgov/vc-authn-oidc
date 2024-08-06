@@ -1,12 +1,12 @@
-fastapi==0.111.1
+fastapi==0.112.0
 jinja2==3.1.4
 oic==1.7.0
 pymongo==4.8.0
 pyop==3.4.1
 python-multipart==0.0.9 # required by fastapi to serve/upload files
 qrcode[pil]==7.4.2
-structlog==24.2.0
-uvicorn[standard]==0.30.3
+structlog==24.4.0
+uvicorn[standard]==0.30.5
 python-socketio==5.11.3 # required to run websockets
 canonicaljson==2.0.0 # used to provide unique consistent user identifiers
-pydantic-settings==2.3.4
+pydantic-settings==2.4.0
