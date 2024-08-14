@@ -51,6 +51,8 @@ class VerificationConfigBase(BaseModel):
             "requested_attributes": {},
             "requested_predicates": {},
         }
+        if self.proof_request.name:
+            result["name"] = self.proof_request.name
         for i, req_attr in enumerate(self.proof_request.requested_attributes):
             label = req_attr.label or "req_attr_" + str(i)
             result["requested_attributes"][label] = req_attr.dict(exclude_none=True)
