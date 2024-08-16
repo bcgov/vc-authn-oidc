@@ -1,7 +1,7 @@
 [![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-[![unit-tests](https://github.com/bcgov/vc-authn-oidc/actions/workflows/controller_unittests.yml/badge.svg?branch=2.0-development&event=push)](https://github.com/bcgov/vc-authn-oidc/actions/workflows/controller_unittests.yml)
+[![unit-tests](https://github.com/bcgov/vc-authn-oidc/actions/workflows/controller_unittests.yml/badge.svg?branch=main&event=push)](https://github.com/bcgov/vc-authn-oidc/actions/workflows/controller_unittests.yml)
 [![Coverage Status](https://coveralls.io/repos/github/bcgov/vc-authn-oidc/badge.svg?branch=main)](https://coveralls.io/repos/github/bcgov/vc-authn-oidc/badge.svg?branch=main)
 
 # Verifiable Credential Authentication with OpenID Connect (VC-AuthN OIDC)
