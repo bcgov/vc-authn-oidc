@@ -7,6 +7,6 @@ python-multipart==0.0.9 # required by fastapi to serve/upload files
 qrcode[pil]==7.4.2
 structlog==24.4.0
 uvicorn[standard]==0.30.6
-python-socketio==5.11.3 # required to run websockets
+python-socketio==5.11.4 # required to run websockets
 canonicaljson==2.0.0 # used to provide unique consistent user identifiers
 pydantic-settings==2.4.0
