@@ -1,6 +1,14 @@
 from .variableSubstitutions import variable_substitution_map
 
 
+class VariableSubstitutionError(Exception):
+    """Custom exception for if a variable is used that does not exist."""
+
+    def __init__(self, variable_name: str):
+        self.variable_name = variable_name
+        super().__init__(f"Variable '{variable_name}' not found in substitution map.")
+
+
 def replace_proof_variables(proof_req_dict: dict) -> dict:
     """
     Recursively replaces variables in the proof request with actual values.
@@ -25,8 +33,11 @@ def replace_proof_variables(proof_req_dict: dict) -> dict:
                 if isinstance(i, dict):
                     replace_proof_variables(i)
         # If the value is a string and matches a key in the map, replace it
-        elif isinstance(v, str):
+        elif isinstance(v, str) and v.startswith("$"):
             if v in variable_substitution_map:
                 proof_req_dict[k] = variable_substitution_map[v]()
+            else:
+                raise VariableSubstitutionError(v)
+
         # Base case: If the value is not a dict, list, or matching string, do nothing
     return proof_req_dict

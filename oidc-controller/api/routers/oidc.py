@@ -34,6 +34,8 @@ from ..db.session import get_db
 from ..routers.socketio import connections_reload, sio
 
 from ..verificationConfigs.crud import VerificationConfigCRUD
+from ..verificationConfigs.helpers import VariableSubstitutionError
+
 
 ChallengePollUri = "/poll"
 AuthorizeCallbackUri = "/callback"
@@ -125,7 +127,19 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     ver_config = await VerificationConfigCRUD(db).get(ver_config_id)
 
     # Create presentation_request to show on screen
-    response = client.create_presentation_request(ver_config.generate_proof_request())
+    try:
+        response = client.create_presentation_request(
+            ver_config.generate_proof_request()
+        )
+    except VariableSubstitutionError as e:
+        return JSONResponse(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            content={
+                "detail": f"Variable substitution error: \
+'{e.variable_name}' not found in substitution map."
+            },
+        )
+
     pres_exch_dict = response.dict()
 
     # Prepeare the presentation request

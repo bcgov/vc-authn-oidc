@@ -1,7 +1,8 @@
 """
-This file contains the VariableSubstitutionMap class, which provides a mapping of static variables
-that can be used in a proof. Other users of this project can add their own variable substitutions
-or override the entire file to suit their own needs.
+This file contains VariableSubstitutionMap class, which provides a mapping of
+static variables that can be used in a proof.
+Other users of this project can add their own variable substitutions or override
+the entire file to suit their own needs.
 """
 
 from datetime import datetime, timedelta
@@ -59,8 +60,8 @@ class VariableSubstitutionMap:
         """
         return (datetime.today() + timedelta(days=1)).strftime("%Y%m%d")
 
-    # For "dynamic" variables, we use a regex to match the key and return a lambda function
-    # So a proof request can use $threshold_years_X to get the threshold birthdate for X years
+    # For "dynamic" variables, use a regex to match the key and return a lambda function
+    # So a proof request can use $threshold_years_X to get the years back for X years
     def __contains__(self, key: str) -> bool:
         return key in self.static_map or re.match(r"\$threshold_years_(\d+)", key)
 

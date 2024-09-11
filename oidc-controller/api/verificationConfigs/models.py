@@ -1,7 +1,6 @@
-from datetime import datetime
 import time
 from typing import Optional, List
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
+from pydantic import BaseModel, ConfigDict, Field
 
 from .examples import ex_ver_config
 from ..core.config import settings
@@ -74,7 +73,7 @@ class VerificationConfigBase(BaseModel):
                     "from": int(time.time()),
                     "to": int(time.time()),
                 }
-        # Recursively check for subistitution variables and invoke the apporpriate replacement function
+        # Recursively check for subistitution variables and invoke replacement function
         result = replace_proof_variables(result)
         return result
 
