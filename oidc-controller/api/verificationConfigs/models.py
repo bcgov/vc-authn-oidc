@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .examples import ex_ver_config
 from ..core.config import settings
+from .helpers import replace_proof_variables
 
 
 # Slightly modified from ACAPY models.
@@ -44,6 +45,9 @@ class VerificationConfigBase(BaseModel):
     generate_consistent_identifier: Optional[bool] = Field(default=False)
     include_v1_attributes: Optional[bool] = Field(default=False)
 
+    def get_now(self) -> int:
+        return int(time.time())
+
     def generate_proof_request(self):
         result = {
             "name": "proof_requested",
@@ -61,15 +65,16 @@ class VerificationConfigBase(BaseModel):
                     "from": int(time.time()),
                     "to": int(time.time()),
                 }
-        # TODO add I indexing
-        for req_pred in self.proof_request.requested_predicates:
+        for i, req_pred in enumerate(self.proof_request.requested_predicates):
             label = req_pred.label or "req_pred_" + str(i)
             result["requested_predicates"][label] = req_pred.dict(exclude_none=True)
             if settings.SET_NON_REVOKED:
-                result["requested_attributes"][label]["non_revoked"] = {
+                result["requested_predicates"][label]["non_revoked"] = {
                     "from": int(time.time()),
                     "to": int(time.time()),
                 }
+        # Recursively check for subistitution variables and invoke replacement function
+        result = replace_proof_variables(result)
         return result
 
     model_config = ConfigDict(json_schema_extra={"example": ex_ver_config})
