@@ -124,6 +124,7 @@ class AcapyClient:
                 }
             ],
             "use_public_did": use_public_did,
+            "my_label": settings.INVITATION_LABEL,
         }
 
         resp_raw = requests.post(

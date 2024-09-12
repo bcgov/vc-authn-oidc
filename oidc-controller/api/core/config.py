@@ -214,6 +214,7 @@ class GlobalConfig(BaseSettings):
     OIDC_CLIENT_SECRET: str = os.environ.get("OIDC_CLIENT_SECRET", "**********")
 
     # OIDC Controller Settings
+    INVITATION_LABEL: str = os.environ.get("INVITATION_LABEL", "VC-AuthN")
     CONTROLLER_API_KEY: str = os.environ.get("CONTROLLER_API_KEY", "")
     USE_OOB_PRESENT_PROOF: bool = strtobool(
         os.environ.get("USE_OOB_PRESENT_PROOF", False)
