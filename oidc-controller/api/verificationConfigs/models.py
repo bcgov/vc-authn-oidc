@@ -1,5 +1,5 @@
 import time
-from typing import Optional, List
+from typing import Optional, List, Union
 from pydantic import BaseModel, ConfigDict, Field
 
 from .examples import ex_ver_config
@@ -27,7 +27,7 @@ class ReqPred(BaseModel):
     name: str
     label: Optional[str] = None
     restrictions: List[AttributeFilter]
-    p_value: str
+    p_value: Union[int, str]
     p_type: str
 
 
