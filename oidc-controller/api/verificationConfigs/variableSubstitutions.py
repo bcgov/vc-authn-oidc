@@ -16,8 +16,8 @@ class VariableSubstitutionMap:
         # This class defines threshold_years_X as a dynamic one
         self.static_map = {
             "$now": self.get_now,
-            "$today_str": self.get_today_date,
-            "$tomorrow_str": self.get_tomorrow_date,
+            "$today_int": self.get_today_date,
+            "$tomorrow_int": self.get_tomorrow_date,
         }
 
     def get_threshold_years_date(self, years: int) -> int:
@@ -42,23 +42,23 @@ class VariableSubstitutionMap:
         """
         return int(time.time())
 
-    def get_today_date(self) -> str:
+    def get_today_date(self) -> int:
         """
-        Get today's date in YYYYMMDD format.
+        Get today's date in YYYYMMDD format as a number.
 
         Returns:
-            str: Today's date in YYYYMMDD format.
+            int: Today's date in YYYYMMDD format.
         """
-        return datetime.today().strftime("%Y%m%d")
+        return int(datetime.today().strftime("%Y%m%d"))
 
-    def get_tomorrow_date(self) -> str:
+    def get_tomorrow_date(self) -> int:
         """
-        Get tomorrow's date in YYYYMMDD format.
+        Get tomorrow's date in YYYYMMDD format as a number.
 
         Returns:
-            str: Tomorrow's date in YYYYMMDD format.
+            int: Tomorrow's date in YYYYMMDD format.
         """
-        return (datetime.today() + timedelta(days=1)).strftime("%Y%m%d")
+        return int((datetime.today() + timedelta(days=1)).strftime("%Y%m%d"))
 
     # For "dynamic" variables, use a regex to match the key and return a lambda function
     # So a proof request can use $threshold_years_X to get the years back for X years

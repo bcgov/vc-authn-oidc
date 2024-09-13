@@ -11,13 +11,13 @@ def test_get_now():
 
 def test_get_today_date():
     vsm = VariableSubstitutionMap()
-    assert vsm.get_today_date() == datetime.today().strftime("%Y%m%d")
+    assert vsm.get_today_date() == int(datetime.today().strftime("%Y%m%d"))
 
 
 def test_get_tomorrow_date():
     vsm = VariableSubstitutionMap()
-    assert vsm.get_tomorrow_date() == (datetime.today() + timedelta(days=1)).strftime(
-        "%Y%m%d"
+    assert vsm.get_tomorrow_date() == int(
+        (datetime.today() + timedelta(days=1)).strftime("%Y%m%d")
     )
 
 
@@ -33,8 +33,8 @@ def test_get_threshold_years_date():
 def test_contains_static_variable():
     vsm = VariableSubstitutionMap()
     assert "$now" in vsm
-    assert "$today_str" in vsm
-    assert "$tomorrow_str" in vsm
+    assert "$today_int" in vsm
+    assert "$tomorrow_int" in vsm
 
 
 def test_contains_dynamic_variable():
@@ -45,8 +45,8 @@ def test_contains_dynamic_variable():
 def test_getitem_static_variable():
     vsm = VariableSubstitutionMap()
     assert callable(vsm["$now"])
-    assert callable(vsm["$today_str"])
-    assert callable(vsm["$tomorrow_str"])
+    assert callable(vsm["$today_int"])
+    assert callable(vsm["$tomorrow_int"])
 
 
 def test_getitem_dynamic_variable():
