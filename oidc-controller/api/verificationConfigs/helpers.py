@@ -27,7 +27,7 @@ def replace_proof_variables(proof_req_dict: dict) -> dict:
         # If the value is a dictionary, recurse
         if isinstance(v, dict):
             replace_proof_variables(v)
-        # If the value is a list, iterate trhough list items and recurse
+        # If the value is a list, iterate through list items and recurse
         elif isinstance(v, list):
             for i in v:
                 if isinstance(i, dict):
