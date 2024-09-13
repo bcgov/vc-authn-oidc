@@ -337,7 +337,7 @@ Create a default fully qualified app name for the postgres requirement.
 Generate acapy wallet storage config
 */}}
 {{- define "acapy.walletStorageConfig" -}}
-{{- if and .Values.acapy.walletStorageConfig (not .Values.postgresql.enabled) -}}
+{{- if .Values.acapy.walletStorageConfig -}}
 {{- if .Values.acapy.walletStorageConfig.json -}}
 {{- .Values.acapy.walletStorageConfig.json -}}
 {{- else -}}
@@ -354,13 +354,13 @@ Generate acapy wallet storage config
 Generate acapy wallet storage credentials
 */}}
 {{- define "acapy.walletStorageCredentials" -}}
-{{- if and .Values.acapy.walletStorageCredentials (not .Values.postgresql.enabled) -}}
+{{- if .Values.acapy.walletStorageCredentials -}}
 {{- if .Values.acapy.walletStorageCredentials.json -}}
 {{- .Values.acapy.walletStorageCredentials.json -}}
 {{- else -}}
 '{"account":"{{ .Values.acapy.walletStorageCredentials.account | default "acapy" }}","password":"{{ .Values.acapy.walletStorageCredentials.password }}", "admin_account":"{{ .Values.acapy.walletStorageCredentials.admin_account }}", "admin_password":"{{ .Values.acapy.walletStorageCredentials.admin_password }}"}'
 {{- end -}}
-{{- else if and .Values.postgresql.enabled -}}
+{{- else if .Values.postgresql.enabled -}}
 '{"account":"{{ .Values.postgresql.auth.username }}","password":"$(POSTGRES_PASSWORD)", "admin_account":"{{ .Values.acapy.walletStorageCredentials.admin_account }}", "admin_password":"$(POSTGRES_POSTGRES_PASSWORD)"}'
 {{- end -}}
 {{- end -}}
