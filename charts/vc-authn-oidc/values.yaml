@@ -352,7 +352,6 @@ acapy:
   ##
   ## @param acapy.walletStorageCredentials.json Raw json with database credentials. Overrides all other values including postgres subchart values. e.g.: '{"account":"postgres","password":"mysecretpassword","admin_account":"postgres","admin_password":"mysecretpassword"}'
   ## @param acapy.walletStorageCredentials.account Database account name.
-  ## @param acapy.walletStorageCredentials.password Database password.
   ## @param acapy.walletStorageCredentials.admin_account Database account with CREATEDB role used to create additional databases per wallet.
   ## @param acapy.walletStorageCredentials.admin_password Database password for admin account.
   ## @param acapy.walletStorageCredentials.existingSecret Name of an existing secret containing 'database-user', 'database-password', 'admin-password' keys.
@@ -362,7 +361,6 @@ acapy:
   walletStorageCredentials:
     json: ""
     account: ""
-    password: ""
     admin_account: postgres
     admin_password: ""
     existingSecret: ""
