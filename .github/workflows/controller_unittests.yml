@@ -25,7 +25,7 @@ jobs:
         working-directory: ./oidc-controller
         run: |
           pip3 install --no-cache-dir poetry
-          poetry install --only main
+          poetry install
       - name: Lint with black
         working-directory: ./oidc-controller
         run: |
