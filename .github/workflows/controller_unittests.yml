@@ -24,17 +24,16 @@ jobs:
       - name: Install dependencies
         working-directory: ./oidc-controller
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Lint with flake8
+          pip3 install --no-cache-dir poetry
+          poetry install
+      - name: Lint with black
         working-directory: ./oidc-controller
         run: |
-          flake8 . --count --show-source --statistics
+          poetry run black --check .
       - name: Test with pytest
         working-directory: ./oidc-controller
         run: |
-          pytest --log-cli-level=INFO --cov --cov-report lcov
+          poetry run pytest --log-cli-level=INFO --cov --cov-report lcov
       - name: Coveralls Parallel
         uses: coverallsapp/github-action@v2
         with:
