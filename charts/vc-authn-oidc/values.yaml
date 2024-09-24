@@ -40,8 +40,8 @@ walletDeepLinkPrefix: bcwallet://aries_proof-request
 controllerCameraRedirectUrl: wallet_howto
 ## @param controllerPresentationExpireTime The number of time in seconds a proof request will be valid for
 controllerPresentationExpireTime: 300
-## @param controllerSessionTimeoutConfigFile The file containing a json list of auth session states that are safe for deletion
-controllerSessionTimeoutConfigFile: /home/aries/sessiontimeout.json
+## @param controllerSessionTimeoutDuration The number of seconds an auth_sessions in the states defined in controllerSessionTimeoutConfig is kept for
+controllerSessionTimeoutDuration: 86400
 ## @param controllerSessionTimeoutConfig The json list of auth session states that are safe for deletion
 controllerSessionTimeoutConfig:
   - expired
