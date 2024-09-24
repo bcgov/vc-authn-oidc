@@ -42,6 +42,11 @@ controllerCameraRedirectUrl: wallet_howto
 controllerPresentationExpireTime: 300
 ## @param controllerSessionTimeoutConfigFile The file containing a json list of auth session states that are safe for deletion
 controllerSessionTimeoutConfigFile: /home/aries/sessiontimeout.json
+## @param controllerSessionTimeoutConfig The json list of auth session states that are safe for deletion
+controllerSessionTimeoutConfig:
+  - expired
+  - failed
+  - abandoned
 ## @param useHTTPS Prepend Agent and Admin URLs with `https`
 useHTTPS: true
 ## @param logLevel Accepts one of the following values: CRITICAL, ERROR, WARNING, INFO, DEBUG
