@@ -36,17 +36,19 @@ useOobLocalDIDService: false
 useUrlDeepLink: false
 ## @param walletDeepLinkPrefix URI scheme and host to use in deep links ((e.g. `{WALLET_DEEP_LINK_PREFIX}?c_i={connection invitation payload`))
 walletDeepLinkPrefix: bcwallet://aries_proof-request
-## @param controllerCameraRedirectUrl The redirect url can be a web link or the name of a template
-controllerCameraRedirectUrl: wallet_howto
-## @param controllerPresentationExpireTime The number of time in seconds a proof request will be valid for
-controllerPresentationExpireTime: 300
-## @param controllerSessionTimeoutDuration The number of seconds an auth_sessions in the states defined in controllerSessionTimeoutConfig is kept for
-controllerSessionTimeoutDuration: 86400
-## @param controllerSessionTimeoutConfig The json list of auth session states that are safe for deletion
-controllerSessionTimeoutConfig:
-  - expired
-  - failed
-  - abandoned
+## @param controller.CameraRedirectUrl The redirect url can be a web link or the name of a template
+## @param controller.PresentationExpireTime The number of time in seconds a proof request will be valid for
+## @param controller.SessionTimeout.Duration The number of seconds an auth_sessions in the states defined in controllerSessionTimeoutConfig is kept for
+## @param controller.SessionTimeout.Config The json list of auth session states that are safe for deletion
+controller:
+  CameraRedirectUrl: wallet_howto
+  PresentationExpireTime: 300
+  SessionTimeout:
+    Duration: 86400
+    Config:
+      - expired
+      - failed
+      - abandoned
 ## @param useHTTPS Prepend Agent and Admin URLs with `https`
 useHTTPS: true
 ## @param logLevel Accepts one of the following values: CRITICAL, ERROR, WARNING, INFO, DEBUG

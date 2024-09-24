@@ -64,13 +64,13 @@ spec:
                   name: {{ include "vc-authn-oidc.apiSecretName" . }}
                   key: controllerApiKey
             - name: CONTROLLER_CAMERA_REDIRECT_URL
-              value: {{ .Values.controllerCameraRedirectUrl }}
+              value: {{ .Values.controller.CameraRedirectUrl }}
             - name: CONTROLLER_PRESENTATION_EXPIRE_TIME
-              value: {{ .Values.controllerPresentationExpireTime | quote }}
+              value: {{ .Values.controller.PresentationExpireTime | quote }}
             - name: CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE
               value: /home/aries/sessiontimeout.json
             - name: CONTROLLER_PRESENTATION_CLEANUP_TIME
-              value: {{ .Values.controllerSessionTimeoutDuration | quote }}
+              value: {{ .Values.controller.SessionTimeout.Duration | quote }}
             - name: ACAPY_AGENT_URL
               value: {{ include "acapy.agent.url" . }}
             - name: ACAPY_ADMIN_URL

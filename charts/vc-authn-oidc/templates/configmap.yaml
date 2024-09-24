@@ -5,4 +5,4 @@ metadata:
   labels: {{- include "vc-authn-oidc.labels" . | nindent 4 }}
 data:
   sessiontimeout.json: |
-    {{ .Values.controllerSessionTimeoutConfig | toJson }}
+    {{ .Values.controller.SessionTimeout.Config | toJson }}
