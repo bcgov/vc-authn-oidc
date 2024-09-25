@@ -177,7 +177,7 @@ configureEnvironment() {
   export CONTROLLER_PRESENTATION_CLEANUP_TIME=86400
 
   # The path to the auth_session timeouts config file
-  export CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE="/tmp/sessiontimeout.json"
+  export CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE="/home/aries/sessiontimeout.json"
 
   #controller app settings
   export INVITATION_LABEL=${INVITATION_LABEL:-"VC-AuthN"}

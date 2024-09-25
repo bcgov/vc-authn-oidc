@@ -44,7 +44,7 @@ services:
       - 5678:5678
     volumes:
       - ../oidc-controller:/app:rw
-      - ./oidc-controller/sessiontimeout.json:/tmp/sessiontimeout.json
+      - ./oidc-controller/config/sessiontimeout.json:/home/aries/sessiontimeout.json
     networks:
       - vc_auth
 

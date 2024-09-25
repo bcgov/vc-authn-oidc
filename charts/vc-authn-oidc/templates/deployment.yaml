@@ -64,9 +64,13 @@ spec:
                   name: {{ include "vc-authn-oidc.apiSecretName" . }}
                   key: controllerApiKey
             - name: CONTROLLER_CAMERA_REDIRECT_URL
-              value: {{ .Values.controllerCameraRedirectUrl }}
+              value: {{ .Values.controller.cameraRedirectUrl }}
             - name: CONTROLLER_PRESENTATION_EXPIRE_TIME
-              value: {{ .Values.controllerPresentationExpireTime | quote }}
+              value: {{ .Values.controller.presentationExpireTime | quote }}
+            - name: CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE
+              value: /home/aries/sessiontimeout.json
+            - name: CONTROLLER_PRESENTATION_CLEANUP_TIME
+              value: {{ .Values.controller.sessionTimeout.duration | quote }}
             - name: ACAPY_AGENT_URL
               value: {{ include "acapy.agent.url" . }}
             - name: ACAPY_ADMIN_URL
@@ -121,6 +125,9 @@ spec:
           volumeMounts:
             - name: jwt-token
               mountPath: /opt/token
+            - name: auth-session-ttl
+              mountPath: /home/aries/sessiontimeout.json
+              subPath: sessiontimeout.json
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

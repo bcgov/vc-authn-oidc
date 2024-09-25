@@ -345,7 +345,7 @@ The following additional metadata must be present at the OP's `/.well-known/open
 
 ## Auth Session Cleanup
 
-For each authentication attempt, an auth session is created. Over Time, these can accumulate, increasing the database size. To address this issue, a configuration file specified by the environment variable CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE is used to automatically clean up auth sessions based on their current state. This file contains a JSON array of different auth session states as strings.
+For each authentication attempt, an auth session is created. Over Time, these can accumulate, increasing the database size. To address this issue, a configuration file specified by the environment variable `CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE` is used to automatically clean up auth sessions based on their current state. This file contains a JSON array of different auth session states as strings.
 
 An example configuration file would contain the following text
 ```json
