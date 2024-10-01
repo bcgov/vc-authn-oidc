@@ -36,6 +36,9 @@ spec:
           secret:
             secretName: {{ include "vc-authn-oidc.token.secretName" . }}
             defaultMode: 256
+        - name: auth-session-ttl
+          configMap:
+            name: vc-authn-oidc-session-timeout
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
