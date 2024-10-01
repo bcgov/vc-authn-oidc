@@ -147,6 +147,14 @@ A verifiable credential presentation request configuration, takes the following 
         "names": ["email", "first_name", "last_name"]
         "restrictions": []
       }
+    ],
+    "requested_predicates": [
+      {
+        "name": "predicate name"
+        "restrictions": [],
+        "p_value": "value here",
+        "p_type": "<="
+      }
     ]
   }
 }
@@ -170,6 +178,14 @@ This data model is inspired by that is defined and used in the [Hyperledger Indy
             - `schema_version` : Version of the schema used for the credential the attribute is being disclosed from.
             - `issuer_did` : DID of the issuer of the credential the attribute is being disclosed from.
             - `cred_def_id` : Identifier of the credential definition the credential the attribute is being disclosed from.
+    - `requested_predicates` : Set of requested predicates.
+        - `name"` : Relevant attribute name, (case insensitive and ignore spaces)
+        - `p_type"` : The predicate type (<, >, <=, etc)
+        - `p_value"` : The predicate value
+        - `restrictions"` An object declaring the constraints, see above
+
+Values in this data model can optionally include "proof variable substitutions" that will populate at the time the proof request is generated at runtime. Details can be found [here](ConfigurationGuide.md#proof-substitution-variables)
+
 
 ### API
 

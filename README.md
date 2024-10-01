@@ -50,6 +50,7 @@ In order to use the VC OIDC authentication, a couple of extra steps are required
 
 - A proof-request configuration needs to be registered with VC-AuthN. To do
   so, the following command can be used to post a configuration requesting a BC Wallet Showcase Person credential:
+- Though not implemented in this built-in config, proof-request configurations can optionally include substitution variables. Details can be found [here](docs/ConfigurationGuide.md#proof-substitution-variables)
 
 ```bash
 curl -X 'POST' \
