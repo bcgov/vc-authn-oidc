@@ -38,7 +38,7 @@ spec:
             defaultMode: 256
         - name: auth-session-ttl
           configMap:
-            name: vc-authn-oidc-session-timeout
+            name: {{ include "global.fullname" . }}-session-timeout
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -70,8 +70,8 @@ spec:
               value: {{ .Values.controller.cameraRedirectUrl }}
             - name: CONTROLLER_PRESENTATION_EXPIRE_TIME
               value: {{ .Values.controller.presentationExpireTime | quote }}
-            - name: CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE
-              value: /home/aries/sessiontimeout.json
+            # - name: CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE
+            #   value: /home/aries/sessiontimeout.json
             - name: CONTROLLER_PRESENTATION_CLEANUP_TIME
               value: {{ .Values.controller.sessionTimeout.duration | quote }}
             - name: ACAPY_AGENT_URL
