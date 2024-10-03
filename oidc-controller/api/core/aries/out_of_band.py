@@ -26,7 +26,6 @@ class OutOfBandMessage(BaseModel):
         alias="requests~attach"
     )
     services: List[Union[OOBServiceDecorator, str]] = Field(alias="services")
-    # TODO: This is causing problems in our BC Wallet use case, TBD
-    # handshake_protocols: List[str] = Field(alias="handshake_protocols", default=None)
+    handshake_protocols: List[str] = Field(alias="handshake_protocols", default=None)
 
     model_config = ConfigDict(populate_by_name=True)
