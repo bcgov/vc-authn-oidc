@@ -88,7 +88,7 @@
                 type="button"
                 class="btn btn-primary btn-circle"
                 data-bs-toggle="modal"
-                data-bs-target="#exampleModal"
+                data-bs-target="#exampleModal{{ vc.ver_config_id }}"
               >
                 <i class="bi bi-eye"></i>
               </button>
@@ -96,7 +96,7 @@
               <!-- Modal -->
               <div
                 class="modal fade"
-                id="exampleModal"
+                id="exampleModal{{ vc.ver_config_id }}"
                 tabindex="-1"
                 aria-labelledby="exampleModalLabel"
                 aria-hidden="true"
