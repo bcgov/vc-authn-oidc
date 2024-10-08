@@ -235,7 +235,7 @@ async def test_valid_presentation_with_matching_subject_identifier_in_claims_sub
     auth_session.presentation_exchange = presentation["by_format"]
     claims = Token.get_claims(auth_session, ver_config)
     print(claims)
-    assert claims["sub"] == "test@email.com"
+    assert claims["sub"] == "test@email.com@verified-email"
 
 
 @pytest.mark.asyncio

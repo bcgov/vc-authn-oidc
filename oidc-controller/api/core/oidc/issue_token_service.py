@@ -98,7 +98,14 @@ class Token(BaseModel):
 
         if sub_id_claim:
             # add sub and append presentation_claims
-            oidc_claims.append(Claim(type="sub", value=sub_id_claim.value))
+            assert type(auth_session.request_parameters["pres_req_conf_id"]) == str
+            oidc_claims.append(
+                Claim(
+                    type="sub",
+                    value=f"{sub_id_claim.value}@{auth_session.request_parameters['pres_req_conf_id']}",
+                )
+            )
+
         elif ver_config.generate_consistent_identifier:
             # Do not create a sub based on the proof claims if the
             # user requests a generated identifier
