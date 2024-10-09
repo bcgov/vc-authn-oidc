@@ -638,18 +638,9 @@ postgresql:
     ## @param postgresql.auth.enablePostgresUser Assign a password to the "postgres" admin user. Otherwise, remote access will be blocked for this user
     ##
     enablePostgresUser: true
-    ## @param postgresql.auth.existingSecret Name of existing secret to use for PostgreSQL credentials. `postgresql.auth.postgresPassword`, `postgresql.auth.password`, and `postgresql.auth.replicationPassword` will be ignored and picked up from this secret. The secret might also contains the key `ldap-password` if LDAP is enabled. `ldap.bind_password` will be ignored and picked from this secret in this case.
-    ##
-    existingSecret: '{{ include "global.fullname" . }}'
-    ## @param postgresql.auth.secretKeys.adminPasswordKey Name of key in existing secret to use for PostgreSQL credentials. Only used when `auth.existingSecret` is set.
-    ## @param postgresql.auth.secretKeys.userPasswordKey Name of key in existing secret to use for PostgreSQL credentials. Only used when `auth.existingSecret` is set.
-    ##
-    secretKeys:
-      adminPasswordKey: admin-password
-      userPasswordKey: database-password
     ## @param postgresql.auth.database Name for a custom database to create
     ##
-    database: traction
+    database: askar-wallet
     ## @param postgresql.auth.username Name for a custom user to create
     ##
     username: acapy
