@@ -1,8 +1,8 @@
 ## @section Common Configuration
 ##
-## @param nameOverride
+## @param nameOverride String to override the helm chart name, second part of the prefix.
 nameOverride: ""
-## @param fullnameOverride
+## @param fullnameOverride String to fully override the helm chart name, full prefix. *Must be provided if using a custom release name that does not include the name of the helm chart (`vc-authn-oidc`).*
 fullnameOverride: ""
 
 ## @param image.repository
@@ -374,8 +374,8 @@ acapy:
     admin_password: ""
     existingSecret: ""
     secretKeys:
-      adminPasswordKey: admin-password
-      userPasswordKey: database-password
+      adminPasswordKey: postgres-password
+      userPasswordKey: password
 
   ## @section Acapy tails persistence configuration
   persistence:
