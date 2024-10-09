@@ -110,8 +110,13 @@ class Token(BaseModel):
             # Do not create a sub based on the proof claims if the
             # user requests a generated identifier
             # Generate a SHA256 hash of the canonicaljson encoded proof_claims
-            encoded_json = canonicaljson.encode_canonical_json(proof_claims)
-            sha256_hash = hashlib.sha256(encoded_json).hexdigest()
+            encoded_json: bytes = canonicaljson.encode_canonical_json(proof_claims)
+            sha256_hash = hashlib.sha256(
+                (
+                    encoded_json
+                    + f"@{auth_session.request_parameters['pres_req_conf_id']}".encode()
+                )
+            ).hexdigest()
             oidc_claims.append(
                 Claim(
                     type="sub",
