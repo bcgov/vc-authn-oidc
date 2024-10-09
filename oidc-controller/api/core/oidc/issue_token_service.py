@@ -96,13 +96,17 @@ class Token(BaseModel):
         # matching the configured subject_identifier, if any
         sub_id_claim = presentation_claims.get(ver_config.subject_identifier)
 
+        pres_req_conf_id_suffix = (
+            f"@{auth_session.request_parameters['pres_req_conf_id']}"
+        )
+
         if sub_id_claim:
             # add sub and append presentation_claims
             assert type(auth_session.request_parameters["pres_req_conf_id"]) == str
             oidc_claims.append(
                 Claim(
                     type="sub",
-                    value=f"{sub_id_claim.value}@{auth_session.request_parameters['pres_req_conf_id']}",
+                    value=sub_id_claim.value + pres_req_conf_id_suffix,
                 )
             )
 
@@ -112,10 +116,7 @@ class Token(BaseModel):
             # Generate a SHA256 hash of the canonicaljson encoded proof_claims
             encoded_json: bytes = canonicaljson.encode_canonical_json(proof_claims)
             sha256_hash = hashlib.sha256(
-                (
-                    encoded_json
-                    + f"@{auth_session.request_parameters['pres_req_conf_id']}".encode()
-                )
+                encoded_json + pres_req_conf_id_suffix.encode()
             ).hexdigest()
             oidc_claims.append(
                 Claim(
