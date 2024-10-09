@@ -102,7 +102,6 @@ class Token(BaseModel):
 
         if sub_id_claim:
             # add sub and append presentation_claims
-            assert type(auth_session.request_parameters["pres_req_conf_id"]) == str
             oidc_claims.append(
                 Claim(
                     type="sub",
