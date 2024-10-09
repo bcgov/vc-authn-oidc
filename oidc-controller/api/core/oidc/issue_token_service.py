@@ -96,15 +96,28 @@ class Token(BaseModel):
         # matching the configured subject_identifier, if any
         sub_id_claim = presentation_claims.get(ver_config.subject_identifier)
 
+        pres_req_conf_id_suffix = (
+            f"@{auth_session.request_parameters['pres_req_conf_id']}"
+        )
+
         if sub_id_claim:
             # add sub and append presentation_claims
-            oidc_claims.append(Claim(type="sub", value=sub_id_claim.value))
+            assert type(auth_session.request_parameters["pres_req_conf_id"]) == str
+            oidc_claims.append(
+                Claim(
+                    type="sub",
+                    value=sub_id_claim.value + pres_req_conf_id_suffix,
+                )
+            )
+
         elif ver_config.generate_consistent_identifier:
             # Do not create a sub based on the proof claims if the
             # user requests a generated identifier
             # Generate a SHA256 hash of the canonicaljson encoded proof_claims
-            encoded_json = canonicaljson.encode_canonical_json(proof_claims)
-            sha256_hash = hashlib.sha256(encoded_json).hexdigest()
+            encoded_json: bytes = canonicaljson.encode_canonical_json(proof_claims)
+            sha256_hash = hashlib.sha256(
+                encoded_json + pres_req_conf_id_suffix.encode()
+            ).hexdigest()
             oidc_claims.append(
                 Claim(
                     type="sub",
