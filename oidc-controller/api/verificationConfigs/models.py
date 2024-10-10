@@ -59,7 +59,9 @@ class VerificationConfigBase(BaseModel):
             result["name"] = self.proof_request.name
         for i, req_attr in enumerate(self.proof_request.requested_attributes):
             label = req_attr.label or "req_attr_" + str(i)
-            result["requested_attributes"][label] = req_attr.dict(exclude_none=True)
+            result["requested_attributes"][label] = req_attr.model_dump(
+                exclude_none=True
+            )
             if settings.SET_NON_REVOKED:
                 result["requested_attributes"][label]["non_revoked"] = {
                     "from": int(time.time()),
@@ -67,7 +69,9 @@ class VerificationConfigBase(BaseModel):
                 }
         for i, req_pred in enumerate(self.proof_request.requested_predicates):
             label = req_pred.label or "req_pred_" + str(i)
-            result["requested_predicates"][label] = req_pred.dict(exclude_none=True)
+            result["requested_predicates"][label] = req_pred.model_dump(
+                exclude_none=True
+            )
             if settings.SET_NON_REVOKED:
                 result["requested_predicates"][label]["non_revoked"] = {
                     "from": int(time.time()),

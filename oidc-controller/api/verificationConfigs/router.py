@@ -54,7 +54,7 @@ async def get_proof_request_explorer(db: Database = Depends(get_db)):
     template = Template(template_file)
     #  get all from VerificationConfigCRUD and add to the jinja template
     ver_configs = await VerificationConfigCRUD(db).get_all()
-    data["ver_configs"] = [vc.dict() for vc in ver_configs]
+    data["ver_configs"] = [vc.model_dump() for vc in ver_configs]
 
     return HTMLResponse(template.render(data))
 

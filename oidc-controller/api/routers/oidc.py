@@ -71,7 +71,7 @@ async def poll_pres_exch_complete(pid: str, db: Database = Depends(get_db)):
         logger.info("PROOF EXPIRED")
         auth_session.proof_status = AuthSessionState.EXPIRED
         await AuthSessionCRUD(db).patch(
-            str(auth_session.id), AuthSessionPatch(**auth_session.dict())
+            str(auth_session.id), AuthSessionPatch(**auth_session.model_dump())
         )
         # Send message through the websocket.
         if sid:
@@ -140,7 +140,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
             },
         )
 
-    pres_exch_dict = response.dict()
+    pres_exch_dict = response.model_dump()
 
     # Prepeare the presentation request
     use_public_did = not settings.USE_OOB_LOCAL_DID_SERVICE
@@ -184,7 +184,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         ver_config_id=ver_config_id,
         pres_exch_id=response.pres_ex_id,
         presentation_exchange=pres_exch_dict,
-        presentation_request_msg=msg_contents.dict(by_alias=True),
+        presentation_request_msg=msg_contents.model_dump(by_alias=True),
     )
     auth_session = await AuthSessionCRUD(db).create(new_auth_session)
 

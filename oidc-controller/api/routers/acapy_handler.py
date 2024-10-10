@@ -58,7 +58,7 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                         await sio.emit("status", {"status": "failed"}, to=sid)
 
                 await AuthSessionCRUD(db).patch(
-                    str(auth_session.id), AuthSessionPatch(**auth_session.dict())
+                    str(auth_session.id), AuthSessionPatch(**auth_session.model_dump())
                 )
 
             # abandoned state
@@ -70,7 +70,7 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                     await sio.emit("status", {"status": "abandoned"}, to=sid)
 
                 await AuthSessionCRUD(db).patch(
-                    str(auth_session.id), AuthSessionPatch(**auth_session.dict())
+                    str(auth_session.id), AuthSessionPatch(**auth_session.model_dump())
                 )
 
             # Calcuate the expiration time of the proof
@@ -82,7 +82,7 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             # Update the expiration time of the proof
             auth_session.expired_timestamp = expired_time
             await AuthSessionCRUD(db).patch(
-                str(auth_session.id), AuthSessionPatch(**auth_session.dict())
+                str(auth_session.id), AuthSessionPatch(**auth_session.model_dump())
             )
 
             # Check if expired. But only if the proof has not been started.
@@ -96,7 +96,7 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                     await sio.emit("status", {"status": "expired"}, to=sid)
 
                 await AuthSessionCRUD(db).patch(
-                    str(auth_session.id), AuthSessionPatch(**auth_session.dict())
+                    str(auth_session.id), AuthSessionPatch(**auth_session.model_dump())
                 )
 
             pass

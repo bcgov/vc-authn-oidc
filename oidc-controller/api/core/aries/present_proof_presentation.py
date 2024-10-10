@@ -25,5 +25,5 @@ class PresentationRequestMessage(BaseModel):
     def b64_str(self):
         # object->dict->jsonString->ascii->ENCODE->ascii
         return base64.b64encode(
-            json.dumps(self.dict(by_alias=True)).encode("ascii")
+            json.dumps(self.model_dump(by_alias=True)).encode("ascii")
         ).decode("ascii")

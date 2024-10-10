@@ -54,7 +54,7 @@ class AuthSessionCRUD:
         col = self._db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
         auth_sess = col.find_one_and_update(
             {"_id": PyObjectId(id)},
-            {"$set": data.dict(exclude_unset=True)},
+            {"$set": data.model_dump(exclude_unset=True)},
             return_document=ReturnDocument.AFTER,
         )
 

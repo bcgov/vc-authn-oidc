@@ -54,7 +54,7 @@ class VerificationConfigCRUD:
         ver_confs = self._db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
         ver_conf = ver_confs.find_one_and_update(
             {"ver_config_id": ver_config_id},
-            {"$set": data.dict(exclude_unset=True)},
+            {"$set": data.model_dump(exclude_unset=True)},
             return_document=ReturnDocument.AFTER,
         )
         check_and_raise_not_found_http_exception(ver_conf, NOT_FOUND_MSG)
