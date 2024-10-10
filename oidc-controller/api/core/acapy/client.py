@@ -56,7 +56,7 @@ class AcapyClient:
         assert resp_raw.status_code == 200, resp_raw.content
 
         resp = json.loads(resp_raw.content)
-        result = CreatePresentationResponse.parse_obj(resp)
+        result = CreatePresentationResponse.model_validate(resp)
 
         logger.debug("<<< create_presenation_request")
         return result
@@ -105,7 +105,7 @@ class AcapyClient:
         else:
             resp_payload = resp["results"][0]
 
-        did = WalletDid.parse_obj(resp_payload)
+        did = WalletDid.model_validate(resp_payload)
 
         logger.debug(f"<<< get_wallet_did -> {did}")
         return did
@@ -135,7 +135,7 @@ class AcapyClient:
         assert resp_raw.status_code == 200, resp_raw.content
 
         resp = json.loads(resp_raw.content)
-        result = OobCreateInvitationResponse.parse_obj(resp)
+        result = OobCreateInvitationResponse.model_validate(resp)
 
         logger.debug("<<< oob_create_invitation")
         return result
