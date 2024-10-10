@@ -1,4 +1,3 @@
-from typing import Optional, Dict
 from ..aries import OutOfBandMessage
 
 from pydantic import BaseModel
@@ -11,13 +10,13 @@ class WalletDid(BaseModel):
 
 
 class WalletDidPublicResponse(BaseModel):
-    result: Optional[WalletDid] = None
+    result: WalletDid | None = None
 
 
 class CreatePresentationResponse(BaseModel):
     thread_id: str
     pres_ex_id: str
-    pres_request: Dict
+    pres_request: dict
 
 
 class OobCreateInvitationResponse(BaseModel):

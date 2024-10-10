@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -19,8 +18,8 @@ class TOKENENDPOINTAUTHMETHODS(str, Enum):
 class ClientConfigurationBase(BaseModel):
     client_id: str = Field(default=settings.OIDC_CLIENT_ID)
     client_name: str = Field(default=settings.OIDC_CLIENT_NAME)
-    response_types: List[str] = Field(default=["code", "id_token", "token"])
-    redirect_uris: List[str]
+    response_types: list[str] = Field(default=["code", "id_token", "token"])
+    redirect_uris: list[str]
     token_endpoint_auth_method: TOKENENDPOINTAUTHMETHODS = Field(
         default=TOKENENDPOINTAUTHMETHODS.client_secret_basic
     )
@@ -41,11 +40,11 @@ class ClientConfigurationRead(ClientConfigurationBase):
 
 
 class ClientConfigurationPatch(ClientConfigurationBase):
-    client_id: Optional[str] = None
-    client_name: Optional[str] = None
-    response_types: Optional[List[str]] = None
-    redirect_uris: Optional[List[str]] = None
-    token_endpoint_auth_method: Optional[TOKENENDPOINTAUTHMETHODS] = None
-    client_secret: Optional[str] = None
+    client_id: str | None = None
+    client_name: str | None = None
+    response_types: list[str] | None = None
+    redirect_uris: list[str] | None = None
+    token_endpoint_auth_method: TOKENENDPOINTAUTHMETHODS | None = None
+    client_secret: str | None = None
 
     pass

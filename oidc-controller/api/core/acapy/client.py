@@ -1,5 +1,4 @@
 import json
-from typing import Optional, Union
 from uuid import UUID
 
 import requests
@@ -23,7 +22,7 @@ class AcapyClient:
     acapy_host = settings.ACAPY_ADMIN_URL
     service_endpoint = settings.ACAPY_AGENT_URL
 
-    wallet_token: Optional[str] = None
+    wallet_token: str | None = None
     agent_config: AgentConfig
 
     def __init__(self):
@@ -62,7 +61,7 @@ class AcapyClient:
         logger.debug("<<< create_presenation_request")
         return result
 
-    def get_presentation_request(self, presentation_exchange_id: Union[UUID, str]):
+    def get_presentation_request(self, presentation_exchange_id: UUID | str):
         logger.debug(">>> get_presentation_request")
 
         resp_raw = requests.get(

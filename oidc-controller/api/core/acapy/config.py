@@ -3,7 +3,7 @@ import structlog
 import json
 
 from functools import cache
-from typing import Dict, Protocol
+from typing import Protocol
 
 from ..config import settings
 
@@ -11,7 +11,7 @@ logger = structlog.getLogger(__name__)
 
 
 class AgentConfig(Protocol):
-    def get_headers() -> Dict[str, str]: ...
+    def get_headers() -> dict[str, str]: ...
 
 
 class MultiTenantAcapy:
@@ -33,10 +33,10 @@ class MultiTenantAcapy:
 
         return wallet_token
 
-    def get_headers(self) -> Dict[str, str]:
+    def get_headers(self) -> dict[str, str]:
         return {"Authorization": "Bearer " + self.get_wallet_token()}
 
 
 class SingleTenantAcapy:
-    def get_headers(self) -> Dict[str, str]:
+    def get_headers(self) -> dict[str, str]:
         return {settings.ST_ACAPY_ADMIN_API_KEY_NAME: settings.ST_ACAPY_ADMIN_API_KEY}

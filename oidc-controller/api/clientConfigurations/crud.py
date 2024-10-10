@@ -1,6 +1,5 @@
 import structlog
 
-from typing import List
 from pymongo import ReturnDocument
 from pymongo.database import Database
 from fastapi.encoders import jsonable_encoder
@@ -48,7 +47,7 @@ class ClientConfigurationCRUD:
 
         return ClientConfiguration(**obj)
 
-    async def get_all(self) -> List[ClientConfiguration]:
+    async def get_all(self) -> list[ClientConfiguration]:
         col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
         return [ClientConfiguration(**cc) for cc in col.find()]
 

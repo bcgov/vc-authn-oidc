@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from enum import StrEnum, auto
-from typing import Optional
 
 from api.core.models import UUIDModel
 from pydantic import BaseModel, ConfigDict, Field
@@ -27,7 +26,7 @@ class AuthSessionBase(BaseModel):
     request_parameters: dict
     pyop_auth_code: str
     response_url: str
-    presentation_request_msg: Optional[dict] = None
+    presentation_request_msg: dict | None = None
     model_config = ConfigDict(populate_by_name=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 

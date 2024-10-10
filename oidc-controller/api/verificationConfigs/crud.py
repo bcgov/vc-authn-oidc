@@ -1,4 +1,3 @@
-from typing import List
 from fastapi.encoders import jsonable_encoder
 
 from pymongo import ReturnDocument
@@ -42,7 +41,7 @@ class VerificationConfigCRUD:
 
         return VerificationConfig(**ver_conf)
 
-    async def get_all(self) -> List[VerificationConfig]:
+    async def get_all(self) -> list[VerificationConfig]:
         ver_confs = self._db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
         return [VerificationConfig(**vc) for vc in ver_confs.find()]
 
