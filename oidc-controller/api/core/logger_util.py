@@ -5,7 +5,9 @@ from typing import Callable, Any
 
 def log_debug(func: Callable[..., Any]) -> Callable[..., Any]:
     def wrapper(*args, **kwargs):
-        logger = structlog.getLogger(func.__name__)
+        logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(
+            func.__name__
+        )
         logger.debug(f" >>>> {func.__name__}")
         logger.debug(f" ..with params={{{args}}}")
         start_time = time.time()

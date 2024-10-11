@@ -1,4 +1,3 @@
-from typing import List
 from pymongo.database import Database
 
 from fastapi import APIRouter, Depends
@@ -36,7 +35,7 @@ async def create_client_config(
 @router.get(
     "/",
     status_code=http_status.HTTP_200_OK,
-    response_model=List[ClientConfigurationRead],
+    response_model=list[ClientConfigurationRead],
     response_model_exclude_unset=True,
     dependencies=[Depends(get_api_key)],
 )

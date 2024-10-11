@@ -12,7 +12,7 @@ class PyObjectId(ObjectId):
     def __get_pydantic_core_schema__(
         cls, source_type, handler
     ) -> core_schema.CoreSchema:
-        return core_schema.general_plain_validator_function(cls.validate)
+        return core_schema.with_info_plain_validator_function(cls.validate)
 
     @classmethod
     def validate(cls, v, info):

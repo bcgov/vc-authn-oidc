@@ -1,4 +1,3 @@
-from typing import List
 from fastapi.encoders import jsonable_encoder
 
 from pymongo import ReturnDocument
@@ -42,7 +41,7 @@ class VerificationConfigCRUD:
 
         return VerificationConfig(**ver_conf)
 
-    async def get_all(self) -> List[VerificationConfig]:
+    async def get_all(self) -> list[VerificationConfig]:
         ver_confs = self._db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
         return [VerificationConfig(**vc) for vc in ver_confs.find()]
 
@@ -54,7 +53,7 @@ class VerificationConfigCRUD:
         ver_confs = self._db.get_collection(COLLECTION_NAMES.VER_CONFIGS)
         ver_conf = ver_confs.find_one_and_update(
             {"ver_config_id": ver_config_id},
-            {"$set": data.dict(exclude_unset=True)},
+            {"$set": data.model_dump(exclude_unset=True)},
             return_document=ReturnDocument.AFTER,
         )
         check_and_raise_not_found_http_exception(ver_conf, NOT_FOUND_MSG)

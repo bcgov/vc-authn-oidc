@@ -1,4 +1,3 @@
-from typing import List
 from fastapi.responses import HTMLResponse
 from jinja2 import Template
 from pymongo.database import Database
@@ -37,7 +36,7 @@ async def create_ver_config(
 @router.get(
     "/",
     status_code=http_status.HTTP_200_OK,
-    response_model=List[VerificationConfigRead],
+    response_model=list[VerificationConfigRead],
     response_model_exclude_unset=True,
     dependencies=[Depends(get_api_key)],
 )
@@ -54,7 +53,7 @@ async def get_proof_request_explorer(db: Database = Depends(get_db)):
     template = Template(template_file)
     #  get all from VerificationConfigCRUD and add to the jinja template
     ver_configs = await VerificationConfigCRUD(db).get_all()
-    data["ver_configs"] = [vc.dict() for vc in ver_configs]
+    data["ver_configs"] = [vc.model_dump() for vc in ver_configs]
 
     return HTMLResponse(template.render(data))
 

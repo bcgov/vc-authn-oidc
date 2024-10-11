@@ -1,5 +1,4 @@
 import json
-from typing import Optional, Union
 from uuid import UUID
 
 import requests
@@ -10,7 +9,7 @@ from .config import AgentConfig, MultiTenantAcapy, SingleTenantAcapy
 from .models import CreatePresentationResponse, OobCreateInvitationResponse, WalletDid
 
 _client = None
-logger = structlog.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 WALLET_DID_URI = "/wallet/did"
 PUBLIC_WALLET_DID_URI = "/wallet/did/public"
@@ -23,7 +22,7 @@ class AcapyClient:
     acapy_host = settings.ACAPY_ADMIN_URL
     service_endpoint = settings.ACAPY_AGENT_URL
 
-    wallet_token: Optional[str] = None
+    wallet_token: str | None = None
     agent_config: AgentConfig
 
     def __init__(self):
@@ -57,12 +56,12 @@ class AcapyClient:
         assert resp_raw.status_code == 200, resp_raw.content
 
         resp = json.loads(resp_raw.content)
-        result = CreatePresentationResponse.parse_obj(resp)
+        result = CreatePresentationResponse.model_validate(resp)
 
         logger.debug("<<< create_presenation_request")
         return result
 
-    def get_presentation_request(self, presentation_exchange_id: Union[UUID, str]):
+    def get_presentation_request(self, presentation_exchange_id: UUID | str):
         logger.debug(">>> get_presentation_request")
 
         resp_raw = requests.get(
@@ -106,7 +105,7 @@ class AcapyClient:
         else:
             resp_payload = resp["results"][0]
 
-        did = WalletDid.parse_obj(resp_payload)
+        did = WalletDid.model_validate(resp_payload)
 
         logger.debug(f"<<< get_wallet_did -> {did}")
         return did
@@ -136,7 +135,7 @@ class AcapyClient:
         assert resp_raw.status_code == 200, resp_raw.content
 
         resp = json.loads(resp_raw.content)
-        result = OobCreateInvitationResponse.parse_obj(resp)
+        result = OobCreateInvitationResponse.model_validate(resp)
 
         logger.debug("<<< oob_create_invitation")
         return result

@@ -12,7 +12,7 @@ from mongomock import MongoClient
 from typing import Callable
 import structlog
 
-logger = structlog.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 
 def test_answer():
@@ -33,7 +33,7 @@ async def test_client_config_get(db_client: Callable[[], MongoClient]):
     crud = ClientConfigurationCRUD(client.db)
 
     client.db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS).insert_one(
-        test_client_config.dict()
+        test_client_config.model_dump()
     )
 
     result = await crud.get(test_client_config.client_id)
@@ -58,7 +58,7 @@ async def test_client_config_delete(db_client: Callable[[], MongoClient]):
     crud = ClientConfigurationCRUD(client.db)
 
     client.db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS).insert_one(
-        test_client_config.dict()
+        test_client_config.model_dump()
     )
 
     result = await crud.delete(test_client_config.client_id)
@@ -86,7 +86,7 @@ async def test_client_config_patch(db_client: Callable[[], MongoClient], log_out
     crud = ClientConfigurationCRUD(client.db)
 
     client.db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS).insert_one(
-        test_client_config.dict()
+        test_client_config.model_dump()
     )
 
     assert log_output.entries == []
