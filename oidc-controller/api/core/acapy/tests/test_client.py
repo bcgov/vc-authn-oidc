@@ -52,7 +52,7 @@ async def test_create_presentation_returns_sucessfully_with_valid_data(requests_
     )
 
     with mock.patch.object(
-        CreatePresentationResponse, "parse_obj", return_value={"result": "success"}
+        CreatePresentationResponse, "model_validate", return_value={"result": "success"}
     ):
         client = AcapyClient()
         client.agent_config.get_headers = mock.MagicMock(return_value={"x-api-key": ""})
@@ -74,7 +74,7 @@ async def test_create_presentation_throws_assertion_error_with_non_200_resp_from
     )
 
     with mock.patch.object(
-        CreatePresentationResponse, "parse_obj", return_value={"result": "success"}
+        CreatePresentationResponse, "model_validate", return_value={"result": "success"}
     ):
         client = AcapyClient()
         client.agent_config.get_headers = mock.MagicMock(return_value={"x-api-key": ""})
@@ -97,7 +97,7 @@ async def test_create_presentation_throws_error_with_non_json_from_acapy(request
     )
 
     with mock.patch.object(
-        CreatePresentationResponse, "parse_obj", return_value={"result": "success"}
+        CreatePresentationResponse, "model_validate", return_value={"result": "success"}
     ):
         client = AcapyClient()
         client.agent_config.get_headers = mock.MagicMock(return_value={"x-api-key": ""})
@@ -154,7 +154,9 @@ async def test_get_wallet_did_public_returns_sucessfully_on_public_url_and_simpl
         json={"result": "success"},
         status_code=200,
     )
-    with mock.patch.object(WalletDid, "parse_obj", return_value={"result": "success"}):
+    with mock.patch.object(
+        WalletDid, "model_validate", return_value={"result": "success"}
+    ):
         client = AcapyClient()
         client.agent_config.get_headers = mock.MagicMock(return_value={"x-api-key": ""})
         wallet_resp = client.get_wallet_did(public=True)
@@ -171,7 +173,9 @@ async def test_get_wallet_did_public_throws_assertion_error_on_non_200_response(
         json={"result": "success"},
         status_code=400,
     )
-    with mock.patch.object(WalletDid, "parse_obj", return_value={"result": "success"}):
+    with mock.patch.object(
+        WalletDid, "model_validate", return_value={"result": "success"}
+    ):
         client = AcapyClient()
         client.agent_config.get_headers = mock.MagicMock(return_value={"x-api-key": ""})
         try:
@@ -190,7 +194,9 @@ async def test_get_wallet_did_not_public_returns_on_correct_url_and_processes_ar
         json={"results": ["success"]},
         status_code=200,
     )
-    with mock.patch.object(WalletDid, "parse_obj", return_value={"result": "success"}):
+    with mock.patch.object(
+        WalletDid, "model_validate", return_value={"result": "success"}
+    ):
         client = AcapyClient()
         client.agent_config.get_headers = mock.MagicMock(return_value={"x-api-key": ""})
         wallet_resp = client.get_wallet_did(public=False)
