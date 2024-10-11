@@ -42,7 +42,7 @@ testpaths = "oidc-controller"
 asyncio_default_fixture_loop_scope = "function"
 
 [tool.pyright]
-pythonVersion = "3.11"
+pythonVersion = "3.12"
 
 [build-system]
 requires = ["poetry-core"]
