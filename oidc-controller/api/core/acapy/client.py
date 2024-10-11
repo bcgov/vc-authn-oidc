@@ -9,7 +9,7 @@ from .config import AgentConfig, MultiTenantAcapy, SingleTenantAcapy
 from .models import CreatePresentationResponse, OobCreateInvitationResponse, WalletDid
 
 _client = None
-logger = structlog.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 WALLET_DID_URI = "/wallet/did"
 PUBLIC_WALLET_DID_URI = "/wallet/did/public"

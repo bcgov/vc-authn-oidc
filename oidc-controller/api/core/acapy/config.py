@@ -7,7 +7,7 @@ from typing import Protocol
 
 from ..config import settings
 
-logger = structlog.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 
 class AgentConfig(Protocol):

@@ -12,7 +12,7 @@ from mongomock import MongoClient
 from typing import Callable
 import structlog
 
-logger = structlog.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 
 def test_answer():

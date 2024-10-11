@@ -12,7 +12,7 @@ from ..db.session import get_db
 from ..core.config import settings
 from ..routers.socketio import sio, connections_reload
 
-logger = structlog.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 router = APIRouter()
 

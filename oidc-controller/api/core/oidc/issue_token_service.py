@@ -13,7 +13,7 @@ from ...authSessions.models import AuthSession
 from ...verificationConfigs.models import ReqAttr, VerificationConfig
 from ...core.models import RevealedAttribute
 
-logger = structlog.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 PROOF_CLAIMS_ATTRIBUTE_NAME = "vc_presented_attributes"
 
