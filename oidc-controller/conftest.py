@@ -2,6 +2,10 @@ from api.core.config import settings
 
 import pytest
 import mongomock
+import logging
+
+# disable mongodb logging when running tests
+logging.getLogger("pymongo").setLevel(logging.CRITICAL)
 
 
 @pytest.fixture()

@@ -39,6 +39,7 @@ setuptools = "^75.1.0"
 
 [tool.pytest.ini_options]
 testpaths = "oidc-controller"
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.pyright]
 pythonVersion = "3.11"
