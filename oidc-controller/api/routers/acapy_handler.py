@@ -1,4 +1,5 @@
 import json
+from pydantic.plugin import Any
 import structlog
 from datetime import datetime, timedelta
 
@@ -17,7 +18,7 @@ logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 router = APIRouter()
 
 
-async def _parse_webhook_body(request: Request):
+async def _parse_webhook_body(request: Request) -> dict[Any, Any]:
     return json.loads((await request.body()).decode("ascii"))
 
 
