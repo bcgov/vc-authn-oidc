@@ -1,6 +1,5 @@
 import structlog
 
-from typing import List
 from pymongo import ReturnDocument
 from pymongo.database import Database
 from fastapi.encoders import jsonable_encoder
@@ -48,7 +47,7 @@ class ClientConfigurationCRUD:
 
         return ClientConfiguration(**obj)
 
-    async def get_all(self) -> List[ClientConfiguration]:
+    async def get_all(self) -> list[ClientConfiguration]:
         col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
         return [ClientConfiguration(**cc) for cc in col.find()]
 
@@ -58,7 +57,7 @@ class ClientConfigurationCRUD:
         col = self._db.get_collection(COLLECTION_NAMES.CLIENT_CONFIGURATIONS)
         obj = col.find_one_and_update(
             {"client_id": client_id},
-            {"$set": data.dict(exclude_unset=True)},
+            {"$set": data.model_dump(exclude_unset=True)},
             return_document=ReturnDocument.AFTER,
         )
         check_and_raise_not_found_http_exception(obj, NOT_FOUND_MSG)

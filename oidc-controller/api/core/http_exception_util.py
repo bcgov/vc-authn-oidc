@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from fastapi import status as http_status
 import structlog
 
-logger = structlog.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 CONFLICT_DEFAULT_MSG = "The requested resource already exists"
 NOT_FOUND_DEFAULT_MSG = "The requested resource wasn't found"

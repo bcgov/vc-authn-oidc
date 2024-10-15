@@ -1,6 +1,5 @@
 import structlog
 
-from typing import Union
 from pymongo import ReturnDocument
 from pymongo.database import Database
 from fastapi import HTTPException
@@ -44,9 +43,7 @@ class AuthSessionCRUD:
 
         return AuthSession(**auth_sess)
 
-    async def patch(
-        self, id: Union[str, PyObjectId], data: AuthSessionPatch
-    ) -> AuthSession:
+    async def patch(self, id: str | PyObjectId, data: AuthSessionPatch) -> AuthSession:
         if not PyObjectId.is_valid(id):
             raise HTTPException(
                 status_code=http_status.HTTP_400_BAD_REQUEST, detail=f"Invalid id: {id}"
@@ -54,7 +51,7 @@ class AuthSessionCRUD:
         col = self._db.get_collection(COLLECTION_NAMES.AUTH_SESSION)
         auth_sess = col.find_one_and_update(
             {"_id": PyObjectId(id)},
-            {"$set": data.dict(exclude_unset=True)},
+            {"$set": data.model_dump(exclude_unset=True)},
             return_document=ReturnDocument.AFTER,
         )
 

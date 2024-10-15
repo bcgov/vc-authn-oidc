@@ -127,7 +127,7 @@ async def init_provider(db: Database):
     from api.clientConfigurations.crud import ClientConfigurationCRUD
 
     all_client_configs = await ClientConfigurationCRUD(db).get_all()
-    client_db = {d.client_name: d.dict() for d in all_client_configs}
+    client_db = {d.client_name: d.model_dump() for d in all_client_configs}
 
     provider = Provider(
         signing_key,

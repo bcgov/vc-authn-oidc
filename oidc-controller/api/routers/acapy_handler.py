@@ -1,4 +1,5 @@
 import json
+from pydantic.plugin import Any
 import structlog
 from datetime import datetime, timedelta
 
@@ -12,12 +13,12 @@ from ..db.session import get_db
 from ..core.config import settings
 from ..routers.socketio import sio, connections_reload
 
-logger = structlog.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 router = APIRouter()
 
 
-async def _parse_webhook_body(request: Request):
+async def _parse_webhook_body(request: Request) -> dict[Any, Any]:
     return json.loads((await request.body()).decode("ascii"))
 
 
@@ -58,7 +59,7 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                         await sio.emit("status", {"status": "failed"}, to=sid)
 
                 await AuthSessionCRUD(db).patch(
-                    str(auth_session.id), AuthSessionPatch(**auth_session.dict())
+                    str(auth_session.id), AuthSessionPatch(**auth_session.model_dump())
                 )
 
             # abandoned state
@@ -70,7 +71,7 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                     await sio.emit("status", {"status": "abandoned"}, to=sid)
 
                 await AuthSessionCRUD(db).patch(
-                    str(auth_session.id), AuthSessionPatch(**auth_session.dict())
+                    str(auth_session.id), AuthSessionPatch(**auth_session.model_dump())
                 )
 
             # Calcuate the expiration time of the proof
@@ -82,7 +83,7 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
             # Update the expiration time of the proof
             auth_session.expired_timestamp = expired_time
             await AuthSessionCRUD(db).patch(
-                str(auth_session.id), AuthSessionPatch(**auth_session.dict())
+                str(auth_session.id), AuthSessionPatch(**auth_session.model_dump())
             )
 
             # Check if expired. But only if the proof has not been started.
@@ -96,7 +97,7 @@ async def post_topic(request: Request, topic: str, db: Database = Depends(get_db
                     await sio.emit("status", {"status": "expired"}, to=sid)
 
                 await AuthSessionCRUD(db).patch(
-                    str(auth_session.id), AuthSessionPatch(**auth_session.dict())
+                    str(auth_session.id), AuthSessionPatch(**auth_session.model_dump())
                 )
 
             pass

@@ -32,7 +32,7 @@ async def test_ver_config_get(db_client: Callable[[], MongoClient]):
     crud = VerificationConfigCRUD(client.db)
 
     client.db.get_collection(COLLECTION_NAMES.VER_CONFIGS).insert_one(
-        test_ver_config.dict()
+        test_ver_config.model_dump()
     )
 
     result = await crud.get("test_ver_config")
@@ -57,7 +57,7 @@ async def test_ver_config_delete(db_client: Callable[[], MongoClient]):
     crud = VerificationConfigCRUD(client.db)
 
     client.db.get_collection(COLLECTION_NAMES.VER_CONFIGS).insert_one(
-        test_ver_config.dict()
+        test_ver_config.model_dump()
     )
 
     result = await crud.delete("test_ver_config")
@@ -75,7 +75,7 @@ async def test_ver_config_patch(db_client: Callable[[], MongoClient]):
     crud = VerificationConfigCRUD(client.db)
 
     client.db.get_collection(COLLECTION_NAMES.VER_CONFIGS).insert_one(
-        test_ver_config.dict()
+        test_ver_config.model_dump()
     )
 
     result = await crud.patch(
@@ -94,7 +94,7 @@ async def test_ver_config_patch_proof_request(db_client: Callable[[], MongoClien
     client = db_client()
     crud = VerificationConfigCRUD(client.db)
     client.db.get_collection(COLLECTION_NAMES.VER_CONFIGS).insert_one(
-        test_ver_config.dict()
+        test_ver_config.model_dump()
     )
 
     result = await crud.patch(

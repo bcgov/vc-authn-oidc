@@ -3,7 +3,7 @@ import dataclasses
 import json
 import hashlib
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 from oic.oic.message import OpenIDSchema
@@ -13,7 +13,7 @@ from ...authSessions.models import AuthSession
 from ...verificationConfigs.models import ReqAttr, VerificationConfig
 from ...core.models import RevealedAttribute
 
-logger = structlog.getLogger(__name__)
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
 
 PROOF_CLAIMS_ATTRIBUTE_NAME = "vc_presented_attributes"
 
@@ -27,16 +27,16 @@ class Claim(BaseModel):
 class Token(BaseModel):
     creation_time: datetime = datetime.now()
     issuer: str
-    audiences: List[str]
+    audiences: list[str]
     lifetime: int
-    claims: Dict[str, Any]
+    claims: dict[str, Any]
 
     @classmethod
     def get_claims(
         cls, auth_session: AuthSession, ver_config: VerificationConfig
     ) -> dict[str, str]:
         """Converts vc presentation values to oidc claims"""
-        oidc_claims: List[Claim] = [
+        oidc_claims: list[Claim] = [
             Claim(
                 type="pres_req_conf_id",
                 value=auth_session.request_parameters["pres_req_conf_id"],
@@ -49,7 +49,7 @@ class Token(BaseModel):
             Claim(type="nonce", value=auth_session.request_parameters["nonce"])
         )
 
-        presentation_claims: Dict[str, Claim] = {}
+        presentation_claims: dict[str, Claim] = {}
         logger.info(
             "pres_request_token"
             + str(
@@ -69,7 +69,7 @@ class Token(BaseModel):
                 logger.debug(
                     f"Processing referent: {referent}, requested_attr: {requested_attr}"
                 )
-                revealed_attrs: Dict[str, RevealedAttribute] = (
+                revealed_attrs: dict[str, RevealedAttribute] = (
                     auth_session.presentation_exchange["pres"]["indy"][
                         "requested_proof"
                     ]["revealed_attr_groups"]
@@ -102,7 +102,6 @@ class Token(BaseModel):
 
         if sub_id_claim:
             # add sub and append presentation_claims
-            assert type(auth_session.request_parameters["pres_req_conf_id"]) == str
             oidc_claims.append(
                 Claim(
                     type="sub",
@@ -143,7 +142,7 @@ class Token(BaseModel):
     # https://openid.net/specs/openid-connect-core-1_0.html#IDToken
     # and
     # https://github.com/OpenIDC/pyoidc/blob/26ea5121239dad03c5c5551cca149cb984df1ec9/src/oic/oic/message.py#L720
-    def idtoken_dict(self, nonce: str) -> Dict:
+    def idtoken_dict(self, nonce: str) -> dict:
         """Converts oidc claims to IdToken attribute names"""
 
         result = {}  # nest VC attribute claims under the key=pres_req_conf_id
