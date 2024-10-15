@@ -262,15 +262,6 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{/*
-Return true if a database secret should be created
-*/}}
-{{- define "acapy.database.createSecret" -}}
-{{- if not .Values.acapy.walletStorageCredentials.existingSecret -}}
-{{- true -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Return acapy label
 */}}
 {{- define "acapy.label" -}}
