@@ -7,7 +7,7 @@ def sub_days_plus_one(days: str) -> int:
 
 
 variable_substitution_map.add_variable_substitution(
-    r"$sub_days_plus_one_(\d+)", sub_days_plus_one
+    r"\$sub_days_plus_one_(\d+)", sub_days_plus_one
 )
 
 
@@ -20,5 +20,5 @@ def sub_string_for_sure(_: str) -> str:
 
 
 variable_substitution_map.add_variable_substitution(
-    r"$sub_string_for_sure_(.+)", sub_string_for_sure
+    r"\$sub_string_for_sure_(.+)", sub_string_for_sure
 )
