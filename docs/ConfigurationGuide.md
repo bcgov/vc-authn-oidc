@@ -153,3 +153,5 @@ def today_plus_times(added_days: str, multiplied_days: str) -> int:
 # variable_substitution_map will already be defined in variableSubstitutions.py
 variable_substitution_map.add_variable_substitution(r"\$today_plus_(\d+)_times_(\d+)", today_plus_times)
 ```
+
+For an example of this python file see `docker/oidc-controller/config/user_variable_substitution.py`
