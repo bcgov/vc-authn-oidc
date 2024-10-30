@@ -66,6 +66,7 @@ jobs:
           cd trust-over-ip-configurations
           yq e -i '.appVersion = env(APP_VERSION)' services/vc-authn-oidc/charts/test/Chart.yaml
           yq e -i '.version = env(CHART_VERSION)' services/vc-authn-oidc/charts/test/Chart.yaml
+          yq e -i '.dependencies[0].version = env(CHART_VERSION)' services/vc-authn-oidc/charts/test/Chart.yaml
 
       - name: Update prod
         env:
@@ -75,6 +76,7 @@ jobs:
           cd trust-over-ip-configurations
           yq e -i '.appVersion = env(APP_VERSION)' services/vc-authn-oidc/charts/prod/Chart.yaml
           yq e -i '.version = env(CHART_VERSION)' services/vc-authn-oidc/charts/prod/Chart.yaml
+          yq e -i '.dependencies[0].version = env(CHART_VERSION)' services/vc-authn-oidc/charts/prod/Chart.yaml
 
       - name: Commit and Push to trust-over-ip-configurations Repo
         run: |
