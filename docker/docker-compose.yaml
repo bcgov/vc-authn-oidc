@@ -46,7 +46,7 @@ services:
     volumes:
       - ../oidc-controller:/app:rw
       - ./oidc-controller/config/sessiontimeout.json:/home/aries/sessiontimeout.json
-      - ./oidc-controller/config/settings_override.py:/home/aries/settings_override.py
+      - ./oidc-controller/config/user_variable_substitution.py:/home/aries/user_variable_substitution.py
     networks:
       - vc_auth
 
