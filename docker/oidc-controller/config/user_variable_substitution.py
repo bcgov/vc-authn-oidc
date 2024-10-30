@@ -1,6 +1,3 @@
-raise Exception("new exception")
-
-
 def sub_days_plus_one(days: str) -> int:
     """Strings like '$sub_days_plus_one_4' will be replaced with the
     final number icremented by one. In this case 5.
