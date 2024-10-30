@@ -1,8 +1,8 @@
 def sub_days_plus_one(days: str) -> int:
     """Strings like '$sub_days_plus_one_4' will be replaced with the
-    final number icremented by one. In this case 5.
+    final number incremented by one. In this case 5.
     $sub_days_plus_one_4 -> 5
-    $sub_days_plus_one_10 -> 10"""
+    $sub_days_plus_one_10 -> 11"""
     return int(days) + 1
 
 
