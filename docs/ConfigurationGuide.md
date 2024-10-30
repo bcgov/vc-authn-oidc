@@ -125,12 +125,31 @@ and at runtime when the user navigates to the QR code page, the proof would incl
 See the `oidc-controller\api\verificationConfigs\variableSubstitutions.py` file for implementations.
 
 #### Customizing variables
+For user defined variable substitutions users can set the environment
+variable to point at a python file defining new substitutions.
 
-In `oidc-controller\api\verificationConfigs\variableSubstitutions.py` there are the built-in variables above.
-For an advanced use case, if you require further customization, it could be possible to just replace that `variableSubstitutions.py` file 
-in a VC-AuthN implementation and the newly introduced variables would be run if they are included in a proof request configuration.
+##### User Defined Variable API
+In `oidc-controller\api\verificationConfigs\variableSubstitutions.py`
+you will find the method `add_variable_substitution` which can be used
+to modify the existing instance of `VariableSubstitutionMap` named
+`variable_substitution_map`.
 
-For regular variables they can be added to the `static_map`, mapping your variable name to a function doing the operation.  
-For "dynamic" ones alter `__contains__` and `__getitem__` to use a regex to parse and extract what is needed.
+Takes a valid regular expression `pattern` and a function who's
+arguments correspond with each regex group `substitution_function`. Each
+captured regex group will be passed to the function as a `str`.
 
-The file `oidc-controller\api\verificationConfigs\helpers.py` contains the function that recurses through the config doing any substitutions, so it would pick up whatever is available in `variableSubstitutions.py` 
+Here is an example python file that would define a new variable
+substitution `$today_plus_x_times_y` which will add X days multiplied
+by Y days to today's date
+
+```python
+from datetime import datetime, timedelta
+
+def today_plus_times(added_days: str, multiplied_days: str) -> int:
+	return int(
+		((datetime.today() + timedelta(days=int(added_days))) * timedelta(days=int(multiplied_days)))
+	).strftime("%Y%m%d"))
+
+# variable_substitution_map will already be defined in variableSubstitutions.py
+variable_substitution_map.add_variable_substitution(r"\$today_plus_(\d+)_times_(\d+)", today_plus_times)
+```

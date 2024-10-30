@@ -179,6 +179,9 @@ configureEnvironment() {
   # The path to the auth_session timeouts config file
   export CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE="/home/aries/sessiontimeout.json"
 
+  # Extend Variable Substitutions
+  # export CONTROLLER_VARIABLE_SUBSTITUTION_OVERRIDE="/home/aries/settings_override.py"
+
   #controller app settings
   export INVITATION_LABEL=${INVITATION_LABEL:-"VC-AuthN"}
   export SET_NON_REVOKED="True"

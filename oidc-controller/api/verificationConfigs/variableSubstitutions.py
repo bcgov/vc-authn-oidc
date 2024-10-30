@@ -8,6 +8,15 @@ the entire file to suit their own needs.
 from datetime import datetime, timedelta
 import time
 import re
+import copy
+
+import structlog
+from typing_extensions import Callable
+from ..core.config import settings
+
+logger: structlog.typing.FilteringBoundLogger = structlog.getLogger(__name__)
+
+SubstitutionFunction = Callable[..., int | str]
 
 
 class VariableSubstitutionMap:
@@ -20,7 +29,25 @@ class VariableSubstitutionMap:
             "$tomorrow_int": self.get_tomorrow_date,
         }
 
-    def get_threshold_years_date(self, years: int) -> int:
+        self.user_static_map: dict[re.Pattern[str], SubstitutionFunction] = {
+            re.compile(r"\$threshold_years_(\d+)"): self.get_threshold_years_date
+        }
+
+    def add_variable_substitution(
+        self, pattern: str, substitution_function: SubstitutionFunction
+    ):
+        """Takes a valid regular expression PATTERN and a function
+        who's arguments correspond with each regex group
+        SUBSTITUTION_FUNCTION. Each captured regex group will be
+        passed to the function as a str.
+
+        Examples:
+        vsm.add_variable_substitution(r\"\\$years since (\\d+) (\\d+)\", lambda x, y: int(x) + int(y))
+        vsm[f"$years since {10} {12}"] => 22
+        """
+        self.user_static_map[re.compile(pattern)] = substitution_function
+
+    def get_threshold_years_date(self, years: str) -> int:
         """
         Calculate the threshold date for a given number of years.
 
@@ -30,7 +57,9 @@ class VariableSubstitutionMap:
         Returns:
             int: The current date minux X years in YYYYMMDD format.
         """
-        threshold_date = datetime.today().replace(year=datetime.today().year - years)
+        threshold_date = datetime.today().replace(
+            year=datetime.today().year - int(years)
+        )
         return int(threshold_date.strftime("%Y%m%d"))
 
     def get_now(self) -> int:
@@ -63,16 +92,45 @@ class VariableSubstitutionMap:
     # For "dynamic" variables, use a regex to match the key and return a lambda function
     # So a proof request can use $threshold_years_X to get the years back for X years
     def __contains__(self, key: str) -> bool:
-        return key in self.static_map or re.match(r"\$threshold_years_(\d+)", key)
+        res = key in self.static_map
+        if not res:
+            for i in self.user_static_map.keys():
+                if re.match(i, key):
+                    return True
+        return res
 
     def __getitem__(self, key: str):
         if key in self.static_map:
             return self.static_map[key]
-        match = re.match(r"\$threshold_years_(\d+)", key)
-        if match:
-            return lambda: self.get_threshold_years_date(int(match.group(1)))
+        for i, j in self.user_static_map.items():
+            if nmatch := re.match(i, key):
+                return lambda: j(*nmatch.groups())
         raise KeyError(f"Key {key} not found in format_args_function_map")
 
 
 # Create an instance of the custom mapping class
 variable_substitution_map = VariableSubstitutionMap()
+
+
+def apply_user_variables():
+    try:
+        with open(settings.CONTROLLER_VARIABLE_SUBSTITUTION_OVERRIDE) as user_file:
+            og_substitution_map = copy.copy(variable_substitution_map.user_static_map)
+    except TypeError:
+        logger.warning("No user defined variable substitutions file provided")
+        return None
+    except FileNotFoundError:
+        logger.warning("User defined variable substitutions file could not be found")
+        return None
+    else:
+        exec(user_file.read())
+        if len(variable_substitution_map.user_static_map) <= 1:
+            logger.info("No new user created variable substitution where found")
+        for pattern, func in variable_substitution_map.user_static_map.items():
+            if pattern not in og_substitution_map:
+                logger.info(
+                    f'New user created variable substitution: The pattern "{pattern.pattern}" is now mapped to the function {func.__name__}'
+                )
+
+
+apply_user_variables()

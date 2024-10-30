@@ -27,6 +27,7 @@ services:
       - CONTROLLER_PRESENTATION_EXPIRE_TIME=${CONTROLLER_PRESENTATION_EXPIRE_TIME}
       - CONTROLLER_PRESENTATION_CLEANUP_TIME=${CONTROLLER_PRESENTATION_CLEANUP_TIME}
       - CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE=${CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE}
+      - CONTROLLER_VARIABLE_SUBSTITUTION_OVERRIDE=${CONTROLLER_VARIABLE_SUBSTITUTION_OVERRIDE}
       - ACAPY_TENANCY=${AGENT_TENANT_MODE}
       - ACAPY_AGENT_URL=${AGENT_ENDPOINT}
       - ACAPY_ADMIN_URL=${AGENT_ADMIN_URL}
@@ -45,6 +46,7 @@ services:
     volumes:
       - ../oidc-controller:/app:rw
       - ./oidc-controller/config/sessiontimeout.json:/home/aries/sessiontimeout.json
+      - ./oidc-controller/config/settings_override.py:/home/aries/settings_override.py
     networks:
       - vc_auth
 
