@@ -7,7 +7,6 @@ metadata:
     {{- include "acapy.labels" . | nindent 4 }}
   annotations:
     checksum/config: {{ include (print $.Template.BasePath "/agent/configmap.yaml") . | sha256sum }}
-    checksum/db-secret: {{ include (print $.Template.BasePath "/agent/database_secret.yaml") . | sha256sum }}
     checksum/acapy-secrets: {{ include (print $.Template.BasePath "/agent/secrets.yaml") . | sha256sum }}
 spec:
   {{- if not .Values.acapy.autoscaling.enabled }}

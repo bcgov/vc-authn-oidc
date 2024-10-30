@@ -1,8 +1,8 @@
 ## @section Common Configuration
 ##
-## @param nameOverride
+## @param nameOverride String to override the helm chart name, second part of the prefix.
 nameOverride: ""
-## @param fullnameOverride
+## @param fullnameOverride String to fully override the helm chart name, full prefix. *Must be provided if using a custom release name that does not include the name of the helm chart (`vc-authn-oidc`).*
 fullnameOverride: ""
 
 ## @param image.repository
@@ -225,10 +225,10 @@ acapy:
   ## @param acapy.image.tag
   ##
   image:
-    repository: ghcr.io/hyperledger/aries-cloudagent-python
+    repository: ghcr.io/openwallet-foundation/acapy-agent
     pullPolicy: IfNotPresent
     pullSecrets: []
-    tag: py3.12-1.0.0
+    tag: py3.12-1.1.0
 
   ## ServiceAccount configuration
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
@@ -374,8 +374,8 @@ acapy:
     admin_password: ""
     existingSecret: ""
     secretKeys:
-      adminPasswordKey: admin-password
-      userPasswordKey: database-password
+      adminPasswordKey: postgres-password
+      userPasswordKey: password
 
   ## @section Acapy tails persistence configuration
   persistence:
@@ -635,21 +635,12 @@ postgresql:
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/postgresql#creating-a-database-user-on-first-run
   ##
   auth:
-    ## @param postgresql.auth.enablePostgresUser Assign a password to the "postgres" admin user. Otherwise, remote access will be blocked for this user
+    ## @param postgresql.auth.enablePostgresUser Assign a password to the "postgres" admin user. Otherwise, remote access will be blocked for this user. Not recommended for production deployments.
     ##
     enablePostgresUser: true
-    ## @param postgresql.auth.existingSecret Name of existing secret to use for PostgreSQL credentials. `postgresql.auth.postgresPassword`, `postgresql.auth.password`, and `postgresql.auth.replicationPassword` will be ignored and picked up from this secret. The secret might also contains the key `ldap-password` if LDAP is enabled. `ldap.bind_password` will be ignored and picked from this secret in this case.
-    ##
-    existingSecret: '{{ include "global.fullname" . }}'
-    ## @param postgresql.auth.secretKeys.adminPasswordKey Name of key in existing secret to use for PostgreSQL credentials. Only used when `auth.existingSecret` is set.
-    ## @param postgresql.auth.secretKeys.userPasswordKey Name of key in existing secret to use for PostgreSQL credentials. Only used when `auth.existingSecret` is set.
-    ##
-    secretKeys:
-      adminPasswordKey: admin-password
-      userPasswordKey: database-password
     ## @param postgresql.auth.database Name for a custom database to create
     ##
-    database: traction
+    database: askar-wallet
     ## @param postgresql.auth.username Name for a custom user to create
     ##
     username: acapy
