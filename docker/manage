@@ -180,7 +180,7 @@ configureEnvironment() {
   export CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE="/home/aries/sessiontimeout.json"
 
   # Extend Variable Substitutions
-  # export CONTROLLER_VARIABLE_SUBSTITUTION_OVERRIDE="/home/aries/user_variable_substitution.py"
+  export CONTROLLER_VARIABLE_SUBSTITUTION_OVERRIDE="/home/aries/user_variable_substitution.py"
 
   #controller app settings
   export INVITATION_LABEL=${INVITATION_LABEL:-"VC-AuthN"}
