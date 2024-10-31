@@ -128,15 +128,12 @@ def apply_user_variables():
         if len(variable_substitution_map.user_static_map) <= 1:
             logger.info("No new user created variable substitution where found")
 
-        changes = 0
         for pattern, func in variable_substitution_map.user_static_map.items():
             if pattern not in og_substitution_map:
                 logger.info(
                     f'New user created variable substitution: The pattern "{pattern.pattern}" is now mapped to the function {func.__name__}'
                 )
                 changes += 1
-        if changes == 0:
-            logger.info("No user created variable applied")
 
 
 apply_user_variables()
