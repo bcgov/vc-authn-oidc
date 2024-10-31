@@ -133,7 +133,6 @@ def apply_user_variables():
                 logger.info(
                     f'New user created variable substitution: The pattern "{pattern.pattern}" is now mapped to the function {func.__name__}'
                 )
-                changes += 1
 
 
 apply_user_variables()
