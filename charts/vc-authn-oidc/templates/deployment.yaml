@@ -143,7 +143,7 @@ spec:
               subPath: sessiontimeout.json
             - name: custom-variable-substitution
               mountPath: /home/aries/user_variable_substitution.py
-              subPath: sessiontimeout.json
+              subPath: user_variable_substitution.py
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
