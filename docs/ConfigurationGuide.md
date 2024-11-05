@@ -155,3 +155,12 @@ variable_substitution_map.add_variable_substitution(r"\$today_plus_(\d+)_times_(
 ```
 
 For an example of this python file see `docker/oidc-controller/config/user_variable_substitution_example.py`
+
+All that is necessary is the adding of substitution variables.These
+changes will be applied by vc-authn during startup. The variable
+`variable_substitution_map` **will already be defined**.
+
+After loading the python file during the service startup each new user
+defined variable is logged for confirmation. Any failures to load
+these changes will be logged. If no new definitions are found
+indication of this will also be logged
