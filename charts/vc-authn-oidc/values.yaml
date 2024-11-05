@@ -638,9 +638,6 @@ postgresql:
     ## @param postgresql.auth.enablePostgresUser Assign a password to the "postgres" admin user. Otherwise, remote access will be blocked for this user. Not recommended for production deployments.
     ##
     enablePostgresUser: true
-    ## @param postgresql.auth.database Name for a custom database to create
-    ##
-    database: askar-wallet
     ## @param postgresql.auth.username Name for a custom user to create
     ##
     username: acapy
