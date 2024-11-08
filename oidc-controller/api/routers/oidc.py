@@ -212,6 +212,12 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         "controller_host": controller_host,
         "challenge_poll_uri": ChallengePollUri,
         "wallet_deep_link": wallet_deep_link,
+        "title": (
+            ver_config.metadata.title
+            if ver_config.metadata
+            else "Scan with a Digital Wallet"
+        ),
+        "claims": (ver_config.metadata.claims if ver_config.metadata else []),
     }
 
     # Prepare the template

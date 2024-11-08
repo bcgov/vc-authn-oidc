@@ -1,4 +1,5 @@
 import time
+from typing_extensions import TypedDict
 from pydantic import BaseModel, ConfigDict, Field
 
 from .examples import ex_ver_config
@@ -38,11 +39,17 @@ class VerificationProofRequest(BaseModel):
     requested_predicates: list[ReqPred]
 
 
+class MetaData(BaseModel):
+    title: str = Field()
+    claims: list[str] = Field()
+
+
 class VerificationConfigBase(BaseModel):
     subject_identifier: str = Field()
     proof_request: VerificationProofRequest = Field()
     generate_consistent_identifier: bool | None = Field(default=False)
     include_v1_attributes: bool | None = Field(default=False)
+    metadata: MetaData | None = Field(default=None)
 
     def get_now(self) -> int:
         return int(time.time())

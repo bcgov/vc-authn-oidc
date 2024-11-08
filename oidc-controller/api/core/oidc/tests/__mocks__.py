@@ -1341,6 +1341,13 @@ auth_session = AuthSession(
 ver_config = VerificationConfig(
     ver_config_id="verified-email",
     subject_identifier="email",
+    metadata={
+        "title": "Get Name",
+        "claims": [
+            "That you are a BC Resident",
+            "That you are a member of the Law Society of British Columbia",
+        ],
+    },
     proof_request=VerificationProofRequest(
         name="BCGov Verified Email",
         version="1.0",
