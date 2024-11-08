@@ -8,6 +8,7 @@ from functools import lru_cache
 from pathlib import Path
 from pydantic_settings import BaseSettings
 from pydantic import ConfigDict
+from typing import Any
 
 import structlog
 
@@ -227,6 +228,9 @@ class GlobalConfig(BaseSettings):
     )
     SET_NON_REVOKED: bool = strtobool(os.environ.get("SET_NON_REVOKED", True))
 
+    CONTROLLER_VARIABLE_SUBSTITUTION_OVERRIDE: str | None = os.environ.get(
+        "CONTROLLER_VARIABLE_SUBSTITUTION_OVERRIDE"
+    )
     model_config = ConfigDict(case_sensitive=True)
 
 
