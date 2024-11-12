@@ -1,4 +1,5 @@
 import time
+from typing_extensions import Callable
 import pytest
 from datetime import datetime, timedelta
 from api.verificationConfigs.variableSubstitutions import VariableSubstitutionMap
@@ -27,7 +28,17 @@ def test_get_threshold_years_date():
     expected_date = (
         datetime.today().replace(year=datetime.today().year - years).strftime("%Y%m%d")
     )
-    assert vsm.get_threshold_years_date(years) == int(expected_date)
+    assert vsm.get_threshold_years_date(str(years)) == int(expected_date)
+
+
+def test_user_defined_func():
+    vsm = VariableSubstitutionMap()
+    func: Callable[[int], int] = lambda x, y: int(x) + int(y)
+    vsm.add_variable_substitution(r"\$years since (\d+) (\d+)", func)
+    days = 10
+    years = 22
+    assert f"$years since {years} {days}" in vsm
+    assert vsm[f"$years since {years} {days}"]() == years + days
 
 
 def test_contains_static_variable():
