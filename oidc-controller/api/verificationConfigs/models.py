@@ -40,8 +40,8 @@ class VerificationProofRequest(BaseModel):
 
 
 class MetaData(BaseModel):
-    title: str = Field()
-    claims: list[str] = Field()
+    title: str | None = Field(default=None)
+    claims: list[str] | None = Field(default=None)
 
 
 class VerificationConfigBase(BaseModel):

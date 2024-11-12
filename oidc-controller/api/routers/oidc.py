@@ -214,10 +214,14 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         "wallet_deep_link": wallet_deep_link,
         "title": (
             ver_config.metadata.title
-            if ver_config.metadata
+            if ver_config.metadata and ver_config.metadata.title
             else "Scan with a Digital Wallet"
         ),
-        "claims": (ver_config.metadata.claims if ver_config.metadata else []),
+        "claims": (
+            ver_config.metadata.claims
+            if ver_config.metadata and ver_config.metadata.claims
+            else []
+        ),
     }
 
     # Prepare the template
