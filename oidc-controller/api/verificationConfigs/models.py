@@ -41,7 +41,7 @@ class VerificationProofRequest(BaseModel):
 
 class MetaData(BaseModel):
     title: str | None = Field(default=None)
-    claims: list[str] | None = Field(default=None)
+    claims: dict[str, list[str]] | None = Field(default=None)
 
 
 class VerificationConfigBase(BaseModel):
