@@ -220,7 +220,7 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         "claims": (
             ver_config.metadata.claims
             if ver_config.metadata and ver_config.metadata.claims
-            else []
+            else {"en": []}
         ),
     }
 
