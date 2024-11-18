@@ -1,5 +1,4 @@
 import time
-from typing_extensions import TypedDict
 from pydantic import BaseModel, ConfigDict, Field
 
 from .examples import ex_ver_config
