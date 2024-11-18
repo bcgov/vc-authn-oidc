@@ -213,14 +213,18 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         "challenge_poll_uri": ChallengePollUri,
         "wallet_deep_link": wallet_deep_link,
         "title": (
-            ver_config.metadata.title
-            if ver_config.metadata and ver_config.metadata.title
+            ver_config.metadata.title.get("en")
+            if ver_config.metadata
+            and ver_config.metadata.title
+            and ver_config.metadata.title.get("en")
             else "Scan with a Digital Wallet"
         ),
         "claims": (
-            ver_config.metadata.claims
-            if ver_config.metadata and ver_config.metadata.claims
-            else {"en": []}
+            ver_config.metadata.claims.get("en")
+            if ver_config.metadata
+            and ver_config.metadata.claims
+            and ver_config.metadata.claims.get("en")
+            else []
         ),
     }
 
