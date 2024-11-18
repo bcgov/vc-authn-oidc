@@ -39,8 +39,8 @@ class VerificationProofRequest(BaseModel):
 
 
 class MetaData(BaseModel):
-    title: dict[str, str] | None = Field(default=None)
-    claims: dict[str, list[str]] | None = Field(default=None)
+    title: str | None = Field(default=None)
+    claims: list[str] | None = Field(default=None)
 
 
 class VerificationConfigBase(BaseModel):
@@ -48,7 +48,7 @@ class VerificationConfigBase(BaseModel):
     proof_request: VerificationProofRequest = Field()
     generate_consistent_identifier: bool | None = Field(default=False)
     include_v1_attributes: bool | None = Field(default=False)
-    metadata: MetaData | None = Field(default=None)
+    metadata: dict[str, MetaData] | None = Field(default=None)
 
     def get_now(self) -> int:
         return int(time.time())

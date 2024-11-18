@@ -1,6 +1,10 @@
 from datetime import datetime, timedelta
 
-from api.verificationConfigs.models import VerificationConfig, VerificationProofRequest
+from api.verificationConfigs.models import (
+    VerificationConfig,
+    VerificationProofRequest,
+    MetaData,
+)
 from api.authSessions.models import AuthSession
 
 # Presentation returned from the debug webhook
@@ -1342,13 +1346,13 @@ ver_config = VerificationConfig(
     ver_config_id="verified-email",
     subject_identifier="email",
     metadata={
-        "title": {"en": "Get Name"},
-        "claims": {
-            "en": [
+        "en": MetaData(
+            title="Get Name",
+            claims=[
                 "That you are a BC Resident",
                 "That you are a member of the Law Society of British Columbia",
-            ]
-        },
+            ],
+        ),
     },
     proof_request=VerificationProofRequest(
         name="BCGov Verified Email",
