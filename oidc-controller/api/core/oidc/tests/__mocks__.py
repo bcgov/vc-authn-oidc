@@ -1342,7 +1342,7 @@ ver_config = VerificationConfig(
     ver_config_id="verified-email",
     subject_identifier="email",
     metadata={
-        "title": "Get Name",
+        "title": {"en": "Get Name"},
         "claims": {
             "en": [
                 "That you are a BC Resident",
