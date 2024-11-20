@@ -45,8 +45,8 @@ services:
       - 5678:5678
     volumes:
       - ../oidc-controller:/app:rw
-      - ./oidc-controller/config/sessiontimeout.json:/home/aries/sessiontimeout.json
-      - ./oidc-controller/config/user_variable_substitution.py:/home/aries/user_variable_substitution.py
+      - ./oidc-controller/config/sessiontimeout.json:/etc/controller-config/sessiontimeout.json
+      - ./oidc-controller/config/user_variable_substitution.py:/etc/controller-config/user_variable_substitution.py
     networks:
       - vc_auth
 

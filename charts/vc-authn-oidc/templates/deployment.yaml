@@ -36,15 +36,9 @@ spec:
           secret:
             secretName: {{ include "vc-authn-oidc.token.secretName" . }}
             defaultMode: 256
-        - name: auth-session-ttl
+        - name: controller-config
           configMap:
-            name: {{ include "global.fullname" . }}-session-timeout
-        - name: custom-variable-substitution
-          configMap:
-            name:  {{ include "global.fullname" . }}-variable-substitution-config
-            items:
-              - key: user_variable_substitution.py
-                path: user_variable_substitution.py
+            name: {{ include "global.fullname" . }}-controller-config
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -76,10 +70,10 @@ spec:
               value: {{ .Values.controller.cameraRedirectUrl }}
             - name: CONTROLLER_PRESENTATION_EXPIRE_TIME
               value: {{ .Values.controller.presentationExpireTime | quote }}
-            # - name: CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE
-            #   value: /home/aries/sessiontimeout.json
+            - name: CONTROLLER_SESSION_TIMEOUT_CONFIG_FILE
+              value: /etc/controller-config/sessiontimeout.json
             - name: CONTROLLER_VARIABLE_SUBSTITUTION_OVERRIDE
-              value: /home/aries/user_variable_substitution.py
+              value: /etc/controller-config/user_variable_substitution.py
             - name: CONTROLLER_PRESENTATION_CLEANUP_TIME
               value: {{ .Values.controller.sessionTimeout.duration | quote }}
             - name: ACAPY_AGENT_URL
@@ -138,12 +132,8 @@ spec:
           volumeMounts:
             - name: jwt-token
               mountPath: /opt/token
-            - name: auth-session-ttl
-              mountPath: /home/aries/sessiontimeout.json
-              subPath: sessiontimeout.json
-            - name: custom-variable-substitution
-              mountPath: /home/aries/user_variable_substitution.py
-              subPath: user_variable_substitution.py
+            - name: controller-config
+              mountPath: /etc/controller-config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
