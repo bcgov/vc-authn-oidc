@@ -35,6 +35,7 @@ from ..routers.socketio import connections_reload, sio
 
 from ..verificationConfigs.crud import VerificationConfigCRUD
 from ..verificationConfigs.helpers import VariableSubstitutionError
+from ..verificationConfigs.models import MetaData
 
 
 ChallengePollUri = "/poll"
@@ -202,6 +203,11 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
     # BC Wallet deep link
     wallet_deep_link = gen_deep_link(auth_session)
 
+    metadata = (
+        ver_config.metadata["en"]
+        if ver_config.metadata and "en" in ver_config.metadata
+        else MetaData(title="Scan with a Digital Wallet", claims=[])
+    )
     # This is the payload to send to the template
     data = {
         "image_contents": image_contents,
@@ -212,6 +218,8 @@ async def get_authorize(request: Request, db: Database = Depends(get_db)):
         "controller_host": controller_host,
         "challenge_poll_uri": ChallengePollUri,
         "wallet_deep_link": wallet_deep_link,
+        "title": metadata.title,
+        "claims": metadata.claims,
     }
 
     # Prepare the template

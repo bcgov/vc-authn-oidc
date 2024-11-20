@@ -38,11 +38,17 @@ class VerificationProofRequest(BaseModel):
     requested_predicates: list[ReqPred]
 
 
+class MetaData(BaseModel):
+    title: str | None = Field(default=None)
+    claims: list[str] | None = Field(default=None)
+
+
 class VerificationConfigBase(BaseModel):
     subject_identifier: str = Field()
     proof_request: VerificationProofRequest = Field()
     generate_consistent_identifier: bool | None = Field(default=False)
     include_v1_attributes: bool | None = Field(default=False)
+    metadata: dict[str, MetaData] | None = Field(default=None)
 
     def get_now(self) -> int:
         return int(time.time())
