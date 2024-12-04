@@ -51,7 +51,7 @@
 import PrintLogo from '@/assets/images/bc_logo_print.svg';
 
 export default {
-  name: 'BCGovHeader',
+  name: 'OWFHeader',
   data() {
     return {
       PrintLogo: PrintLogo,

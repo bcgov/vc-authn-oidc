@@ -26,7 +26,7 @@
 
 <script>
 export default {
-  name: 'BCGovFooter'
+  name: 'OWFFooter'
 };
 </script>
 

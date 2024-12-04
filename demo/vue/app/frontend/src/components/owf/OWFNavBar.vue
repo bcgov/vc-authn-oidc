@@ -15,7 +15,7 @@
 
 <script>
 export default {
-  name: 'BCGovNavBar'
+  name: 'OWFNavBar'
 };
 </script>
 
