@@ -1,9 +1,9 @@
 <template>
-  <header class="gov-header">
+  <header class="owf-header">
     <!-- header for browser print only -->
     <div class="printHeader d-none d-print-block">
       <img
-        alt="B.C. Government Logo"
+        alt="OpenWallet Foundation Logo"
         class="mr-1 d-inline-block"
         contain
         :src="PrintLogo"
@@ -17,21 +17,21 @@
     </div>
     <v-toolbar color="#003366" flat class="px-md-12 d-print-none">
       <!-- Navbar content -->
-      <a href="https://www2.gov.bc.ca" data-test="btn-header-logo">
+      <a href="https://openwallet.foundation" data-test="btn-header-logo">
         <v-img
-          alt="B.C. Government Logo"
+          alt="OpenWallet Foundation Logo"
           class="d-none d-sm-flex d-md-none"
           contain
           height="3.5rem"
-          src="@/assets/images/bc_logo_square.svg"
+          src="@/assets/images/OpenWallet_Foundation_Logo_Color.svg"
           width="3.5rem"
         />
         <v-img
-          alt="B.C. Government Logo"
+          alt="OpenWallet Foundation Logo"
           class="d-none d-md-flex"
           contain
           height="3.5rem"
-          src="@/assets/images/bc_logo.svg"
+          src="@/assets/images/OpenWallet_Foundation_Logo_Color.svg"
           width="10rem"
         />
       </a>
@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import PrintLogo from '@/assets/images/bc_logo_print.svg';
+import PrintLogo from '@/assets/images/OpenWallet_Foundation_Logo_Color.svg';
 
 export default {
   name: 'OWFHeader',
@@ -70,7 +70,7 @@ export default {
 <style lang="scss" scoped>
 @import '@/assets/scss/style.scss';
 
-.gov-header {
+.owf-header {
   .printHeader {
     align-items: center;
     img {
@@ -83,7 +83,7 @@ export default {
     }
   }
   @media not print {
-    border-bottom: 2px solid #fcba19;
+    border-bottom: 2px solid $custom-lightblue;
   }
   .text-h6 {
     font-family: inherit !important;

@@ -14,7 +14,7 @@
     "logLevel": "silent"
   },
   "serviceClient": {
-    "commonServices": {
+    "customService": {
       "username": "username",
       "password": "password"
     }

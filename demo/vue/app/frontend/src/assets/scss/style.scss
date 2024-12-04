@@ -4,11 +4,11 @@
 @import '~vuetify/src/styles/styles.sass';
 
 // Variables
-$bcgov-blue: #003366;
-$bcgov-blue-secondary: #38598a;
-$bcgov-orange: #fcba19;
-$bcgov-grey: #efefef;
-$bcgov-font: #494949;
+$custom-blue: #4066B2;
+$custom-blue-secondary: #003399;
+$custom-lightblue: #BFCBE5;
+$custom-grey: #efefef;
+$custom-font: #252525;
 
 // Sticky Footer
 body {
@@ -32,12 +32,12 @@ h3 { font-size: 1.3em; }
 h4 { font-size: 1.05em; }
 
 h1, h2, h3, h4, h5 {
-  color: $bcgov-font;
+  color: $custom-font;
   line-height: 1.2;
 }
 
 p {
-  color: $bcgov-font;
+  color: $custom-font;
   line-height: 1.4;
 }
 
@@ -46,7 +46,7 @@ hr {
   border-top: 1px solid lightgrey;
   margin-bottom: 1em;
   .orange {
-    border-top: 2px solid $bcgov-orange;
+    border-top: 2px solid $custom-lightblue;
   }
 }
 
@@ -94,19 +94,19 @@ a, .v-tab {
 // Stepper
 .silv-stepper {
   .header-row {
-    background-color: $bcgov-grey !important;
+    background-color: $custom-grey !important;
   }
   &.v-stepper--alt-labels {
     .v-stepper__step {
       padding-left: 0;
       padding-right: 0;
       .v-stepper__label {
-        color: $bcgov-font;
+        color: $custom-font;
         font-size: .75em;
       }
       &.v-stepper__step--active {
         .v-stepper__label{
-          color: $bcgov-font;
+          color: $custom-font;
           font-weight: bold;
         }
       }

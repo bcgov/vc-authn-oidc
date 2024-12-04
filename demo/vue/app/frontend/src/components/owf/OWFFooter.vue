@@ -1,25 +1,16 @@
 <template>
-  <v-footer class="gov-footer d-print-none">
-    <v-btn text id="footer-home" href="https://www.gov.bc.ca/">
+  <v-footer class="owf-footer d-print-none">
+    <v-btn text id="footer-home" href="https://openwallet.foundation">
       <span>Home</span>
     </v-btn>
-    <v-btn text id="footer-about" href="https://www2.gov.bc.ca/gov/content/about-gov-bc-ca">
-      <span>About gov.bc.ca</span>
+    <v-btn text id="footer-about" href="https://openwallet.foundation/governing-board">
+      <span>About OpenWallet Foundation</span>
     </v-btn>
-    <v-btn text id="footer-disclaimer" href="http://gov.bc.ca/disclaimer">
-      <span>Disclaimer</span>
+    <v-btn text id="footer-disclaimer" href="https://openwallet.foundation/participate">
+      <span>Participate</span>
     </v-btn>
-    <v-btn text id="footer-privacy" href="http://gov.bc.ca/privacy">
-      <span>Privacy</span>
-    </v-btn>
-    <v-btn text id="footer-accessibility" href="http://gov.bc.ca/webaccessibility">
-      <span>Accessibility</span>
-    </v-btn>
-    <v-btn text id="footer-copyright" href="http://gov.bc.ca/copyright">
-      <span>Copyright</span>
-    </v-btn>
-    <v-btn text id="footer-contact" href="https://www2.gov.bc.ca/gov/content/home/contact-us">
-      <span>Contact Us</span>
+    <v-btn text id="footer-privacy" href="https://openwallet.foundation/projects">
+      <span>Projects</span>
     </v-btn>
   </v-footer>
 </template>
@@ -31,7 +22,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.gov-footer {
+.owf-footer {
   background-color: #003366 !important;
   border-top: 2px solid #fcba19;
   flex-shrink: 0;

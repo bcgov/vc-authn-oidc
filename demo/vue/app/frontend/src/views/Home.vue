@@ -22,7 +22,7 @@
     <h4>ACA-Py Wallet:</h4>
     <ul>
       <li>
-        Wallet needs a public did (for connectionless present-proof requests)
+        Wallet needs a public did (for connection-less present-proof requests)
       </li>
     </ul>
     <br />
@@ -31,12 +31,8 @@
     <ul>
       <li>
         Navigate to the controller
-        <a href="http://localhost:5201/docs">swagger</a> and POST to
+        <a href="http://localhost:5000/docs">swagger</a> and POST to
         '/ver_configs' with the default payload
-      </li>
-      <li>
-        Click "Login" in the top right, then click "Verifiable Credential
-        Access"
       </li>
     </ul>
     <br />
