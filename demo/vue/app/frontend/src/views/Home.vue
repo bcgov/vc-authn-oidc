@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h1 class="my-6 text-center">Welcome to vc-authn-oidc demo application.</h1>
+    <h1 class="my-6 text-center">Welcome to acapy-vc-authn-oidc demo application.</h1>
     <h2>Pre-requisites</h2>
     <br />
     <h4>Mobile Wallet</h4>

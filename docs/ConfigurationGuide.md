@@ -15,7 +15,7 @@ The first step is to add VC Authn as a new Identity Provider for our AIM system.
 3. We will now configure the Open Id Connect parameters for our new provider.
 
 [!NOTE]
-VC-AuthN exposes the `.well-known/openid-configuration` endpoint to provide systems that support it automatic discovery of the endpoints and features of the Identity Provider. If you decide to do so, switch on **Use discovery endpoint** and enter `{VC_AUTHN_PUBLIC_URL}/.well-known/openid-configuration` to proceed.
+ACAPy VC-AuthN exposes the `.well-known/openid-configuration` endpoint to provide systems that support it automatic discovery of the endpoints and features of the Identity Provider. If you decide to do so, switch on **Use discovery endpoint** and enter `{VC_AUTHN_PUBLIC_URL}/.well-known/openid-configuration` to proceed.
 
 To input settings manually, or review them:
 
@@ -25,11 +25,11 @@ To input settings manually, or review them:
 
 - **Disable User Info**: it is recommended to disable the user info endpoint, since VC Authn does not store/provide user information.
 
-- **Client ID/Client Secret**: these settings will be used to identify and secure the IdP integration between Keycloak and VC Authn. Make sure the **client secret** parameter is unique to your VC Authn instance. VC-AuthN supports two methods of client authentication: `Client secret sent as basic auth` and `Client secret sent as post`.
+- **Client ID/Client Secret**: these settings will be used to identify and secure the IdP integration between Keycloak and VC Authn. Make sure the **client secret** parameter is unique to your VC Authn instance. ACAPy VC-AuthN supports two methods of client authentication: `Client secret sent as basic auth` and `Client secret sent as post`.
 
 - **Default Scopes**: this must be set to `vc_authn` to instruct the AIM broker which scopes to request from the IdP.
 
-- **Validate Signatures**: if you want to have the signature of VC-AuthN validated by Keycloak, turn this on, flip the `Use JWKS URL` to true and set `JWKS URL` to `{PUBLIC_VC_AUTHN_URL}/.well-known/openid-configuration/jwks`.
+- **Validate Signatures**: if you want to have the signature of ACAPy VC-AuthN validated by Keycloak, turn this on, flip the `Use JWKS URL` to true and set `JWKS URL` to `{PUBLIC_VC_AUTHN_URL}/.well-known/openid-configuration/jwks`.
 
 - **Forwarded Query Parameters**: set this to `pres_req_conf_id`. This parameter is used by VC Authn to lookup in its database the configuration to generate presentation request to be displayed to the user and the AIM system needs to forward it when initiating the authentication.
 
@@ -39,7 +39,7 @@ Save the settings and take note of the generated **Redirect URI** and **Client I
 
 ### Configuring VC Authn
 
-VC-AuthN can be configured by using the API endpoints exposed on Swagger at `VC_AUTHN_PUBLIC_URL}/docs`. The `oidc_clients` namespace provides RESTful APIs to create/delete/update clients.
+ACAPy VC-AuthN can be configured by using the API endpoints exposed on Swagger at `VC_AUTHN_PUBLIC_URL}/docs`. The `oidc_clients` namespace provides RESTful APIs to create/delete/update clients.
 
 To register a new client, `POST` a request to the `/clients` endpoint with a payload containing the client id/secret and redirect URL noted at the previous step. Example:
 
@@ -68,17 +68,17 @@ The following is an example mapper configuration:
 
 ## Direct Configuration
 
-VC-AuthN 2.0 only supports confidential clients, and cannot be configured to be invoked directly from Single-Page applications. For back-end systems, however, the above instructions should still apply.
+ACAPy VC-AuthN 2.0 only supports confidential clients, and cannot be configured to be invoked directly from Single-Page applications. For back-end systems, however, the above instructions should still apply.
 
 ## Environment Variables
 
-Several functions in VC-AuthN can be tweaked by using the following environment variables.
+Several functions in ACAPy VC-AuthN can be tweaked by using the following environment variables.
 
 | Variable                  | Type                                   | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                           | NOTES                                                                                                                                   |
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
 | SET_NON_REVOKED           | bool                                   | if True, the `non_revoked` attributed will be added to each of the present-proof request `requested_attribute` and `requested_predicate` with 'from=0' and'to=`int(time.time())`                                                                                                                                                                                                                                                                       |                                                                                                                                         |
-| USE_OOB_PRESENT_PROOF     | bool                                   | if True, the present-proof request will be provided as a an [out of band](https://github.com/hyperledger/aries-rfcs/tree/main/features/0434-outofband) invitation with a [present-proof](https://github.com/hyperledger/aries-rfcs/tree/main/features/0037-present-proof) request inside. If False, the present-proof request will be use the [service-decorator](https://github.com/hyperledger/aries-rfcs/tree/main/features/0056-service-decorator) | **TRUE:** BC Wallet supports our OOB Message with a minor glitch, BiFold, Lissi, Trinsic, and Estatus all read the QR code as 'Invalid' |
-| USE_OOB_LOCAL_DID_SERVICE | bool                                   | Instructs VC-AuthN to use a local DID, it must be used when the agent service is not registered on the ledger with a public DID                                                                                                                                                                                                                                                                                                                        | Use this when `ACAPY_WALLET_LOCAL_DID` is set to `true` in the agent.                                                                   |
+| USE_OOB_PRESENT_PROOF     | bool                                   | if True, the present-proof request will be provided as a an [out of band](https://github.com/hyperledger/aries-rfcs/tree/main/features/0434-outofband) invitation with a [present-proof](https://github.com/hyperledger/aries-rfcs/tree/main/features/0037-present-proof) request inside. If False, the present-proof request will be use the [service-decorator](https://github.com/hyperledger/aries-rfcs/tree/main/features/0056-service-decorator) | **TRUE:** BC Wallet supports our OOB Message, BiFold, Lissi, Trinsic, and Estatus all read the QR code as 'Invalid' |
+| USE_OOB_LOCAL_DID_SERVICE | bool                                   | Instructs ACAPy VC-AuthN to use a local DID, it must be used when the agent service is not registered on the ledger with a public DID                                                                                                                                                                                                                                                                                                                        | Use this when `ACAPY_WALLET_LOCAL_DID` is set to `true` in the agent.                                                                   |
 | USE_URL_DEEP_LINK         | bool                                   | If True, in Mobile mode the BC Wallet deep link will use an encoded URL (`WALLET_DEEP_LINK_PREFIX?_url={redirect URL}`), otherwise will use the encoded connection invitation (`{WALLET_DEEP_LINK_PREFIX}?c_i={connection invitation payload}`)                                                                                                                                                                                                        | Default False/.. To control using the `?_url` handler                                                                                   |
 | WALLET_DEEP_LINK_PREFIX   | string                                 | Custom URI scheme and host to use for deep links (e.g. `{WALLET_DEEP_LINK_PREFIX}?c_i={connection invitation payload`)                                                                                                                                                                                                                                                                                                                                 | Default bcwallet://aries_proof-request                                                                                                  |
 | LOG_WITH_JSON             | bool                                   | If True, logging output should printed as JSON if False it will be pretty printed.                                                                                                                                                                                                                                                                                                                                                                     | Default behavior will print as JSON.                                                                                                    |
@@ -89,16 +89,16 @@ Several functions in VC-AuthN can be tweaked by using the following environment 
 
 The basic structure of a proof-request configuration is described [here](README.md#data-model). Additional options are described via the Swagger document, and listed below:
 
-- `include_v1_attributes`: defaults to `false`, switch to `true` if root-level claims as presented in VC-AuthN v1 are still required for the proof-request.
+- `include_v1_attributes`: defaults to `false`, switch to `true` if root-level claims as presented in ACAPy VC-AuthN v1 are still required for the proof-request.
 
 ### Proof Substitution Variables
 
-Proof Request configurations (as described [here](README.md#data-model)) are pre-set records stored in the VC-AuthN database comprising of the details to make the proof request from.
+Proof Request configurations (as described [here](README.md#data-model)) are pre-set records stored in the ACAPy VC-AuthN database comprising of the details to make the proof request from.
 At runtime when the user is directed to the proof challenge, the appropriate configuration is fetched and the proof request built from that.  
 In certain use cases you may want the proof request to have a specific value in the proof (probably in a requested predicate) generated at that moment rather than preset. 
 
 An example could be using today's date, a "right now" timestamp, or an age-check (IE today's date minus 19 years).  
-To accomodate this, VC-AuthN **proof substitution variables** can be used as placeholders in the configurations. They can just be added as string in the configuration with a `$` prefix.
+To accomodate this, ACAPy VC-AuthN **proof substitution variables** can be used as placeholders in the configurations. They can just be added as string in the configuration with a `$` prefix.
 There are a handful of built-in options:
 
 | Substitution Variable     | Details                                                                                   |
@@ -157,7 +157,7 @@ variable_substitution_map.add_variable_substitution(r"\$today_plus_(\d+)_times_(
 For an example of this python file see `docker/oidc-controller/config/user_variable_substitution_example.py`
 
 All that is necessary is the adding of substitution variables.These
-changes will be applied by vc-authn during startup. The variable
+changes will be applied by ACAPy VC-AuthN during startup. The variable
 `variable_substitution_map` **will already be defined**.
 
 After loading the python file during the service startup each new user

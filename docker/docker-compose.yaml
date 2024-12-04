@@ -1,7 +1,7 @@
 version: "3"
 services:
   controller:
-    image: vc-authn-oidc-controller
+    image: acapy-vc-authn-oidc-controller
     entrypoint: /bin/bash
     command: >
       -c "

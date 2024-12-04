@@ -19,7 +19,7 @@ class OutOfBandMessage(BaseModel):
     )
     goal_code: str = Field(default="request-proof")
     label: str = Field(
-        default="vc-authn Out-of-Band present-proof authorization request"
+        default="acapy-vc-authn Out-of-Band present-proof authorization request"
     )
     request_attachments: list[OutOfBandPresentProofAttachment] = Field(
         alias="requests~attach"
