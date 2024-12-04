@@ -1,4 +1,4 @@
-from ..aries import OutOfBandMessage
+from . import OutOfBandMessage
 
 from pydantic import BaseModel
 

@@ -15,7 +15,9 @@ class OOBServiceDecorator(ServiceDecorator):
     recipient_keys: list[str] | None = Field(default=None, alias="recipientKeys")
     routing_keys: list[str] | None = Field(default=None, alias="routingKeys")
     service_endpoint: str | None = Field(default=None, alias="serviceEndpoint")
-    id: str = Field(default="did:vc-authn-oidc:123456789zyxwvutsr#did-communication")
+    id: str = Field(
+        default="did:acapy-vc-authn-oidc:123456789zyxwvutsr#did-communication"
+    )
     type: str = Field(default="did-communication")
     priority: int = 0
 

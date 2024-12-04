@@ -88,7 +88,7 @@ export default function getRouter(basePath = '/') {
         document.title = to.meta.title
           ? to.meta.title
           : process.env.VUE_APP_TITLE;
-      } else document.title = 'Demo VC-Authn-OIDC App'; // default title
+      } else document.title = 'Demo ACAPy VC-Authn-OIDC App'; // default title
 
       if (to.query.r && isFirstTransition) {
         router.replace({
