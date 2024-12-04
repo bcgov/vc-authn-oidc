@@ -1,5 +1,5 @@
-name: Publish VC-AuthN Image
-run-name: Publish VC-AuthN ${{ inputs.tag || github.event.release.tag_name }} Image
+name: Publish ACAPy VC-AuthN Image
+run-name: Publish ACAPy VC-AuthN ${{ inputs.tag || github.event.release.tag_name }} Image
 on:
   release:
     types: [published]
@@ -47,11 +47,11 @@ env:
 
 jobs:
   publish_image:
-    if: github.repository_owner == 'bcgov'
+    if: github.repository_owner == 'openwallet-foundation'
     strategy:
       fail-fast: false
 
-    name: Publish VC-AuthN Image
+    name: Publish ACAPy VC-AuthN Image
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.values.outputs.image_tag }}
@@ -90,7 +90,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/${{ steps.info.outputs.repo-owner }}/vc-authn-oidc
+            ghcr.io/${{ steps.info.outputs.repo-owner }}/acapy-vc-authn-oidc
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
