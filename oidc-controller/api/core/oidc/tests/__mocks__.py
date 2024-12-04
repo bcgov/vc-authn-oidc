@@ -1355,7 +1355,7 @@ ver_config = VerificationConfig(
         ),
     },
     proof_request=VerificationProofRequest(
-        name="BCGov Verified Email",
+        name="Verified Email",
         version="1.0",
         requested_attributes=[
             {
