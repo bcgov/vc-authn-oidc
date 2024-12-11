@@ -6,54 +6,11 @@ on:
       - main
 jobs:
   build:
-    name: "Build VC-AuthN"
-    if: github.repository_owner == 'bcgov'
+    name: "Build ACAPy VC-AuthN"
+    if: github.repository_owner == 'openwallet-foundation'
     uses: ./.github/workflows/publish.yml
     with:
       tag: "dev"
       ref: "main"
       platforms: "linux/amd64"
 
-  # Build vc-authn
-  deploy_dev:
-    name: Deploy VC-AuthN to Dev
-    environment: dev
-    runs-on: ubuntu-latest
-    needs:
-      - build
-    if: ${{ contains(needs.*.result, 'success') && !(contains(needs.*.result, 'failure')) && (github.repository_owner == 'bcgov') }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Checkout services directory from the trust-over-ip-configurations repo
-        uses: actions/checkout@v4
-        with:
-          repository: bcgov/trust-over-ip-configurations
-          ssh-key: ${{ secrets.DITP_CONFIGS_REPO_SECRET }}
-          sparse-checkout: |
-            services
-          path: trust-over-ip-configurations
-      
-      - name: Install OpenShift CLI tools
-        uses: redhat-actions/openshift-tools-installer@v1
-        with:
-          oc: "4.14"
-
-      - name: Authenticate and set context
-        uses: redhat-actions/oc-login@v1
-        with:
-          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER }}
-          openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
-          namespace: ${{ secrets.OPENSHIFT_NAMESPACE }}
-
-      - name: Deploy VC-Authn-OIDC to Development
-        run: |
-          cp trust-over-ip-configurations/services/vc-authn-oidc/charts/dev/values.yaml ./dev-values.yaml
-          yq e -i 'del(.vc-authn-oidc) | . *= load("trust-over-ip-configurations/services/vc-authn-oidc/charts/dev/values.yaml").vc-authn-oidc' ./dev-values.yaml
-          helm upgrade --install vc-authn-oidc -f ./dev-values.yaml --set image.tag=${{ needs.build.outputs.image_version }} ./charts/vc-authn-oidc --wait
-
-      - name: Restart Deployments
-        run: |
-          oc rollout restart deployment/vc-authn-oidc-agent
-          oc rollout restart deployment/vc-authn-oidc

@@ -2,7 +2,7 @@ import json
 import base64
 
 from pydantic import BaseModel, ConfigDict, Field
-from api.core.aries import PresentProofv20Attachment, ServiceDecorator
+from api.core.acapy import PresentProofv20Attachment, ServiceDecorator
 
 
 class PresentationRequestMessage(BaseModel):

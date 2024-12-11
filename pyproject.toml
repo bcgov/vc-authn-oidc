@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "vc-authn-oidc"
+name = "acapy-vc-authn-oidc"
 version = "0.2.2"
 description = "Verifiable Credential Identity Provider for OpenID Connect."
 authors = ["Government of British Columbia <[DItrust@gov.bc.ca](mailto:DItrust@gov.bc.ca)>"]
@@ -10,7 +10,7 @@ classifiers = [
             "License :: OSI Approved :: Apache Software License",
 	        "Operating System :: OS Independent",
 ]
-repository = "https://github.com/bcgov/vc-authn-oidc"
+repository = "https://github.com/openwallet-foundation/acapy-vc-authn-oidc"
 
 [tool.poetry.dependencies]
 python = ">=3.12,<4.0"

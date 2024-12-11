@@ -1,12 +1,12 @@
 <template>
   <v-container>
-    <h1 class="my-6 text-center">Welcome to vc-authn-oidc demo application.</h1>
+    <h1 class="my-6 text-center">Welcome to acapy-vc-authn-oidc demo application.</h1>
     <h2>Pre-requisites</h2>
     <br />
     <h4>Mobile Wallet</h4>
     <ul>
       <li>
-        Download BC Wallet to a mobile device
+        Download a mobile wallet such as BC Wallet
         <a
           href="https://www2.gov.bc.ca/gov/content/governments/government-id/bc-wallet"
         >https://www2.gov.bc.ca/gov/content/governments/government-id/bc-wallet</a
@@ -22,7 +22,7 @@
     <h4>ACA-Py Wallet:</h4>
     <ul>
       <li>
-        Wallet needs a public did (for connectionless present-proof requests)
+        Wallet needs a public did (for connection-less present-proof requests)
       </li>
     </ul>
     <br />
@@ -31,12 +31,8 @@
     <ul>
       <li>
         Navigate to the controller
-        <a href="http://localhost:5201/docs">swagger</a> and POST to
+        <a href="http://localhost:5000/docs">swagger</a> and POST to
         '/ver_configs' with the default payload
-      </li>
-      <li>
-        Click "Login" in the top right, then click "Verifiable Credential
-        Access"
       </li>
     </ul>
     <br />
