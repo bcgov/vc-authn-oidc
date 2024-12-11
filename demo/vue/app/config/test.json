@@ -12,11 +12,5 @@
       "clientSecret": "password"
     },
     "logLevel": "silent"
-  },
-  "serviceClient": {
-    "customService": {
-      "username": "username",
-      "password": "password"
-    }
   }
 }
