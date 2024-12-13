@@ -69,7 +69,7 @@ curl -X 'POST' \
         "names": ["attr1", "attr2", "attr3"],
         "restrictions": [
           {
-              "schema_name": "test-schema",
+              "schema_name": "test-schema"
           }
         ]
       }
