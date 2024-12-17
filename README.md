@@ -1,8 +1,7 @@
-[![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-[![unit-tests](https://github.com/bcgov/vc-authn-oidc/actions/workflows/controller_unittests.yml/badge.svg?branch=main&event=push)](https://github.com/bcgov/vc-authn-oidc/actions/workflows/controller_unittests.yml)
-[![Coverage Status](https://coveralls.io/repos/github/bcgov/vc-authn-oidc/badge.svg?branch=main)](https://coveralls.io/repos/github/bcgov/vc-authn-oidc/badge.svg?branch=main)
+[![unit-tests](https://github.com/openwallet-foundation/acapy-vc-authn-oidc/actions/workflows/controller_unittests.yml/badge.svg?branch=main&event=push)](https://github.com/openwallet-foundation/acapy-vc-authn-oidc/actions/workflows/controller_unittests.yml)
+[![Coverage Status](https://coveralls.io/repos/github/openwallet-foundation/acapy-vc-authn-oidc/badge.svg?branch=main)](https://coveralls.io/repos/github/openwallet-foundation/acapy-vc-authn-oidc/badge.svg?branch=main)
 
 # Verifiable Credential Authentication with OpenID Connect (VC-AuthN OIDC)
 
@@ -58,24 +57,19 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "ver_config_id": "showcase-person",
+  "ver_config_id": "test-proof",
   "subject_identifier": "",
   "generate_consistent_identifier": true,
   "proof_request": {
-    "name": "BC Wallet Showcase Person",
+    "name": "Test Proof-Request",
     "version": "1.0",
     "requested_attributes": [
 
       {
-        "names": ["given_names", "family_name", "country"],
+        "names": ["attr1", "attr2", "attr3"],
         "restrictions": [
           {
-              "schema_name": "Person",
-              "issuer_did": "QEquAHkM35w4XVT3Ku5yat"
-          },
-          {
-              "schema_name": "Person",
-              "issuer_did": "RGjWbW1eycP7FrMf4QJvX8"
+              "schema_name": "test-schema"
           }
         ]
       }

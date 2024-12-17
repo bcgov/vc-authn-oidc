@@ -1,7 +1,7 @@
 <template>
   <v-app>
-    <BCGovHeader />
-    <BCGovNavBar />
+    <OWFHeader />
+    <OWFNavBar />
 
     <v-main>
       <transition name="component-fade" mode="out-in">
@@ -9,21 +9,21 @@
       </transition>
     </v-main>
 
-    <BCGovFooter />
+    <OWFFooter />
   </v-app>
 </template>
 
 <script>
-import BCGovHeader from '@/components/bcgov/BCGovHeader.vue';
-import BCGovFooter from '@/components/bcgov/BCGovFooter.vue';
-import BCGovNavBar from '@/components/bcgov/BCGovNavBar.vue';
+import OWFHeader from '@/components/owf/OWFHeader.vue';
+import OWFFooter from '@/components/owf/OWFFooter.vue';
+import OWFNavBar from '@/components/owf/OWFNavBar.vue';
 
 export default {
   name: 'App',
   components: {
-    BCGovHeader,
-    BCGovFooter,
-    BCGovNavBar
+    OWFHeader,
+    OWFFooter,
+    OWFNavBar
   }
 };
 </script>

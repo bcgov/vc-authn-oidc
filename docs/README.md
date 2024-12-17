@@ -20,7 +20,7 @@ The integration this document defines is how holders of verifiable credentials c
 
 Like any new technology there is adoption required of new concepts, this particular integration aims to provide an easy integration path that allows parties to start leveraging the power of verifiable credentials for user authentication in a non-disruptive fashion. This is achieved by extending the vastly popular [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html) family of specifications.
 
-In reference to the above diagram. A supporting OP will act as the verifier on behalf of a RP for a verifiable credentials presentation. This mode of integration means RP's that already support OIDC only have to extend their support to making VC-AuthN based OIDC requests to a supported OP, rather than adding full support for verifiable credential interactions directly. The holder will use an IdentityWallet (IW) mobile app to store their verifiable credentials and manage presentation requests from verifiers.
+In reference to the above diagram. A supporting OP will act as the verifier on behalf of a RP for a verifiable credentials presentation. This mode of integration means RP's that already support OIDC only have to extend their support to making ACAPy VC-AuthN based OIDC requests to a supported OP, rather than adding full support for verifiable credential interactions directly. The holder will use an IdentityWallet (IW) mobile app to store their verifiable credentials and manage presentation requests from verifiers.
 
 ## Abbreviations
 

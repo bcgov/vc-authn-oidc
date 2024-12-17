@@ -12,11 +12,5 @@
       "clientSecret": "password"
     },
     "logLevel": "silent"
-  },
-  "serviceClient": {
-    "commonServices": {
-      "username": "username",
-      "password": "password"
-    }
   }
 }

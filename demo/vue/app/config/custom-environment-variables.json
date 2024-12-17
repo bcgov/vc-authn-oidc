@@ -23,18 +23,5 @@
     "logFile": "SERVER_LOGFILE",
     "logLevel": "SERVER_LOGLEVEL",
     "port": "SERVER_PORT"
-  },
-  "serviceClient": {
-    "commonServices": {
-      "ches": {
-        "endpoint": "SC_CS_CHES_ENDPOINT"
-      },
-      "cdogs": {
-        "endpoint": "SC_CS_CDOGS_ENDPOINT"
-      },
-      "tokenEndpoint": "SC_CS_TOKEN_ENDPOINT",
-      "username": "SC_CS_USERNAME",
-      "password": "SC_CS_PASSWORD"
-    }
   }
 }

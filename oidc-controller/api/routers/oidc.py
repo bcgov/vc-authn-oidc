@@ -19,7 +19,7 @@ from pyop.exceptions import InvalidAuthenticationRequest
 from ..authSessions.crud import AuthSessionCreate, AuthSessionCRUD
 from ..authSessions.models import AuthSessionPatch, AuthSessionState, AuthSession
 from ..core.acapy.client import AcapyClient
-from ..core.aries import (
+from ..core.acapy import (
     PresentationRequestMessage,
     PresentProofv20Attachment,
     ServiceDecorator,

@@ -1,5 +1,4 @@
 import 'nprogress/nprogress.css';
-import '@bcgov/bc-sans/css/BCSans.css';
 import '@/assets/scss/style.scss';
 
 import axios from 'axios';
