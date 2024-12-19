@@ -38,7 +38,7 @@
     "compression": "^1.7.5",
     "config": "^3.3.12",
     "crypto": "^1.0.1",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "express-winston": "^4.2.0",
     "form-data": "^4.0.1",
     "fs-extra": "^11.2.0",
