@@ -9,7 +9,7 @@ from ..authSessions.crud import AuthSessionCRUD
 from ..authSessions.models import AuthSession, AuthSessionState
 
 from ..core.config import settings
-from ..routers.socketio import sio, connections_reload
+from ..routers.socketio import buffered_emit, connections_reload
 from ..routers.oidc import gen_deep_link
 from ..db.session import get_db
 
@@ -49,16 +49,11 @@ async def send_connectionless_proof_req(
         pres_exch_id
     )
 
-    # Get the websocket session
-    connections = connections_reload()
-    sid = connections.get(str(auth_session.id))
-
     # If the qrcode has been scanned, toggle the verified flag
     if auth_session.proof_status is AuthSessionState.NOT_STARTED:
         auth_session.proof_status = AuthSessionState.PENDING
         await AuthSessionCRUD(db).patch(auth_session.id, auth_session)
-        if sid:
-            await sio.emit("status", {"status": "pending"}, to=sid)
+        await buffered_emit("status", {"status": "pending"}, to_pid=auth_session.id)
 
     msg = auth_session.presentation_request_msg
 
